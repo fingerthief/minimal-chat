@@ -14,10 +14,29 @@ function AppViewModel() {
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem("gpt-attitude") || 50);
     this.isSidebarOpen = ko.observable(false);
+    self.selectedModel = ko.observable(localStorage.getItem('selectedModel') || 'gpt-3.5-turbo');
 
+    if (!localStorage.getItem("selectedModel")) {
+        localStorage.setItem("selectedModel", self.selectedModel());
+    }
+
+    self.saveSelectedModel = function () {
+        localStorage.setItem('selectedModel', self.selectedModel());
+    };
+    
+    self.selectedModel.subscribe(() => {
+        self.saveSelectedModel();
+    });
+    
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.sidebar') && !event.target.closest('.settings-btn')) {
+            this.isSidebarOpen(false);
+        }
+    });
+    
     this.toggleSidebar = () => {
         this.isSidebarOpen(!this.isSidebarOpen());
-    };
+    };    
 
     function wrapCodeSnippets(input) {
         const codeSnippetRegex = /`([^`]+)`/g;
@@ -36,7 +55,7 @@ function AppViewModel() {
         return wrapped;
     }
 
-    async function fetchGPTResponse(conversation, attitude) {
+    async function fetchGPTResponse(conversation, attitude, model) {
         const prompt = `Me: ${conversation}\nAI:`;
         let storedApiKey = localStorage.getItem("gpt3Key");
 
@@ -57,7 +76,7 @@ function AppViewModel() {
                     "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
                 },
                 body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
+                    model: model,
                     messages: conversation,
                     temperature: attitude * 0.01
                 }),
@@ -95,7 +114,7 @@ function AppViewModel() {
         self.isLoading(true);
 
         try {
-            const response = await fetchGPTResponse(self.messages(), self.sliderValue());
+            const response = await fetchGPTResponse(self.messages(), self.sliderValue(), self.selectedModel());
             self.isLoading(false);
             self.messages.push({ role: 'assistant', content: response });
             hljs.highlightAll();

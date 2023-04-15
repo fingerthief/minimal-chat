@@ -12,18 +12,29 @@
     <div class="app-container">
         <div class="sidebar" data-bind="css: { open: isSidebarOpen }">
             <!-- Add settings content here -->
-            <h2>Settings</h2>
+            <div class="settings-header">
+                <h2>Settings</h2>
+            </div>
             <div class="api-key">
-                <label for="api-key">OpenAI API Key:</label>
+                <label for="api-key">API Key:</label>
                 <input type="password" id="api-key" placeholder="Enter your API Key...">
             </div>
             <div class="slider-container">
-                <span>Temperament:</span>
-                <span data-bind="text: sliderValue"></span>
+                <span>Creative</span>
                 <input type="range" min="0" max="100" data-bind="value: sliderValue">
+                <span>Serious</span>
             </div>
-            <button id="clear-messages" data-bind="click: clearMessages">Reset Conversation</button>
-            <button class="close-btn" data-bind="click: toggleSidebar">Close</button>
+            <div class="control">
+                <label for="model-selector">Model:</label>
+                <select id="model-selector" data-bind="value: selectedModel">
+                    <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>
+                    <option value="gpt-4">GPT-4 (Not Implemented)</option>
+                </select>
+            </div>
+            <div>
+                <button id="clear-messages" class="clear-button" data-bind="click: clearMessages">Reset Conversation</button>
+                <button class="close-btn" data-bind="click: toggleSidebar">Close</button>
+            </div>
         </div>
         <div class="chat-container">
             <div class="container">
@@ -50,7 +61,7 @@
                     </div>
 
                     <form id="chat-form" data-bind="submit: sendMessage">
-                        <input id="user-input" type="text" data-bind="textInput: userInput" />
+                        <input id="user-input" type="text" placeholder="Enter a prompt to begin" data-bind="textInput: userInput" />
                         <button type="submit">Send</button>
                     </form>
                 </div>
