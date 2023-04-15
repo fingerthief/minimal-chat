@@ -47,7 +47,7 @@
                         <!-- ko foreach: messages -->
                         <div
                             data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span> <br>
+                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
                             <span data-bind="html: $parent.formatMessage(content)"></span>
                         </div>
                         <!-- /ko -->
