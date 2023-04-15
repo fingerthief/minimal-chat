@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-server": "http-server ./ -p 8080",
-    "scss-build" : "sass gpt-chat/index.scss gpt-chat/dist/site.css"
+    "scss-build" : "sass ./index.scss ./dist/site.css"
   },
   "author": "",
   "license": "ISC",

@@ -6,70 +6,77 @@ const apiKey = document.getElementById('api-key');
 apiKey.value = localStorage.getItem("gpt3Key") || "";
 let messagesContainer = document.querySelector('.messages');
 
-function wrapCodeSnippets(input) {
-    const codeSnippetRegex = /`([^`]+)`/g;
-
-    const wrapped = input.replace(codeSnippetRegex, (match, code) => {
-        const escapedCode = code
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-
-        return `<pre><code>${escapedCode}</code></pre>`;
-    });
-
-    return wrapped;
-}
-
-async function fetchGPTResponse(conversation) {
-    const prompt = `Me: ${conversation}\nAI:`;
-    let storedApiKey = localStorage.getItem("gpt3Key");
-
-    if (storedApiKey !== apiKey.value.trim()) {
-        localStorage.setItem("gpt3Key", apiKey.value.trim());
-        storedApiKey = apiKey.value.trim();
-    }
-
-    try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
-            },
-            body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: conversation,
-                temperature: 0.5
-            }),
-        });
-
-        const result = await response.json();
-
-        if (result.choices && result.choices.length > 0) {
-            return result.choices[0].message.content;
-        } else {
-            return "I'm sorry, I couldn't generate a response.";
-        }
-    } catch (error) {
-        console.error("Error fetching GPT response:", error);
-        return "An error occurred while fetching a response.";
-    }
-}
-
-function loadMessagesFromLocalStorage() {
-    const storedMessages = localStorage.getItem('gpt-messages');
-    return storedMessages ? JSON.parse(storedMessages) : '';
-}
-
 // Knockout ViewModel
 function AppViewModel() {
     const self = this;
     self.userInput = ko.observable('');
     self.messages = ko.observableArray(loadMessagesFromLocalStorage());
     self.isLoading = ko.observable(false);
+    self.sliderValue = ko.observable(50);
+    this.isSidebarOpen = ko.observable(false);
+
+    this.toggleSidebar = () => {
+        this.isSidebarOpen(!this.isSidebarOpen());
+    };
+
+    function wrapCodeSnippets(input) {
+        const codeSnippetRegex = /`([^`]+)`/g;
+
+        const wrapped = input.replace(codeSnippetRegex, (match, code) => {
+            const escapedCode = code
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+            return `<pre><code>${escapedCode}</code></pre>`;
+        });
+
+        return wrapped;
+    }
+
+    async function fetchGPTResponse(conversation, attitude) {
+        const prompt = `Me: ${conversation}\nAI:`;
+        let storedApiKey = localStorage.getItem("gpt3Key");
+
+        if (storedApiKey !== apiKey.value.trim()) {
+            localStorage.setItem("gpt3Key", apiKey.value.trim());
+            storedApiKey = apiKey.value.trim();
+        }
+
+        try {
+            const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: conversation,
+                    temperature: attitude * 0.01
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.choices && result.choices.length > 0) {
+                return result.choices[0].message.content;
+            } else {
+                return "I'm sorry, I couldn't generate a response.";
+            }
+        } catch (error) {
+            console.error("Error fetching GPT response:", error);
+            return "An error occurred while fetching a response.";
+        }
+    }
+
+    function loadMessagesFromLocalStorage() {
+        const storedMessages = localStorage.getItem('gpt-messages');
+        return storedMessages ? JSON.parse(storedMessages) : '';
+    }
+
 
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
@@ -84,8 +91,8 @@ function AppViewModel() {
         self.isLoading(true);
 
         try {
-            const response = await fetchGPTResponse(self.messages());
-            self.isLoading(false);  
+            const response = await fetchGPTResponse(self.messages(), self.sliderValue());
+            self.isLoading(false);
             self.messages.push({ role: 'assistant', content: response });
             hljs.highlightAll();
             self.saveMessages();
@@ -113,7 +120,7 @@ function AppViewModel() {
         self.messages.removeAll();
         localStorage.removeItem("gpt-messages");
     };
-    
+
 
     self.scrollToBottom = function () {
         // Smooth scrolling
@@ -121,7 +128,7 @@ function AppViewModel() {
             top: messagesContainer.scrollHeight,
             behavior: 'smooth',
         });
-    
+
         // Fallback to ensure the container is scrolled to the bottom
         setTimeout(() => {
             messagesContainer.scrollTo({
@@ -129,7 +136,7 @@ function AppViewModel() {
             });
         }, 500); // Adjust the timeout duration as needed
     };
-    
+
 }
 
 // Bind the ViewModel
