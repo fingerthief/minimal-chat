@@ -10,28 +10,37 @@
 
 <body>
     <div class="app-container">
-        <div class="sidebar">
+        <div class="sidebar" data-bind="css: { open: isSidebarOpen }">
             <!-- Add settings content here -->
             <h2>Settings</h2>
             <div class="api-key">
-                OpenAI API Key: <input type="password" id="api-key" placeholder="Enter your API Key...">
+                <label for="api-key">OpenAI API Key:</label>
+                <input type="password" id="api-key" placeholder="Enter your API Key...">
+            </div>
+            <div class="slider-container">
+                <span>Temperament:</span>
+                <span data-bind="text: sliderValue"></span>
+                <input type="range" min="0" max="100" data-bind="value: sliderValue">
             </div>
             <button id="clear-messages" data-bind="click: clearMessages">Reset Conversation</button>
+            <button class="close-btn" data-bind="click: toggleSidebar">Close</button>
         </div>
         <div class="chat-container">
             <div class="container">
                 <div class="chat">
                     <div class="header">
                         GPT Chat V1.0.1
-                    </div>
+                        <button class="settings-btn" data-bind="click: toggleSidebar">&#x2699;</button>
+                    </div>                    
                     <div class="messages">
                         <!-- ko foreach: messages -->
-                        <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
+                        <div
+                            data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span> <br>
                             <span data-bind="html: $parent.formatMessage(content)"></span>
                         </div>
                         <!-- /ko -->
-        
+
                         <!-- ko if: isLoading -->
                         <div class="gpt message">
                             <span class="label">GPT</span><br>
@@ -39,7 +48,7 @@
                         </div>
                         <!-- /ko -->
                     </div>
-        
+
                     <form id="chat-form" data-bind="submit: sendMessage">
                         <input id="user-input" type="text" data-bind="textInput: userInput" />
                         <button type="submit">Send</button>
