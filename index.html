@@ -1,34 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="dist/site.css">
     <title>GPT Chat Client</title>
 </head>
+
 <body>
-    <div class="container">
+    <div class="app-container">
         <div class="sidebar">
-            <!-- Add your future settings here -->
-        </div>
-        <div class="chat">
-            <div class="header">
-                <div class="api-key">
-                    <input type="password" id="api-key" placeholder="Enter your API Key...">
-                </div>
-                <span>GPT Chat V1.00</span>
+            <!-- Add settings content here -->
+            <h2>Settings</h2>
+            <div class="api-key">
+                OpenAI API Key: <input type="password" id="api-key" placeholder="Enter your API Key...">
             </div>
-            <div class="messages" id="messages"></div>
-            <form id="chat-form">
-                <input type="text" id="user-input" placeholder="Type your message...">
-                <button type="submit">Send</button>
-            </form>
+            <button id="clear-messages" data-bind="click: clearMessages">Reset Conversation</button>
+        </div>
+        <div class="chat-container">
+            <div class="container">
+                <div class="chat">
+                    <div class="header">
+                        GPT Chat V1.0.1
+                    </div>
+                    <div class="messages">
+                        <!-- ko foreach: messages -->
+                        <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
+                            <span data-bind="html: $parent.formatMessage(content)"></span>
+                        </div>
+                        <!-- /ko -->
+        
+                        <!-- ko if: isLoading -->
+                        <div class="gpt message">
+                            <span class="label">GPT</span><br>
+                            <span>Generating Response <span class="loading spinner"></span></span>
+                        </div>
+                        <!-- /ko -->
+                    </div>
+        
+                    <form id="chat-form" data-bind="submit: sendMessage">
+                        <input id="user-input" type="text" data-bind="textInput: userInput" />
+                        <button type="submit">Send</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+
     <script type="module" src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
 </body>
+
 </html>
