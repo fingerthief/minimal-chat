@@ -1,0 +1,21 @@
+{
+  "name": "gpt-chat-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-server": "http-server ./ -p 8080",
+    "scss-build" : "sass gpt-chat/index.scss gpt-chat/dist/site.css"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "http-server": "^14.1.1",
+    "knockout": "^3.5.1",
+    "markdown": "^0.5.0",
+    "openai": "^3.2.1",
+    "sass": "^1.62.0"
+  }
+}
