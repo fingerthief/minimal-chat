@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>GPT Chat Client</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <!-- Add your future settings here -->
+        </div>
+        <div class="chat">
+            <div class="header">
+                <div class="api-key">
+                    <input type="password" id="api-key" placeholder="Enter your API Key...">
+                </div>
+                <span>GPT Chat V1.00</span>
+            </div>
+            <div class="messages" id="messages"></div>
+            <form id="chat-form">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    <script type="module" src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+</body>
+</html>

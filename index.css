@@ -1,0 +1,215 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #1c1c1e;
+    color: #f0f0f0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.chat {
+    border: 1px solid #444;
+    border-radius: 5px;
+    width: 50%;
+    max-width: 800px;
+    background-color: #2c2c2e;
+}
+
+.messages {
+    overflow-y: auto;
+    padding: 10px;
+    /* top: 3px; */
+    position: relative;
+    max-height: 500px;
+    min-height: 500px;
+}
+
+#chat-form {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #444;
+}
+
+#user-input {
+    flex-grow: 1;
+    padding: 5px 10px;
+    border: 1px solid #444;
+    border-radius: 3px;
+    outline: none;
+    background-color: #1c1c1e;
+    color: #f0f0f0;
+}
+
+button {
+    padding: 5px 10px;
+    border: 1px solid #444;
+    border-radius: 3px;
+    background-color: #3a3a3c;
+    color: #f0f0f0;
+    cursor: pointer;
+    outline: none;
+    margin-left: 10px;
+}
+
+button:hover {
+    background-color: #4a4a4c;
+}
+
+.user {
+    color: #00ccff;
+}
+
+.gpt {
+    color: #ff9900;
+}
+
+/* Add these new styles at the end of the styles.css file */
+
+.message {
+    position: relative;
+    padding: 5px 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    max-width: 80%;
+    clear: both;
+}
+
+.user {
+    float: right;
+    background-color: #0077ff;
+    color: #fff;
+}
+
+.user::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -5px;
+    border-width: 5px 0 0 5px;
+    border-style: solid;
+    border-color: transparent #0077ff;
+}
+
+.gpt {
+    float: left;
+    background-color: #444;
+    color: #f0f0f0;
+}
+
+.gpt::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -5px;
+    border-width: 5px 5px 0 0;
+    border-style: solid;
+    border-color: transparent #444;
+}
+
+/* Clear the floats */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Add these new styles at the end of the styles.css file */
+
+.label {
+    font-size: 0.7em;
+    display: block;
+    margin-bottom: 2px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.user .label {
+    text-align: right;
+}
+
+.gpt .label {
+    text-align: left;
+}
+
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    background-color: #333;
+    width: 250px;
+    padding: 20px;
+    min-height: 650px;
+    display: none;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 500px;
+    min-width: 350px;
+    max-width: 800px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    width: 50%;
+    max-width: 800px;
+    background-color: #2c2c2e;
+    justify-content: space-between;
+    /* Add this line */
+}
+
+
+.header {
+    background-color: #444;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+
+}
+
+.api-key {
+    display: flex;
+}
+
+.loading {
+    background-color: #3a3a3c;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -5px;
+    border-width: 5px 5px 0 0;
+    border-style: solid;
+    border-color: transparent #3a3a3c;
+}
+
+/* Add these new styles at the end of the styles.css file */
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    display: inline-block;
+    width: 14px;
+    color: lightskyblue;
+    height: 14px;
+    margin-left: 5px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-left-color: greenyellow;
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
+}
