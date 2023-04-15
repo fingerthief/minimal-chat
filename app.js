@@ -12,7 +12,7 @@ function AppViewModel() {
     self.userInput = ko.observable('');
     self.messages = ko.observableArray(loadMessagesFromLocalStorage());
     self.isLoading = ko.observable(false);
-    self.sliderValue = ko.observable(50);
+    self.sliderValue = ko.observable(localStorage.getItem("gpt-attitude") || 50);
     this.isSidebarOpen = ko.observable(false);
 
     this.toggleSidebar = () => {
@@ -43,6 +43,10 @@ function AppViewModel() {
         if (storedApiKey !== apiKey.value.trim()) {
             localStorage.setItem("gpt3Key", apiKey.value.trim());
             storedApiKey = apiKey.value.trim();
+        }
+
+        if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !==  attitude) {
+            localStorage.setItem("gpt-attitude", attitude);
         }
 
         try {

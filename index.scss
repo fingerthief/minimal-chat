@@ -18,9 +18,9 @@ body {
 .chat {
     border: 1px solid #444;
     border-radius: 5px;
-    width: 50%;
-    max-width: 800px;
+    width: 90vw;
     background-color: #2c2c2e;
+    height: 95vh;
 
     &.header {
         background-color: #444;
@@ -220,11 +220,10 @@ button {
     flex-grow: 1;
     min-height: 500px;
     min-width: 350px;
-    max-width: 800px;
     border: 1px solid #444;
     border-radius: 10px;
-    width: 50%;
-    max-width: 800px;
+    width: 85VW;
+    max-width: 85VW;
     background-color: #2c2c2e;
     justify-content: space-between;
 }
@@ -236,11 +235,10 @@ button {
     flex-grow: 1;
     min-height: 500px;
     min-width: 350px;
-    max-width: 800px;
+    max-width: 85VW;
     border: 1px solid #444;
     border-radius: 5px;
     width: 50%;
-    max-width: 800px;
     background-color: #2c2c2e;
     justify-content: space-between;
 }
