@@ -3,15 +3,17 @@
  
  Note you must input your OpenAI API Key for GPT3(.5) in order for this to function.
 
-This is a basic web app cuirrently and will need to be expanded and cleaned up.
+This is a minimal web app and will be expanded in the future.
 
-## Basic chat layout with Markdown and Code Syntax Highlighting support.
-![gpt4-chat-bot-build-6-1](https://user-images.githubusercontent.com/2380471/232259317-3e9ddc2c-2603-4576-8f4f-eb0f51343485.png)
+## Minimal chat layout with Markdown and Code Syntax Highlighting support.
+![Web capture_16-4-2023_15245_192 168 0 7](https://user-images.githubusercontent.com/2380471/232339111-5308ec33-3a44-4e44-8b99-083ef112af3c.jpeg)
+
+## Settings popup.
+![Web capture_16-4-2023_15315_192 168 0 7](https://user-images.githubusercontent.com/2380471/232339122-3d7b15f2-e136-4a0f-b65c-9b373f28ad9e.jpeg)
 
 
-
-## A very basic settings popup.
-![gpt4-chat-bot-build-6-2](https://user-images.githubusercontent.com/2380471/232259320-c7982e3b-1df0-425c-afbf-f751ecccafdc.png)
+## Responsive Layout for mobile use
+![unnamed](https://user-images.githubusercontent.com/2380471/232338987-d53d1580-b084-454d-a291-e54477513a2f.jpg)
 
 
 
