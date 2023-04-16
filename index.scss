@@ -100,6 +100,11 @@ button {
     }
 }
 
+.hljs {
+    background-color: #000000 !important; 
+    color: #d5d5d5 !important;
+}
+
 .message {
     position: relative;
     padding: 5px 10px;
@@ -124,7 +129,7 @@ button {
         color: #fff;
 
         .label {
-            background-color: #c3c3c3;
+            background-color: #183d67;
             right: 5px;
         }
 
@@ -145,7 +150,7 @@ button {
         color: #f0f0f0;
 
         .label {
-            background-color: #d5d5d5;
+            background-color: #364353;
             left: 5px;
         }
 
