@@ -42,6 +42,9 @@
                     <div class="header">
                         GPT Chat V1.0.2
                         <button class="settings-btn" data-bind="click: toggleSidebar">&#x2699;</button>
+                        <div class="saved-conversations-dropdown">
+                            <select class="saved-conversations" data-bind="options: conversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }"></select>
+                        </div>
                     </div>                    
                     <div class="messages">
                         <!-- ko foreach: messages -->

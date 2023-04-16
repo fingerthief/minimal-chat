@@ -101,7 +101,7 @@ button {
 }
 
 .hljs {
-    background-color: #000000 !important; 
+    background-color: #000000 !important;
     color: #d5d5d5 !important;
 }
 
@@ -113,7 +113,7 @@ button {
     max-width: 80%;
     min-width: 10%;
     clear: both;
-    
+
     .label {
         position: absolute;
         top: -18px;
@@ -164,6 +164,29 @@ button {
             border-color: transparent #444;
         }
     }
+}
+
+.saved-conversations-dropdown {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+}
+.saved-conversations-dropdown select {
+    padding: 6px 12px;
+    font-size: 14px;
+    border: 1px solid #5a5a5a;
+    border-radius: 4px;
+    background-color: #3a3a3a;
+    color: #f1f1f1;
+    /* Change the text color to a lighter shade */
+    cursor: pointer;
+}
+
+.saved-conversations-dropdown select:focus {
+    outline: none;
+    /* Remove the default focus outline */
+    box-shadow: 0 0 0 1px #5a5a5a;
 }
 
 .clearfix::after {

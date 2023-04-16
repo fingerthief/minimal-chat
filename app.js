@@ -16,6 +16,17 @@ function AppViewModel() {
     this.isSidebarOpen = ko.observable(false);
     self.selectedModel = ko.observable(localStorage.getItem('selectedModel') || 'gpt-3.5-turbo');
 
+    self.conversationTitles = ko.observableArray(loadConversationTitles());
+
+    self.storedConversations = ko.observableArray(loadStoredConversations());
+    self.selectedConversation = ko.observable();
+
+    self.selectedConversation(self.storedConversations()[self.storedConversations().length - 1]);
+
+    self.conversations = ko.observableArray(loadConversationTitles());
+    self.selectedConversation = ko.observable(self.conversations()[0]);
+
+
     if (!localStorage.getItem("selectedModel")) {
         localStorage.setItem("selectedModel", self.selectedModel());
     }
@@ -33,10 +44,32 @@ function AppViewModel() {
             this.isSidebarOpen(false);
         }
     });
+
+    self.selectedConversation.subscribe(function (newValue) {
+        if (newValue) {
+            self.loadSelectedConversation(newValue);
+        }
+    });
     
     this.toggleSidebar = () => {
         this.isSidebarOpen(!this.isSidebarOpen());
     };    
+
+    function loadStoredConversations() {
+        const storedConversations = localStorage.getItem("gpt-conversations");
+        return storedConversations ? JSON.parse(storedConversations) : [];
+
+    }
+
+    self.loadSelectedConversation = function (value) {
+        if (self.selectedConversation() === self.conversations()[0]) {
+            return;
+        }
+
+        const selectedMessages = self.selectedConversation().messageHistory;
+        self.messages(selectedMessages);
+    };
+
 
     function wrapCodeSnippets(input) {
         const codeSnippetRegex = /`([^`]+)`/g;
@@ -96,11 +129,18 @@ function AppViewModel() {
     }
 
     function loadMessagesFromLocalStorage() {
-        const storedMessages = localStorage.getItem('gpt-conversations');
+        const storedMessages = localStorage.getItem("gpt-conversations");
         let parsedConversations = storedMessages ? JSON.parse(storedMessages) : [];
 
+        return parsedConversations.length ? parsedConversations[parsedConversations.length - 1].messageHistory : [];
+    }
 
-        return parsedConversations.length ? parsedConversations[parsedConversations.length - 1].messageHistory : []; 
+    function loadConversationTitles() {
+        const storedConversations = localStorage.getItem('gpt-conversations');
+        let parsedConversations = storedConversations ? JSON.parse(storedConversations) : [];
+        let defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
+        parsedConversations.unshift(defaultOption);
+        return parsedConversations;
     }
 
 
@@ -144,9 +184,11 @@ function AppViewModel() {
 
     self.clearMessages = async function () {
         const newConversation = {
-            messageHistory: self.messages(),
+            messageHistory: self.messages().slice(0),
             title: await getConversationTitleFromGPT()
         };
+
+        newConversation.messageHistory = self.messages().slice(0);
     
         if (!localStorage.getItem("gpt-conversations")) {
             localStorage.setItem("gpt-conversations", JSON.stringify([newConversation]));
@@ -177,9 +219,14 @@ function AppViewModel() {
     
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
         }
+
+        self.conversations(loadConversationTitles());
+        self.storedConversations(loadStoredConversations());
+
     
         self.messages.removeAll();
         localStorage.removeItem("gpt-messages");
+        self.selectedConversation(self.conversations()[0]);
     };
     
 
@@ -229,6 +276,10 @@ function AppViewModel() {
         }, 500); // Adjust the timeout duration as needed
     };
 
+    if (self.conversations().length > 1) {
+        self.selectedConversation(self.conversations()[self.conversations().length - 1]);
+        self.loadSelectedConversation();
+    }
 }
 
 // Bind the ViewModel
