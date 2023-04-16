@@ -26,6 +26,13 @@ function AppViewModel() {
     self.conversations = ko.observableArray(loadConversationTitles());
     self.selectedConversation = ko.observable(self.conversations()[0]);
 
+    self.displayConversations = ko.computed(function () {
+        return self.conversations().filter(function (conversation) {
+            // Show all options when the default conversation is selected, otherwise remove the default option
+            return !self.selectedConversation() || self.selectedConversation().title === 'Choose an existing conversation' || conversation.title !== 'Choose an existing conversation';
+        });
+    });
+
 
     if (!localStorage.getItem("selectedModel")) {
         localStorage.setItem("selectedModel", self.selectedModel());
@@ -62,13 +69,15 @@ function AppViewModel() {
     }
 
     self.loadSelectedConversation = function (value) {
-        if (self.selectedConversation() === self.conversations()[0]) {
+        // Check if the title of the selected conversation is 'Choose an existing conversation'
+        if (self.selectedConversation() && self.selectedConversation().title === 'Choose an existing conversation') {
             return;
         }
-
+    
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
     };
+    
 
 
     function wrapCodeSnippets(input) {
@@ -173,7 +182,17 @@ function AppViewModel() {
             role: message.role,
             content: message.content
         }));
-        localStorage.setItem("gpt-messages", JSON.stringify(savedMessages));
+    
+        // Find the index of the selected conversation in storedConversations
+        const conversationIndex = self.storedConversations().findIndex(conversation => conversation.title === self.selectedConversation().title);
+    
+        if (conversationIndex !== -1) {
+            // Update the message history of the selected conversation
+            self.storedConversations()[conversationIndex].messageHistory = savedMessages;
+        }
+    
+        // Save the updated conversations to localStorage
+        localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
     };
 
     self.formatMessage = function (message) {
@@ -226,6 +245,13 @@ function AppViewModel() {
     
         self.messages.removeAll();
         localStorage.removeItem("gpt-messages");
+
+        // Add the default option back to the conversations array if it's not already there
+        const defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
+        if (self.conversations()[0].title !== defaultOption.title) {
+            self.conversations.unshift(defaultOption);
+        }
+
         self.selectedConversation(self.conversations()[0]);
     };
     

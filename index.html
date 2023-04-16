@@ -43,7 +43,7 @@
                         GPT Chat V1.0.2
                         <button class="settings-btn" data-bind="click: toggleSidebar">&#x2699;</button>
                         <div class="saved-conversations-dropdown">
-                            <select class="saved-conversations" data-bind="options: conversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }"></select>
+                            <select class="saved-conversations" data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }"></select>
                         </div>
                     </div>                    
                     <div class="messages">
@@ -56,8 +56,8 @@
                         <!-- /ko -->
 
                         <!-- ko if: isLoading -->
-                        <div class="gpt message">
-                            <span class="label">GPT</span><br>
+                        <div class="gpt message padded">
+                            <span class="label">GPT</span>
                             <span>Generating Response <span class="loading spinner"></span></span>
                         </div>
                         <!-- /ko -->
