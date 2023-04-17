@@ -1,4 +1,4 @@
-# gpt-chat
+# MinimalGPT
  A personal GPT Chatbot.
  
  Note you must input your OpenAI API Key for GPT3(.5) in order for this to function.
