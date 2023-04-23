@@ -15,13 +15,19 @@ const messagesContainer = document.querySelector('.messages');
 export function AppViewModel() {
     const self = this;
     self.userInput = ko.observable('');
-    self.messages = ko.observableArray(loadMessagesFromLocalStorage());
+    self.messages = ko.observableArray(loadMessagesFromLocalStorage() || []);
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
     self.selectedModel = ko.observable(
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
+
+    self.messages.subscribe(() => {
+        setTimeout(() => {
+            hljs.highlightAll();
+        }, 0);
+    });
 
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
@@ -104,7 +110,7 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT()
+            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -155,7 +161,7 @@ export function AppViewModel() {
             const response = await fetchGPTResponse(self.messages(), self.sliderValue(), self.selectedModel());
             self.isLoading(false);
             self.messages.push({ role: 'assistant', content: response });
-            hljs.highlightAll();
+
             self.saveMessages();
             this.scrollToBottom();
         } catch (error) {
@@ -190,7 +196,7 @@ export function AppViewModel() {
     self.clearMessages = async function () {
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT()
+            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -229,7 +235,7 @@ export function AppViewModel() {
         self.storedConversations(loadStoredConversations());
 
 
-        self.messages.removeAll();
+        self.messages([]);
         localStorage.removeItem("gpt-messages");
 
         // Add the default option back to the conversations array if it's not already there
@@ -239,6 +245,7 @@ export function AppViewModel() {
         }
 
         self.selectedConversation(self.conversations()[0]);
+        //self.messages(loadMessagesFromLocalStorage());
     };
 
     self.scrollToBottom = function () {
@@ -259,5 +266,5 @@ export function AppViewModel() {
     if (self.conversations().length > 1) {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
-    }
+    }   
 }

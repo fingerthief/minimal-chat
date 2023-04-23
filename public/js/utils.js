@@ -15,9 +15,12 @@ export function wrapCodeSnippets(input) {
     return wrapped;
 }
 
-export async function getConversationTitleFromGPT() {
+export async function getConversationTitleFromGPT(messages, model, sliderValue) {
     try {
-        let tempMessages = self.messages().slice(0);
+        const apiKey = document.getElementById('api-key');
+        apiKey.value = localStorage.getItem("gpt3Key") || "";
+
+        let tempMessages = messages.slice(0);
         tempMessages.push({ role: 'user', content: "Summarize our conversation in 5 words or less." });
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
@@ -26,9 +29,9 @@ export async function getConversationTitleFromGPT() {
                 "Authorization": `Bearer ${apiKey.value.trim() || 'Missing API Key'}`,
             },
             body: JSON.stringify({
-                model: self.selectedModel(),
+                model: model,
                 messages: tempMessages,
-                temperature: self.sliderValue() * 0.01
+                temperature: sliderValue * 0.01
             }),
         });
 
