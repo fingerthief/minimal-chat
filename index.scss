@@ -26,9 +26,9 @@ body {
 
 .chat {
     // border: 1px solid #444;
-    width: 99vw;
+    width: 99dvw;
     background-color: #2c2c2e;
-    height: 95vh;
+    height: 98dvh;
 
     &.header {
         background-color: #444;
@@ -64,7 +64,7 @@ body {
     overflow-y: auto;
     padding: 10px;
     position: relative;
-    max-height: 92vh;
+    max-height: 96dvh;
     min-height: 400px;
     scrollbar-width: none; /* For Firefox */
     -ms-overflow-style: none; /* For Internet Explorer and Edge */
@@ -331,8 +331,8 @@ button {
     min-width: 350px;
     //border: 1px solid #444;
     border-radius: 4px;
-    width: 99VW;
-    max-width: 99VW;
+    width: 99dvw;
+    max-width: 99dvw;
     background-color: #2c2c2e;
     justify-content: space-between;
 }
@@ -344,7 +344,7 @@ button {
     flex-grow: 1;
     min-height: 513px;
     min-width: 350px;
-    max-width: 99VW;
+    max-width: 99dvw;
     border: 1px solid #444;
     border-radius: 5px;
     width: 50%;
