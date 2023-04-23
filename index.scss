@@ -2,6 +2,7 @@
 
 @use "./node_modules/@fortawesome/fontawesome-free/scss/solid.scss";
 @use "./node_modules/@fortawesome/fontawesome-free/scss/regular.scss";
+@use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../web-fonts";
 
@@ -417,6 +418,16 @@ button {
     color: #f0f0f0;
 }
 
+.no-style-link {
+    text-decoration: none;
+    color: inherit;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
+        color: inherit;
+    }
+}
 
 .slider-container {
     display: flex;

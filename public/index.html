@@ -46,7 +46,8 @@
             <div class="container">
                 <div class="chat">
                     <div class="header">
-                        MinimalGPT
+                        <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">MinimalGPT <span class="fa-brands fa-github"></span></a>
+                        
                         <div class="settings-btn fa-solid fa-sliders fa-lg" data-bind="click: toggleSidebar"></div>
                         <div class="trash-btn fa-solid fa-trash-can fa-lg" data-bind="click: deleteCurrentConversation">
                         </div>                        
@@ -72,7 +73,7 @@
                     </div>
 
                     <form id="chat-form" data-bind="submit: sendMessage">
-                        <textarea id="user-input" rows="1" placeholder="Enter a prompt to begin" data-bind="textInput: userInput" ></textarea>
+                        <textarea id="user-input" rows="1" placeholder="" data-bind="textInput: userInput" ></textarea>
                         <div class="send-button" data-bind="click: sendMessage">
                             <span class="fa-regular fa-paper-plane fa-2xl"></span>
                         </div>

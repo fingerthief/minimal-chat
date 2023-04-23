@@ -259,6 +259,5 @@ export function AppViewModel() {
     if (self.conversations().length > 1) {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
-
     }
 }
