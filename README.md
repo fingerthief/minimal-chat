@@ -1,5 +1,6 @@
-# gpt-chat
- An open source GPT chat web app built to be as contained as possible. All conversations etc...are stored local to the client. The only information being sent anywhere is the API call to GPT chat when the user sends a message and when a user saves a conversation in order to generate a conversation title.
+# MinimalGPT
+
+An open source GPT chat web app built to be as contained as possible. All conversations etc...are stored local to the client. The only information being sent anywhere is the API call to GPT chat when the user sends a message and when a user saves a conversation in order to generate a conversation title.
  
  ##Note you must input your OpenAI API Key for GPT3(.5) in order for this to function.
 
