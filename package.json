@@ -6,11 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-server": "http-server ./ -p 8080",
-    "scss-build" : "sass ./index.scss ./dist/site.css"
+    "scss-build": "sass ./index.scss ./style/site.css",
+    "scss-build-dist": "sass ./public/index.scss ./public/styles/site.css",
+    "build-to-public": "cp ./node_modules ./index.html ./index.scss ./app.js ./styles ./public/"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.8",
+    "@fortawesome/fontawesome-free": "^6.4.0",
     "dotenv": "^16.0.3",
     "http-server": "^14.1.1",
     "knockout": "^3.5.1",
