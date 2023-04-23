@@ -1,14 +1,14 @@
 {
   "name": "gpt-chat-bot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-server": "http-server ./ -p 8080",
-    "scss-build": "sass ./index.scss ./style/site.css",
+    "scss-build": "sass ./index.scss ./styles/site.css",
     "scss-build-dist": "sass ./public/index.scss ./public/styles/site.css",
-    "build-to-public": "cp ./node_modules ./index.html ./index.scss ./app.js ./styles ./public/"
+    "build": "gulp"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +16,9 @@
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-free": "^6.4.0",
     "dotenv": "^16.0.3",
+    "gulp": "^4.0.2",
+    "gulp-load-plugins": "^2.0.8",
+    "gulp-newer": "^1.4.0",
     "http-server": "^14.1.1",
     "knockout": "^3.5.1",
     "markdown": "^0.5.0",

@@ -8249,6 +8249,28 @@ readers do not read off random characters that represent icons */
   font-weight: 900;
 }
 
+/*!
+ * Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ * Copyright 2023 Fonticons, Inc.
+ */
+:root, :host {
+  --fa-style-family-classic: "Font Awesome 6 Free";
+  --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Free";
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Free";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("../web-fonts/fa-regular-400.woff2") format("woff2"), url("../web-fonts/fa-regular-400.ttf") format("truetype");
+}
+.far,
+.fa-regular {
+  font-weight: 400;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -8270,7 +8292,6 @@ body {
   width: 99vw;
   background-color: #2c2c2e;
   height: 95vh;
-  overflow: hidden;
 }
 .chat.header {
   background-color: #444;
@@ -8285,7 +8306,7 @@ body {
 
 .trash-btn {
   position: absolute;
-  left: 65px;
+  left: 50px;
   top: 50%;
   transform: translateY(-50%);
   color: #f0f0f0;
@@ -8314,34 +8335,48 @@ body {
 #chat-form {
   display: flex;
   padding: 6px;
-  height: 60px;
+  height: 50px;
   border-top: 1px solid #444;
 }
 
 #user-input {
   flex-grow: 1;
-  padding: 5px 10px;
   border: 1px solid #444;
-  border-radius: 8px;
   outline: none;
   background-color: #1c1c1e;
   font-size: 20px;
   color: #f0f0f0;
-  resize: none;
+  resize: vertical;
   overflow: auto;
   white-space: pre-wrap;
-  min-height: 30px;
+  min-height: 41px;
 }
 
 button {
   border: 1px solid #444;
-  border-radius: 3px;
   background-color: #3a3a3c;
   color: #f0f0f0;
   cursor: pointer;
   outline: none;
 }
 button:hover {
+  background-color: #4a4a4c;
+}
+
+.send-button {
+  border: 1px solid #444;
+  background-color: #3a3a3c;
+  color: rgba(51, 146, 43, 0.8039215686);
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  min-height: 50px;
+  display: grid;
+  align-content: center;
+  min-width: 54px;
+  justify-content: space-around;
+}
+.send-button:hover {
   background-color: #4a4a4c;
 }
 
@@ -8379,13 +8414,12 @@ button:hover {
   margin: 5px 0;
   border-radius: 5px;
   max-width: 80%;
-  font-size: 18px;
   min-width: 10%;
   clear: both;
 }
 .message .label {
   position: absolute;
-  top: -20px;
+  top: -18px;
   font-size: 12px;
   font-weight: bold;
   padding: 2px 5px;
@@ -8431,7 +8465,7 @@ button:hover {
 .saved-conversations-dropdown {
   position: absolute;
   top: 50%;
-  right: 16px;
+  right: 2px;
   transform: translateY(-50%);
 }
 
@@ -8471,7 +8505,6 @@ button:hover {
   align-items: center;
   margin: 1px;
   border-radius: 8px;
-  overflow: hidden;
   z-index: -1;
 }
 
@@ -8516,7 +8549,6 @@ button:hover {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow: hidden;
   min-height: 500px;
   min-width: 350px;
   border-radius: 4px;
@@ -8586,7 +8618,7 @@ button:hover {
   border-radius: 50%;
   width: 20px;
   height: 20px;
-  font-size: 0.8em;
+  font-size: 0.7em;
   font-weight: bold;
 }
 
