@@ -2,20 +2,17 @@
 
 An open source GPT chat web app built to be as contained as possible. All conversations etc...are stored local to the client. The only information being sent anywhere is the API call to GPT chat when the user sends a message and when a user saves a conversation in order to generate a conversation title.
  
- ##Note you must input your OpenAI API Key for GPT3(.5) in order for this to function.
+## Note: You must input your OpenAI API Key for GPT3(.5) in order for this to function.
 
-This is a minimal web app and will be expanded in the future.
+### Tip - On iOS devices in safari you can add a web page to your home screen. If you do that then MinimalGPT will run in "mobile web app" mode, essentially removing the usual browser controls giving you an iOS app like experience. 
 
 ## Minimal chat layout with Markdown and Code Syntax Highlighting support.
-![Web capture_16-4-2023_15245_192 168 0 7](https://user-images.githubusercontent.com/2380471/232339111-5308ec33-3a44-4e44-8b99-083ef112af3c.jpeg)
+![Web capture_23-4-2023_152049_minimalgpt web app](https://user-images.githubusercontent.com/2380471/233864135-a43b7a61-a1b8-4b10-9d52-5de43b5a7660.jpeg)
 
-## Settings popup.
-![Web capture_16-4-2023_15315_192 168 0 7](https://user-images.githubusercontent.com/2380471/232339122-3d7b15f2-e136-4a0f-b65c-9b373f28ad9e.jpeg)
+
+## Settings
+![Web capture_23-4-2023_152154_minimalgpt web app](https://user-images.githubusercontent.com/2380471/233864160-7ac4b3b6-c822-43c8-9d2e-62bc8494ce6a.jpeg)
 
 
 ## Responsive Layout for mobile use
-![unnamed](https://user-images.githubusercontent.com/2380471/232338987-d53d1580-b084-454d-a291-e54477513a2f.jpg)
-
-
-
-
+![mobile-resize](https://user-images.githubusercontent.com/2380471/233864662-be954f53-a337-42f8-8e26-cfc969279096.png)
