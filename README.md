@@ -16,3 +16,20 @@ An open source GPT chat web app built to be as contained as possible. All conver
 
 ## Responsive Layout for mobile use
 ![mobile-resize](https://user-images.githubusercontent.com/2380471/233864662-be954f53-a337-42f8-8e26-cfc969279096.png)
+
+# Running Web App Locally
+
+You need `NodeJS` installed so NPM is available. Afterwards you can navigate to the project directory in VSCode and run the following commands:
+
+- Install needed packages `npm install`
+- Start Local Server: `npm run start-server` (terminal will output what IP and port the server is running on)
+- Boom it's running
+
+## Compiling Your SCSS to CSS
+
+- Run the command `npm run scss-build`
+
+## Building/Bundling (WIP)
+
+- A basic gulpfile exists that copies the needed files for running the application into a folder named `public`. However there is no minifications etc..yet.
+- Running `npm run build` will do what is described in the point before this.
