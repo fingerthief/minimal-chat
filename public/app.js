@@ -33,6 +33,16 @@ function AppViewModel() {
         });
     });
 
+    const sendButton = document.getElementById("send-button");
+    const userInput = document.getElementById('user-input');
+
+    userInput.addEventListener('input', autoResize);
+    userInput.addEventListener('focus', autoResize);
+    
+    function autoResize() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    }
 
     if (!localStorage.getItem("selectedModel")) {
         localStorage.setItem("selectedModel", self.selectedModel());
@@ -78,7 +88,38 @@ function AppViewModel() {
         self.messages(selectedMessages);
     };
     
+    self.deleteCurrentConversation = async function() {
+        let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
+        const newConversation = {
+            messageHistory: self.messages().slice(0),
+            title: await getConversationTitleFromGPT()
+        };
+
+        newConversation.messageHistory = self.messages().slice(0);
+
+         // Find the index of the conversation that has a 15% or more match in assistant's answers
+        const conversationIndex = storedConversations.findIndex((storedConversation) => {
+            const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
+            const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
+
+            const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
+                return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
+            });
+
+            const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
+
+            return matchingPercentage >= 15;
+        });
+
+        let conversations = JSON.parse(localStorage.getItem("gpt-conversations"));
+        conversations.pop(conversationIndex);
+        localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
+        self.storedConversations(loadStoredConversations());
+        self.messages(loadMessagesFromLocalStorage());
+        self.conversationTitles(loadConversationTitles());
+        self.conversations(loadConversationTitles());
+    };
 
     function wrapCodeSnippets(input) {
         const codeSnippetRegex = /`([^`]+)`/g;
@@ -152,6 +193,12 @@ function AppViewModel() {
         return parsedConversations;
     }
 
+    userInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevent the default behavior of the Enter key
+          self.sendMessage(); // Call the sendMessage function
+        }
+    });
 
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
@@ -163,6 +210,13 @@ function AppViewModel() {
         self.messages.push({ role: 'user', content: messageText });
         this.scrollToBottom();
         self.userInput('');
+        
+        // Reset the user input field
+        userInput.value = '';
+        userInput.style.height = 'auto';
+        userInput.style.height = (userInput.scrollHeight) + 'px';
+        userInput.focus();
+
         self.isLoading(true);
 
         try {
@@ -195,7 +249,21 @@ function AppViewModel() {
         localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
     };
 
-    self.formatMessage = function (message) {
+    self.formatMessage = function (message, isStartup) {
+
+        // if (isStartup) {
+        //     for (const messageText of self.selectedConversation().messageHistory) {
+        //         let md = window.markdownit();
+        //         let formattedMessage = wrapCodeSnippets(md.render(messageText.content || ""));
+        //         messageText.content = formattedMessage;
+        //     }
+
+        //     self.messages(message);
+        //     self.messages.valueHasMutated();
+        //     hljs.highlightAll();
+        //     return;
+        // }
+
         let md = window.markdownit();
         let formattedMessage = wrapCodeSnippets(md.render(message));
         return formattedMessage;
@@ -305,7 +373,9 @@ function AppViewModel() {
     if (self.conversations().length > 1) {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
+
     }
+   // self.formatMessage(self.selectedConversation().messageHistory, true);
 }
 
 // Bind the ViewModel

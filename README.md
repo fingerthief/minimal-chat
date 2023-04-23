@@ -1,7 +1,8 @@
 # MinimalGPT
- A personal GPT Chatbot.
+
+An open source GPT chat web app built to be as contained as possible. All conversations etc...are stored local to the client. The only information being sent anywhere is the API call to GPT chat when the user sends a message and when a user saves a conversation in order to generate a conversation title.
  
- Note you must input your OpenAI API Key for GPT3(.5) in order for this to function.
+ ##Note you must input your OpenAI API Key for GPT3(.5) in order for this to function.
 
 This is a minimal web app and will be expanded in the future.
 
