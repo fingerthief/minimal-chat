@@ -50,9 +50,13 @@
                         
                         <div class="settings-btn fa-solid fa-sliders fa-lg" data-bind="click: toggleSidebar"></div>
                         <div class="trash-btn fa-solid fa-trash-can fa-lg" data-bind="click: deleteCurrentConversation">
-                        </div>                        
+                        </div>
+                        <div class="conversations-count">
+                            <span class="count-icon fa-lg fa-solid" data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>           
+                        <div class="saved-conversations-dropdown fa-solid fa-comments fa-lg" data-bind="click: onShowConversationsClick"></div>
+                        </div>            
                         <div class="saved-conversations-dropdown">
-                            <select class="saved-conversations" data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }"></select>
+                            <select data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }, css: showConversationOptions() === true ? 'saved-conversations--visible' : 'saved-conversations'"></select>
                         </div>
                     </div>                    
                     <div class="messages">

@@ -217,6 +217,29 @@ button {
     }
 }
 
+.saved-conversations {
+    display: none;
+}
+
+.saved-conversations--visible {
+    display: flex;
+
+}
+
+.conversations-count {
+    display: contents;
+    position: relative;
+    left: 0px;
+
+    .count-icon {
+        padding: 2px;
+        right: 25px;
+        top: 8px;
+        float: right;
+        position: relative;
+    }
+}
+
 .saved-conversations-dropdown {
     position: absolute;
     top: 50%;

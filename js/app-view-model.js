@@ -19,6 +19,7 @@ export function AppViewModel() {
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
+    self.showConversationOptions = ko.observable(false);
     self.selectedModel = ko.observable(
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
@@ -69,6 +70,12 @@ export function AppViewModel() {
         self.saveSelectedModel();
     });
 
+    self.onShowConversationsClick = async function() {
+        if (self.displayConversations().length > 1) {
+            self.showConversationOptions(!self.showConversationOptions());
+        }
+    };
+
     document.addEventListener('click', (event) => {
         if (
             !event.target.closest('.sidebar') &&
@@ -103,6 +110,7 @@ export function AppViewModel() {
 
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
+        self.showConversationOptions(false);
     };
 
     self.deleteCurrentConversation = async function () {
