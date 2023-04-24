@@ -10367,6 +10367,7 @@ body {
 
 #user-input {
   flex-grow: 1;
+  z-index: 9999;
   border: 1px solid #444;
   outline: none;
   background-color: #1c1c1e;
