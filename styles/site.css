@@ -10336,7 +10336,6 @@ body {
   top: 50%;
   transform: translateY(-50%);
   color: #f0f0f0;
-  font-size: 18px;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10371,7 +10370,7 @@ body {
   border: 1px solid #444;
   outline: none;
   background-color: #1c1c1e;
-  font-size: 20px;
+  font-size: 18px;
   color: #f0f0f0;
   resize: vertical;
   overflow: auto;
@@ -10393,7 +10392,6 @@ button:hover {
 .send-button {
   border: 1px solid #444;
   background-color: #3a3a3c;
-  color: rgba(51, 146, 43, 0.8039215686);
   cursor: pointer;
   outline: none;
   position: relative;
@@ -10504,7 +10502,14 @@ button:hover {
 }
 .conversations-count .count-icon {
   padding: 2px;
-  right: 25px;
+  top: 8px;
+  right: 8px;
+  float: right;
+  position: relative;
+}
+.conversations-count .save-icon {
+  padding: 2px;
+  right: 65px;
   top: 8px;
   float: right;
   position: relative;
@@ -10513,7 +10518,7 @@ button:hover {
 .saved-conversations-dropdown {
   position: absolute;
   top: 50%;
-  right: 2px;
+  right: 10px;
   transform: translateY(-50%);
 }
 
@@ -10585,6 +10590,7 @@ button:hover {
   background-color: #3a3a3c;
   color: #f0f0f0;
   cursor: pointer;
+  width: 100%;
   outline: none;
   margin-bottom: 10px;
 }
@@ -10648,7 +10654,6 @@ button:hover {
   background-color: transparent;
   border: none;
   color: #f0f0f0;
-  font-size: 18px;
   cursor: pointer;
   outline: none;
 }

@@ -17,7 +17,6 @@
     <link rel="apple-touch-icon" sizes="144x144" href="images/apple-touch-icon-ipad-retina-152x152.png">
     <title>MinimalGPT</title>
 </head>
-<!-- Google tag (gtag.js) -->
 
 <body>
     <div class="app-container">
@@ -43,7 +42,6 @@
                 </select>
             </div>
             <div>
-                <button id="clear-messages" class="clear-button" data-bind="click: clearMessages">Save Conversation</button>
                 <button class="close-btn" data-bind="click: toggleSidebar">Close</button>
             </div>
         </div>
@@ -57,6 +55,10 @@
                         <div class="trash-btn fa-solid fa-trash-can fa-lg" data-bind="click: deleteCurrentConversation">
                         </div>
                         <div class="conversations-count">
+                            <!-- ko if: isSavingConversation -->
+                            <span class="loading spinner"></span></span>
+                            <!-- /ko -->
+                            <span class="save-icon fa-solid fa-floppy-disk fa-xl" data-bind="click: clearMessages"></span>
                             <span class="count-icon fa-lg fa-solid" data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>           
                         <div class="saved-conversations-dropdown fa-solid fa-comments fa-lg" data-bind="click: onShowConversationsClick"></div>
                         </div>            

@@ -15,6 +15,7 @@ const messagesContainer = document.querySelector('.messages');
 export function AppViewModel() {
     const self = this;
     self.userInput = ko.observable('');
+    self.isSavingConversation = ko.observable(false);
     self.messages = ko.observableArray(loadMessagesFromLocalStorage() || []);
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
@@ -202,6 +203,8 @@ export function AppViewModel() {
     };
 
     self.clearMessages = async function () {
+        self.isSavingConversation(true);
+
         const newConversation = {
             messageHistory: self.messages().slice(0),
             title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
@@ -253,6 +256,7 @@ export function AppViewModel() {
         }
 
         self.selectedConversation(self.conversations()[0]);
+        self.isSavingConversation(false);
         //self.messages(loadMessagesFromLocalStorage());
     };
 

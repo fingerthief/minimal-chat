@@ -51,7 +51,6 @@ body {
    // background-color: transparent;
     //border: none;
     color: #f0f0f0;
-    font-size: 18px;
     cursor: pointer;
 
     &:hover {
@@ -89,7 +88,7 @@ body {
     border: 1px solid #444;
     outline: none;
     background-color: #1c1c1e;
-    font-size: 20px;
+    font-size: 18px;
     color: #f0f0f0;
     resize: vertical;
     overflow: auto;
@@ -112,7 +111,6 @@ button {
 .send-button {
     border: 1px solid #444;
     background-color: #3a3a3c;
-    color: #33922bcd;
     cursor: pointer;
     outline: none;
     position: relative;
@@ -234,7 +232,15 @@ button {
 
     .count-icon {
         padding: 2px;
-        right: 25px;
+        top: 8px;
+        right: 8px;
+        float: right;
+        position: relative;
+    }
+    
+    .save-icon {
+        padding: 2px;
+        right: 65px;
         top: 8px;
         float: right;
         position: relative;
@@ -244,7 +250,7 @@ button {
 .saved-conversations-dropdown {
     position: absolute;
     top: 50%;
-    right: 2px;
+    right: 10px;
     transform: translateY(-50%);
 }
 .saved-conversations-dropdown select {
@@ -319,6 +325,7 @@ button {
     background-color: #3a3a3c;
     color: #f0f0f0;
     cursor: pointer;
+    width: 100%;
     outline: none;
     margin-bottom: 10px; // Add some margin at the bottom
 
@@ -404,7 +411,6 @@ button {
     background-color: transparent;
     border: none;
     color: #f0f0f0;
-    font-size: 18px;
     cursor: pointer;
     outline: none;
 
