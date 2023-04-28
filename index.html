@@ -7,19 +7,20 @@
     <meta name="robots" content="index, follow">
     <meta name="author" content="Tanner Middleton">
     <meta name="keywords" content="chat, chatGPT, GPT3. GPT4, chatbot, open source, AI, artificial intelligence, OpenAI">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> -->
     <link rel="stylesheet" href="styles/site.css">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="manifest" href="manifest.webmanifest" />
+    <!-- <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="apple-touch-icon" href="images/apple-touch-icon-iphone-60x60.png">
     <link rel="apple-touch-icon" sizes="60x60" href="images/apple-touch-icon-ipad-76x76.png">
     <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-iphone-retina-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="images/apple-touch-icon-ipad-retina-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="images/apple-touch-icon-ipad-retina-152x152.png"> -->
     <title>MinimalGPT</title>
 </head>
 <body>
     <div class="app-container">
-        <div class="sidebar" data-bind="css: { open: isSidebarOpen }">
+        <div class="sidebar box" data-bind="css: { open: isSidebarOpen }">
             <!-- Add settings content here -->
             <div class="settings-header">
                 <h2>Settings</h2>
@@ -47,7 +48,7 @@
         <div class="chat-container">
             <div class="container">
                 <div class="chat">
-                    <div class="header">
+                    <div class="header box">
                         <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">MinimalGPT <span class="fa-brands fa-github"></span></a>
                         
                         <div class="settings-btn fa-solid fa-sliders fa-lg" data-bind="click: toggleSidebar"></div>
@@ -84,8 +85,8 @@
                     </div>
 
                     <form id="chat-form" data-bind="submit: sendMessage">
-                        <textarea id="user-input" rows="1" placeholder="" data-bind="textInput: userInput" ></textarea>
-                        <div class="send-button" data-bind="click: sendMessage">
+                        <textarea id="user-input" class="user-input-text" rows="1" placeholder="" data-bind="textInput: userInput" ></textarea>
+                        <div class="send-button box" data-bind="click: sendMessage">
                             <span class="fa-regular fa-paper-plane fa-2xl"></span>
                         </div>
                     </form>
@@ -94,6 +95,7 @@
         </div>
     </div>
 
+    <script async src="https://cdn.jsdelivr.net/npm/pwacompat" crossorigin="anonymous"></script>
     <script type="module" src="index.js"></script>
     <script type="module" src="js/app-view-model.js"></script>
     <script type="module" src="js/storage.js"></script>

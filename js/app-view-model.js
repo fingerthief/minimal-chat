@@ -56,8 +56,14 @@ export function AppViewModel() {
     const userInput = document.getElementById('user-input');
     userInput.addEventListener('input', autoResize);
     userInput.addEventListener('focus', autoResize);
+    userInput.addEventListener('blur', autoResize);
 
     function autoResize() {
+        if(!self.userInput() || self.userInput().trim() === "") {
+            this.style.height = '30px';
+            return;
+        }
+
         this.style.height = 'auto';
         this.style.height = `${this.scrollHeight}px`;
     }
@@ -225,7 +231,7 @@ export function AppViewModel() {
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
 
-        if (!messageText) {
+        if (!messageText || messageText === "") {
             return;
         }
 
@@ -235,8 +241,7 @@ export function AppViewModel() {
 
         // Reset the user input field
         userInput.value = '';
-        userInput.style.height = 'auto';
-        userInput.style.height = (userInput.scrollHeight) + 'px';
+        userInput.style.height = '30px';
         userInput.focus();
 
         self.streamedMessageText("");

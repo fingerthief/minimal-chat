@@ -10,7 +10,8 @@ const srcFiles = [
     './images/**/*',
     './index.html',
     './index.scss',
-    './index.js'
+    './index.js',
+    './manifest.webmanifest'
 ];
 const dest = './public';
 

@@ -10335,7 +10335,7 @@ body {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #a3abc3;
+  color: #c3d1ff;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10375,9 +10375,13 @@ body {
   resize: vertical;
   overflow: auto;
   white-space: pre-wrap;
-  min-height: 41px;
-  border-top-right-radius: 30px;
-  border-bottom-right-radius: 30px;
+  min-height: 30px;
+  border-radius: 30px;
+}
+
+textarea {
+  padding-top: 18px;
+  padding-left: 20px;
 }
 
 button {
@@ -10393,10 +10397,10 @@ button:hover {
 
 .send-button {
   border: 1px solid #444;
-  background-color: #3a3a3c;
+  background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #a3abc3;
+  color: #c3d1ff;
   position: absolute;
   min-height: 50px;
   display: grid;
@@ -10510,7 +10514,7 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 8px;
-  color: #a3abc3;
+  color: #c3d1ff;
   float: right;
   position: relative;
 }
@@ -10518,7 +10522,7 @@ button:hover {
   padding: 2px;
   right: 65px;
   top: 8px;
-  color: #a3abc3;
+  color: #c3d1ff;
   float: right;
   position: relative;
 }
@@ -10527,7 +10531,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #a3abc3;
+  color: #c3d1ff;
   transform: translateY(-50%);
 }
 
@@ -10602,7 +10606,7 @@ button:hover {
   border: 1px solid #444;
   border-radius: 3px;
   background-color: #3a3a3c;
-  color: #f0f0f0;
+  color: #c3d1ff;
   cursor: pointer;
   width: 100%;
   font-size: 18px;
@@ -10642,8 +10646,12 @@ button:hover {
   justify-content: space-between;
 }
 
+.box {
+  box-shadow: 0px 1px 2px 0px #445469;
+}
+
 .header {
-  background-color: #444;
+  background-color: #2a3441;
   padding: 10px;
   font-size: 18px;
   font-weight: bold;
@@ -10669,7 +10677,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #a3abc3;
+  color: #c3d1ff;
   cursor: pointer;
   outline: none;
 }
@@ -10708,7 +10716,7 @@ button:hover {
 
 .no-style-link {
   text-decoration: none;
-  color: #a3abc3;
+  color: inherit;
 }
 .no-style-link:hover, .no-style-link:focus {
   text-decoration: none;
