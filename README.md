@@ -18,16 +18,15 @@ On iOS devices in Safari, you can add a web page to your home screen. If you do 
 
 ### Minimal chat layout with Markdown and Code Syntax Highlighting support
 
-![Web capture_23-4-2023_221755_minimalgpt app](https://user-images.githubusercontent.com/2380471/233892872-97083462-2105-489e-81a4-765bc8047ff8.jpeg)
+![Web capture_27-4-2023_205811_minimalgpt app](https://user-images.githubusercontent.com/2380471/235036383-9eea2a81-0832-476a-aaff-6cd1bcbb4799.jpeg)
 
 ### Settings
 
-![Web capture_23-4-2023_221812_minimalgpt app](https://user-images.githubusercontent.com/2380471/233892954-a4a20d61-8a86-43e9-a319-a19daa4dfeab.jpeg)
-
+![Web capture_27-4-2023_20593_minimalgpt app](https://user-images.githubusercontent.com/2380471/235036412-b736fb7e-cbf4-4684-8bca-8293b9ae3761.jpeg)
 
 ### Responsive Layout for mobile use
 
-![mobile_ui](https://user-images.githubusercontent.com/2380471/233892985-29b330da-6094-4a97-90b0-4cf906cd8302.png)
+![2023-04-27 20_58_37-NVIDIA GeForce Overlay DT](https://user-images.githubusercontent.com/2380471/235036430-5842a4ff-1d9f-434f-820e-db6fc7a9e900.png)
 
 ## Run Web App Locally
 
