@@ -12,15 +12,18 @@ import {
 const ko = window.ko;
 const messagesContainer = document.querySelector('.messages');
 
+
+
 export function AppViewModel() {
     const self = this;
     self.userInput = ko.observable('');
-    self.isSavingConversation = ko.observable(false);
+    self.isProcessing = ko.observable(false);
     self.messages = ko.observableArray(loadMessagesFromLocalStorage() || []);
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
     self.showConversationOptions = ko.observable(false);
+    self.streamedMessageText = ko.observable();
     self.selectedModel = ko.observable(
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
@@ -115,6 +118,7 @@ export function AppViewModel() {
     };
 
     self.deleteCurrentConversation = async function () {
+        self.isProcessing(true);
         let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
         const newConversation = {
@@ -145,7 +149,78 @@ export function AppViewModel() {
         self.messages(loadMessagesFromLocalStorage());
         self.conversationTitles(loadConversationTitles());
         self.conversations(loadConversationTitles());
+        self.isProcessing(false);
     };
+
+    const apiKey = document.getElementById('api-key');
+    apiKey.value = localStorage.getItem("gpt3Key") || "";
+
+    async function fetchGPTResponseStream(conversation, attitude, model) {
+
+        const prompt = `Me: ${conversation}\nAI:`;
+        let storedApiKey = localStorage.getItem("gpt3Key");
+    
+        if (storedApiKey !== apiKey.value.trim()) {
+            localStorage.setItem("gpt3Key", apiKey.value.trim());
+            storedApiKey = apiKey.value.trim();
+        }
+    
+        if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !==  attitude) {
+            localStorage.setItem("gpt-attitude", attitude);
+        }
+    
+        try {
+            const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+                },
+                body: JSON.stringify({
+                    model: model,
+                    stream: true,
+                    messages: conversation,
+                    temperature: attitude * 0.01
+                }),
+            });
+
+           // self.messages.push({ role: 'assistant', content: "" });
+
+            // Read the response as a stream of data
+            const reader = await response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    break;
+                }
+                // Massage and parse the chunk of data
+                const chunk = decoder.decode(value);
+                const lines = chunk.split("\n");
+                const parsedLines = lines
+                    .map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
+                    .filter((line) => line !== "" && line !== "[DONE]") // Remove empty lines and "[DONE]"
+                    .map((line) => JSON.parse(line)); // Parse the JSON string
+
+                for (const parsedLine of parsedLines) {
+                    const { choices } = parsedLine;
+                    const { delta } = choices[0];
+                    const { content } = delta;
+                    // Update the UI with the new content
+                    if (content) {
+                        self.streamedMessageText((self.streamedMessageText() || "") + content);
+                        self.scrollToBottom();
+                    }
+                }
+            }
+
+            return self.streamedMessageText();
+        } catch (error) {
+            console.error("Error fetching GPT response:", error);
+            return "An error occurred while fetching a response.";
+        }
+    }
 
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
@@ -164,10 +239,12 @@ export function AppViewModel() {
         userInput.style.height = (userInput.scrollHeight) + 'px';
         userInput.focus();
 
+        self.streamedMessageText("");
         self.isLoading(true);
 
         try {
-            const response = await fetchGPTResponse(self.messages(), self.sliderValue(), self.selectedModel());
+            const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel());
+
             self.isLoading(false);
             self.messages.push({ role: 'assistant', content: response });
 
@@ -203,7 +280,7 @@ export function AppViewModel() {
     };
 
     self.clearMessages = async function () {
-        self.isSavingConversation(true);
+        self.isProcessing(true);
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
@@ -256,7 +333,7 @@ export function AppViewModel() {
         }
 
         self.selectedConversation(self.conversations()[0]);
-        self.isSavingConversation(false);
+        self.isProcessing(false);
         //self.messages(loadMessagesFromLocalStorage());
     };
 

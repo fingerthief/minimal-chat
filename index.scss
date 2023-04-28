@@ -50,7 +50,7 @@ body {
     transform: translateY(-50%);
    // background-color: transparent;
     //border: none;
-    color: #f0f0f0;
+    color: #a3abc3;
     cursor: pointer;
 
     &:hover {
@@ -94,6 +94,8 @@ body {
     overflow: auto;
     white-space: pre-wrap;
     min-height: 41px;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
 }
 
 button {
@@ -113,10 +115,14 @@ button {
     background-color: #3a3a3c;
     cursor: pointer;
     outline: none;
-    position: relative;
+    color: #a3abc3;
+    position: absolute;
     min-height: 50px;
     display: grid;
     align-content: center;
+    right: 7px;
+    z-index: 99999;
+    border-radius: 30px;
     min-width: 54px;
     justify-content: space-around;
 
@@ -234,6 +240,7 @@ button {
         padding: 2px;
         top: 8px;
         right: 8px;
+        color: #a3abc3;
         float: right;
         position: relative;
     }
@@ -242,6 +249,7 @@ button {
         padding: 2px;
         right: 65px;
         top: 8px;
+        color: #a3abc3;
         float: right;
         position: relative;
     }
@@ -251,6 +259,7 @@ button {
     position: absolute;
     top: 50%;
     right: 10px;
+    color: #a3abc3;
     transform: translateY(-50%);
 }
 .saved-conversations-dropdown select {
@@ -294,6 +303,11 @@ button {
 
 }
 
+.general-processing {
+    display: contents;
+    position: relative;
+}
+
 .sidebar {
     background-color: #444;
     width: 315px;
@@ -326,6 +340,8 @@ button {
     color: #f0f0f0;
     cursor: pointer;
     width: 100%;
+    font-size: 18px;
+    height: 50px;
     outline: none;
     margin-bottom: 10px; // Add some margin at the bottom
 
@@ -410,7 +426,7 @@ button {
     transform: translateY(-50%);
     background-color: transparent;
     border: none;
-    color: #f0f0f0;
+    color: #a3abc3;
     cursor: pointer;
     outline: none;
 
@@ -450,7 +466,7 @@ button {
 
 .no-style-link {
     text-decoration: none;
-    color: inherit;
+    color: #a3abc3;
 
     &:hover,
     &:focus {

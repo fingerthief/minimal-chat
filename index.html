@@ -17,7 +17,6 @@
     <link rel="apple-touch-icon" sizes="144x144" href="images/apple-touch-icon-ipad-retina-152x152.png">
     <title>MinimalGPT</title>
 </head>
-
 <body>
     <div class="app-container">
         <div class="sidebar" data-bind="css: { open: isSidebarOpen }">
@@ -55,9 +54,9 @@
                         <div class="trash-btn fa-solid fa-trash-can fa-lg" data-bind="click: deleteCurrentConversation">
                         </div>
                         <div class="conversations-count">
-                            <!-- ko if: isSavingConversation -->
-                            <span class="loading spinner"></span></span>
-                            <!-- /ko -->
+                            <div class="general-processing" data-bind="visible: isProcessing">
+                                <span class="loading spinner"></span>
+                            </div>
                             <span class="save-icon fa-solid fa-floppy-disk fa-xl" data-bind="click: clearMessages"></span>
                             <span class="count-icon fa-lg fa-solid" data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>           
                         <div class="saved-conversations-dropdown fa-solid fa-comments fa-lg" data-bind="click: onShowConversationsClick"></div>
@@ -78,7 +77,8 @@
                         <!-- ko if: isLoading -->
                         <div class="gpt message padded">
                             <span class="label">GPT</span>
-                            <span>Generating Response <span class="loading spinner"></span></span>
+                            <span data-bind="html: formatMessage(streamedMessageText() || '', false)"></span>
+                            <span class="loading spinner"></span>
                         </div>
                         <!-- /ko -->
                     </div>
