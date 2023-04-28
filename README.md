@@ -8,7 +8,10 @@
 
 ### Tip for iOS users
 
-On iOS devices in Safari, you can add a web page to your home screen. If you do that, then MinimalGPT will run in "mobile web app" mode, essentially removing the usual browser controls and providing an iOS app-like experience.
+On iOS devices in Safari, you can add a web page to your home screen. If you do that, then MinimalGPT will run in `mobile web app` mode, essentially removing the usual browser controls and providing an iOS app experience.
+
+![ios-add-to-home-small](https://user-images.githubusercontent.com/2380471/235267080-d69a2a46-50fa-4acf-b36b-da10b5d439d1.jpg)
+
 
 ## Features
 
@@ -27,10 +30,6 @@ On iOS devices in Safari, you can add a web page to your home screen. If you do 
 ### Responsive Layout for mobile use
 
 ![2023-04-28 17_49_07-NVIDIA GeForce Overlay DT](https://user-images.githubusercontent.com/2380471/235266327-47441d95-95c1-416d-8e58-1193c073da52.png)
-
-### App Icon
-
-![ios-icon_small](https://user-images.githubusercontent.com/2380471/235266655-99252a92-5d84-4e30-82e4-5f5eb22406a0.jpg)
 
 ## Run Web App Locally
 
