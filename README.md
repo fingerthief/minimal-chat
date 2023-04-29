@@ -8,7 +8,10 @@
 
 ### Tip for iOS users
 
-On iOS devices in Safari, you can add a web page to your home screen. If you do that, then MinimalGPT will run in "mobile web app" mode, essentially removing the usual browser controls and providing an iOS app-like experience.
+On iOS devices in Safari, you can add a web page to your home screen. If you do that, then MinimalGPT will run in `mobile web app` mode, essentially removing the usual browser controls and providing an iOS app experience.
+
+![ios-add-to-home-small](https://user-images.githubusercontent.com/2380471/235267080-d69a2a46-50fa-4acf-b36b-da10b5d439d1.jpg)
+
 
 ## Features
 
@@ -18,15 +21,15 @@ On iOS devices in Safari, you can add a web page to your home screen. If you do 
 
 ### Minimal chat layout with Markdown and Code Syntax Highlighting support
 
-![Web capture_27-4-2023_205811_minimalgpt app](https://user-images.githubusercontent.com/2380471/235036383-9eea2a81-0832-476a-aaff-6cd1bcbb4799.jpeg)
+![Web capture_28-4-2023_17482_minimalgpt app](https://user-images.githubusercontent.com/2380471/235266294-6b7bb6a1-577a-4d9c-a607-d19eb6279ffe.jpeg)
 
 ### Settings
 
-![Web capture_27-4-2023_20593_minimalgpt app](https://user-images.githubusercontent.com/2380471/235036412-b736fb7e-cbf4-4684-8bca-8293b9ae3761.jpeg)
+![Web capture_28-4-2023_174818_minimalgpt app](https://user-images.githubusercontent.com/2380471/235266309-1adba0aa-698c-4a6c-99b9-dec939e013ae.jpeg)
 
 ### Responsive Layout for mobile use
 
-![2023-04-27 20_58_37-NVIDIA GeForce Overlay DT](https://user-images.githubusercontent.com/2380471/235036430-5842a4ff-1d9f-434f-820e-db6fc7a9e900.png)
+![2023-04-28 17_49_07-NVIDIA GeForce Overlay DT](https://user-images.githubusercontent.com/2380471/235266327-47441d95-95c1-416d-8e58-1193c073da52.png)
 
 ## Run Web App Locally
 
