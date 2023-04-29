@@ -12,11 +12,10 @@ import {
 const ko = window.ko;
 const messagesContainer = document.querySelector('.messages');
 
-
-
 export function AppViewModel() {
     const self = this;
     self.userInput = ko.observable('');
+    self.userSearchInput = ko.observable('');
     self.isProcessing = ko.observable(false);
     self.messages = ko.observableArray(loadMessagesFromLocalStorage() || []);
     self.isLoading = ko.observable(false);
@@ -24,17 +23,13 @@ export function AppViewModel() {
     self.isSidebarOpen = ko.observable(false);
     self.showConversationOptions = ko.observable(false);
     self.streamedMessageText = ko.observable();
+    self.showingSearchField = ko.observable(false);
+    self.filteredMessages = ko.observableArray([]);
     self.selectedModel = ko.observable(
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
 
     hljs.configure({ ignoreUnescapedHTML: true });
-
-    self.messages.subscribe((message) => {
-        setTimeout(() => {
-            hljs.highlightAll();
-        }, 0);
-    });
 
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
@@ -55,13 +50,63 @@ export function AppViewModel() {
         ),
     );
 
+    const defaults = {
+        html: false, // Enable HTML tags in source
+        xhtmlOut: false, // Use '/' to close single tags (<br />)
+        breaks: false, // Convert '\n' in paragraphs into <br>
+        langPrefix: 'language-', // CSS language prefix for fenced blocks
+        linkify: true, // autoconvert URL-like texts to links
+        typographer: true, // Enable smartypants and other sweet transforms
+        // options below are for demo only
+        _highlight: true, // <= THIS IS WHAT YOU NEED
+        _strict: false,
+        _view: 'html' // html / src / debug
+    };
+
+    defaults.highlight = function (str, lang) {
+        const md = window.markdownit(defaults);
+        var esc = md.utils.escapeHtml;
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return '<pre class="hljs"><code>' +
+                    hljs.highlight(lang, str, true).value +
+                    '</code></pre>';
+            } catch (__) { }
+        } else {
+            return '<pre class="hljs"><code>' + esc(str) + '</code></pre>';
+        }
+
+    };
+
+    const userSearchInput = document.getElementById("user-search-input");
+    userSearchInput.addEventListener('blur', onSearchFocusLeave);
+    userSearchInput.addEventListener('input', autoResize);
+    userSearchInput.addEventListener('focus', autoResize);
+
+    const floatinSearchField = document.getElementById('floating-search-field');
+    floatinSearchField.addEventListener('transitionend', zIndexAfterTransition)
+
+    floatinSearchField.style.zIndex = '-9999';
+
+    function zIndexAfterTransition() {
+        if (!self.showingSearchField()) {
+            this.style.zIndex = '-9999';
+        }
+    }
+
+    function onSearchFocusLeave() {
+        self.showSearchField();
+    }
+
+
     const userInput = document.getElementById('user-input');
     userInput.addEventListener('input', autoResize);
     userInput.addEventListener('focus', autoResize);
     userInput.addEventListener('blur', autoResize);
 
     function autoResize() {
-        if(!self.userInput() || self.userInput().trim() === "") {
+        if (!self.userInput() || self.userInput().trim() === "") {
+
             this.style.height = '30px';
             return;
         }
@@ -74,6 +119,16 @@ export function AppViewModel() {
         localStorage.setItem('selectedModel', self.selectedModel());
     }
 
+    self.filteredMessages = ko.computed(() => {
+        const searchQuery = self.userSearchInput().toLowerCase();
+        if (searchQuery.length === 0) {
+            return self.messages();
+        }
+        return self.messages().filter((message) =>
+            message.content.toLowerCase().includes(searchQuery)
+        );
+    });
+
     self.saveSelectedModel = function () {
         localStorage.setItem('selectedModel', self.selectedModel());
     };
@@ -82,7 +137,7 @@ export function AppViewModel() {
         self.saveSelectedModel();
     });
 
-    self.onShowConversationsClick = async function() {
+    self.onShowConversationsClick = async function () {
         if (self.displayConversations().length > 1) {
             self.showConversationOptions(!self.showConversationOptions());
         }
@@ -107,6 +162,7 @@ export function AppViewModel() {
         self.isSidebarOpen(!self.isSidebarOpen());
     };
 
+
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevent the default behavior of the Enter key
@@ -127,6 +183,15 @@ export function AppViewModel() {
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
         self.showConversationOptions(false);
+    };
+
+    self.showSearchField = async function () {
+
+        if (!self.showingSearchField()) {
+            floatinSearchField.style.zIndex = '9999';
+        }
+
+        self.showingSearchField(!self.showingSearchField());
     };
 
     self.deleteCurrentConversation = async function () {
@@ -172,16 +237,16 @@ export function AppViewModel() {
 
         const prompt = `Me: ${conversation}\nAI:`;
         let storedApiKey = localStorage.getItem("gpt3Key");
-    
+
         if (storedApiKey !== apiKey.value.trim()) {
             localStorage.setItem("gpt3Key", apiKey.value.trim());
             storedApiKey = apiKey.value.trim();
         }
-    
-        if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !==  attitude) {
+
+        if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
             localStorage.setItem("gpt-attitude", attitude);
         }
-    
+
         try {
             const response = await fetch("https://api.openai.com/v1/chat/completions", {
                 method: "POST",
@@ -289,9 +354,8 @@ export function AppViewModel() {
     };
 
     self.formatMessage = function (message, isStartup) {
-        let md = window.markdownit();
-        let formattedMessage = wrapCodeSnippets(md.render(message));
-        return formattedMessage;
+        let md = window.markdownit(defaults);
+        return md.render(message);
     };
 
     self.clearMessages = async function () {
@@ -349,7 +413,6 @@ export function AppViewModel() {
 
         self.selectedConversation(self.conversations()[0]);
         self.isProcessing(false);
-        //self.messages(loadMessagesFromLocalStorage());
     };
 
     self.scrollToBottom = function () {
@@ -370,5 +433,5 @@ export function AppViewModel() {
     if (self.conversations().length > 1) {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
-    }   
+    }
 }

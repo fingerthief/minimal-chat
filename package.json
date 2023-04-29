@@ -25,6 +25,7 @@
     "http-server": "^14.1.1",
     "knockout": "^3.5.1",
     "markdown": "^0.5.0",
+    "markdown-it-highlight": "^0.2.0",
     "openai": "^3.2.1",
     "sass": "^1.62.0"
   }
