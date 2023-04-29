@@ -78,14 +78,14 @@
                         <!-- ko if: isLoading -->
                         <div class="gpt message padded">
                             <span class="label">GPT</span>
-                            <span data-bind="html: formatMessage(streamedMessageText() || '', false)"></span>
-                            <span class="loading spinner"></span>
+                            <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
                         </div>
                         <!-- /ko -->
                     </div>
 
                     <form id="chat-form" data-bind="submit: sendMessage">
                         <textarea id="user-input" class="user-input-text" rows="1" placeholder="" data-bind="textInput: userInput" ></textarea>
+                        <span data-bind="visible: isLoading" class="loading input-spinner"></span>
                         <div class="send-button box" data-bind="click: sendMessage">
                             <span class="fa-regular fa-paper-plane fa-2xl"></span>
                         </div>

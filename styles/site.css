@@ -10829,6 +10829,22 @@ button:hover {
   animation: spinner 1s linear infinite;
 }
 
+.input-spinner {
+  display: flex;
+  width: 25px;
+  color: lightskyblue;
+  height: 25px;
+  bottom: 17px;
+  right: 65px;
+  position: absolute;
+  z-index: 9000888;
+  margin-left: 5px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-left-color: greenyellow;
+  border-radius: 50%;
+  animation: spinner 1s linear infinite;
+}
+
 input[type=range] {
   -webkit-appearance: none;
   width: 100%;

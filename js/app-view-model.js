@@ -28,7 +28,9 @@ export function AppViewModel() {
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
 
-    self.messages.subscribe(() => {
+    hljs.configure({ ignoreUnescapedHTML: true });
+
+    self.messages.subscribe((message) => {
         setTimeout(() => {
             hljs.highlightAll();
         }, 0);
@@ -113,6 +115,10 @@ export function AppViewModel() {
     });
 
     self.loadSelectedConversation = function (value) {
+        if (!self.selectedConversation()) {
+            return;
+        }
+
         // Check if the title of the selected conversation is 'Choose an existing conversation'
         if (self.selectedConversation() && self.selectedConversation().title === 'Choose an existing conversation') {
             return;
@@ -150,6 +156,7 @@ export function AppViewModel() {
 
         let conversations = JSON.parse(localStorage.getItem("gpt-conversations"));
         conversations.pop(conversationIndex);
+
         localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
         self.storedConversations(loadStoredConversations());
         self.messages(loadMessagesFromLocalStorage());
@@ -190,8 +197,6 @@ export function AppViewModel() {
                 }),
             });
 
-           // self.messages.push({ role: 'assistant', content: "" });
-
             // Read the response as a stream of data
             const reader = await response.body.getReader();
             const decoder = new TextDecoder("utf-8");
@@ -216,6 +221,7 @@ export function AppViewModel() {
                     // Update the UI with the new content
                     if (content) {
                         self.streamedMessageText((self.streamedMessageText() || "") + content);
+                        hljs.highlightAll();
                         self.scrollToBottom();
                     }
                 }
