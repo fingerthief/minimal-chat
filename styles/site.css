@@ -10335,7 +10335,7 @@ body {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #139893;
+  color: #86c1bf;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10400,7 +10400,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #139893;
+  color: #86c1bf;
   position: absolute;
   min-height: 50px;
   display: grid;
@@ -10514,7 +10514,7 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 8px;
-  color: #139893;
+  color: #86c1bf;
   float: right;
   position: relative;
 }
@@ -10522,7 +10522,7 @@ button:hover {
   padding: 2px;
   right: 65px;
   top: 8px;
-  color: #139893;
+  color: #86c1bf;
   float: right;
   position: relative;
 }
@@ -10531,7 +10531,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #139893;
+  color: #86c1bf;
   transform: translateY(-50%);
 }
 
@@ -10640,7 +10640,7 @@ button:hover {
   min-width: 350px;
   max-width: 99dvw;
   border: 1px solid #444;
-  border-radius: 5px;
+  border-radius: 30px;
   width: 50%;
   background-color: #2a3441;
   justify-content: space-between;
@@ -10677,7 +10677,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #139893;
+  color: #86c1bf;
   cursor: pointer;
   outline: none;
 }

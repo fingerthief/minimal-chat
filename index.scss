@@ -5,7 +5,7 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../web-fonts";
-$icon-color: #139893;
+$icon-color: #86c1bf;
 
 body {
     font-family: Arial, sans-serif;
@@ -400,7 +400,7 @@ button {
     min-width: 350px;
     max-width: 99dvw;
     border: 1px solid #444;
-    border-radius: 5px;
+    border-radius: 30px;
     width: 50%;
     background-color: #2a3441;
     justify-content: space-between;
