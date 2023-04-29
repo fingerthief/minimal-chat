@@ -10649,7 +10649,7 @@ button:hover {
 }
 
 .sidebar {
-  background-color: #444;
+  background-color: #252f3c;
   width: 315px;
   border-radius: 8px;
   padding: 8px;
@@ -10730,7 +10730,6 @@ button:hover {
 }
 
 .settings-header {
-  background-color: #444;
   font-size: 18px;
   font-weight: bold;
   text-align: center;
