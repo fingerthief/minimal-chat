@@ -17,6 +17,7 @@ export function AppViewModel() {
     self.userInput = ko.observable('');
     self.userSearchInput = ko.observable('');
     self.isProcessing = ko.observable(false);
+    self.shouldShowScrollButton = ko.observable(false);
     self.messages = ko.observableArray(loadMessagesFromLocalStorage() || []);
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
@@ -161,6 +162,24 @@ export function AppViewModel() {
     self.toggleSidebar = () => {
         self.isSidebarOpen(!self.isSidebarOpen());
     };
+
+    const messagesContainer = document.getElementById("messagesContainer");
+
+    self.updateScrollButtonVisibility = function () {
+        const messages = messagesContainer.querySelectorAll('.message');
+        if (messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            const rect = lastMessage.getBoundingClientRect();
+
+            if ((parseFloat(rect.top) * 0.001) > 0.5) {
+                self.shouldShowScrollButton(true);
+            } else {
+                self.shouldShowScrollButton(false);
+            }
+        }
+    };
+    
+    messagesContainer.addEventListener('scroll', self.updateScrollButtonVisibility);
 
 
     userInput.addEventListener('keypress', (event) => {
@@ -428,6 +447,8 @@ export function AppViewModel() {
                 top: messagesContainer.scrollHeight,
             });
         }, 500); // Adjust the timeout duration as needed
+
+        self.updateScrollButtonVisibility();
     };
 
     if (self.conversations().length > 1) {

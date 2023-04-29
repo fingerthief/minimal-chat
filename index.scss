@@ -173,7 +173,18 @@ button {
     z-index: 99999;
     border-radius: 30px;
     min-width: 54px;
+    opacity: 1;
     justify-content: space-around;
+    transition: opacity 0.5s ease-in-out; 
+
+    &.scroll {
+        top: 76vh;
+        opacity: 0;
+
+        &.show {
+            opacity: 1;;
+        }
+    }
 
 
     &:hover {

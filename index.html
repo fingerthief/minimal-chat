@@ -59,7 +59,7 @@
                             <select data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }, css: showConversationOptions() === true ? 'saved-conversations--visible' : 'saved-conversations'"></select>
                         </div>
                     </div>                    
-                    <div class="messages">
+                    <div class="messages" id="messagesContainer">
                         <div class="floating-button" data-bind="click: showSearchField">
                             <span class="fa-solid fa-magnifying-glass fa-xl"></span>
                         </div>
@@ -88,6 +88,10 @@
                             <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
                         </div>
                         <!-- /ko -->
+
+                        <div class="floating-button scroll" id="scroll-button" data-bind="click: scrollToBottom(), css: shouldShowScrollButton() === true ? 'show' : ''">
+                            <span class="fa-solid fa-circle-chevron-down fa-xl"></span>
+                        </div>
                     </div>
 
                     <form id="chat-form" data-bind="submit: sendMessage">
