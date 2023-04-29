@@ -15,8 +15,11 @@
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-free": "^6.4.0",
+    "del": "^7.0.0",
     "dotenv": "^16.0.3",
     "gulp": "^4.0.2",
+    "gulp-html-replace": "^1.6.2",
+    "gulp-inject-string": "^1.1.2",
     "gulp-load-plugins": "^2.0.8",
     "gulp-newer": "^1.4.0",
     "http-server": "^14.1.1",

@@ -241,6 +241,10 @@ export function AppViewModel() {
             return;
         }
 
+        if (self.isLoading()) {
+            return;
+        }
+
         self.messages.push({ role: 'user', content: messageText });
         this.scrollToBottom();
         self.userInput('');

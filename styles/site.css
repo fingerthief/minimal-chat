@@ -10480,7 +10480,7 @@ button:hover {
 }
 .message.gpt {
   float: left;
-  background-color: #364353;
+  background-color: #234b4a;
   color: #f0f0f0;
 }
 .message.gpt .label {
@@ -10642,7 +10642,7 @@ button:hover {
   border: 1px solid #444;
   border-radius: 5px;
   width: 50%;
-  background-color: #2c2c2e;
+  background-color: #2a3441;
   justify-content: space-between;
 }
 
@@ -10710,7 +10710,7 @@ button:hover {
 }
 
 .message-container.gpt .message-tag {
-  background-color: #364353;
+  background-color: #234b4a;
   color: #f0f0f0;
 }
 
