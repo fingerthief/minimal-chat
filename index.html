@@ -74,12 +74,14 @@
                         <!-- /ko -->
 
                                                 
-                        <!-- ko foreach: messages -->
-                        <div
-                            data-bind="visible: $parent.userSearchInput().trim().length === 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
-                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
-                        </div>
+                        <!-- ko foreach: messages()-->
+                            <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
+                            <div
+                                data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                                <span class="label" data-bind="text: (role === 'user' ? 'Me' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                                <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                            </div>
+                            <!-- /ko -->
                         <!-- /ko -->
 
                         <!-- ko if: isLoading -->

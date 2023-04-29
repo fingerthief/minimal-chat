@@ -69,9 +69,9 @@ export function AppViewModel() {
         linkify: true, // autoconvert URL-like texts to links
         typographer: true, // Enable smartypants and other sweet transforms
         // options below are for demo only
-        _highlight: true, // <= THIS IS WHAT YOU NEED
+        _highlight: false, // <= THIS IS WHAT YOU NEED
         _strict: false,
-        _view: 'html' // html / src / debug
+        _view: 'src' // html / src / debug
     };
 
     defaults.highlight = function (str, lang) {
@@ -388,6 +388,7 @@ export function AppViewModel() {
         userInput.value = '';
         userInput.style.height = '30px';
         userInput.focus();
+        
 
         self.streamedMessageText("");
         self.isLoading(true);
@@ -400,6 +401,7 @@ export function AppViewModel() {
 
             self.saveMessages();
             this.scrollToBottom();
+            hljs.highlightAll();
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -425,7 +427,8 @@ export function AppViewModel() {
 
     self.formatMessage = function (message, isStartup) {
         let md = window.markdownit(defaults);
-        return md.render(message);
+        let renderedMessage = wrapCodeSnippets(md.render(message));
+        return renderedMessage;
     };
 
     self.clearMessages = async function () {
@@ -506,4 +509,17 @@ export function AppViewModel() {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
     }
+
+    // let isStartup = true;
+    // if (isStartup) {
+    //     isStartup = false;
+    //     for (const message of self.messages()) {
+    //         if (message.content.toLowerCase().includes("pre")) {
+    //             message.content = wrapCodeSnippets(window.markdownit().render(message.content));
+    //             self.messages.valueHasMutated();
+    //         }
+    //     }  
+
+    //     hljs.highlightAll();
+    // }
 }
