@@ -1,12 +1,13 @@
 import {
     wrapCodeSnippets,
-    getConversationTitleFromGPT,
+    getConversationTitleFromGPT
 } from './utils.js';
 import {
     fetchGPTResponse,
     loadMessagesFromLocalStorage,
     loadConversationTitles,
     loadStoredConversations,
+    generateDALLEImage
 } from './storage.js';
 
 const ko = window.ko;
@@ -15,6 +16,7 @@ const messagesContainer = document.querySelector('.messages');
 export function AppViewModel() {
     const self = this;
     self.userInput = ko.observable('');
+    self.isGeneratingImage = ko.observable(false);
     self.userSearchInput = ko.observable('');
     self.isProcessing = ko.observable(false);
     self.shouldShowScrollButton = ko.observable(false);
@@ -171,6 +173,11 @@ export function AppViewModel() {
             const lastMessage = messages[messages.length - 1];
             const rect = lastMessage.getBoundingClientRect();
 
+            if (!isScrollable(messagesContainer)) {
+                self.shouldShowScrollButton(false);
+                return;
+            }
+
             if ((parseFloat(rect.top) * 0.001) > 0.5) {
                 self.shouldShowScrollButton(true);
             } else {
@@ -181,6 +188,9 @@ export function AppViewModel() {
     
     messagesContainer.addEventListener('scroll', self.updateScrollButtonVisibility);
 
+    function isScrollable(element) {
+        return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    }      
 
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -325,9 +335,34 @@ export function AppViewModel() {
             return;
         }
 
-        if (self.isLoading()) {
+        if (self.isLoading() || self.isGeneratingImage()) {
             return;
         }
+
+        const imagePrompt =  self.userInput().trim();
+
+        if (imagePrompt.toLowerCase().startsWith("image::")) {
+            self.messages.push({ role: 'user', content: imagePrompt })
+            self.isGeneratingImage(true);
+            this.scrollToBottom();
+
+            self.userInput("");
+            userInput.style.height = '30px';
+            userInput.focus();
+
+            const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
+
+            let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
+            for (const image of response.data) {
+                imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
+            }
+
+            self.messages.push({ role: 'assistant', content: imageURLStrings });
+            this.scrollToBottom();
+            self.isGeneratingImage(false);
+            return;
+        }
+
 
         self.messages.push({ role: 'user', content: messageText });
         this.scrollToBottom();

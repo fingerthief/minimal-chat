@@ -89,6 +89,13 @@
                         </div>
                         <!-- /ko -->
 
+                        <!-- ko if: isGeneratingImage -->
+                        <div class="gpt message padded">
+                            <span class="label">DALL-E</span>
+                            <span data-bind="text: 'Generating Image, this might take a minute.'"></span><span class="loading spinner"></span>
+                        </div>
+                        <!-- /ko -->
+
                         <div class="floating-button scroll" id="scroll-button" data-bind="click: scrollToBottom(), css: shouldShowScrollButton() === true ? 'show' : ''">
                             <span class="fa-solid fa-circle-chevron-down fa-xl"></span>
                         </div>
