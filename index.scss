@@ -82,6 +82,25 @@ body {
 }
 
 
+#user-search-input {
+    flex-grow: 1;
+    z-index: 9999;
+    border: 1px solid #444;
+    outline: none;
+    background-color: #1c1c1e;
+    font-size: 18px;
+    color: #f0f0f0;
+    width: inherit;
+    resize: vertical;
+    overflow: auto;
+    white-space: pre-wrap;
+    min-height: 30px;
+    border-radius: 30px;
+    //border-top-right-radius: 30px;
+    //border-bottom-right-radius: 30px;
+
+}
+
 #user-input {
     flex-grow: 1;
     z-index: 9999;
@@ -138,6 +157,66 @@ button {
         background-color: #4a4a4c;
     }
 }
+
+.floating-button {
+    border: 1px solid #444;
+    background-color: #2a3441;
+    cursor: pointer;
+    outline: none;
+    color: $icon-color;
+    position: fixed;
+    min-height: 50px;
+    top: 73px;
+    display: grid;
+    align-content: center;
+    right: 7px;
+    z-index: 99999;
+    border-radius: 30px;
+    min-width: 54px;
+    opacity: 1;
+    justify-content: space-around;
+    transition: opacity 0.5s ease-in-out; 
+
+    &.scroll {
+        top: 76vh;
+        opacity: 0;
+
+        &.show {
+            opacity: 1;;
+        }
+    }
+
+
+    &:hover {
+        background-color: #4a4a4c;
+    }
+}
+
+.floating-search-field {
+    border: 1px solid #444;
+    background-color: #2f2f31;
+    cursor: pointer;
+    outline: none;
+    color: #86c1bf;
+    position: fixed;
+    min-height: 0px;
+    top: 73px;
+    display: grid;
+    align-content: center;
+    right: 82px;
+    width: 0px;
+    border-radius: 30px;
+    min-width: 0px;
+    justify-content: space-around;
+    transition: width 0.5s ease-in-out;  
+
+    &.show {
+        z-index: 99999;
+        width: 70vw;
+    }
+}
+
+
 
 .user,
 .gpt {
