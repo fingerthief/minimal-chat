@@ -60,7 +60,7 @@
                         </div>
                     </div>                    
                     <div class="messages" id="messagesContainer">
-                        <div class="floating-button" data-bind="click: showSearchField">
+                        <div class="floating-button" data-bind="click: showSearchField, stopClickPropagation: {}">
                             <span class="fa-solid fa-magnifying-glass fa-xl"></span>
                         </div>
                         <div class="floating-search-field" id="floating-search-field" data-bind="css: showingSearchField() ? 'show' : ''">

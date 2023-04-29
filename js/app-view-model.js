@@ -53,6 +53,14 @@ export function AppViewModel() {
         ),
     );
 
+    ko.bindingHandlers.stopClickPropagation = {
+        init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            element.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+        }
+    };
+
     const defaults = {
         html: false, // Enable HTML tags in source
         xhtmlOut: false, // Use '/' to close single tags (<br />)
@@ -82,7 +90,6 @@ export function AppViewModel() {
     };
 
     const userSearchInput = document.getElementById("user-search-input");
-    userSearchInput.addEventListener('blur', onSearchFocusLeave);
     userSearchInput.addEventListener('input', autoResize);
     userSearchInput.addEventListener('focus', autoResize);
 
@@ -91,15 +98,22 @@ export function AppViewModel() {
 
     floatinSearchField.style.zIndex = '-9999';
 
+    let blurTimeout;
+
+    userSearchInput.addEventListener('blur', function (event) {
+        clearTimeout(blurTimeout);
+        blurTimeout = setTimeout(function () {
+            // Your blur event logic here
+            self.showSearchField();
+        }, 200);
+    });
+
     function zIndexAfterTransition() {
         if (!self.showingSearchField()) {
             this.style.zIndex = '-9999';
         }
     }
 
-    function onSearchFocusLeave() {
-        self.showSearchField();
-    }
 
 
     const userInput = document.getElementById('user-input');
@@ -214,10 +228,12 @@ export function AppViewModel() {
         self.showConversationOptions(false);
     };
 
-    self.showSearchField = async function () {
+    self.showSearchField = async function (isFromSearch) {
+        clearTimeout(blurTimeout);
 
         if (!self.showingSearchField()) {
             floatinSearchField.style.zIndex = '9999';
+            userSearchInput.focus();
         }
 
         self.showingSearchField(!self.showingSearchField());

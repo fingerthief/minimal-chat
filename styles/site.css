@@ -10477,7 +10477,7 @@ button:hover {
   border-radius: 30px;
   min-width: 0px;
   justify-content: space-around;
-  transition: width 0.5s ease-in-out;
+  transition: width 0.25s ease-in-out;
 }
 .floating-search-field.show {
   z-index: 99999;
