@@ -50,7 +50,7 @@ body {
     transform: translateY(-50%);
    // background-color: transparent;
     //border: none;
-    color: #c3d1ff;
+    color: #3c8280;
     cursor: pointer;
 
     &:hover {
@@ -122,7 +122,7 @@ button {
     background-color: #2a3441;
     cursor: pointer;
     outline: none;
-    color: #c3d1ff;
+    color: #3c8280;
     position: absolute;
     min-height: 50px;
     display: grid;
@@ -247,7 +247,7 @@ button {
         padding: 2px;
         top: 8px;
         right: 8px;
-        color: #c3d1ff;
+        color: #3c8280;
         float: right;
         position: relative;
     }
@@ -256,7 +256,7 @@ button {
         padding: 2px;
         right: 65px;
         top: 8px;
-        color: #c3d1ff;
+        color: #3c8280;
         float: right;
         position: relative;
     }
@@ -270,7 +270,7 @@ button {
     position: absolute;
     top: 50%;
     right: 10px;
-    color: #c3d1ff;
+    color: #3c8280;
     transform: translateY(-50%);
 }
 .saved-conversations-dropdown select {
@@ -447,7 +447,7 @@ $shadow-spread-radius: 0px;
     transform: translateY(-50%);
     background-color: transparent;
     border: none;
-    color: #c3d1ff;
+    color: #3c8280;
     cursor: pointer;
     outline: none;
 
@@ -510,7 +510,7 @@ $shadow-spread-radius: 0px;
         flex-grow: 1;
         height: 15px;
         border-radius: 5px;
-        background: #33922bcd;
+        background: #3c8280;
         outline: none;
         margin-left: 10px;
 
@@ -519,7 +519,7 @@ $shadow-spread-radius: 0px;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #285b59;
             cursor: pointer;
         }
 
@@ -527,7 +527,7 @@ $shadow-spread-radius: 0px;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #285b59;
             cursor: pointer;
         }
     }
@@ -602,7 +602,7 @@ $shadow-spread-radius: 0px;
     height: 9px;
     margin-left: 5px;
     border: 4px solid rgba(255, 255, 255, 0.3);
-    border-left-color: greenyellow;
+    border-left-color: #3c8280;
     border-radius: 50%;
     animation: spinner 1s linear infinite;
 }
@@ -618,33 +618,7 @@ $shadow-spread-radius: 0px;
     z-index: 9000888;
     margin-left: 5px;
     border: 4px solid rgba(255, 255, 255, 0.3);
-    border-left-color: greenyellow;
+    border-left-color: #3c8280;
     border-radius: 50%;
     animation: spinner 1s linear infinite;
-}
-
-input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-
-    &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #4CAF50;
-        cursor: pointer;
-    }
-
-    &::-moz-range-thumb {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #4CAF50;
-        cursor: pointer;
-    }
 }

@@ -10335,7 +10335,7 @@ body {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #c3d1ff;
+  color: #3c8280;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10400,7 +10400,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #c3d1ff;
+  color: #3c8280;
   position: absolute;
   min-height: 50px;
   display: grid;
@@ -10514,7 +10514,7 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 8px;
-  color: #c3d1ff;
+  color: #3c8280;
   float: right;
   position: relative;
 }
@@ -10522,7 +10522,7 @@ button:hover {
   padding: 2px;
   right: 65px;
   top: 8px;
-  color: #c3d1ff;
+  color: #3c8280;
   float: right;
   position: relative;
 }
@@ -10531,7 +10531,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #c3d1ff;
+  color: #3c8280;
   transform: translateY(-50%);
 }
 
@@ -10677,7 +10677,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #c3d1ff;
+  color: #3c8280;
   cursor: pointer;
   outline: none;
 }
@@ -10737,7 +10737,7 @@ button:hover {
   flex-grow: 1;
   height: 15px;
   border-radius: 5px;
-  background: rgba(51, 146, 43, 0.8039215686);
+  background: #3c8280;
   outline: none;
   margin-left: 10px;
 }
@@ -10746,14 +10746,14 @@ button:hover {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: #285b59;
   cursor: pointer;
 }
 .slider-container input[type=range]::-moz-range-thumb {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: #285b59;
   cursor: pointer;
 }
 
@@ -10824,7 +10824,7 @@ button:hover {
   height: 9px;
   margin-left: 5px;
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-left-color: greenyellow;
+  border-left-color: #3c8280;
   border-radius: 50%;
   animation: spinner 1s linear infinite;
 }
@@ -10840,33 +10840,9 @@ button:hover {
   z-index: 9000888;
   margin-left: 5px;
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-left-color: greenyellow;
+  border-left-color: #3c8280;
   border-radius: 50%;
   animation: spinner 1s linear infinite;
-}
-
-input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 15px;
-  border-radius: 5px;
-  background: #d3d3d3;
-  outline: none;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #4CAF50;
-  cursor: pointer;
-}
-input[type=range]::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #4CAF50;
-  cursor: pointer;
 }
 
 /*# sourceMappingURL=site.css.map */
