@@ -21,15 +21,15 @@ On iOS devices in Safari, you can add a web page to your home screen. If you do 
 - Customizable settings
 - Responsive layout for mobile use
 
-### Minimal chat layout with Markdown and Code Syntax Highlighting support
+### Minimal chat layout
 
 ![Web capture_29-4-2023_19545_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330441-1c17f182-1dfc-4e68-acb6-9f96ec9d031f.jpeg)
 
-### Conversation message search
+### Conversation search
 
 ![search](https://user-images.githubusercontent.com/2380471/235330608-4e7a799d-8968-4a0d-81bf-499f646e2ce4.png)
 
-### Basic DALL-E Integration
+### DALL-E Integration
 
 ![Web capture_29-4-2023_195737_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330549-ce91ba12-aa20-4284-8b91-b3391f88446a.jpeg)
 
@@ -39,7 +39,7 @@ On iOS devices in Safari, you can add a web page to your home screen. If you do 
 
 ### Responsive layout for mobile use
 
-https://user-images.githubusercontent.com/2380471/235330531-96620663-4cf3-4b48-9545-e07c9b820a4f.mp4
+https://user-images.githubusercontent.com/2380471/235330531-96620663-4cf3-4b48-9545-e07c9b820a4f.mp4 ![unnamed (1)](https://user-images.githubusercontent.com/2380471/235331301-c9bb74c4-e118-413d-ae40-68f17d39f9da.png)
 
 ## Run Web App Locally
 
