@@ -98,6 +98,20 @@ export function AppViewModel() {
 
     floatinSearchField.style.zIndex = '-9999';
 
+    const apiKey = document.getElementById('api-key');
+    apiKey.value = localStorage.getItem("gpt3Key") || "";
+
+    apiKey.addEventListener("blur", () => {
+        if (apiKey.value.trim() !== "")
+        {
+            localStorage.setItem("gpt3Key", apiKey.value.trim());
+        }
+    });
+
+    self.sliderValue.subscribe((attitude) => {
+        localStorage.setItem("gpt-attitude", attitude);
+    });
+
     let blurTimeout;
 
     userSearchInput.addEventListener('blur', function (event) {
@@ -275,8 +289,7 @@ export function AppViewModel() {
         self.isProcessing(false);
     };
 
-    const apiKey = document.getElementById('api-key');
-    apiKey.value = localStorage.getItem("gpt3Key") || "";
+
 
     async function fetchGPTResponseStream(conversation, attitude, model) {
 
