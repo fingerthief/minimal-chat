@@ -286,7 +286,7 @@ export function AppViewModel() {
 
         localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
         self.storedConversations(loadStoredConversations());
-        self.messages(loadMessagesFromLocalStorage());
+        self.messages([]);
         self.conversationTitles(loadConversationTitles());
         self.conversations(loadConversationTitles());
         self.isProcessing(false);
@@ -512,8 +512,6 @@ export function AppViewModel() {
         }
 
         self.selectedConversation(self.conversations()[0]);
-
-      //  self.messages(await loadMessagesFromLocalStorage());
         self.isProcessing(false);
     };
 

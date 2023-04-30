@@ -10397,12 +10397,12 @@ body {
   resize: vertical;
   overflow: auto;
   white-space: pre-wrap;
-  min-height: 30px;
+  min-height: 35px;
   border-radius: 30px;
 }
 
 textarea {
-  padding-top: 18px;
+  padding-top: 14px;
   padding-left: 20px;
 }
 
@@ -10523,6 +10523,7 @@ button:hover {
   padding: 5px 10px;
   margin: 5px 0;
   border-radius: 5px;
+  text-overflow: clip;
   max-width: 80%;
   min-width: 10%;
   clear: both;
@@ -10679,8 +10680,8 @@ button:hover {
   align-self: flex-end;
   padding: 5px 10px;
   border: 1px solid #444;
-  border-radius: 3px;
-  background-color: #3a3a3c;
+  border-radius: 30px;
+  background-color: #364353;
   color: #c3d1ff;
   cursor: pointer;
   width: 100%;

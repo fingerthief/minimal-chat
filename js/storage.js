@@ -90,35 +90,35 @@ function extractHttpsUrls(str) {
 export async function loadMessagesFromLocalStorage() {
     const storedMessages = localStorage.getItem("gpt-conversations");
     let parsedConversations = storedMessages ? JSON.parse(storedMessages) : [];
-    for (const message of parsedConversations) {
-        for (const messageItem of message.messageHistory) {
-            try {
-                if (containsUrl(messageItem.content)) {
-                    let urlMessage = extractHttpsUrls(messageItem.content);
+    // for (const message of parsedConversations) {
+    //     for (const messageItem of message.messageHistory) {
+    //         try {
+    //             if (containsUrl(messageItem.content)) {
+    //                 let urlMessage = extractHttpsUrls(messageItem.content);
 
-                    let badLinkCount = 0;
-                 //   let replacements = [];
-                    for (const url of urlMessage) {
-                        let response = await fetch(url);
-                        if (!response.ok) {
-                            badLinkCount++;
-                           // replacements.push({ original: url, replacement: ' **[Image Link Expired]** ' });
-                        }
-                    }
+    //                 let badLinkCount = 0;
+    //              //   let replacements = [];
+    //                 for (const url of urlMessage) {
+    //                     let response = await fetch(url);
+    //                     if (!response.ok) {
+    //                         badLinkCount++;
+    //                        // replacements.push({ original: url, replacement: ' **[Image Link Expired]** ' });
+    //                     }
+    //                 }
 
-                    if (badLinkCount > 0) {
-                        //for (const replacement of replacements) {
-                        messageItem.content = ' **[DALL-E Generated Image(s) Have Expired]** ';
-                       // }
-                    }
-                }
-            }
-            catch (error) {
-                // console.error(`Error processing URL: ${error}`);
-                continue;
-            }
-        }
-    }
+    //                 if (badLinkCount > 0) {
+    //                     //for (const replacement of replacements) {
+    //                     messageItem.content = ' **[DALL-E Generated Image(s) Have Expired]** ';
+    //                    // }
+    //                 }
+    //             }
+    //         }
+    //         catch (error) {
+    //             // console.error(`Error processing URL: ${error}`);
+    //             continue;
+    //         }
+    //     }
+    // }
 
     return parsedConversations.length ? parsedConversations[parsedConversations.length - 1].messageHistory : [];
 
