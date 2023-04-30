@@ -76,11 +76,52 @@ export async function generateDALLEImage(conversation) {
     }
 }
 
-export function loadMessagesFromLocalStorage() {
+function containsUrl(str) {
+    const urlPattern = /https?:\/\/(?:www\.)?[^\s]+\.[^\s]+/i;
+    return urlPattern.test(str);
+}
+
+function extractHttpsUrls(str) {
+    const urlPattern = /https:\/\/(?:www\.)?[^\s]+\.[^\s]+/ig;
+    const matches = [...str.matchAll(urlPattern)];
+    return matches.map(match => match[0]);
+}
+
+export async function loadMessagesFromLocalStorage() {
     const storedMessages = localStorage.getItem("gpt-conversations");
     let parsedConversations = storedMessages ? JSON.parse(storedMessages) : [];
+    for (const message of parsedConversations) {
+        for (const messageItem of message.messageHistory) {
+            try {
+                if (containsUrl(messageItem.content)) {
+                    let urlMessage = extractHttpsUrls(messageItem.content);
+
+                    let badLinkCount = 0;
+                    let replacements = [];
+                    for (const url of urlMessage) {
+                        let response = await fetch(url);
+                        if (!response.ok) {
+                            badLinkCount++;
+                            replacements.push({ original: url, replacement: ' **[Image Link Expired]** ' });
+                        }
+                    }
+
+                    if (badLinkCount > 0) {
+                        for (const replacement of replacements) {
+                            messageItem.content = messageItem.content.replace(replacement.original, replacement.replacement);
+                        }
+                    }
+                }
+            }
+            catch (error) {
+                // console.error(`Error processing URL: ${error}`);
+                continue;
+            }
+        }
+    }
 
     return parsedConversations.length ? parsedConversations[parsedConversations.length - 1].messageHistory : [];
+
 }
 
 export function loadConversationTitles() {

@@ -5,10 +5,17 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../web-fonts";
-$icon-color: #86c1bf;
+$icon-color: #b2c1c8;
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/web-fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto';
     margin: 0;
     padding: 0;
     position: relative;

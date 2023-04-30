@@ -20,7 +20,7 @@ export function AppViewModel() {
     self.userSearchInput = ko.observable('');
     self.isProcessing = ko.observable(false);
     self.shouldShowScrollButton = ko.observable(false);
-    self.messages = ko.observableArray(loadMessagesFromLocalStorage() || []);
+    self.messages = ko.observableArray([]);
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
@@ -33,6 +33,7 @@ export function AppViewModel() {
     );
 
     hljs.configure({ ignoreUnescapedHTML: true });
+    //loadMessagesFromLocalStorage();
 
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
@@ -227,19 +228,21 @@ export function AppViewModel() {
         }
     });
 
-    self.loadSelectedConversation = function (value) {
+    self.loadSelectedConversation = async function (value) {
         if (!self.selectedConversation()) {
             return;
         }
 
         // Check if the title of the selected conversation is 'Choose an existing conversation'
-        if (self.selectedConversation() && self.selectedConversation().title === 'Choose an existing conversation') {
+        if (self.selectedConversation() && self.selectedConversation().title.toLowerCase() === 'choose an existing conversation') {
             return;
         }
 
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
         self.showConversationOptions(false);
+
+        self.messages(selectedMessages);
     };
 
     self.showSearchField = async function (isFromSearch) {
@@ -387,6 +390,7 @@ export function AppViewModel() {
             }
 
             self.messages.push({ role: 'assistant', content: imageURLStrings });
+            self.saveMessages();
             this.scrollToBottom();
             self.isGeneratingImage(false);
             return;
@@ -487,9 +491,8 @@ export function AppViewModel() {
         self.conversations(loadConversationTitles());
         self.storedConversations(loadStoredConversations());
 
-
-        self.messages([]);
         localStorage.removeItem("gpt-messages");
+        self.messages([]);
 
         // Add the default option back to the conversations array if it's not already there
         const defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
@@ -498,6 +501,8 @@ export function AppViewModel() {
         }
 
         self.selectedConversation(self.conversations()[0]);
+
+      //  self.messages(await loadMessagesFromLocalStorage());
         self.isProcessing(false);
     };
 

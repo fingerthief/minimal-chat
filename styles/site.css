@@ -10297,8 +10297,14 @@ readers do not read off random characters that represent icons */
   content: "\f3f6";
 }
 
+@font-face {
+  font-family: "Roboto";
+  src: url("/web-fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Roboto";
   margin: 0;
   padding: 0;
   position: relative;
@@ -10335,7 +10341,7 @@ body {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #86c1bf;
+  color: #b2c1c8;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10416,7 +10422,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #86c1bf;
+  color: #b2c1c8;
   position: absolute;
   min-height: 50px;
   display: grid;
@@ -10436,7 +10442,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #86c1bf;
+  color: #b2c1c8;
   position: fixed;
   min-height: 50px;
   top: 73px;
@@ -10583,7 +10589,7 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 8px;
-  color: #86c1bf;
+  color: #b2c1c8;
   float: right;
   position: relative;
 }
@@ -10591,7 +10597,7 @@ button:hover {
   padding: 2px;
   right: 65px;
   top: 8px;
-  color: #86c1bf;
+  color: #b2c1c8;
   float: right;
   position: relative;
 }
@@ -10600,7 +10606,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #86c1bf;
+  color: #b2c1c8;
   transform: translateY(-50%);
 }
 
@@ -10745,7 +10751,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #86c1bf;
+  color: #b2c1c8;
   cursor: pointer;
   outline: none;
 }

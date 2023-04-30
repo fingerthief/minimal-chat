@@ -6,7 +6,7 @@
     "start_url": "/",
     "name": "MinimalGPT",
     "short_name": "MinimalGPT",
-    "description": "Open Source GPT Chat ",
+    "description": "An open source minimal GPT/DALL-E chat web application.",
     "icons": [
         {
             "src": "images/icon-192x192.png",
