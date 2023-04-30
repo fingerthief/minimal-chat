@@ -97,19 +97,19 @@ export async function loadMessagesFromLocalStorage() {
                     let urlMessage = extractHttpsUrls(messageItem.content);
 
                     let badLinkCount = 0;
-                    let replacements = [];
+                 //   let replacements = [];
                     for (const url of urlMessage) {
                         let response = await fetch(url);
                         if (!response.ok) {
                             badLinkCount++;
-                            replacements.push({ original: url, replacement: ' **[Image Link Expired]** ' });
+                           // replacements.push({ original: url, replacement: ' **[Image Link Expired]** ' });
                         }
                     }
 
                     if (badLinkCount > 0) {
-                        for (const replacement of replacements) {
-                            messageItem.content = messageItem.content.replace(replacement.original, replacement.replacement);
-                        }
+                        //for (const replacement of replacements) {
+                        messageItem.content = ' **[DALL-E Generated Image(s) Have Expired]** ';
+                       // }
                     }
                 }
             }

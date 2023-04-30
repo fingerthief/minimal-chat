@@ -207,7 +207,7 @@ export function AppViewModel() {
                 return;
             }
 
-            if ((parseFloat(rect.top) * 0.001) > 0.5) {
+            if ((parseFloat(rect.bottom) * 0.001) > 0.75) {
                 self.shouldShowScrollButton(true);
             } else {
                 self.shouldShowScrollButton(false);
@@ -296,6 +296,17 @@ export function AppViewModel() {
 
     async function fetchGPTResponseStream(conversation, attitude, model) {
 
+        let lastMessageContent = "";
+        let indexAfterMessages = [];
+
+
+        let gptMessagesOnly = conversation.filter(message => {
+            let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
+            lastMessageContent = message.content.trim().toLowerCase();
+            return isGPT;
+        });
+
+        console.log(gptMessagesOnly);
         const prompt = `Me: ${conversation}\nAI:`;
         let storedApiKey = localStorage.getItem("gpt3Key");
 
@@ -318,7 +329,7 @@ export function AppViewModel() {
                 body: JSON.stringify({
                     model: model,
                     stream: true,
-                    messages: conversation,
+                    messages: gptMessagesOnly,
                     temperature: attitude * 0.01
                 }),
             });
