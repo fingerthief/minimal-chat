@@ -10,7 +10,7 @@ export async function fetchGPTResponse(conversation, attitude, model) {
         storedApiKey = apiKey.value.trim();
     }
 
-    if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !==  attitude) {
+    if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
         localStorage.setItem("gpt-attitude", attitude);
     }
 
@@ -41,6 +41,41 @@ export async function fetchGPTResponse(conversation, attitude, model) {
     }
 }
 
+export async function generateDALLEImage(conversation) {
+    let storedApiKey = localStorage.getItem("gpt3Key");
+
+    if (storedApiKey !== apiKey.value.trim()) {
+        localStorage.setItem("gpt3Key", apiKey.value.trim());
+        storedApiKey = apiKey.value.trim();
+    }
+
+    try {
+        const response = await fetch("https://api.openai.com/v1/images/generations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+            },
+            body: JSON.stringify({
+                prompt: conversation,
+                n: 2,
+                size: "256x256",
+            }),
+        });
+
+        const result = await response.json();
+
+        if (result.data && result.data.length > 0) {
+            return result;
+        } else {
+            return "I'm sorry, I couldn't generate an image. The prompt may not be allowed by the API.";
+        }
+    } catch (error) {
+        console.error("Error fetching DALL-E response:", error);
+        return "An error occurred while fetching a response.";
+    }
+}
+
 export function loadMessagesFromLocalStorage() {
     const storedMessages = localStorage.getItem("gpt-conversations");
     let parsedConversations = storedMessages ? JSON.parse(storedMessages) : [];
@@ -57,6 +92,7 @@ export function loadConversationTitles() {
 }
 
 export function loadStoredConversations() {
+    hljs.highlightAll();
     const storedConversations = localStorage.getItem("gpt-conversations");
     return storedConversations ? JSON.parse(storedConversations) : [];
 }

@@ -9,7 +9,7 @@ export function wrapCodeSnippets(input) {
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
 
-        return '<pre><code>${escapedCode}</code></pre>';
+        return `<pre class="hljs"><code>${escapedCode}</code></pre>`;
     });
 
     return wrapped;

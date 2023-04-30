@@ -1,12 +1,13 @@
 import {
     wrapCodeSnippets,
-    getConversationTitleFromGPT,
+    getConversationTitleFromGPT
 } from './utils.js';
 import {
     fetchGPTResponse,
     loadMessagesFromLocalStorage,
     loadConversationTitles,
     loadStoredConversations,
+    generateDALLEImage
 } from './storage.js';
 
 const ko = window.ko;
@@ -15,6 +16,7 @@ const messagesContainer = document.querySelector('.messages');
 export function AppViewModel() {
     const self = this;
     self.userInput = ko.observable('');
+    self.isGeneratingImage = ko.observable(false);
     self.userSearchInput = ko.observable('');
     self.isProcessing = ko.observable(false);
     self.shouldShowScrollButton = ko.observable(false);
@@ -51,6 +53,14 @@ export function AppViewModel() {
         ),
     );
 
+    ko.bindingHandlers.stopClickPropagation = {
+        init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            element.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+        }
+    };
+
     const defaults = {
         html: false, // Enable HTML tags in source
         xhtmlOut: false, // Use '/' to close single tags (<br />)
@@ -59,9 +69,9 @@ export function AppViewModel() {
         linkify: true, // autoconvert URL-like texts to links
         typographer: true, // Enable smartypants and other sweet transforms
         // options below are for demo only
-        _highlight: true, // <= THIS IS WHAT YOU NEED
+        _highlight: false, // <= THIS IS WHAT YOU NEED
         _strict: false,
-        _view: 'html' // html / src / debug
+        _view: 'src' // html / src / debug
     };
 
     defaults.highlight = function (str, lang) {
@@ -80,7 +90,6 @@ export function AppViewModel() {
     };
 
     const userSearchInput = document.getElementById("user-search-input");
-    userSearchInput.addEventListener('blur', onSearchFocusLeave);
     userSearchInput.addEventListener('input', autoResize);
     userSearchInput.addEventListener('focus', autoResize);
 
@@ -89,15 +98,36 @@ export function AppViewModel() {
 
     floatinSearchField.style.zIndex = '-9999';
 
+    const apiKey = document.getElementById('api-key');
+    apiKey.value = localStorage.getItem("gpt3Key") || "";
+
+    apiKey.addEventListener("blur", () => {
+        if (apiKey.value.trim() !== "")
+        {
+            localStorage.setItem("gpt3Key", apiKey.value.trim());
+        }
+    });
+
+    self.sliderValue.subscribe((attitude) => {
+        localStorage.setItem("gpt-attitude", attitude);
+    });
+
+    let blurTimeout;
+
+    userSearchInput.addEventListener('blur', function (event) {
+        clearTimeout(blurTimeout);
+        blurTimeout = setTimeout(function () {
+            // Your blur event logic here
+            self.showSearchField();
+        }, 200);
+    });
+
     function zIndexAfterTransition() {
         if (!self.showingSearchField()) {
             this.style.zIndex = '-9999';
         }
     }
 
-    function onSearchFocusLeave() {
-        self.showSearchField();
-    }
 
 
     const userInput = document.getElementById('user-input');
@@ -171,6 +201,11 @@ export function AppViewModel() {
             const lastMessage = messages[messages.length - 1];
             const rect = lastMessage.getBoundingClientRect();
 
+            if (!isScrollable(messagesContainer)) {
+                self.shouldShowScrollButton(false);
+                return;
+            }
+
             if ((parseFloat(rect.top) * 0.001) > 0.5) {
                 self.shouldShowScrollButton(true);
             } else {
@@ -181,6 +216,9 @@ export function AppViewModel() {
     
     messagesContainer.addEventListener('scroll', self.updateScrollButtonVisibility);
 
+    function isScrollable(element) {
+        return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    }      
 
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -204,10 +242,12 @@ export function AppViewModel() {
         self.showConversationOptions(false);
     };
 
-    self.showSearchField = async function () {
+    self.showSearchField = async function (isFromSearch) {
+        clearTimeout(blurTimeout);
 
         if (!self.showingSearchField()) {
             floatinSearchField.style.zIndex = '9999';
+            userSearchInput.focus();
         }
 
         self.showingSearchField(!self.showingSearchField());
@@ -249,8 +289,7 @@ export function AppViewModel() {
         self.isProcessing(false);
     };
 
-    const apiKey = document.getElementById('api-key');
-    apiKey.value = localStorage.getItem("gpt3Key") || "";
+
 
     async function fetchGPTResponseStream(conversation, attitude, model) {
 
@@ -325,9 +364,34 @@ export function AppViewModel() {
             return;
         }
 
-        if (self.isLoading()) {
+        if (self.isLoading() || self.isGeneratingImage()) {
             return;
         }
+
+        const imagePrompt =  self.userInput().trim();
+
+        if (imagePrompt.toLowerCase().startsWith("image::")) {
+            self.messages.push({ role: 'user', content: imagePrompt })
+            self.isGeneratingImage(true);
+            this.scrollToBottom();
+
+            self.userInput("");
+            userInput.style.height = '30px';
+            userInput.focus();
+
+            const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
+
+            let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
+            for (const image of response.data) {
+                imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
+            }
+
+            self.messages.push({ role: 'assistant', content: imageURLStrings });
+            this.scrollToBottom();
+            self.isGeneratingImage(false);
+            return;
+        }
+
 
         self.messages.push({ role: 'user', content: messageText });
         this.scrollToBottom();
@@ -337,6 +401,7 @@ export function AppViewModel() {
         userInput.value = '';
         userInput.style.height = '30px';
         userInput.focus();
+        
 
         self.streamedMessageText("");
         self.isLoading(true);
@@ -349,6 +414,7 @@ export function AppViewModel() {
 
             self.saveMessages();
             this.scrollToBottom();
+            hljs.highlightAll();
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -374,7 +440,8 @@ export function AppViewModel() {
 
     self.formatMessage = function (message, isStartup) {
         let md = window.markdownit(defaults);
-        return md.render(message);
+        let renderedMessage = wrapCodeSnippets(md.render(message));
+        return renderedMessage;
     };
 
     self.clearMessages = async function () {
@@ -455,4 +522,17 @@ export function AppViewModel() {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
     }
+
+    // let isStartup = true;
+    // if (isStartup) {
+    //     isStartup = false;
+    //     for (const message of self.messages()) {
+    //         if (message.content.toLowerCase().includes("pre")) {
+    //             message.content = wrapCodeSnippets(window.markdownit().render(message.content));
+    //             self.messages.valueHasMutated();
+    //         }
+    //     }  
+
+    //     hljs.highlightAll();
+    // }
 }

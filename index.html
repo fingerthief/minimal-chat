@@ -13,7 +13,7 @@
 </head>
 <body>
     <div class="app-container">
-        <div class="sidebar box" data-bind="css: { open: isSidebarOpen }">
+        <div class="sidebar box" id="settings-dialog" data-bind="css: { open: isSidebarOpen }">
             <!-- Add settings content here -->
             <div class="settings-header">
                 <h2>Settings</h2>
@@ -60,7 +60,7 @@
                         </div>
                     </div>                    
                     <div class="messages" id="messagesContainer">
-                        <div class="floating-button" data-bind="click: showSearchField">
+                        <div class="floating-button" data-bind="click: showSearchField, stopClickPropagation: {}">
                             <span class="fa-solid fa-magnifying-glass fa-xl"></span>
                         </div>
                         <div class="floating-search-field" id="floating-search-field" data-bind="css: showingSearchField() ? 'show' : ''">
@@ -74,18 +74,27 @@
                         <!-- /ko -->
 
                                                 
-                        <!-- ko foreach: messages -->
-                        <div
-                            data-bind="visible: $parent.userSearchInput().trim().length === 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
-                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
-                        </div>
+                        <!-- ko foreach: messages()-->
+                            <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
+                            <div
+                                data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                                <span class="label" data-bind="text: (role === 'user' ? 'Me' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                                <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                            </div>
+                            <!-- /ko -->
                         <!-- /ko -->
 
                         <!-- ko if: isLoading -->
                         <div class="gpt message padded">
                             <span class="label">GPT</span>
                             <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
+                        </div>
+                        <!-- /ko -->
+
+                        <!-- ko if: isGeneratingImage -->
+                        <div class="gpt message padded">
+                            <span class="label">DALL-E</span>
+                            <span data-bind="text: 'Generating Image, this might take a minute.'"></span><span class="loading spinner"></span>
                         </div>
                         <!-- /ko -->
 
