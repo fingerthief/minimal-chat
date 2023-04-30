@@ -16,20 +16,30 @@ On iOS devices in Safari, you can add a web page to your home screen. If you do 
 ## Features
 
 - Minimal chat layout with Markdown and Code Syntax Highlighting support
+- Basic DALL-E Integration
+- Conversation message search
 - Customizable settings
 - Responsive layout for mobile use
 
 ### Minimal chat layout with Markdown and Code Syntax Highlighting support
 
-![Web capture_28-4-2023_221019_minimalgpt app](https://user-images.githubusercontent.com/2380471/235280891-9557c91d-114c-4c93-8681-fcdcd6c6f73f.jpeg)
+![Web capture_29-4-2023_19545_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330441-1c17f182-1dfc-4e68-acb6-9f96ec9d031f.jpeg)
+
+### Conversation message search
+
+![search](https://user-images.githubusercontent.com/2380471/235330608-4e7a799d-8968-4a0d-81bf-499f646e2ce4.png)
+
+### Basic DALL-E Integration
+
+![Web capture_29-4-2023_195737_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330549-ce91ba12-aa20-4284-8b91-b3391f88446a.jpeg)
 
 ### Settings
 
-![Web capture_28-4-2023_221042_minimalgpt app](https://user-images.githubusercontent.com/2380471/235280899-3f63aa1f-8202-4dab-8da1-9f2c2f3b70b2.jpeg)
+![Web capture_29-4-2023_195422_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330449-fcb36cf3-13e3-44c6-a1c2-4b934e851efa.jpeg)
 
 ### Responsive layout for mobile use
 
-![2023-04-28 17_49_07-NVIDIA GeForce Overlay DT](https://user-images.githubusercontent.com/2380471/235280904-38de641d-5699-4ce4-909a-5b7ce66dc567.png)
+https://user-images.githubusercontent.com/2380471/235330531-96620663-4cf3-4b48-9545-e07c9b820a4f.mp4
 
 ## Run Web App Locally
 
