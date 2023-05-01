@@ -536,17 +536,4 @@ export function AppViewModel() {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
     }
-
-    // let isStartup = true;
-    // if (isStartup) {
-    //     isStartup = false;
-    //     for (const message of self.messages()) {
-    //         if (message.content.toLowerCase().includes("pre")) {
-    //             message.content = wrapCodeSnippets(window.markdownit().render(message.content));
-    //             self.messages.valueHasMutated();
-    //         }
-    //     }  
-
-    //     hljs.highlightAll();
-    // }
 }

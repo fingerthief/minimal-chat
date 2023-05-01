@@ -10350,6 +10350,7 @@ body {
 
 .messages {
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 10px;
   position: relative;
   max-height: 96dvh;
@@ -10558,6 +10559,8 @@ button:hover {
   float: left;
   background-color: #234b4a;
   color: #f0f0f0;
+  overflow: hidden;
+  text-overflow: clip;
 }
 .message.gpt .label {
   background-color: #364353;
@@ -10909,7 +10912,7 @@ button:hover {
   width: 25px;
   color: lightskyblue;
   height: 25px;
-  bottom: 17px;
+  bottom: 15px;
   right: 65px;
   position: absolute;
   z-index: 9000888;
