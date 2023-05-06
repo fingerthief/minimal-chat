@@ -10385,6 +10385,7 @@ body {
   white-space: pre-wrap;
   min-height: 30px;
   border-radius: 30px;
+  transition: 0.2s height ease-in-out;
 }
 
 #user-input {
@@ -10400,11 +10401,13 @@ body {
   white-space: pre-wrap;
   min-height: 35px;
   border-radius: 30px;
+  transition: 0.2s height ease-in-out;
 }
 
 textarea {
   padding-top: 14px;
   padding-left: 20px;
+  transition: 0.2s height ease-in-out;
 }
 
 button {
@@ -10529,6 +10532,10 @@ button:hover {
   min-width: 10%;
   clear: both;
 }
+.message pre {
+  overflow: hidden;
+  text-overflow: clip;
+}
 .message .label {
   position: absolute;
   top: -18px;
@@ -10559,7 +10566,6 @@ button:hover {
   float: left;
   background-color: #234b4a;
   color: #f0f0f0;
-  overflow: hidden;
   text-overflow: clip;
 }
 .message.gpt .label {

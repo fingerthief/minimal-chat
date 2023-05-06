@@ -104,6 +104,7 @@ body {
     white-space: pre-wrap;
     min-height: 30px;
     border-radius: 30px;
+    transition: 0.2s height ease-in-out;
     //border-top-right-radius: 30px;
     //border-bottom-right-radius: 30px;
 
@@ -122,6 +123,7 @@ body {
     white-space: pre-wrap;
     min-height: 35px;
     border-radius: 30px;
+    transition: 0.2s height ease-in-out;
     //border-top-right-radius: 30px;
     //border-bottom-right-radius: 30px;
 
@@ -130,6 +132,7 @@ body {
 textarea {
     padding-top: 14px;
     padding-left: 20px;
+    transition: 0.2s height ease-in-out;
 }
 
 button {
@@ -265,6 +268,11 @@ button {
     min-width: 10%;
     clear: both;
 
+    pre {
+        overflow: hidden;
+        text-overflow: clip;
+    }
+
     .label {
         position: absolute;
         top: -18px;
@@ -299,7 +307,9 @@ button {
         float: left;
         background-color: #234b4a;
         color: #f0f0f0;
-        overflow: hidden;
+
+
+       // overflow: hidden;
         text-overflow: clip;
 
         .label {

@@ -1,12 +1,12 @@
 const apiKey = document.getElementById('api-key');
-apiKey.value = localStorage.getItem("gpt3Key") || "";
+apiKey.value = localStorage.getItem("gptKey") || "";
 
 export async function fetchGPTResponse(conversation, attitude, model) {
     const prompt = `Me: ${conversation}\nAI:`;
-    let storedApiKey = localStorage.getItem("gpt3Key");
+    let storedApiKey = localStorage.getItem("gptKey");
 
     if (storedApiKey !== apiKey.value.trim()) {
-        localStorage.setItem("gpt3Key", apiKey.value.trim());
+        localStorage.setItem("gptKey", apiKey.value.trim());
         storedApiKey = apiKey.value.trim();
     }
 
@@ -42,10 +42,10 @@ export async function fetchGPTResponse(conversation, attitude, model) {
 }
 
 export async function generateDALLEImage(conversation) {
-    let storedApiKey = localStorage.getItem("gpt3Key");
+    let storedApiKey = localStorage.getItem("gptKey");
 
     if (storedApiKey !== apiKey.value.trim()) {
-        localStorage.setItem("gpt3Key", apiKey.value.trim());
+        localStorage.setItem("gptKey", apiKey.value.trim());
         storedApiKey = apiKey.value.trim();
     }
 
