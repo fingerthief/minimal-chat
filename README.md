@@ -2,7 +2,7 @@
 
 **MinimalGPT** is an open-source GPT chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT chat when the user sends a message and when a user saves a conversation to generate a conversation title.
 
-> ⚠️ **Note**: You must input your OpenAI API Key for GPT-3.5 in order for this to function.
+> ⚠️ **Note**: You must input your OpenAI API Key for GPT3 or GPT4 in order for this to function.
 
 ---
 
