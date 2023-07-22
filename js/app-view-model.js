@@ -104,7 +104,7 @@ export function AppViewModel() {
     floatinSearchField.style.zIndex = '-9999';
 
     const apiKey = document.getElementById('api-key');
-    apiKey.value = localStorage.getItem("gptKey") || "";
+    apiKey.value = localStorage.getItem("gptKey");
 
     apiKey.addEventListener("blur", () => {
         if (apiKey.value.trim() !== "")
@@ -208,6 +208,11 @@ export function AppViewModel() {
 
     self.toggleSidebar = () => {
         self.isSidebarOpen(!self.isSidebarOpen());
+
+        if (self.isSidebarOpen()) {
+            const apiKey = document.getElementById('api-key');
+            apiKey.value = localStorage.getItem("gptKey");
+        }
     };
 
     const messagesContainer = document.getElementById("messagesContainer");

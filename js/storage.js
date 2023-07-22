@@ -1,14 +1,14 @@
 const apiKey = document.getElementById('api-key');
-apiKey.value = localStorage.getItem("gptKey") || "";
+apiKey.value = localStorage.getItem("gptKey");
 
 export async function fetchGPTResponse(conversation, attitude, model) {
     const prompt = `Me: ${conversation}\nAI:`;
     let storedApiKey = localStorage.getItem("gptKey");
 
-    if (storedApiKey !== apiKey.value.trim()) {
-        localStorage.setItem("gptKey", apiKey.value.trim());
-        storedApiKey = apiKey.value.trim();
-    }
+    // if (storedApiKey !== apiKey.value.trim()) {
+    //     localStorage.setItem("gptKey", apiKey.value.trim());
+    //     storedApiKey = apiKey.value.trim();
+    // }
 
     if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
         localStorage.setItem("gpt-attitude", attitude);
@@ -44,10 +44,10 @@ export async function fetchGPTResponse(conversation, attitude, model) {
 export async function generateDALLEImage(conversation) {
     let storedApiKey = localStorage.getItem("gptKey");
 
-    if (storedApiKey !== apiKey.value.trim()) {
-        localStorage.setItem("gptKey", apiKey.value.trim());
-        storedApiKey = apiKey.value.trim();
-    }
+    // if (storedApiKey !== apiKey.value.trim()) {
+    //     localStorage.setItem("gptKey", apiKey.value.trim());
+    //     storedApiKey = apiKey.value.trim();
+    // }
 
     try {
         const response = await fetch("https://api.openai.com/v1/images/generations", {
