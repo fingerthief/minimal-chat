@@ -28,6 +28,13 @@
                 <span>Creative</span>
             </div>
             <div class="control">
+                <label for="model-selector">Auto Save Conversations:</label>
+                <select id="model-selector" data-bind="value: selectedAutoSaveOption">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="control">
                 <label for="model-selector">Model:</label>
                 <select id="model-selector" data-bind="value: selectedModel">
                     <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>

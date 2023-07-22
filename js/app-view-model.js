@@ -32,6 +32,10 @@ export function AppViewModel() {
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
 
+    self.selectedAutoSaveOption = ko.observable(
+        localStorage.getItem('selectedAutoSaveOption') || true,
+    );
+
     hljs.configure({ ignoreUnescapedHTML: true });
     //loadMessagesFromLocalStorage();
 
@@ -151,6 +155,10 @@ export function AppViewModel() {
         localStorage.setItem('selectedModel', self.selectedModel());
     }
 
+    if (!localStorage.getItem('selectedAutoSaveOption')) {
+        localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
+    }
+
     self.filteredMessages = ko.computed(() => {
         const searchQuery = self.userSearchInput().toLowerCase();
         if (searchQuery.length === 0) {
@@ -165,8 +173,16 @@ export function AppViewModel() {
         localStorage.setItem('selectedModel', self.selectedModel());
     };
 
+    self.saveSelectedAutoSaveOption = function () {
+        localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
+    };
+
     self.selectedModel.subscribe(() => {
         self.saveSelectedModel();
+    });
+
+    self.selectedAutoSaveOption.subscribe(() => {
+        self.saveSelectedAutoSaveOption();
     });
 
     self.onShowConversationsClick = async function () {
@@ -435,7 +451,7 @@ export function AppViewModel() {
         }
     };
 
-    self.saveMessages = function () {
+    self.saveMessages = async function () {
         const savedMessages = self.messages().map(message => ({
             role: message.role,
             content: message.content
@@ -447,6 +463,11 @@ export function AppViewModel() {
         if (conversationIndex !== -1) {
             // Update the message history of the selected conversation
             self.storedConversations()[conversationIndex].messageHistory = savedMessages;
+        } 
+        else {
+            if (JSON.parse(self.selectedAutoSaveOption())) {
+                await this.saveNewConversations();
+            }
         }
 
         // Save the updated conversations to localStorage
@@ -458,6 +479,59 @@ export function AppViewModel() {
         let renderedMessage = wrapCodeSnippets(md.render(message));
         return renderedMessage;
     };
+
+    self.saveNewConversations = async function () {
+        self.isProcessing(true);
+
+        const newConversation = {
+            messageHistory: self.messages().slice(0),
+            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+        };
+
+        newConversation.messageHistory = self.messages().slice(0);
+
+        if (!localStorage.getItem("gpt-conversations")) {
+            localStorage.setItem("gpt-conversations", JSON.stringify([newConversation]));
+        } else {
+            let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
+
+            // Find the index of the conversation that has a 15% or more match in assistant's answers
+            const conversationIndex = storedConversations.findIndex((storedConversation) => {
+                const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
+                const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
+
+                const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
+                    return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
+                });
+
+                const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
+
+                return matchingPercentage >= 15;
+            });
+
+            if (conversationIndex !== -1) {
+                // Update the existing conversation's messageHistory with the new values
+                storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
+            } else {
+                // If the conversation doesn't exist, add it to the stored conversations
+                storedConversations.push(newConversation);
+            }
+
+            localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+        }
+
+        self.conversations(loadConversationTitles());
+        self.storedConversations(loadStoredConversations());
+
+        // Add the default option back to the conversations array if it's not already there
+        const defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
+        if (self.conversations()[0].title !== defaultOption.title) {
+            self.conversations.unshift(defaultOption);
+        }
+
+        self.selectedConversation(self.conversations()[0]);
+        self.isProcessing(false);
+    }
 
     self.clearMessages = async function () {
         self.isProcessing(true);
