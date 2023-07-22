@@ -218,6 +218,7 @@ button {
     width: 0px;
     border-radius: 30px;
     min-width: 0px;
+    z-index: -5;
     justify-content: space-around;
     transition: width 0.25s ease-in-out;  
 
