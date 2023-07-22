@@ -28,7 +28,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(159, 158, 158, 0.1), 0 1px 3px rgba(122, 97, 97, 0.443);
+    //box-shadow: 0 4px 6px rgba(159, 158, 158, 0.1), 0 1px 3px rgba(122, 97, 97, 0.443);
 }
 
 .chat {
@@ -506,7 +506,7 @@ button {
     justify-content: space-between;
 }
 
-$shadow-color: #445469;
+$shadow-color: #252629;
 $shadow-offset-x: 0px;
 $shadow-offset-y: 1px;
 $shadow-blur-radius: 2px;
@@ -522,6 +522,7 @@ $shadow-spread-radius: 0px;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
+    border-bottom: 1px solid #2b2c30;
     position: relative; // Add this line
     border-radius: 4px;
 }
