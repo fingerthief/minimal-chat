@@ -44,6 +44,6 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
         }
     } catch (error) {
         console.error("Error fetching GPT response:", error);
-        return "An error occurred while fetching a response.";
+        return "An error occurred while generating conversaton title.";
     }
 }

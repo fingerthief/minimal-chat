@@ -388,7 +388,7 @@ export function AppViewModel() {
             return self.streamedMessageText();
         } catch (error) {
             console.error("Error fetching GPT response:", error);
-            return "An error occurred while fetching a response.";
+            return "An error occurred while fetching GPT response stream.";
         }
     }
 

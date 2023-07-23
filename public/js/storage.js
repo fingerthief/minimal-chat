@@ -37,7 +37,7 @@ export async function fetchGPTResponse(conversation, attitude, model) {
         }
     } catch (error) {
         console.error("Error fetching GPT response:", error);
-        return "An error occurred while fetching a response.";
+        return "An error occurred while fetching GPT response.";
     }
 }
 
@@ -58,7 +58,7 @@ export async function generateDALLEImage(conversation) {
             },
             body: JSON.stringify({
                 prompt: conversation,
-                n: 2,
+                n: 8,
                 size: "256x256",
             }),
         });
@@ -72,7 +72,7 @@ export async function generateDALLEImage(conversation) {
         }
     } catch (error) {
         console.error("Error fetching DALL-E response:", error);
-        return "An error occurred while fetching a response.";
+        return "An error generating DALL-E image.";
     }
 }
 
