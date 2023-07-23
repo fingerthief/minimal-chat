@@ -10,15 +10,25 @@
 
 On iOS/Android devices in your browser, you can add a web page to your home screen. If you do that, then MinimalGPT will run in `mobile web app` mode, essentially removing the usual browser controls and providing a native-like app experience.
 
+On iOS press the **Share** button in the browser and find the option that says **Add to Home Screen**. Pressomg that will install the web application to your home screen.
+
 ![ios-add-to-home-small](https://user-images.githubusercontent.com/2380471/235267080-d69a2a46-50fa-4acf-b36b-da10b5d439d1.jpg)
+
+On Android the process is basically the same except the name of the option is **Install App**
+
+![android-install-web-app2](https://github.com/fingerthief/minimal-gpt/assets/2380471/cfd51a6a-5a03-4ff0-851a-c20c0565a89d)
 
 ## Features
 
-- Minimal chat layout with Markdown and Code Syntax Highlighting support
+- Minimal chat layout
+- Markdown Support
+- Code Syntax Highlighting
 - Basic DALL-E Integration
 - Conversation message search
 - Customizable settings
 - Responsive layout for mobile use
+- Auto Save New Conversations Option
+- PWA Supported
 
 ### Minimal chat layout
 
