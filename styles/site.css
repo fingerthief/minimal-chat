@@ -10340,7 +10340,7 @@ body {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #b2c1c8;
+  color: #8a7c99;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10425,7 +10425,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #b2c1c8;
+  color: #8a7c99;
   position: absolute;
   min-height: 50px;
   display: grid;
@@ -10445,7 +10445,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #b2c1c8;
+  color: #8a7c99;
   position: fixed;
   min-height: 50px;
   top: 73px;
@@ -10475,7 +10475,7 @@ button:hover {
   background-color: #2f2f31;
   cursor: pointer;
   outline: none;
-  color: #86c1bf;
+  color: #433944;
   position: fixed;
   min-height: 0px;
   top: 73px;
@@ -10547,7 +10547,7 @@ button:hover {
 }
 .message.user {
   float: right;
-  background-color: #183d67;
+  background-color: #003F82;
   color: #fff;
 }
 .message.user .label {
@@ -10565,12 +10565,12 @@ button:hover {
 }
 .message.gpt {
   float: left;
-  background-color: #234b4a;
+  background-color: #433944;
   color: #f0f0f0;
   text-overflow: clip;
 }
 .message.gpt .label {
-  background-color: #364353;
+  background-color: #433944;
   left: 5px;
 }
 .message.gpt::after {
@@ -10600,7 +10600,7 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 8px;
-  color: #b2c1c8;
+  color: #8a7c99;
   float: right;
   position: relative;
 }
@@ -10608,7 +10608,7 @@ button:hover {
   padding: 2px;
   right: 65px;
   top: 8px;
-  color: #b2c1c8;
+  color: #8a7c99;
   float: right;
   position: relative;
 }
@@ -10617,7 +10617,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #b2c1c8;
+  color: #8a7c99;
   transform: translateY(-50%);
 }
 
@@ -10763,7 +10763,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #b2c1c8;
+  color: #8a7c99;
   cursor: pointer;
   outline: none;
 }
@@ -10802,11 +10802,10 @@ button:hover {
 
 .no-style-link {
   text-decoration: none;
-  color: inherit;
+  color: #8a7c99;
 }
 .no-style-link:hover, .no-style-link:focus {
   text-decoration: none;
-  color: inherit;
 }
 
 .slider-container {

@@ -52,15 +52,15 @@
                         <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">MinimalGPT <span class="fa-brands fa-github"></span></a>
                         
                         <div class="settings-btn fa-solid fa-sliders fa-lg" data-bind="click: toggleSidebar"></div>
-                        <div class="trash-btn fa-solid fa-trash-can fa-lg" data-bind="click: deleteCurrentConversation">
+                        <div class="trash-btn fa-regular fa-trash-can fa-lg" data-bind="click: deleteCurrentConversation">
                         </div>
                         <div class="conversations-count">
                             <div class="general-processing" data-bind="visible: isProcessing">
                                 <span class="loading spinner"></span>
                             </div>
-                            <span class="save-icon fa-solid fa-floppy-disk fa-xl" data-bind="click: clearMessages"></span>
+                            <span class="save-icon fa-regular fa-floppy-disk fa-xl" data-bind="click: clearMessages"></span>
                             <span class="count-icon fa-lg fa-solid" data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>           
-                        <div class="saved-conversations-dropdown fa-solid fa-comments fa-lg" data-bind="click: onShowConversationsClick"></div>
+                        <div class="saved-conversations-dropdown fa-regular fa-comments fa-lg" data-bind="click: onShowConversationsClick"></div>
                         </div>            
                         <div class="saved-conversations-dropdown">
                             <select data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }, css: showConversationOptions() === true ? 'saved-conversations--visible' : 'saved-conversations'"></select>
@@ -114,7 +114,7 @@
                         <textarea id="user-input" class="user-input-text" rows="1" placeholder="" data-bind="textInput: userInput" ></textarea>
                         <span data-bind="visible: isLoading" class="loading input-spinner"></span>
                         <div class="send-button box" data-bind="click: sendMessage">
-                            <span class="fa-regular fa-paper-plane fa-2xl"></span>
+                            <span class="fa-regular fa-message fa-xl"></span>
                         </div>
                     </form>
                 </div>

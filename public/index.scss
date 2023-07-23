@@ -5,10 +5,17 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../web-fonts";
+$icon-color: #8a7c99;
 
+@font-face {
+    font-family: 'Roboto';
+    src: url('/web-fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto';
     margin: 0;
     padding: 0;
     position: relative;
@@ -21,7 +28,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(159, 158, 158, 0.1), 0 1px 3px rgba(122, 97, 97, 0.443);
+    //box-shadow: 0 4px 6px rgba(159, 158, 158, 0.1), 0 1px 3px rgba(122, 97, 97, 0.443);
 }
 
 .chat {
@@ -50,8 +57,7 @@ body {
     transform: translateY(-50%);
    // background-color: transparent;
     //border: none;
-    color: #f0f0f0;
-    font-size: 18px;
+    color: $icon-color;
     cursor: pointer;
 
     &:hover {
@@ -62,6 +68,7 @@ body {
 
 .messages {
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 10px;
     position: relative;
     max-height: 96dvh;
@@ -83,18 +90,49 @@ body {
 }
 
 
+#user-search-input {
+    flex-grow: 1;
+    z-index: 9999;
+    border: 1px solid #444;
+    outline: none;
+    background-color: #1c1c1e;
+    font-size: 18px;
+    color: #f0f0f0;
+    width: inherit;
+    resize: vertical;
+    overflow: auto;
+    white-space: pre-wrap;
+    min-height: 30px;
+    border-radius: 30px;
+    transition: 0.2s height ease-in-out;
+    //border-top-right-radius: 30px;
+    //border-bottom-right-radius: 30px;
+
+}
+
 #user-input {
     flex-grow: 1;
     z-index: 9999;
     border: 1px solid #444;
     outline: none;
     background-color: #1c1c1e;
-    font-size: 20px;
+    font-size: 18px;
     color: #f0f0f0;
     resize: vertical;
     overflow: auto;
     white-space: pre-wrap;
-    min-height: 41px;
+    min-height: 35px;
+    border-radius: 30px;
+    transition: 0.2s height ease-in-out;
+    //border-top-right-radius: 30px;
+    //border-bottom-right-radius: 30px;
+
+}
+
+textarea {
+    padding-top: 14px;
+    padding-left: 20px;
+    transition: 0.2s height ease-in-out;
 }
 
 button {
@@ -111,14 +149,17 @@ button {
 
 .send-button {
     border: 1px solid #444;
-    background-color: #3a3a3c;
-    color: #33922bcd;
+    background-color: #2a3441;
     cursor: pointer;
     outline: none;
-    position: relative;
+    color: $icon-color;
+    position: absolute;
     min-height: 50px;
     display: grid;
     align-content: center;
+    right: 7px;
+    z-index: 99999;
+    border-radius: 30px;
     min-width: 54px;
     justify-content: space-around;
 
@@ -127,6 +168,67 @@ button {
         background-color: #4a4a4c;
     }
 }
+
+.floating-button {
+    border: 1px solid #444;
+    background-color: #2a3441;
+    cursor: pointer;
+    outline: none;
+    color: $icon-color;
+    position: fixed;
+    min-height: 50px;
+    top: 73px;
+    display: grid;
+    align-content: center;
+    right: 7px;
+    z-index: 99999;
+    border-radius: 30px;
+    min-width: 54px;
+    opacity: 1;
+    justify-content: space-around;
+    transition: opacity 0.5s ease-in-out; 
+
+    &.scroll {
+        top: 76vh;
+        opacity: 0;
+
+        &.show {
+            opacity: 1;;
+        }
+    }
+
+
+    &:hover {
+        background-color: #4a4a4c;
+    }
+}
+
+.floating-search-field {
+    border: 1px solid #444;
+    background-color: #2f2f31;
+    cursor: pointer;
+    outline: none;
+    color: #433944;
+    position: fixed;
+    min-height: 0px;
+    top: 73px;
+    display: grid;
+    align-content: center;
+    right: 82px;
+    width: 0px;
+    border-radius: 30px;
+    min-width: 0px;
+    z-index: -5;
+    justify-content: space-around;
+    transition: width 0.25s ease-in-out;  
+
+    &.show {
+        z-index: 99999;
+        width: 70vw;
+    }
+}
+
+
 
 .user,
 .gpt {
@@ -159,12 +261,19 @@ button {
 
 .message {
     position: relative;
-    padding: 5px 10px;
-    margin: 5px 0;
-    border-radius: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 25px;
+    text-overflow: clip;
     max-width: 80%;
     min-width: 10%;
+    margin-bottom: 8px;
     clear: both;
+
+    pre {
+        overflow: hidden;
+        text-overflow: clip;
+    }
 
     .label {
         position: absolute;
@@ -177,7 +286,7 @@ button {
 
     &.user {
         float: right;
-        background-color: #183d67;
+        background-color: #003F82;
         color: #fff;
 
         .label {
@@ -198,11 +307,15 @@ button {
 
     &.gpt {
         float: left;
-        background-color: #364353;
+        background-color: #433944;
         color: #f0f0f0;
 
+
+       // overflow: hidden;
+        text-overflow: clip;
+
         .label {
-            background-color: #364353;
+            background-color: #433944;
             left: 5px;
         }
 
@@ -234,8 +347,18 @@ button {
 
     .count-icon {
         padding: 2px;
-        right: 25px;
         top: 8px;
+        right: 8px;
+        color: $icon-color;
+        float: right;
+        position: relative;
+    }
+    
+    .save-icon {
+        padding: 2px;
+        right: 65px;
+        top: 8px;
+        color: $icon-color;
         float: right;
         position: relative;
     }
@@ -244,7 +367,8 @@ button {
 .saved-conversations-dropdown {
     position: absolute;
     top: 50%;
-    right: 2px;
+    right: 10px;
+    color: $icon-color;
     transform: translateY(-50%);
 }
 .saved-conversations-dropdown select {
@@ -288,8 +412,13 @@ button {
 
 }
 
+.general-processing {
+    display: contents;
+    position: relative;
+}
+
 .sidebar {
-    background-color: #444;
+    background-color: #252f3c;
     width: 315px;
     border-radius: 8px;
     padding: 8px;
@@ -307,7 +436,6 @@ button {
     &.open {
         z-index: 2;
         opacity: 1;
-
     }
 }
 
@@ -315,10 +443,13 @@ button {
     align-self: flex-end; // Align the button to the right
     padding: 5px 10px;
     border: 1px solid #444;
-    border-radius: 3px;
-    background-color: #3a3a3c;
-    color: #f0f0f0;
+    border-radius: 30px;
+    background-color: #364353;
+    color: #c3d1ff;
     cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+    height: 50px;
     outline: none;
     margin-bottom: 10px; // Add some margin at the bottom
 
@@ -370,24 +501,34 @@ button {
     min-width: 350px;
     max-width: 99dvw;
     border: 1px solid #444;
-    border-radius: 5px;
+    border-radius: 30px;
     width: 50%;
-    background-color: #2c2c2e;
+    background-color: #202124;
     justify-content: space-between;
 }
 
+$shadow-color: #252629;
+$shadow-offset-x: 0px;
+$shadow-offset-y: 1px;
+$shadow-blur-radius: 2px;
+$shadow-spread-radius: 0px;
+
+.box {
+    box-shadow: $shadow-offset-x $shadow-offset-y $shadow-blur-radius $shadow-spread-radius $shadow-color;
+}
+
 .header {
-    background-color: #444;
+    background-color: #202124;
     padding: 10px;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
+    border-bottom: 1px solid #2b2c30;
     position: relative; // Add this line
     border-radius: 4px;
 }
 
 .settings-header {
-    background-color: #444;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
@@ -403,8 +544,7 @@ button {
     transform: translateY(-50%);
     background-color: transparent;
     border: none;
-    color: #f0f0f0;
-    font-size: 18px;
+    color: $icon-color;
     cursor: pointer;
     outline: none;
 
@@ -438,18 +578,17 @@ button {
 }
 
 .message-container.gpt .message-tag {
-    background-color: #364353;
+    background-color: #234b4a;
     color: #f0f0f0;
 }
 
 .no-style-link {
     text-decoration: none;
-    color: inherit;
+    color: #8a7c99;
 
     &:hover,
     &:focus {
         text-decoration: none;
-        color: inherit;
     }
 }
 
@@ -467,7 +606,7 @@ button {
         flex-grow: 1;
         height: 15px;
         border-radius: 5px;
-        background: #33922bcd;
+        background: #3c8280;
         outline: none;
         margin-left: 10px;
 
@@ -476,7 +615,7 @@ button {
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #285b59;
             cursor: pointer;
         }
 
@@ -484,7 +623,7 @@ button {
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: #285b59;
             cursor: pointer;
         }
     }
@@ -558,34 +697,24 @@ button {
     color: lightskyblue;
     height: 9px;
     margin-left: 5px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-left-color: greenyellow;
+    border: 4px solid #3c8280;
+    border-left-color: #1cdfd8;
     border-radius: 50%;
     animation: spinner 1s linear infinite;
 }
 
-input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-
-    &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #4CAF50;
-        cursor: pointer;
-    }
-
-    &::-moz-range-thumb {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #4CAF50;
-        cursor: pointer;
-    }
+.input-spinner {
+    display: flex;
+    width: 25px;
+    color: lightskyblue;
+    height: 25px;
+    bottom: 15px;
+    right: 65px;
+    position: absolute;
+    z-index: 9000888;
+    margin-left: 5px;
+    border: 4px solid #3c8280;
+    border-left-color: #1cdfd8;
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
 }

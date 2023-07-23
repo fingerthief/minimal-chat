@@ -5,7 +5,7 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../web-fonts";
-$icon-color: #b2c1c8;
+$icon-color: #8a7c99;
 
 @font-face {
     font-family: 'Roboto';
@@ -208,7 +208,7 @@ button {
     background-color: #2f2f31;
     cursor: pointer;
     outline: none;
-    color: #86c1bf;
+    color: #433944;
     position: fixed;
     min-height: 0px;
     top: 73px;
@@ -286,7 +286,7 @@ button {
 
     &.user {
         float: right;
-        background-color: #183d67;
+        background-color: #003F82;
         color: #fff;
 
         .label {
@@ -307,7 +307,7 @@ button {
 
     &.gpt {
         float: left;
-        background-color: #234b4a;
+        background-color: #433944;
         color: #f0f0f0;
 
 
@@ -315,7 +315,7 @@ button {
         text-overflow: clip;
 
         .label {
-            background-color: #364353;
+            background-color: #433944;
             left: 5px;
         }
 
@@ -584,12 +584,11 @@ $shadow-spread-radius: 0px;
 
 .no-style-link {
     text-decoration: none;
-    color: inherit;
+    color: #8a7c99;
 
     &:hover,
     &:focus {
         text-decoration: none;
-        color: inherit;
     }
 }
 

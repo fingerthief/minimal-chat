@@ -9,7 +9,7 @@ export function wrapCodeSnippets(input) {
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
 
-        return `<pre><code>${escapedCode}</code></pre>`;
+        return `<pre class="hljs"><code>${escapedCode}</code></pre>`;
     });
 
     return wrapped;
@@ -18,7 +18,7 @@ export function wrapCodeSnippets(input) {
 export async function getConversationTitleFromGPT(messages, model, sliderValue) {
     try {
         const apiKey = document.getElementById('api-key');
-        apiKey.value = localStorage.getItem("gpt3Key") || "";
+        apiKey.value = localStorage.getItem("gptKey");
 
         let tempMessages = messages.slice(0);
         tempMessages.push({ role: 'user', content: "Summarize our conversation in 5 words or less." });
