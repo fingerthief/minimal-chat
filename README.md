@@ -22,23 +22,23 @@ On iOS/Android devices in your browser, you can add a web page to your home scre
 
 ### Minimal chat layout
 
-![Web capture_29-4-2023_19545_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330441-1c17f182-1dfc-4e68-acb6-9f96ec9d031f.jpeg)
+![Screenshot 2023-07-23 at 11-45-06 MinimalGPT](https://github.com/fingerthief/minimal-gpt/assets/2380471/f9ef7f23-2e20-4939-933b-855ae2e44502)
 
 ### Conversation search
 
-![search](https://user-images.githubusercontent.com/2380471/235330608-4e7a799d-8968-4a0d-81bf-499f646e2ce4.png)
+![Screenshot 2023-07-23 114733](https://github.com/fingerthief/minimal-gpt/assets/2380471/27b23efd-b93a-417c-b8a3-929378c49908)
 
 ### DALL-E Integration
 
-![Web capture_29-4-2023_195737_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330549-ce91ba12-aa20-4284-8b91-b3391f88446a.jpeg)
+![Screenshot 2023-07-23 115242](https://github.com/fingerthief/minimal-gpt/assets/2380471/4231d9aa-771a-481f-b3f3-b6e4b9879d8e)
 
 ### Settings
 
-![Web capture_29-4-2023_195422_minimalgpt app](https://user-images.githubusercontent.com/2380471/235330449-fcb36cf3-13e3-44c6-a1c2-4b934e851efa.jpeg)
+![Screenshot 2023-07-23 114817](https://github.com/fingerthief/minimal-gpt/assets/2380471/db0e8a09-3396-4046-acc0-bd42ad1bc8a9)
 
 ### [Responsive layout for mobile use (Click Here For Demo Video)](https://www.youtube.com/shorts/pUSd8ENeh0g)
 
-![unnamed (1)](https://user-images.githubusercontent.com/2380471/235331432-ce06a826-e2f1-4ab6-8d16-284cdaa9427b.png)
+![Screenshot 2023-07-23 at 11-49-17 MinimalGPT(2)](https://github.com/fingerthief/minimal-gpt/assets/2380471/b9321624-0f50-474e-8c42-e6ac73a0a349)
 
 ## Run Web App Locally
 
