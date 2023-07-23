@@ -8,9 +8,9 @@
 
 ### Tip for mobile users
 
-On iOS/Android devices in your browser, you can add a web page to your home screen. If you do that, then MinimalGPT will run in `mobile web app` mode, essentially removing the usual browser controls and providing a native-like app experience.
+On iOS/Android devices in your browser, you can install supported web applications (called PWA or Progressive Web Applications) like native mobile apps to your devices homescreen. This means even though it is a website it is nearly indistinguishable from a normal iOS/Android application.
 
-On iOS press the **Share** button in the browser and find the option that says **Add to Home Screen**. Pressomg that will install the web application to your home screen.
+On iOS press the **Share** button in the browser and find the option that says **Add to Home Screen**. Pressing that will install the web application to your home screen.
 
 ![ios-add-to-home-small](https://user-images.githubusercontent.com/2380471/235267080-d69a2a46-50fa-4acf-b36b-da10b5d439d1.jpg)
 
