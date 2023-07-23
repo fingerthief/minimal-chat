@@ -10340,7 +10340,7 @@ body {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #8a7c99;
+  color: #c7a0c8;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10425,7 +10425,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #8a7c99;
+  color: #c7a0c8;
   position: absolute;
   min-height: 50px;
   display: grid;
@@ -10445,7 +10445,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #8a7c99;
+  color: #c7a0c8;
   position: fixed;
   min-height: 50px;
   top: 73px;
@@ -10547,11 +10547,11 @@ button:hover {
 }
 .message.user {
   float: right;
-  background-color: #003F82;
+  background-color: #473253;
   color: #fff;
 }
 .message.user .label {
-  background-color: #183d67;
+  background-color: #473253;
   right: 5px;
 }
 .message.user::after {
@@ -10600,7 +10600,7 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 8px;
-  color: #8a7c99;
+  color: #c7a0c8;
   float: right;
   position: relative;
 }
@@ -10608,7 +10608,7 @@ button:hover {
   padding: 2px;
   right: 65px;
   top: 8px;
-  color: #8a7c99;
+  color: #c7a0c8;
   float: right;
   position: relative;
 }
@@ -10617,7 +10617,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #8a7c99;
+  color: #c7a0c8;
   transform: translateY(-50%);
 }
 
@@ -10666,7 +10666,7 @@ button:hover {
 }
 
 .sidebar {
-  background-color: #252f3c;
+  background-color: #31253c;
   width: 315px;
   border-radius: 8px;
   padding: 8px;
@@ -10691,8 +10691,8 @@ button:hover {
   padding: 5px 10px;
   border: 1px solid #444;
   border-radius: 30px;
-  background-color: #364353;
-  color: #c3d1ff;
+  background-color: #665067;
+  color: white;
   cursor: pointer;
   width: 100%;
   font-size: 18px;
@@ -10763,7 +10763,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #8a7c99;
+  color: #c7a0c8;
   cursor: pointer;
   outline: none;
 }
@@ -10802,7 +10802,7 @@ button:hover {
 
 .no-style-link {
   text-decoration: none;
-  color: #8a7c99;
+  color: #c7a0c8;
 }
 .no-style-link:hover, .no-style-link:focus {
   text-decoration: none;
@@ -10822,7 +10822,7 @@ button:hover {
   flex-grow: 1;
   height: 15px;
   border-radius: 5px;
-  background: #3c8280;
+  background: #916c93;
   outline: none;
   margin-left: 10px;
 }
@@ -10831,14 +10831,14 @@ button:hover {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #285b59;
+  background: #665067;
   cursor: pointer;
 }
 .slider-container input[type=range]::-moz-range-thumb {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #285b59;
+  background: #665067;
   cursor: pointer;
 }
 

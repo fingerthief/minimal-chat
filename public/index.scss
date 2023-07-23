@@ -5,7 +5,7 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../web-fonts";
-$icon-color: #8a7c99;
+$icon-color: #c7a0c8;
 
 @font-face {
     font-family: 'Roboto';
@@ -286,11 +286,11 @@ button {
 
     &.user {
         float: right;
-        background-color: #003F82;
+        background-color: #473253;
         color: #fff;
 
         .label {
-            background-color: #183d67;
+            background-color: #473253;
             right: 5px;
         }
 
@@ -418,7 +418,7 @@ button {
 }
 
 .sidebar {
-    background-color: #252f3c;
+    background-color: #31253c;
     width: 315px;
     border-radius: 8px;
     padding: 8px;
@@ -444,8 +444,8 @@ button {
     padding: 5px 10px;
     border: 1px solid #444;
     border-radius: 30px;
-    background-color: #364353;
-    color: #c3d1ff;
+    background-color: #665067;
+    color: white;
     cursor: pointer;
     width: 100%;
     font-size: 18px;
@@ -584,7 +584,7 @@ $shadow-spread-radius: 0px;
 
 .no-style-link {
     text-decoration: none;
-    color: #8a7c99;
+    color: #c7a0c8;
 
     &:hover,
     &:focus {
@@ -606,7 +606,7 @@ $shadow-spread-radius: 0px;
         flex-grow: 1;
         height: 15px;
         border-radius: 5px;
-        background: #3c8280;
+        background: #916c93;
         outline: none;
         margin-left: 10px;
 
@@ -615,7 +615,7 @@ $shadow-spread-radius: 0px;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #285b59;
+            background: #665067;
             cursor: pointer;
         }
 
@@ -623,7 +623,7 @@ $shadow-spread-radius: 0px;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #285b59;
+            background: #665067;
             cursor: pointer;
         }
     }
