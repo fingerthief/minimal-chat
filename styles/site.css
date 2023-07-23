@@ -10524,12 +10524,13 @@ button:hover {
 
 .message {
   position: relative;
-  padding: 5px 10px;
-  margin: 5px 0;
-  border-radius: 5px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 25px;
   text-overflow: clip;
   max-width: 80%;
   min-width: 10%;
+  margin-bottom: 8px;
   clear: both;
 }
 .message pre {
