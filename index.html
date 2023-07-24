@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0" />
     <meta name="robots" content="index, follow">
     <meta name="author" content="Tanner Middleton">
     <meta name="description" content="An open source minimal GPT/DALL-E chat web application.">
@@ -11,6 +11,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <title>MinimalGPT</title>
 </head>
+
 <body>
     <div class="app-container">
         <div class="sidebar box" id="settings-dialog" data-bind="css: { open: isSidebarOpen }">
@@ -39,6 +40,7 @@
                 <select id="model-selector" data-bind="value: selectedModel">
                     <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>
                     <option value="gpt-4">GPT-4</option>
+                    <option value="chat-bison-001">PaLM</option>
                 </select>
             </div>
             <div>
@@ -49,45 +51,71 @@
             <div class="container">
                 <div class="chat">
                     <div class="header box">
-                        <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">MinimalGPT <span class="fa-brands fa-github"></span></a>
-                        
+                        <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank"
+                            class="no-style-link">MinimalGPT <span class="fa-brands fa-github"></span></a>
+
                         <div class="settings-btn fa-solid fa-sliders fa-lg" data-bind="click: toggleSidebar"></div>
-                        <div class="trash-btn fa-regular fa-trash-can fa-lg" data-bind="click: deleteCurrentConversation">
+                        <div class="trash-btn fa-regular fa-trash-can fa-lg"
+                            data-bind="click: deleteCurrentConversation">
                         </div>
                         <div class="conversations-count">
                             <div class="general-processing" data-bind="visible: isProcessing">
                                 <span class="loading spinner"></span>
                             </div>
-                            <span class="save-icon fa-regular fa-floppy-disk fa-xl" data-bind="click: clearMessages"></span>
-                            <span class="count-icon fa-lg fa-solid" data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>           
-                        <div class="saved-conversations-dropdown fa-regular fa-comments fa-lg" data-bind="click: onShowConversationsClick"></div>
-                        </div>            
-                        <div class="saved-conversations-dropdown">
-                            <select data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }, css: showConversationOptions() === true ? 'saved-conversations--visible' : 'saved-conversations'"></select>
+                            <span class="save-icon fa-regular fa-floppy-disk fa-xl"
+                                data-bind="click: clearMessages"></span>
+                            <span class="count-icon fa-lg fa-solid"
+                                data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>
+                            <div class="saved-conversations-dropdown fa-regular fa-comments fa-lg"
+                                data-bind="click: onShowConversationsClick"></div>
                         </div>
-                    </div>                    
+                        <div class="saved-conversations-dropdown">
+                            <select
+                                data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }, css: showConversationOptions() === true ? 'saved-conversations--visible' : 'saved-conversations'"></select>
+                        </div>
+                    </div>
                     <div class="messages" id="messagesContainer">
                         <div class="floating-button" data-bind="click: showSearchField, stopClickPropagation: {}">
                             <span class="fa-solid fa-magnifying-glass fa-xl"></span>
                         </div>
-                        <div class="floating-search-field" id="floating-search-field" data-bind="css: showingSearchField() ? 'show' : ''">
-                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder="" data-bind="textInput: userSearchInput" ></textarea>
+                        <div class="floating-search-field" id="floating-search-field"
+                            data-bind="css: showingSearchField() ? 'show' : ''">
+                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder=""
+                                data-bind="textInput: userSearchInput"></textarea>
                         </div>
+                        <!-- ko ifnot: isPalmEnabled() -->
                         <!-- ko foreach: filteredMessages -->
-                        <div data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                        <div
+                            data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                             <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
                             <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
                         <!-- /ko -->
+                        <!-- /ko -->
 
-                                                
-                        <!-- ko foreach: messages()-->
-                            <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
-                            <div
-                                data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                                <span class="label" data-bind="text: (role === 'user' ? 'Me' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
-                                <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
-                            </div>
+
+                        <!-- ko ifnot: isPalmEnabled() -->
+                            <!-- ko foreach: messages()-->
+                                <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
+                                <div
+                                    data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                                    <span class="label"
+                                        data-bind="text: (role === 'user' ? 'Me' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                                    <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                                </div>
+                                <!-- /ko -->
+                            <!-- /ko -->
+                        <!-- /ko -->
+                        
+                        <!-- ko if: isPalmEnabled() -->
+                            <!-- ko foreach: messages() -->
+                                <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
+                                <div
+                                    data-bind="css: ($index + 1) % 2 !== 0 ? 'user message' : 'gpt message', attr: { 'data-role': ($index + 1) % 2 !== 0 ? 'user' : 'assistant' }">
+                                    <span class="label" data-bind="text: ($index + 1) % 2 !== 0 ? 'Me' : 'PaLM'"></span>
+                                    <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                                </div>
+                                <!-- /ko -->
                             <!-- /ko -->
                         <!-- /ko -->
 
@@ -101,17 +129,20 @@
                         <!-- ko if: isGeneratingImage -->
                         <div class="gpt message padded">
                             <span class="label">DALL-E</span>
-                            <span data-bind="text: 'Generating Image, this might take a minute.'"></span><span class="loading spinner"></span>
+                            <span data-bind="text: 'Generating Image, this might take a minute.'"></span><span
+                                class="loading spinner"></span>
                         </div>
                         <!-- /ko -->
 
-                        <div class="floating-button scroll" id="scroll-button" data-bind="click: scrollToBottom(), css: shouldShowScrollButton() === true ? 'show' : ''">
+                        <div class="floating-button scroll" id="scroll-button"
+                            data-bind="click: scrollToBottom(), css: shouldShowScrollButton() === true ? 'show' : ''">
                             <span class="fa-solid fa-circle-chevron-down fa-xl"></span>
                         </div>
                     </div>
 
                     <form id="chat-form" data-bind="submit: sendMessage">
-                        <textarea id="user-input" class="user-input-text" rows="1" placeholder="" data-bind="textInput: userInput" ></textarea>
+                        <textarea id="user-input" class="user-input-text" rows="1" placeholder=""
+                            data-bind="textInput: userInput"></textarea>
                         <span data-bind="visible: isLoading" class="loading input-spinner"></span>
                         <div class="send-button box" data-bind="click: sendMessage">
                             <span class="fa-regular fa-message fa-xl"></span>
@@ -121,12 +152,12 @@
             </div>
         </div>
     </div>
-
     <script async src="https://cdn.jsdelivr.net/npm/pwacompat" crossorigin="anonymous"></script>
     <script type="module" src="index.js"></script>
     <script type="module" src="js/app-view-model.js"></script>
     <script type="module" src="js/storage.js"></script>
     <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/palm-api-access.js" type="module"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>

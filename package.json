@@ -1,11 +1,11 @@
 {
   "name": "gpt-chat-bot",
   "version": "1.1.0",
-  "description": "",
+  "description": "**MinimalGPT** is an open-source GPT chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT chat when the user sends a message and when a user saves a conversation to generate a conversation title.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-server": "http-server ./ -p 8080",
+    "start-server": "http-server ./ -p 8080 --cors",
     "scss-build": "sass ./index.scss ./styles/site.css",
     "scss-build-dist": "sass ./public/index.scss ./public/styles/site.css",
     "build": "gulp"
@@ -15,8 +15,10 @@
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-free": "^6.4.0",
+    "@google-ai/generativelanguage": "^0.2.1",
     "del": "^7.0.0",
     "dotenv": "^16.0.3",
+    "google-auth-library": "^9.0.0",
     "gulp": "^4.0.2",
     "gulp-html-replace": "^1.6.2",
     "gulp-inject-string": "^1.1.2",
@@ -28,5 +30,6 @@
     "markdown-it-highlight": "^0.2.0",
     "openai": "^3.2.1",
     "sass": "^1.62.0"
-  }
+  },
+  "keywords": []
 }

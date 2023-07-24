@@ -9,6 +9,9 @@ import {
     loadStoredConversations,
     generateDALLEImage
 } from './storage.js';
+import {
+    fetchPalmResponse
+} from './palm-api-access.js';
 
 const ko = window.ko;
 const messagesContainer = document.querySelector('.messages');
@@ -28,6 +31,8 @@ export function AppViewModel() {
     self.streamedMessageText = ko.observable();
     self.showingSearchField = ko.observable(false);
     self.filteredMessages = ko.observableArray([]);
+    self.isPalmEnabled = ko.observable(false);
+
     self.selectedModel = ko.observable(
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
@@ -179,6 +184,10 @@ export function AppViewModel() {
 
     self.selectedModel.subscribe(() => {
         self.saveSelectedModel();
+
+        if (self.selectedModel() === "chat-bison-001") {
+            self.messages([]);
+        }
     });
 
     self.selectedAutoSaveOption.subscribe(() => {
@@ -394,6 +403,26 @@ export function AppViewModel() {
 
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
+
+        if (self.selectedModel().indexOf("bison") !== -1) {
+            self.isPalmEnabled(true);
+            let messageContext;
+
+            if (self.messages().length === 0) {
+                self.messages.push({ content: messageText });
+            }
+            else {
+                messageContext = self.messages.slice(0);
+                messageContext.push({ content: messageText });
+            }
+
+            const response = await fetchPalmResponse(messageContext);
+            self.messages.push({ content: response });
+            console.log(self.messages());
+            return;
+        }
+
+        self.isPalmEnabled(false);
 
         if (!messageText || messageText === "") {
             return;
