@@ -93,14 +93,12 @@
                             <textarea id="user-search-input" class="search-input-text" rows="1" placeholder=""
                                 data-bind="textInput: userSearchInput"></textarea>
                         </div>
-                        <!-- ko ifnot: isPalmEnabled() -->
                         <!-- ko foreach: filteredMessages -->
                         <div
                             data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                             <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
                             <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
-                        <!-- /ko -->
                         <!-- /ko -->
 
 
