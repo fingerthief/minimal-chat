@@ -12,7 +12,7 @@ export async function fetchPalmResponse(messages) {
             },
             body: JSON.stringify({
                 prompt: { messages : messages },
-                temperature: 0.1,
+                temperature: 0.42,
                 candidate_count: 1          
             }),
         });
