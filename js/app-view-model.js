@@ -401,24 +401,30 @@ export function AppViewModel() {
         }
     }
 
+    self.palmMessages = [];
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
 
         if (self.selectedModel().indexOf("bison") !== -1) {
+            self.userInput("");
             self.isPalmEnabled(true);
             let messageContext;
 
-            if (self.messages().length === 0) {
-                self.messages.push({ content: messageText });
+            if (self.palmMessages.length === 0) {
+                self.palmMessages.push({ content: messageText });
+                self.messages.push({ role: "user", content: messageText });
+
+                messageContext = self.palmMessages.slice(0);
             }
             else {
-                messageContext = self.messages.slice(0);
+                self.messages.push({ role: "user", content: messageText });
+                messageContext = self.palmMessages.slice(0);
                 messageContext.push({ content: messageText });
             }
 
             const response = await fetchPalmResponse(messageContext);
-            self.messages.push({ content: response });
-            console.log(self.messages());
+            self.palmMessages.push({ content: response });
+            self.messages.push({ role: "assistant", content: response });
             return;
         }
 

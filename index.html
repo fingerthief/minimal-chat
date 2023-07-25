@@ -111,8 +111,9 @@
                             <!-- ko foreach: messages() -->
                                 <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
                                 <div
-                                    data-bind="css: ($index + 1) % 2 !== 0 ? 'user message' : 'gpt message', attr: { 'data-role': ($index + 1) % 2 !== 0 ? 'user' : 'assistant' }">
-                                    <span class="label" data-bind="text: ($index + 1) % 2 !== 0 ? 'Me' : 'PaLM'"></span>
+                                    data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                                    <span class="label"
+                                        data-bind="text: role === 'user' ? 'Me' : 'PaLM'"></span>
                                     <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                                 </div>
                                 <!-- /ko -->
