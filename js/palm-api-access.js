@@ -1,9 +1,9 @@
 
 
 const MODEL_NAME = "chat-bison-001";
-const API_KEY = 'AIzaSyCzZkjcXrHMdn6YlJqag80NL2nSqAzDq9c';
 
 export async function fetchPalmResponse(messages) {
+    const API_KEY = localStorage.getItem("palmKey");
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta2/models/${MODEL_NAME}:generateMessage?key=${API_KEY}`, {
             method: "POST",
@@ -27,7 +27,7 @@ export async function fetchPalmResponse(messages) {
 }
 
 export async function fetchPalmConversationTitle(messages) {
-
+    const API_KEY = localStorage.getItem("palmKey");
     messages.push({ content: "Summarize this conversations in 10 words or less."})
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta2/models/${MODEL_NAME}:generateMessage?key=${API_KEY}`, {
             method: "POST",

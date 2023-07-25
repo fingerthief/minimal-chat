@@ -10,7 +10,8 @@ import {
     generateDALLEImage
 } from './storage.js';
 import {
-    fetchPalmResponse
+    fetchPalmResponse,
+    fetchPalmConversationTitle
 } from './palm-api-access.js';
 
 const ko = window.ko;
@@ -297,7 +298,7 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            //title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -537,7 +538,7 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -581,7 +582,8 @@ export function AppViewModel() {
             self.conversations.unshift(defaultOption);
         }
 
-        self.selectedConversation(self.conversations()[0]);
+        self.selectedConversation(self.conversations()[self.conversations().length]);
+        self.loadSelectedConversation();
         self.isProcessing(false);
     }
 
@@ -590,7 +592,7 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+           // title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
