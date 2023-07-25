@@ -26,6 +26,30 @@ export async function fetchPalmResponse(messages) {
         
 }
 
+export async function fetchPalmConversationTitle(messages) {
+
+    messages.push({ content: "Summarize this conversations in 10 words or less."})
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta2/models/${MODEL_NAME}:generateMessage?key=${API_KEY}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                prompt: { messages : messages },
+                temperature: 0.3,
+                candidate_count: 1          
+            }),
+        });
+
+        const result = await response.json();
+        const reponseText = result.candidates[0].content;
+
+        console.log(result.candidates[0].content);
+
+        return reponseText;
+        
+}
+
 export async function savePalmMessages(currentMessages) {
     const savedMessages = currentMessages().map(message => ({
         content: message.content
