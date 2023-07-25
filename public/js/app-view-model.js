@@ -119,6 +119,16 @@ export function AppViewModel() {
         }
     });
 
+    const palmApiKey = document.getElementById('palm-api-key');
+    palmApiKey.value = localStorage.getItem("palmKey");
+
+    palmApiKey.addEventListener("blur", () => {
+        if (palmApiKey.value.trim() !== "")
+        {
+            localStorage.setItem("palmKey", palmApiKey.value.trim());
+        }
+    });
+
     self.sliderValue.subscribe((attitude) => {
         localStorage.setItem("gpt-attitude", attitude);
     });
@@ -227,6 +237,9 @@ export function AppViewModel() {
         if (self.isSidebarOpen()) {
             const apiKey = document.getElementById('api-key');
             apiKey.value = localStorage.getItem("gptKey");
+
+            const palmApiKey = document.getElementById('palm-api-key');
+            palmApiKey.value = localStorage.getItem("palmKey");
         }
     };
 
