@@ -4,6 +4,7 @@ const MODEL_NAME = "chat-bison-001";
 
 export async function fetchPalmResponse(messages) {
     const API_KEY = localStorage.getItem("palmKey");
+    const ATTITUDE = localStorage.getItem("palm-attitude");
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta2/models/${MODEL_NAME}:generateMessage?key=${API_KEY}`, {
             method: "POST",
@@ -12,7 +13,7 @@ export async function fetchPalmResponse(messages) {
             },
             body: JSON.stringify({
                 prompt: { messages : messages },
-                temperature: 0.42,
+                temperature: ATTITUDE * 0.01,
                 candidate_count: 1          
             }),
         });
@@ -36,7 +37,7 @@ export async function fetchPalmConversationTitle(messages) {
             },
             body: JSON.stringify({
                 prompt: { messages : messages },
-                temperature: 0.3,
+                temperature: 0.25,
                 candidate_count: 1          
             }),
         });

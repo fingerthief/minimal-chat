@@ -27,6 +27,7 @@ export function AppViewModel() {
     self.messages = ko.observableArray([]);
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
+    self.palmSliderValue = ko.observable(localStorage.getItem('palm-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
     self.showConversationOptions = ko.observable(false);
     self.streamedMessageText = ko.observable();
@@ -131,6 +132,10 @@ export function AppViewModel() {
 
     self.sliderValue.subscribe((attitude) => {
         localStorage.setItem("gpt-attitude", attitude);
+    });
+
+    self.palmSliderValue.subscribe((attitude) => {
+        localStorage.setItem("palm-attitude", attitude);
     });
 
     let blurTimeout;
@@ -547,8 +552,6 @@ export function AppViewModel() {
     };
 
     self.saveNewConversations = async function () {
-        self.isProcessing(true);
-
         const newConversation = {
             messageHistory: self.messages().slice(0),
             title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
@@ -597,7 +600,6 @@ export function AppViewModel() {
 
         self.selectedConversation(self.conversations()[self.conversations().length]);
         self.loadSelectedConversation();
-        self.isProcessing(false);
     }
 
     self.clearMessages = async function () {

@@ -10532,6 +10532,7 @@ button:hover {
   min-width: 10%;
   margin-bottom: 8px;
   clear: both;
+  margin-top: 6px;
 }
 .message pre {
   overflow: hidden;
@@ -10552,7 +10553,8 @@ button:hover {
 }
 .message.user .label {
   background-color: #473253;
-  right: 5px;
+  right: 0px;
+  border-radius: 20px;
 }
 .message.user::after {
   content: "";
@@ -10571,7 +10573,8 @@ button:hover {
 }
 .message.gpt .label {
   background-color: #433944;
-  left: 5px;
+  left: 0px;
+  border-radius: 20px;
 }
 .message.gpt::after {
   content: "";
@@ -10670,6 +10673,8 @@ button:hover {
   width: 315px;
   border-radius: 8px;
   padding: 8px;
+  overflow: auto;
+  max-height: 75vh;
   min-height: 400px;
   display: flex;
   flex-direction: column;

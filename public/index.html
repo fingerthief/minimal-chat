@@ -33,13 +33,18 @@
                 <label for="api-key">GPT Key:</label>
                 <input type="password" id="api-key" placeholder="Enter your API Key...">
             </div>
+            <div class="slider-container">
+                <span>Serious</span>
+                <input type="range" min="0" max="200" data-bind="value: sliderValue">
+                <span>Creative</span>
+            </div>
             <div class="api-key">
                 <label for="api-key">PaLM Key:</label>
                 <input type="password" id="palm-api-key" placeholder="Enter your API Key...">
             </div>
             <div class="slider-container">
                 <span>Serious</span>
-                <input type="range" min="0" max="200" data-bind="value: sliderValue">
+                <input type="range" min="0" max="100" data-bind="value: palmSliderValue">
                 <span>Creative</span>
             </div>
             <div class="control">
@@ -112,7 +117,7 @@
                                 <div
                                     data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                                     <span class="label"
-                                        data-bind="text: (role === 'user' ? 'Me' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                                        data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
                                     <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                                 </div>
                                 <!-- /ko -->
@@ -125,7 +130,7 @@
                                 <div
                                     data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                                     <span class="label"
-                                        data-bind="text: role === 'user' ? 'Me' : 'PaLM'"></span>
+                                        data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
                                     <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                                 </div>
                                 <!-- /ko -->

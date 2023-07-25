@@ -269,6 +269,7 @@ button {
     min-width: 10%;
     margin-bottom: 8px;
     clear: both;
+    margin-top: 6px;
 
     pre {
         overflow: hidden;
@@ -291,7 +292,8 @@ button {
 
         .label {
             background-color: #473253;
-            right: 5px;
+            right: 0px;
+            border-radius: 20px;
         }
 
         &::after {
@@ -316,7 +318,8 @@ button {
 
         .label {
             background-color: #433944;
-            left: 5px;
+            left: 0px;
+            border-radius: 20px;
         }
 
         &::after {
@@ -422,6 +425,8 @@ button {
     width: 315px;
     border-radius: 8px;
     padding: 8px;
+    overflow: auto;
+    max-height: 75vh;
     min-height: 400px;
     display: flex;
     flex-direction: column;
