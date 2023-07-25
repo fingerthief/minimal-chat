@@ -182,11 +182,16 @@ export function AppViewModel() {
         localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
     };
 
+
     self.selectedModel.subscribe(() => {
         self.saveSelectedModel();
 
         if (self.selectedModel() === "chat-bison-001") {
-            self.messages([]);
+            self.palmMessages = [];
+
+            for (const chatMessage of self.messages()) {
+                self.palmMessages.push({ content: chatMessage.content });
+            }
         }
     });
 
