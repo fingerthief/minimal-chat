@@ -118,10 +118,17 @@
                             <!-- /ko -->
                         <!-- /ko -->
 
-                        <!-- ko if: isLoading -->
+                        <!-- ko if: isLoading() && !isPalmEnabled() -->
                         <div class="gpt message padded">
                             <span class="label">GPT</span>
                             <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
+                        </div>
+                        <!-- /ko -->
+
+                        <!-- ko if: isLoading() && isPalmEnabled() -->
+                        <div class="gpt message padded">
+                            <span class="label">PaLM</span>
+                            <span data-bind="text: 'Generating response...'"></span>
                         </div>
                         <!-- /ko -->
 

@@ -415,6 +415,7 @@ export function AppViewModel() {
             userInput.style.height = '30px';
             userInput.focus();
             self.isPalmEnabled(true);
+            self.isLoading(true);
             let messageContext;
 
             if (self.palmMessages.length === 0) {
@@ -435,6 +436,7 @@ export function AppViewModel() {
 
             self.saveMessages();
             this.scrollToBottom();
+            self.isLoading(false);
             return;
         }
 
