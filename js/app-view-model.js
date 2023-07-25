@@ -412,6 +412,8 @@ export function AppViewModel() {
 
         if (self.selectedModel().indexOf("bison") !== -1) {
             self.userInput("");
+            userInput.style.height = '30px';
+            userInput.focus();
             self.isPalmEnabled(true);
             let messageContext;
 
@@ -430,6 +432,9 @@ export function AppViewModel() {
             const response = await fetchPalmResponse(messageContext);
             self.palmMessages.push({ content: response });
             self.messages.push({ role: "assistant", content: response });
+
+            self.saveMessages();
+            this.scrollToBottom();
             return;
         }
 
