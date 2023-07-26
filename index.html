@@ -61,7 +61,7 @@
                 <div class="chat">
                     <div class="header box">
                         <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank"
-                            class="no-style-link">MinimalGPT <span class="fa-brands fa-github"></span></a>
+                            class="no-style-link" data-bind="text: selectedModel().indexOf('bison') !== -1 ? 'MinimalPaLM' : 'MinimalGPT'"><span class="fa-brands fa-github"></span></a>
 
                         <div class="settings-btn fa-solid fa-sliders fa-lg" data-bind="click: toggleSidebar"></div>
                         <div class="trash-btn fa-regular fa-trash-can fa-lg"
@@ -101,7 +101,7 @@
                         <!-- /ko -->
 
 
-                        <!-- ko ifnot: isPalmEnabled() -->
+                        <!-- ko ifnot: selectedModel().indexOf('bison') !== -1 -->
                             <!-- ko foreach: messages()-->
                                 <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
                                 <div
@@ -114,7 +114,7 @@
                             <!-- /ko -->
                         <!-- /ko -->
                         
-                        <!-- ko if: isPalmEnabled() -->
+                        <!-- ko if: selectedModel().indexOf('bison') !== -1 -->
                             <!-- ko foreach: messages() -->
                                 <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
                                 <div

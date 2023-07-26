@@ -192,6 +192,8 @@ export function AppViewModel() {
 
     self.saveSelectedModel = function () {
         localStorage.setItem('selectedModel', self.selectedModel());
+
+        self.messages.valueHasMutated();
     };
 
     self.saveSelectedAutoSaveOption = function () {

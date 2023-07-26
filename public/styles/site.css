@@ -10808,6 +10808,7 @@ button:hover {
 .no-style-link {
   text-decoration: none;
   color: #c7a0c8;
+  padding-left: 15px;
 }
 .no-style-link:hover, .no-style-link:focus {
   text-decoration: none;
