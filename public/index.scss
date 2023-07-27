@@ -8,14 +8,14 @@ $fa-font-path: "../web-fonts";
 $icon-color: #c7a0c8;
 
 @font-face {
-    font-family: 'Roboto';
-    src: url('/web-fonts/Roboto-Regular.ttf') format('truetype');
+    font-family: 'Helvetica';
+    src: url('/web-fonts/Helvetica.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
 }
 
 body {
-    font-family: 'Roboto';
+    font-family: 'Helvetica';
     margin: 0;
     padding: 0;
     position: relative;
@@ -55,7 +55,7 @@ body {
     left: 50px;
     top: 50%;
     transform: translateY(-50%);
-   // background-color: transparent;
+    // background-color: transparent;
     //border: none;
     color: $icon-color;
     cursor: pointer;
@@ -73,8 +73,10 @@ body {
     position: relative;
     max-height: 96dvh;
     min-height: 400px;
-    scrollbar-width: none; /* For Firefox */
-    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+    scrollbar-width: none;
+    /* For Firefox */
+    -ms-overflow-style: none;
+    /* For Internet Explorer and Edge */
 }
 
 .messages::-webkit-scrollbar {
@@ -186,14 +188,15 @@ button {
     min-width: 54px;
     opacity: 1;
     justify-content: space-around;
-    transition: opacity 0.5s ease-in-out; 
+    transition: opacity 0.5s ease-in-out;
 
     &.scroll {
         top: 76vh;
         opacity: 0;
 
         &.show {
-            opacity: 1;;
+            opacity: 1;
+            ;
         }
     }
 
@@ -220,7 +223,7 @@ button {
     min-width: 0px;
     z-index: -5;
     justify-content: space-around;
-    transition: width 0.25s ease-in-out;  
+    transition: width 0.25s ease-in-out;
 
     &.show {
         z-index: 99999;
@@ -266,7 +269,7 @@ button {
     border-radius: 25px;
     text-overflow: clip;
     max-width: 80%;
-    min-width: 10%;
+    min-width: 5%;
     margin-bottom: 8px;
     clear: both;
     margin-top: 6px;
@@ -313,7 +316,7 @@ button {
         color: #f0f0f0;
 
 
-       // overflow: hidden;
+        // overflow: hidden;
         text-overflow: clip;
 
         .label {
@@ -356,7 +359,7 @@ button {
         float: right;
         position: relative;
     }
-    
+
     .save-icon {
         padding: 2px;
         right: 65px;
@@ -374,6 +377,7 @@ button {
     color: $icon-color;
     transform: translateY(-50%);
 }
+
 .saved-conversations-dropdown select {
     padding: 6px 12px;
     font-size: 14px;
@@ -441,6 +445,22 @@ button {
     &.open {
         z-index: 2;
         opacity: 1;
+    }
+
+    .scrollable-list {
+        height: 55vh;
+        overflow: auto;
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
     }
 }
 

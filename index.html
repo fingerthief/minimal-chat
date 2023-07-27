@@ -56,6 +56,20 @@
                 <button class="close-btn" data-bind="click: toggleSidebar">Close</button>
             </div>
         </div>
+        <div class="sidebar box" id="settings-dialog" data-bind="css: { open: showConversationOptions }">
+            <!-- Add conversations content here -->
+            <div class="settings-header">
+                <h2>Conversations</h2>
+            </div>
+            <div class="scrollable-list">
+                <ul data-bind="foreach: displayConversations">
+                    <li data-bind="text: title, click: $parent.loadSelectedConversation"></li>
+                </ul>
+            </div>
+            <div>
+                <button class="close-btn" data-bind="click: () => showConversationOptions(false)">Close</button>
+            </div>
+        </div>
         <div class="chat-container">
             <div class="container">
                 <div class="chat">
@@ -77,10 +91,6 @@
                                 data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>
                             <div class="saved-conversations-dropdown fa-regular fa-comments fa-lg"
                                 data-bind="click: onShowConversationsClick"></div>
-                        </div>
-                        <div class="saved-conversations-dropdown">
-                            <select
-                                data-bind="options: displayConversations, optionsText: 'title', value: selectedConversation, event: { change: loadSelectedConversation }, css: showConversationOptions() === true ? 'saved-conversations--visible' : 'saved-conversations'"></select>
                         </div>
                     </div>
                     <div class="messages" id="messagesContainer">

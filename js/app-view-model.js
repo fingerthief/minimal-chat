@@ -56,13 +56,7 @@ export function AppViewModel() {
     self.selectedConversation(self.conversations()[0]);
 
     self.displayConversations = ko.computed(() =>
-        self.conversations().filter(
-            (conversation) =>
-                !self.selectedConversation() ||
-                self.selectedConversation().title ===
-                'Choose an existing conversation' ||
-                conversation.title !== 'Choose an existing conversation',
-        ),
+        self.conversations()
     );
 
     ko.bindingHandlers.stopClickPropagation = {
@@ -218,9 +212,7 @@ export function AppViewModel() {
     });
 
     self.onShowConversationsClick = async function () {
-        if (self.displayConversations().length > 1) {
             self.showConversationOptions(!self.showConversationOptions());
-        }
     };
 
     document.addEventListener('click', (event) => {
@@ -229,12 +221,6 @@ export function AppViewModel() {
             !event.target.closest('.settings-btn')
         ) {
             self.isSidebarOpen(false);
-        }
-    });
-
-    self.selectedConversation.subscribe((newValue) => {
-        if (newValue) {
-            self.loadSelectedConversation(newValue);
         }
     });
 
@@ -285,12 +271,13 @@ export function AppViewModel() {
     });
 
     self.loadSelectedConversation = async function (value) {
-        if (!self.selectedConversation()) {
-            return;
+
+        if (value) {
+
+            self.selectedConversation(value);
         }
 
-        // Check if the title of the selected conversation is 'Choose an existing conversation'
-        if (self.selectedConversation() && self.selectedConversation().title.toLowerCase() === 'choose an existing conversation') {
+        if (!self.selectedConversation()) {
             return;
         }
 
@@ -594,13 +581,7 @@ export function AppViewModel() {
         self.conversations(loadConversationTitles());
         self.storedConversations(loadStoredConversations());
 
-        // Add the default option back to the conversations array if it's not already there
-        const defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
-        if (self.conversations()[0].title !== defaultOption.title) {
-            self.conversations.unshift(defaultOption);
-        }
-
-        self.selectedConversation(self.conversations()[self.conversations().length]);
+        self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
     }
 
@@ -609,7 +590,7 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-           // title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -650,13 +631,7 @@ export function AppViewModel() {
         localStorage.removeItem("gpt-messages");
         self.messages([]);
 
-        // Add the default option back to the conversations array if it's not already there
-        const defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
-        if (self.conversations()[0].title !== defaultOption.title) {
-            self.conversations.unshift(defaultOption);
-        }
-
-        self.selectedConversation(self.conversations()[0]);
+        self.selectedConversation({ messageHistory: [], title: 'placeholder'});
         self.isProcessing(false);
     };
 
@@ -677,7 +652,7 @@ export function AppViewModel() {
         self.updateScrollButtonVisibility();
     };
 
-    if (self.conversations().length > 1) {
+    if (self.conversations().length > 0) {
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
     }

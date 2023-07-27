@@ -127,8 +127,6 @@ export async function loadMessagesFromLocalStorage() {
 export function loadConversationTitles() {
     const storedConversations = localStorage.getItem('gpt-conversations');
     let parsedConversations = storedConversations ? JSON.parse(storedConversations) : [];
-    let defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
-    parsedConversations.unshift(defaultOption);
     return parsedConversations;
 }
 

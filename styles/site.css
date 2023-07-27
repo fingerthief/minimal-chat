@@ -10298,13 +10298,13 @@ readers do not read off random characters that represent icons */
 }
 
 @font-face {
-  font-family: "Roboto";
-  src: url("/web-fonts/Roboto-Regular.ttf") format("truetype");
+  font-family: "Helvetica";
+  src: url("/web-fonts/Helvetica.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 body {
-  font-family: "Roboto";
+  font-family: "Helvetica";
   margin: 0;
   padding: 0;
   position: relative;
@@ -10354,8 +10354,10 @@ body {
   position: relative;
   max-height: 96dvh;
   min-height: 400px;
-  scrollbar-width: none; /* For Firefox */
-  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  scrollbar-width: none;
+  /* For Firefox */
+  -ms-overflow-style: none;
+  /* For Internet Explorer and Edge */
 }
 
 .messages::-webkit-scrollbar {
@@ -10529,7 +10531,7 @@ button:hover {
   border-radius: 25px;
   text-overflow: clip;
   max-width: 80%;
-  min-width: 10%;
+  min-width: 5%;
   margin-bottom: 8px;
   clear: both;
   margin-top: 6px;
@@ -10689,6 +10691,19 @@ button:hover {
 .sidebar.open {
   z-index: 2;
   opacity: 1;
+}
+.sidebar .scrollable-list {
+  height: 55vh;
+  overflow: auto;
+}
+.sidebar .scrollable-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar .scrollable-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
 .close-btn {
