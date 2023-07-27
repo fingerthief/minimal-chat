@@ -10604,7 +10604,7 @@ button:hover {
 .conversations-count .count-icon {
   padding: 2px;
   top: 8px;
-  right: 8px;
+  right: 11px;
   color: #c7a0c8;
   float: right;
   position: relative;
@@ -10704,6 +10704,12 @@ button:hover {
 .sidebar .scrollable-list li {
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+.sidebar .scrollable-list li:hover {
+  background-color: #3d3346;
 }
 
 .close-btn {

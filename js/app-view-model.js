@@ -218,9 +218,10 @@ export function AppViewModel() {
     document.addEventListener('click', (event) => {
         if (
             !event.target.closest('.sidebar') &&
-            !event.target.closest('.settings-btn')
+            !event.target.closest('.settings-btn') &&  !event.target.closest('.saved-conversations-dropdown')
         ) {
             self.isSidebarOpen(false);
+            self.showConversationOptions(false);
         }
     });
 
@@ -261,7 +262,11 @@ export function AppViewModel() {
 
     function isScrollable(element) {
         return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
-    }      
+    }  
+    
+    //#region swipe detection
+    
+    //#endregion
 
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -590,7 +595,7 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+           // title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -619,7 +624,11 @@ export function AppViewModel() {
                 storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
-                storedConversations.push(newConversation);
+                const newConversationWithTitle = {
+                    messageHistory: self.messages().slice(0),
+                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                };
+                storedConversations.push(newConversationWithTitle);
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));

@@ -22,7 +22,7 @@
 </script>
 
 
-<body>
+<body class="app-body">
     <div class="app-container">
         <div class="sidebar box" id="settings-dialog" data-bind="css: { open: isSidebarOpen }">
             <!-- Add settings content here -->
@@ -87,8 +87,8 @@
                         <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank"
                             class="no-style-link" data-bind="text: selectedModel().indexOf('bison') !== -1 ? 'MinimalPaLM' : 'MinimalGPT'"><span class="fa-brands fa-github"></span></a>
 
-                        <div class="settings-btn fa-solid fa-sliders fa-lg" data-bind="click: toggleSidebar"></div>
-                        <div class="trash-btn fa-regular fa-trash-can fa-lg"
+                        <div class="settings-btn fa-solid fa-sliders fa-xl" data-bind="click: toggleSidebar"></div>
+                        <div class="trash-btn fa-regular fa-trash-can fa-xl"
                             data-bind="click: deleteCurrentConversation">
                         </div>
                         <div class="conversations-count">
@@ -97,9 +97,9 @@
                             </div>
                             <span class="save-icon fa-regular fa-floppy-disk fa-xl"
                                 data-bind="click: clearMessages"></span>
-                            <span class="count-icon fa-lg fa-solid"
+                            <span class="count-icon fa-xl fa-solid"
                                 data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>
-                            <div class="saved-conversations-dropdown fa-regular fa-comments fa-lg"
+                            <div class="saved-conversations-dropdown fa-regular fa-comments fa-xl"
                                 data-bind="click: onShowConversationsClick"></div>
                         </div>
                     </div>

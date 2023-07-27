@@ -354,7 +354,7 @@ button {
     .count-icon {
         padding: 2px;
         top: 8px;
-        right: 8px;
+        right: 11px;
         color: $icon-color;
         float: right;
         position: relative;
@@ -451,6 +451,7 @@ button {
         height: 55vh;
         overflow: auto;
 
+
         ul {
             list-style-type: none;
             padding: 0;
@@ -460,6 +461,14 @@ button {
         li {
             padding: 10px;
             border-bottom: 1px solid #ddd;
+
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+
+            &:hover {
+                background-color: #3d3346;
+            }
         }
     }
 }
