@@ -36,6 +36,7 @@ export function AppViewModel() {
     self.showingSearchField = ko.observable(false);
     self.filteredMessages = ko.observableArray([]);
     self.isPalmEnabled = ko.observable(false);
+    self.lastLoadedConversationId = ko.observable(null);
 
     self.selectedModel = ko.observable(
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
@@ -51,7 +52,7 @@ export function AppViewModel() {
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
     self.selectedConversation = ko.observable(
-        self.storedConversations()[self.storedConversations().length - 1],
+        self.storedConversations()[self.storedConversations().length],
     );
 
     self.conversations = ko.observableArray(loadConversationTitles());
@@ -290,8 +291,10 @@ export function AppViewModel() {
     self.loadSelectedConversation = async function (value) {
 
         if (value) {
+            self.selectedConversation(value.conversation);
 
-            self.selectedConversation(value);
+            self.lastLoadedConversationId(value.id);
+            localStorage.setItem('lastConversationId', self.lastLoadedConversationId());
         }
 
         if (!self.selectedConversation()) {
@@ -317,6 +320,10 @@ export function AppViewModel() {
     };
 
     self.deleteCurrentConversation = async function () {
+        if (self.lastLoadedConversationId() === null) {
+            return;
+        }
+
         self.isProcessing(true);
         let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
@@ -327,28 +334,16 @@ export function AppViewModel() {
 
         newConversation.messageHistory = self.messages().slice(0);
 
-        // Find the index of the conversation that has a 15% or more match in assistant's answers
-        const conversationIndex = storedConversations.findIndex((storedConversation) => {
-            const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
-            const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
-
-            const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
-                return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
-            });
-
-            const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
-
-            return matchingPercentage >= 15;
-        });
-
         let conversations = JSON.parse(localStorage.getItem("gpt-conversations"));
-        conversations.pop(conversationIndex);
+        conversations.pop(parseInt(self.lastLoadedConversationId()));
 
         localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
         self.storedConversations(loadStoredConversations());
         self.messages([]);
         self.conversationTitles(loadConversationTitles());
         self.conversations(loadConversationTitles());
+        self.lastLoadedConversationId(null);
+        localStorage.setItem("lastConversationId", self.lastLoadedConversationId());
         self.isProcessing(false);
     };
 
@@ -535,11 +530,11 @@ export function AppViewModel() {
         }));
 
         // Find the index of the selected conversation in storedConversations
-        const conversationIndex = self.storedConversations().findIndex(conversation => conversation.title === self.selectedConversation().title);
+        const conversationIndex = self.storedConversations().findIndex(conversation => conversation.conversation.title === self.selectedConversation().title);
 
         if (conversationIndex !== -1) {
             // Update the message history of the selected conversation
-            self.storedConversations()[conversationIndex].messageHistory = savedMessages;
+            self.storedConversations()[conversationIndex].conversation.messageHistory = savedMessages;
         } 
         else {
             if (JSON.parse(self.selectedAutoSaveOption())) {
@@ -566,39 +561,44 @@ export function AppViewModel() {
         newConversation.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            localStorage.setItem("gpt-conversations", JSON.stringify([newConversation]));
+            const newConversation = {
+                messageHistory: self.messages().slice(0),
+                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            };
+
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            localStorage.setItem("lastConversationId", "0");
+            self.lastLoadedConversationId(0);
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            // Find the index of the conversation that has a 15% or more match in assistant's answers
-            const conversationIndex = storedConversations.findIndex((storedConversation) => {
-                const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
-                const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
+            newConversation.conversationId = storedConversations.length;
 
-                const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
-                    return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
-                });
-
-                const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
-
-                return matchingPercentage >= 15;
-            });
-
-            if (conversationIndex !== -1) {
+            if (self.lastLoadedConversationId() !== null) {
                 // Update the existing conversation's messageHistory with the new values
-                storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
+                storedConversations[self.lastLoadedConversationId()].conversation.messageHistory = newConversation.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
-                storedConversations.push(newConversation);
+                const newConversationWithTitle = {
+                    messageHistory: self.messages().slice(0),
+                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                };
+
+
+                storedConversations[storedConversations.length] = { };
+                storedConversations[storedConversations.length - 1].id = storedConversations.length - 1; 
+                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle;
+                self.lastLoadedConversationId(storedConversations.length - 1);
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+            localStorage.setItem("lastConversationId", self.lastLoadedConversationId());
         }
 
         self.conversations(loadConversationTitles());
         self.storedConversations(loadStoredConversations());
 
-        self.selectedConversation(self.conversations()[self.conversations().length - 1]);
+        self.selectedConversation(self.conversations()[self.conversations().length]);
         self.loadSelectedConversation();
     }
 
@@ -607,43 +607,44 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-           // title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+           // title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue()
         };
 
         newConversation.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            localStorage.setItem("gpt-conversations", JSON.stringify([newConversation]));
+            const newConversation = {
+                messageHistory: self.messages().slice(0),
+                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            };
+
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            localStorage.setItem("lastConversationId", "0");
+            self.lastLoadedConversationId(0);
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            // Find the index of the conversation that has a 15% or more match in assistant's answers
-            const conversationIndex = storedConversations.findIndex((storedConversation) => {
-                const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
-                const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
+            newConversation.conversationId = storedConversations.length
 
-                const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
-                    return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
-                });
-
-                const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
-
-                return matchingPercentage >= 15;
-            });
-
-            if (conversationIndex !== -1) {
+            if (self.selectedAutoSaveOption() && self.lastLoadedConversationId() !== null) {
                 // Update the existing conversation's messageHistory with the new values
-                storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
+                storedConversations[parseInt(self.lastLoadedConversationId())].conversation.messageHistory = newConversation.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
                 const newConversationWithTitle = {
                     messageHistory: self.messages().slice(0),
                     title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
                 };
-                storedConversations.push(newConversationWithTitle);
+
+
+                storedConversations[storedConversations.length] = { };
+                storedConversations[storedConversations.length - 1].id = storedConversations.length - 1; 
+                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle; 
+                //self.lastLoadedConversationId(storedConversations.length);
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+            localStorage.setItem("lastConversationId", null);
         }
 
         self.conversations(loadConversationTitles());
@@ -651,6 +652,7 @@ export function AppViewModel() {
 
         localStorage.removeItem("gpt-messages");
         self.messages([]);
+        self.lastLoadedConversationId(null);
 
         self.selectedConversation({ messageHistory: [], title: 'placeholder'});
         self.isProcessing(false);
@@ -674,7 +676,17 @@ export function AppViewModel() {
     };
 
     if (self.conversations().length > 0) {
-        self.selectedConversation(self.conversations()[self.conversations().length - 1]);
-        self.loadSelectedConversation();
+
+        if (localStorage.getItem("lastConversationId") !== "null") {
+            self.lastLoadedConversationId(localStorage.getItem("lastConversationId"));
+                
+            self.selectedConversation(self.conversations()[parseInt(self.lastLoadedConversationId())].conversation);
+            self.loadSelectedConversation();
+        }
+        else {
+            self.selectedConversation(self.conversations()[0].conversation);
+            self.loadSelectedConversation();
+        }
+
     }
 }
