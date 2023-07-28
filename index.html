@@ -63,7 +63,7 @@
             </div>
             <div class="scrollable-list">
                 <ul data-bind="foreach: displayConversations">
-                    <li data-bind="text: title, click: $parent.loadSelectedConversation"></li>
+                    <li data-bind="text: $data.conversation.title, click: $parent.loadSelectedConversation"></li>
                 </ul>
             </div>
             <div>

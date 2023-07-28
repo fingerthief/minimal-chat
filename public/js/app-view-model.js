@@ -14,6 +14,8 @@ import {
     fetchPalmConversationTitle
 } from './palm-api-access.js';
 
+import "../node_modules/swiped-events/dist/swiped-events.min.js"
+
 const ko = window.ko;
 const messagesContainer = document.querySelector('.messages');
 
@@ -173,6 +175,16 @@ export function AppViewModel() {
     if (!localStorage.getItem('selectedAutoSaveOption')) {
         localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
     }
+
+    document.addEventListener('swiped-left', function(e) {
+        self.isSidebarOpen(false);
+        self.showConversationOptions(!self.showConversationOptions());
+    });
+
+    document.addEventListener('swiped-right', function(e) {
+        self.showConversationOptions(false);
+        self.isSidebarOpen(!self.isSidebarOpen());
+    });
 
     self.filteredMessages = ko.computed(() => {
         const searchQuery = self.userSearchInput().toLowerCase();
