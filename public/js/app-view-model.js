@@ -317,19 +317,22 @@ export function AppViewModel() {
             return;
         }
 
+        self.storedConversations(loadStoredConversations());
+
         self.isProcessing(true);
-        let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-        const newConversation = {
-            messageHistory: self.messages().slice(0),          
-        };
+        const conversationIndex = self.storedConversations().findIndex(conversation => { 
+            return conversation.id === parseInt(self.lastLoadedConversationId());
+        });
 
-        newConversation.messageHistory = self.messages().slice(0);
+        console.log("removing index " + conversationIndex);
+        console.log(self.storedConversations());
 
-        let conversations = JSON.parse(localStorage.getItem("gpt-conversations"));
-        conversations.pop(parseInt(self.lastLoadedConversationId()));
+        self.storedConversations().splice(conversationIndex, 1);
+        self.storedConversations.valueHasMutated();
+        console.log(self.storedConversations());
 
-        localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
+        localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
         self.storedConversations(loadStoredConversations());
         self.messages([]);
         self.conversationTitles(loadConversationTitles());
@@ -566,11 +569,14 @@ export function AppViewModel() {
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            newConversation.conversationId = storedConversations.length;
+            newConversation.conversationId = storedConversations.length - 1;
 
             if (self.lastLoadedConversationId() !== null) {
+                const conversationIndex = storedConversations.findIndex(conversation => { 
+                    return conversation.id === parseInt(self.lastLoadedConversationId());
+                });
                 // Update the existing conversation's messageHistory with the new values
-                storedConversations[self.lastLoadedConversationId()].conversation.messageHistory = newConversation.messageHistory;
+                storedConversations[conversationIndex].conversation.messageHistory = newConversation.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
                 const newConversationWithTitle = {
@@ -578,11 +584,17 @@ export function AppViewModel() {
                     title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
                 };
 
+                let highestId = 0;
+                for (const conversation of storedConversations) {
+                    if (conversation.id > highestId) {
+                        highestId = conversation.id;
+                    }
+                }
 
                 storedConversations[storedConversations.length] = { };
-                storedConversations[storedConversations.length - 1].id = storedConversations.length - 1; 
+                storedConversations[storedConversations.length - 1].id = highestId + 1; 
                 storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle;
-                self.lastLoadedConversationId(storedConversations.length - 1);
+                self.lastLoadedConversationId(highestId + 1);
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
@@ -621,11 +633,16 @@ export function AppViewModel() {
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            newConversation.conversationId = storedConversations.length
+            newConversation.conversationId = storedConversations.length - 1;
 
             if (self.selectedAutoSaveOption() && self.lastLoadedConversationId() !== null) {
                 // Update the existing conversation's messageHistory with the new values
-                storedConversations[parseInt(self.lastLoadedConversationId())].conversation.messageHistory = newConversation.messageHistory;
+
+                const conversationIndex = storedConversations.findIndex(conversation => { 
+                    return conversation.id === parseInt(self.lastLoadedConversationId());
+                });
+
+                storedConversations[conversationIndex].conversation.messageHistory = newConversation.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
                 const newConversationWithTitle = {
@@ -633,9 +650,15 @@ export function AppViewModel() {
                     title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
                 };
 
+                let highestId = 0;
+                for (const conversation of storedConversations) {
+                    if (conversation.id > highestId) {
+                        highestId = conversation.id;
+                    }
+                }
 
                 storedConversations[storedConversations.length] = { };
-                storedConversations[storedConversations.length - 1].id = storedConversations.length - 1; 
+                storedConversations[storedConversations.length - 1].id = highestId + 1; 
                 storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle; 
             }
 
@@ -676,7 +699,11 @@ export function AppViewModel() {
         if (localStorage.getItem("lastConversationId") !== "null") {
             self.lastLoadedConversationId(localStorage.getItem("lastConversationId"));
                 
-            self.selectedConversation(self.conversations()[parseInt(self.lastLoadedConversationId())].conversation);
+            const conversationIndex = self.conversations().findIndex(conversation => { 
+                return conversation.id === parseInt(self.lastLoadedConversationId());
+            });
+
+            self.selectedConversation(self.conversations()[conversationIndex].conversation);
             self.loadSelectedConversation();
         }
         else {
