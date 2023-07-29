@@ -10770,6 +10770,7 @@ button:hover {
   padding: 5px 10px;
   border: 1px solid #444;
   border-radius: 12px;
+  margin-right: 6px;
   background-color: #665067;
   color: white;
   cursor: pointer;
