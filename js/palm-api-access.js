@@ -32,25 +32,40 @@ export async function fetchPalmResponse(messages) {
         
 }
 
+let retryCount = 0;
+let baseMessages;
 export async function fetchPalmConversationTitle(messages) {
-    const API_KEY = localStorage.getItem("palmKey");
-    messages.push({ content: "Summarize this conversations in 10 words or less."})
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta2/models/${MODEL_NAME}:generateMessage?key=${API_KEY}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                prompt: { messages : messages },
-                temperature: 0.25,
-                candidate_count: 1          
-            }),
-        });
+    baseMessages = messages;
 
-        const result = await response.json();
-        const reponseText = result.candidates[0].content;
+    try {
+        const API_KEY = localStorage.getItem("palmKey");
+        messages.push({ content: "Give me one title for the summary of this conversation. 6 words maximum response."})
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta2/models/${MODEL_NAME}:generateMessage?key=${API_KEY}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    prompt: { messages : messages },
+                    temperature: 0.5,
+                    candidate_count: 1          
+                }),
+            });
+    
+            const result = await response.json();
+            const reponseText = result.candidates[0].content;
+    
+            console.log(result.candidates[0].content);
+    
+            return reponseText;      
+    } catch (error) {
+        if (retryCount < 5) {
+            retryCount++;
+            console.log("retrying PaLM title generation attempt:" + retryCount)
+            return self.fetchPalmConversationTitle(baseMessages);
+        }
 
-        console.log(result.candidates[0].content);
-
-        return reponseText;       
+        throw error;
+    }
+ 
 }
