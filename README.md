@@ -1,8 +1,10 @@
-# [Try MinimalGPT](https://minimalgpt.app/)
+# [Try MinimalGPT/MinimalPaLM](https://minimalgpt.app/)
 
-**MinimalGPT** is an open-source GPT chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT chat when the user sends a message and when a user saves a conversation to generate a conversation title.
+**MinimalGPT** is an open-source GPT chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT or PaLM chat when the user sends a message and when a user saves a conversation to generate a conversation title.
 
-> ⚠️ **Note**: You must input your OpenAI API Key for GPT3 or GPT4 in order for this to function.
+> ⚠️ **Note**: You must input your OpenAI API Key for GPT3 or GPT4 in order for GPT models to function.
+
+> ⚠️ **Note**: You must input your Google PaLM API Key in order for the PaLM model to function.
 
 ---
 
@@ -21,22 +23,34 @@ On Android the process is basically the same except the name of the option is **
 ## Features
 
 - Minimal chat layout
+- OpenAI GPT 3.5 and GPT 4 Support
+- Google PaLM 2 Support
+- Switch models mid conversations and maintain context
+- Swipe Gestures for quick settings and conversations access
 - Markdown Support
 - Code Syntax Highlighting
-- Basic DALL-E Integration
+- Basic DALL-E Integration (Prefix GPT model messages with **image::** and then your description to generate images)
 - Conversation message search
 - Customizable settings
 - Responsive layout for mobile use
 - Auto Save New Conversations Option
-- PWA Supported
+- PWA Support
 
 ### Minimal chat layout
 
 ![Screenshot 2023-07-23 at 11-45-06 MinimalGPT](https://github.com/fingerthief/minimal-gpt/assets/2380471/f9ef7f23-2e20-4939-933b-855ae2e44502)
 
+### Local Conversation Saving
+
+![Web capture_28-7-2023_195420_192 168 0 7](https://github.com/fingerthief/minimal-gpt/assets/2380471/d78ed0f7-9f31-4fc4-9179-773c2d134993)
+
 ### Conversation search
 
 ![Screenshot 2023-07-23 114733](https://github.com/fingerthief/minimal-gpt/assets/2380471/27b23efd-b93a-417c-b8a3-929378c49908)
+
+### Google PaLM 2 Model Support
+
+![palm_small](https://github.com/fingerthief/minimal-gpt/assets/2380471/55eaabac-7125-4266-9188-b357034c74e9)
 
 ### DALL-E Integration
 
@@ -44,11 +58,7 @@ On Android the process is basically the same except the name of the option is **
 
 ### Settings
 
-![Screenshot 2023-07-23 114817](https://github.com/fingerthief/minimal-gpt/assets/2380471/db0e8a09-3396-4046-acc0-bd42ad1bc8a9)
-
-### [Responsive layout for mobile use (Click Here For Demo Video)](https://www.youtube.com/shorts/pUSd8ENeh0g)
-
-![Screenshot 2023-07-23 at 11-49-17 MinimalGPT(2)](https://github.com/fingerthief/minimal-gpt/assets/2380471/b9321624-0f50-474e-8c42-e6ac73a0a349)
+![settings](https://github.com/fingerthief/minimal-gpt/assets/2380471/aa55a67c-043a-442e-ac43-76022994f4d1)
 
 ## Run Web App Locally
 
