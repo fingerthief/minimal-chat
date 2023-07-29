@@ -47,7 +47,6 @@ export function AppViewModel() {
     );
 
     hljs.configure({ ignoreUnescapedHTML: true });
-    //loadMessagesFromLocalStorage();
 
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
@@ -150,8 +149,6 @@ export function AppViewModel() {
             this.style.zIndex = '-9999';
         }
     }
-
-
 
     const userInput = document.getElementById('user-input');
     userInput.addEventListener('input', autoResize);
@@ -276,10 +273,6 @@ export function AppViewModel() {
     function isScrollable(element) {
         return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
     }  
-    
-    //#region swipe detection
-    
-    //#endregion
 
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -328,8 +321,7 @@ export function AppViewModel() {
         let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
         const newConversation = {
-            messageHistory: self.messages().slice(0),
-            //title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            messageHistory: self.messages().slice(0),          
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -441,11 +433,13 @@ export function AppViewModel() {
             if (self.palmMessages.length === 0) {
                 self.palmMessages.push({ content: messageText });
                 self.messages.push({ role: "user", content: messageText });
+                this.scrollToBottom();
 
                 messageContext = self.palmMessages.slice(0);
             }
             else {
                 self.messages.push({ role: "user", content: messageText });
+                this.scrollToBottom();
                 messageContext = self.palmMessages.slice(0);
                 messageContext.push({ content: messageText });
             }
@@ -602,12 +596,15 @@ export function AppViewModel() {
         self.loadSelectedConversation();
     }
 
+    self.copyText = function(content) {
+        navigator.clipboard.writeText(content);
+    }
+
     self.clearMessages = async function () {
         self.isProcessing(true);
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-           // title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue()
         };
 
         newConversation.messageHistory = self.messages().slice(0);
@@ -640,7 +637,6 @@ export function AppViewModel() {
                 storedConversations[storedConversations.length] = { };
                 storedConversations[storedConversations.length - 1].id = storedConversations.length - 1; 
                 storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle; 
-                //self.lastLoadedConversationId(storedConversations.length);
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));

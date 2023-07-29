@@ -85,7 +85,9 @@
                 <div class="chat">
                     <div class="header box">
                         <a href="https://github.com/TannerMiddleton/minimal-gpt#try-minimalgpt" target="_blank"
-                            class="no-style-link" data-bind="text: selectedModel().indexOf('bison') !== -1 ? 'MinimalPaLM' : 'MinimalGPT'"><span class="fa-brands fa-github"></span></a>
+                            class="no-style-link"
+                            data-bind="text: selectedModel().indexOf('bison') !== -1 ? 'MinimalPaLM' : 'MinimalGPT'"><span
+                                class="fa-brands fa-github"></span></a>
 
                         <div class="settings-btn fa-solid fa-sliders fa-xl" data-bind="click: toggleSidebar"></div>
                         <div class="trash-btn fa-regular fa-trash-can fa-xl"
@@ -122,29 +124,31 @@
 
 
                         <!-- ko ifnot: selectedModel().indexOf('bison') !== -1 -->
-                            <!-- ko foreach: messages()-->
-                                <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
-                                <div
-                                    data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                                    <span class="label"
-                                        data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
-                                    <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
-                                </div>
-                                <!-- /ko -->
-                            <!-- /ko -->
+                        <!-- ko foreach: messages()-->
+                        <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
+                        <div
+                            data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                            <span class="label"
+                                data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                            <!-- <div class="copy-text">
+                                            <button data-bind="click: () => { $parent.copyText(content); }">Copy</button>
+                                        </div> -->
+                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                        </div>
                         <!-- /ko -->
-                        
+                        <!-- /ko -->
+                        <!-- /ko -->
+
                         <!-- ko if: selectedModel().indexOf('bison') !== -1 -->
-                            <!-- ko foreach: messages() -->
-                                <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
-                                <div
-                                    data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                                    <span class="label"
-                                        data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
-                                    <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
-                                </div>
-                                <!-- /ko -->
-                            <!-- /ko -->
+                        <!-- ko foreach: messages() -->
+                        <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
+                        <div
+                            data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                            <span class="label" data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
+                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                        </div>
+                        <!-- /ko -->
+                        <!-- /ko -->
                         <!-- /ko -->
 
                         <!-- ko if: isLoading() && !isPalmEnabled() -->

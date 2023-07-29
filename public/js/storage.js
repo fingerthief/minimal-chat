@@ -5,11 +5,6 @@ export async function fetchGPTResponse(conversation, attitude, model) {
     const prompt = `Me: ${conversation}\nAI:`;
     let storedApiKey = localStorage.getItem("gptKey");
 
-    // if (storedApiKey !== apiKey.value.trim()) {
-    //     localStorage.setItem("gptKey", apiKey.value.trim());
-    //     storedApiKey = apiKey.value.trim();
-    // }
-
     if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
         localStorage.setItem("gpt-attitude", attitude);
     }
@@ -43,11 +38,6 @@ export async function fetchGPTResponse(conversation, attitude, model) {
 
 export async function generateDALLEImage(conversation) {
     let storedApiKey = localStorage.getItem("gptKey");
-
-    // if (storedApiKey !== apiKey.value.trim()) {
-    //     localStorage.setItem("gptKey", apiKey.value.trim());
-    //     storedApiKey = apiKey.value.trim();
-    // }
 
     try {
         const response = await fetch("https://api.openai.com/v1/images/generations", {
@@ -90,36 +80,6 @@ function extractHttpsUrls(str) {
 export async function loadMessagesFromLocalStorage() {
     const storedMessages = localStorage.getItem("gpt-conversations");
     let parsedConversations = storedMessages ? JSON.parse(storedMessages) : [];
-    // for (const message of parsedConversations) {
-    //     for (const messageItem of message.messageHistory) {
-    //         try {
-    //             if (containsUrl(messageItem.content)) {
-    //                 let urlMessage = extractHttpsUrls(messageItem.content);
-
-    //                 let badLinkCount = 0;
-    //              //   let replacements = [];
-    //                 for (const url of urlMessage) {
-    //                     let response = await fetch(url);
-    //                     if (!response.ok) {
-    //                         badLinkCount++;
-    //                        // replacements.push({ original: url, replacement: ' **[Image Link Expired]** ' });
-    //                     }
-    //                 }
-
-    //                 if (badLinkCount > 0) {
-    //                     //for (const replacement of replacements) {
-    //                     messageItem.content = ' **[DALL-E Generated Image(s) Have Expired]** ';
-    //                    // }
-    //                 }
-    //             }
-    //         }
-    //         catch (error) {
-    //             // console.error(`Error processing URL: ${error}`);
-    //             continue;
-    //         }
-    //     }
-    // }
-
     return parsedConversations.length ? parsedConversations[parsedConversations.length - 1].messageHistory : [];
 
 }

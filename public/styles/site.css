@@ -10536,6 +10536,20 @@ button:hover {
   clear: both;
   margin-top: 6px;
 }
+.message .copy-text {
+  position: relative;
+  display: inline-block;
+}
+.message .copy-text button {
+  display: block;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+.message .copy-text:hover button {
+  display: block;
+  z-index: 9999;
+}
 .message pre {
   overflow: hidden;
   text-overflow: clip;
@@ -10682,15 +10696,20 @@ button:hover {
   flex-direction: column;
   gap: 20px;
   position: absolute;
-  transition: left 0.3s ease;
-  z-index: -1;
   opacity: 0;
+  z-index: -1;
+  transition: z-index 0.15s step-end, opacity 0.15s linear;
   justify-content: space-between;
   align-items: stretch;
+  scrollbar-width: none;
+  /* For Firefox */
+  -ms-overflow-style: none;
+  /* For Internet Explorer and Edge */
 }
 .sidebar.open {
-  z-index: 2;
+  z-index: 9999;
   opacity: 1;
+  transition: z-index 0.15s step-start, opacity 0.15s linear;
 }
 .sidebar .scrollable-list {
   height: 55vh;
@@ -10712,6 +10731,19 @@ button:hover {
   background-color: #3d3346;
 }
 
+.sidebar::-webkit-scrollbar {
+  /* For Chrome, Safari, and Opera */
+  display: none;
+}
+
+@keyframes delayZIndex {
+  0% {
+    z-index: -1;
+  }
+  100% {
+    z-index: 9999;
+  }
+}
 .close-btn {
   align-self: flex-end;
   padding: 5px 10px;
