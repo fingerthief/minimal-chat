@@ -694,6 +694,69 @@ export function AppViewModel() {
         self.updateScrollButtonVisibility();
     };
 
+    self.openFileSelector = function () {
+        document.getElementById('fileUpload').click();
+    }
+
+    self.uploadFile = function (element, event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const contents = e.target.result;
+
+                let isValid = false;
+
+                try {
+                    let parsedContents = JSON.parse(contents);
+
+                    for (const conversationItem of parsedContents) {
+                        if (conversationItem.id) {
+                            isValid = true;
+                        }
+                    }
+                }
+                catch (err) { console.log("bad file detected"); }
+
+                if (!isValid) {
+                    return;
+                }
+
+                localStorage.setItem("gpt-conversations", contents);
+                self.conversations(loadConversationTitles());
+                self.storedConversations(loadStoredConversations());
+
+                self.selectedConversation(self.conversations()[self.conversations().length]);
+                self.loadSelectedConversation();
+
+                self.showConversationOptions(true);
+
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    self.importConversationsClick = function () {
+        self.openFileSelector();
+    }
+
+    self.exportConversationsClick = function () {
+        self.downloadConversations("conversations.json", localStorage.getItem("gpt-conversations"))
+    }
+
+    self.downloadConversations = function(filename, text) {
+        let element = document.createElement('a');
+
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
     if (self.conversations().length > 0) {
 
         if (localStorage.getItem("lastConversationId") !== "null") {

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0" />
     <meta name="robots" content="index, follow">
     <meta name="author" content="Tanner Middleton">
-    <meta name="description" content="An open source minimal GPT/DALL-E chat web application.">
+    <meta name="description" content="An open source minimal GPT/DALL-E/PaLM chat web application.">
     <link rel="stylesheet" href="styles/site.css">
     <link rel="manifest" href="manifest.webmanifest" />
     <title>MinimalGPT</title>
@@ -23,6 +23,10 @@
 
 
 <body class="app-body">
+    <div id="fileUploadDiv">
+        <input type="file" id="fileUpload" style="display: none;" data-bind="event: { change: uploadFile }">
+        <div data-bind="click: openFileSelector" style="display: none;">Upload File</div>
+    </div>
     <div class="app-container">
         <div class="sidebar box" id="settings-dialog" data-bind="css: { open: isSidebarOpen }">
             <!-- Add settings content here -->
@@ -75,6 +79,10 @@
                 <ul data-bind="foreach: displayConversations">
                     <li data-bind="text: $data.conversation.title, click: $parent.loadSelectedConversation"></li>
                 </ul>
+            </div>
+            <div class="import-export-container">
+                <button class="import-export-btn" data-bind="click: importConversationsClick">Import</button>
+                <button class="import-export-btn" data-bind="click: exportConversationsClick">Export</button>
             </div>
             <div>
                 <button class="close-btn" data-bind="click: () => showConversationOptions(false)">Close</button>
