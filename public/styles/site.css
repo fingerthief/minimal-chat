@@ -10298,13 +10298,13 @@ readers do not read off random characters that represent icons */
 }
 
 @font-face {
-  font-family: "Roboto";
-  src: url("/web-fonts/Roboto-Regular.ttf") format("truetype");
+  font-family: "Helvetica";
+  src: url("/web-fonts/Helvetica.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 body {
-  font-family: "Roboto";
+  font-family: "Helvetica";
   margin: 0;
   padding: 0;
   position: relative;
@@ -10354,8 +10354,10 @@ body {
   position: relative;
   max-height: 96dvh;
   min-height: 400px;
-  scrollbar-width: none; /* For Firefox */
-  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  scrollbar-width: none;
+  /* For Firefox */
+  -ms-overflow-style: none;
+  /* For Internet Explorer and Edge */
 }
 
 .messages::-webkit-scrollbar {
@@ -10524,14 +10526,29 @@ button:hover {
 
 .message {
   position: relative;
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
   border-radius: 25px;
   text-overflow: clip;
   max-width: 80%;
-  min-width: 10%;
+  min-width: 5%;
   margin-bottom: 8px;
   clear: both;
+  margin-top: 6px;
+}
+.message .copy-text {
+  position: relative;
+  display: inline-block;
+}
+.message .copy-text button {
+  display: block;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+.message .copy-text:hover button {
+  display: block;
+  z-index: 9999;
 }
 .message pre {
   overflow: hidden;
@@ -10552,7 +10569,8 @@ button:hover {
 }
 .message.user .label {
   background-color: #473253;
-  right: 5px;
+  right: 0px;
+  border-radius: 20px;
 }
 .message.user::after {
   content: "";
@@ -10571,7 +10589,8 @@ button:hover {
 }
 .message.gpt .label {
   background-color: #433944;
-  left: 5px;
+  left: 0px;
+  border-radius: 20px;
 }
 .message.gpt::after {
   content: "";
@@ -10599,7 +10618,7 @@ button:hover {
 .conversations-count .count-icon {
   padding: 2px;
   top: 8px;
-  right: 8px;
+  right: 11px;
   color: #c7a0c8;
   float: right;
   position: relative;
@@ -10670,22 +10689,61 @@ button:hover {
   width: 315px;
   border-radius: 8px;
   padding: 8px;
+  overflow: auto;
+  max-height: 75vh;
   min-height: 400px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   position: absolute;
-  transition: left 0.3s ease;
-  z-index: -1;
   opacity: 0;
+  z-index: -1;
+  transition: z-index 0.15s step-end, opacity 0.15s linear;
   justify-content: space-between;
   align-items: stretch;
+  scrollbar-width: none;
+  /* For Firefox */
+  -ms-overflow-style: none;
+  /* For Internet Explorer and Edge */
 }
 .sidebar.open {
-  z-index: 2;
+  z-index: 9999;
   opacity: 1;
+  transition: z-index 0.15s step-start, opacity 0.15s linear;
+}
+.sidebar .scrollable-list {
+  height: 55vh;
+  overflow: auto;
+}
+.sidebar .scrollable-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar .scrollable-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+.sidebar .scrollable-list li:hover {
+  background-color: #3d3346;
 }
 
+.sidebar::-webkit-scrollbar {
+  /* For Chrome, Safari, and Opera */
+  display: none;
+}
+
+@keyframes delayZIndex {
+  0% {
+    z-index: -1;
+  }
+  100% {
+    z-index: 9999;
+  }
+}
 .close-btn {
   align-self: flex-end;
   padding: 5px 10px;
@@ -10803,6 +10861,7 @@ button:hover {
 .no-style-link {
   text-decoration: none;
   color: #c7a0c8;
+  padding-left: 15px;
 }
 .no-style-link:hover, .no-style-link:focus {
   text-decoration: none;
@@ -10858,8 +10917,8 @@ button:hover {
   padding-bottom: 25px;
   border-bottom: 2px solid gray;
 }
-.api-key input[type=password] {
-  width: 72%;
+.api-key input {
+  width: 70%;
   padding: 5px;
   border: 1px solid #444;
   border-radius: 5px;

@@ -8,14 +8,14 @@ $fa-font-path: "../web-fonts";
 $icon-color: #c7a0c8;
 
 @font-face {
-    font-family: 'Roboto';
-    src: url('/web-fonts/Roboto-Regular.ttf') format('truetype');
+    font-family: 'Helvetica';
+    src: url('/web-fonts/Helvetica.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
 }
 
 body {
-    font-family: 'Roboto';
+    font-family: 'Helvetica';
     margin: 0;
     padding: 0;
     position: relative;
@@ -28,7 +28,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    //box-shadow: 0 4px 6px rgba(159, 158, 158, 0.1), 0 1px 3px rgba(122, 97, 97, 0.443);
 }
 
 .chat {
@@ -55,8 +54,6 @@ body {
     left: 50px;
     top: 50%;
     transform: translateY(-50%);
-   // background-color: transparent;
-    //border: none;
     color: $icon-color;
     cursor: pointer;
 
@@ -73,8 +70,10 @@ body {
     position: relative;
     max-height: 96dvh;
     min-height: 400px;
-    scrollbar-width: none; /* For Firefox */
-    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+    scrollbar-width: none;
+    /* For Firefox */
+    -ms-overflow-style: none;
+    /* For Internet Explorer and Edge */
 }
 
 .messages::-webkit-scrollbar {
@@ -105,9 +104,6 @@ body {
     min-height: 30px;
     border-radius: 30px;
     transition: 0.2s height ease-in-out;
-    //border-top-right-radius: 30px;
-    //border-bottom-right-radius: 30px;
-
 }
 
 #user-input {
@@ -186,14 +182,15 @@ button {
     min-width: 54px;
     opacity: 1;
     justify-content: space-around;
-    transition: opacity 0.5s ease-in-out; 
+    transition: opacity 0.5s ease-in-out;
 
     &.scroll {
         top: 76vh;
         opacity: 0;
 
         &.show {
-            opacity: 1;;
+            opacity: 1;
+            ;
         }
     }
 
@@ -220,7 +217,7 @@ button {
     min-width: 0px;
     z-index: -5;
     justify-content: space-around;
-    transition: width 0.25s ease-in-out;  
+    transition: width 0.25s ease-in-out;
 
     &.show {
         z-index: 99999;
@@ -261,14 +258,34 @@ button {
 
 .message {
     position: relative;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
     border-radius: 25px;
     text-overflow: clip;
     max-width: 80%;
-    min-width: 10%;
+    min-width: 5%;
     margin-bottom: 8px;
     clear: both;
+    margin-top: 6px;
+
+    .copy-text {
+        position: relative;
+        display: inline-block;
+    
+        button {
+            display: block;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+    
+        &:hover {
+            button {
+                display: block;
+                z-index: 9999;
+            }
+        }
+    }
 
     pre {
         overflow: hidden;
@@ -291,7 +308,8 @@ button {
 
         .label {
             background-color: #473253;
-            right: 5px;
+            right: 0px;
+            border-radius: 20px;
         }
 
         &::after {
@@ -311,12 +329,13 @@ button {
         color: #f0f0f0;
 
 
-       // overflow: hidden;
+        // overflow: hidden;
         text-overflow: clip;
 
         .label {
             background-color: #433944;
-            left: 5px;
+            left: 0px;
+            border-radius: 20px;
         }
 
         &::after {
@@ -348,12 +367,12 @@ button {
     .count-icon {
         padding: 2px;
         top: 8px;
-        right: 8px;
+        right: 11px;
         color: $icon-color;
         float: right;
         position: relative;
     }
-    
+
     .save-icon {
         padding: 2px;
         right: 65px;
@@ -371,6 +390,7 @@ button {
     color: $icon-color;
     transform: translateY(-50%);
 }
+
 .saved-conversations-dropdown select {
     padding: 6px 12px;
     font-size: 14px;
@@ -422,21 +442,66 @@ button {
     width: 315px;
     border-radius: 8px;
     padding: 8px;
+    overflow: auto;
+    max-height: 75vh;
     min-height: 400px;
     display: flex;
     flex-direction: column;
     gap: 20px;
     position: absolute;
-    transition: left 0.3s ease;
-    z-index: -1;
+    
     opacity: 0;
+    z-index: -1;
+    transition: z-index 0.15s step-end, opacity 0.15s linear;
     justify-content: space-between;
     align-items: stretch;
 
+    scrollbar-width: none;
+    /* For Firefox */
+    -ms-overflow-style: none;
+    /* For Internet Explorer and Edge */
+
     &.open {
-        z-index: 2;
+        z-index: 9999;
         opacity: 1;
+
+        transition: z-index 0.15s step-start, opacity 0.15s linear;
     }
+
+    .scrollable-list {
+        height: 55vh;
+        overflow: auto;
+
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+
+            &:hover {
+                background-color: #3d3346;
+            }
+        }
+    }
+}
+
+.sidebar::-webkit-scrollbar {
+    /* For Chrome, Safari, and Opera */
+    display: none;
+}
+
+@keyframes delayZIndex {
+    0% { z-index: -1; }
+    100% { z-index: 9999; }
 }
 
 .close-btn {
@@ -457,25 +522,6 @@ button {
         background-color: #4a4a4c;
     }
 }
-
-// .settings-tag {
-//     position: absolute; // Change from fixed to absolute
-//     transform: translateY(-50%) rotate(-90deg);
-//     transform-origin: bottom left;
-//     background-color: #41444f;
-//     color: #f0f0f0;
-//     padding: 5px 10px;
-//     font-size: 18px;
-//     cursor: pointer;
-//     z-index: 3;
-//     border-top-right-radius: 5px;
-//     border-bottom-right-radius: 5px;
-//     user-select: none;
-//     top: 135px;
-//     left: 244px;
-// }
-
-
 
 .chat-container {
     position: relative; // Add relative positioning
@@ -585,6 +631,7 @@ $shadow-spread-radius: 0px;
 .no-style-link {
     text-decoration: none;
     color: #c7a0c8;
+    padding-left: 15px;
 
     &:hover,
     &:focus {
@@ -645,8 +692,8 @@ $shadow-spread-radius: 0px;
     padding-bottom: 25px;
     border-bottom: 2px solid gray;
 
-    input[type="password"] {
-        width: 72%;
+    input {
+        width: 70%;
         padding: 5px;
         border: 1px solid #444;
         border-radius: 5px;

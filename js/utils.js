@@ -29,7 +29,7 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
                 "Authorization": `Bearer ${apiKey.value.trim() || 'Missing API Key'}`,
             },
             body: JSON.stringify({
-                model: model,
+                model: "gpt-3.5-turbo",
                 messages: tempMessages,
                 temperature: sliderValue * 0.01
             }),

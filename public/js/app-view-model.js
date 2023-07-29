@@ -9,6 +9,12 @@ import {
     loadStoredConversations,
     generateDALLEImage
 } from './storage.js';
+import {
+    fetchPalmResponse,
+    fetchPalmConversationTitle
+} from './palm-api-access.js';
+
+import "../node_modules/swiped-events/dist/swiped-events.min.js"
 
 const ko = window.ko;
 const messagesContainer = document.querySelector('.messages');
@@ -23,11 +29,15 @@ export function AppViewModel() {
     self.messages = ko.observableArray([]);
     self.isLoading = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
+    self.palmSliderValue = ko.observable(localStorage.getItem('palm-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
     self.showConversationOptions = ko.observable(false);
     self.streamedMessageText = ko.observable();
     self.showingSearchField = ko.observable(false);
     self.filteredMessages = ko.observableArray([]);
+    self.isPalmEnabled = ko.observable(false);
+    self.lastLoadedConversationId = ko.observable(null);
+
     self.selectedModel = ko.observable(
         localStorage.getItem('selectedModel') || 'gpt-3.5-turbo',
     );
@@ -37,25 +47,18 @@ export function AppViewModel() {
     );
 
     hljs.configure({ ignoreUnescapedHTML: true });
-    //loadMessagesFromLocalStorage();
 
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
     self.selectedConversation = ko.observable(
-        self.storedConversations()[self.storedConversations().length - 1],
+        self.storedConversations()[self.storedConversations().length],
     );
 
     self.conversations = ko.observableArray(loadConversationTitles());
     self.selectedConversation(self.conversations()[0]);
 
     self.displayConversations = ko.computed(() =>
-        self.conversations().filter(
-            (conversation) =>
-                !self.selectedConversation() ||
-                self.selectedConversation().title ===
-                'Choose an existing conversation' ||
-                conversation.title !== 'Choose an existing conversation',
-        ),
+        self.conversations()
     );
 
     ko.bindingHandlers.stopClickPropagation = {
@@ -113,8 +116,22 @@ export function AppViewModel() {
         }
     });
 
+    const palmApiKey = document.getElementById('palm-api-key');
+    palmApiKey.value = localStorage.getItem("palmKey");
+
+    palmApiKey.addEventListener("blur", () => {
+        if (palmApiKey.value.trim() !== "")
+        {
+            localStorage.setItem("palmKey", palmApiKey.value.trim());
+        }
+    });
+
     self.sliderValue.subscribe((attitude) => {
         localStorage.setItem("gpt-attitude", attitude);
+    });
+
+    self.palmSliderValue.subscribe((attitude) => {
+        localStorage.setItem("palm-attitude", attitude);
     });
 
     let blurTimeout;
@@ -132,8 +149,6 @@ export function AppViewModel() {
             this.style.zIndex = '-9999';
         }
     }
-
-
 
     const userInput = document.getElementById('user-input');
     userInput.addEventListener('input', autoResize);
@@ -159,6 +174,16 @@ export function AppViewModel() {
         localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
     }
 
+    document.addEventListener('swiped-left', function(e) {
+        self.isSidebarOpen(false);
+        self.showConversationOptions(!self.showConversationOptions());
+    });
+
+    document.addEventListener('swiped-right', function(e) {
+        self.showConversationOptions(false);
+        self.isSidebarOpen(!self.isSidebarOpen());
+    });
+
     self.filteredMessages = ko.computed(() => {
         const searchQuery = self.userSearchInput().toLowerCase();
         if (searchQuery.length === 0) {
@@ -171,14 +196,25 @@ export function AppViewModel() {
 
     self.saveSelectedModel = function () {
         localStorage.setItem('selectedModel', self.selectedModel());
+
+        self.messages.valueHasMutated();
     };
 
     self.saveSelectedAutoSaveOption = function () {
         localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
     };
 
+
     self.selectedModel.subscribe(() => {
         self.saveSelectedModel();
+
+        if (self.selectedModel() === "chat-bison-001") {
+            self.palmMessages = [];
+
+            for (const chatMessage of self.messages()) {
+                self.palmMessages.push({ content: chatMessage.content });
+            }
+        }
     });
 
     self.selectedAutoSaveOption.subscribe(() => {
@@ -186,23 +222,16 @@ export function AppViewModel() {
     });
 
     self.onShowConversationsClick = async function () {
-        if (self.displayConversations().length > 1) {
             self.showConversationOptions(!self.showConversationOptions());
-        }
     };
 
     document.addEventListener('click', (event) => {
         if (
             !event.target.closest('.sidebar') &&
-            !event.target.closest('.settings-btn')
+            !event.target.closest('.settings-btn') &&  !event.target.closest('.saved-conversations-dropdown')
         ) {
             self.isSidebarOpen(false);
-        }
-    });
-
-    self.selectedConversation.subscribe((newValue) => {
-        if (newValue) {
-            self.loadSelectedConversation(newValue);
+            self.showConversationOptions(false);
         }
     });
 
@@ -212,6 +241,9 @@ export function AppViewModel() {
         if (self.isSidebarOpen()) {
             const apiKey = document.getElementById('api-key');
             apiKey.value = localStorage.getItem("gptKey");
+
+            const palmApiKey = document.getElementById('palm-api-key');
+            palmApiKey.value = localStorage.getItem("palmKey");
         }
     };
 
@@ -240,7 +272,7 @@ export function AppViewModel() {
 
     function isScrollable(element) {
         return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
-    }      
+    }  
 
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -250,12 +282,15 @@ export function AppViewModel() {
     });
 
     self.loadSelectedConversation = async function (value) {
-        if (!self.selectedConversation()) {
-            return;
+
+        if (value) {
+            self.selectedConversation(value.conversation);
+
+            self.lastLoadedConversationId(value.id);
+            localStorage.setItem('lastConversationId', self.lastLoadedConversationId());
         }
 
-        // Check if the title of the selected conversation is 'Choose an existing conversation'
-        if (self.selectedConversation() && self.selectedConversation().title.toLowerCase() === 'choose an existing conversation') {
+        if (!self.selectedConversation()) {
             return;
         }
 
@@ -278,38 +313,32 @@ export function AppViewModel() {
     };
 
     self.deleteCurrentConversation = async function () {
+        if (self.lastLoadedConversationId() === null) {
+            return;
+        }
+
+        self.storedConversations(loadStoredConversations());
+
         self.isProcessing(true);
-        let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-        const newConversation = {
-            messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
-        };
-
-        newConversation.messageHistory = self.messages().slice(0);
-
-        // Find the index of the conversation that has a 15% or more match in assistant's answers
-        const conversationIndex = storedConversations.findIndex((storedConversation) => {
-            const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
-            const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
-
-            const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
-                return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
-            });
-
-            const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
-
-            return matchingPercentage >= 15;
+        const conversationIndex = self.storedConversations().findIndex(conversation => { 
+            return conversation.id === parseInt(self.lastLoadedConversationId());
         });
 
-        let conversations = JSON.parse(localStorage.getItem("gpt-conversations"));
-        conversations.pop(conversationIndex);
+        console.log("removing index " + conversationIndex);
+        console.log(self.storedConversations());
 
-        localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
+        self.storedConversations().splice(conversationIndex, 1);
+        self.storedConversations.valueHasMutated();
+        console.log(self.storedConversations());
+
+        localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
         self.storedConversations(loadStoredConversations());
         self.messages([]);
         self.conversationTitles(loadConversationTitles());
         self.conversations(loadConversationTitles());
+        self.lastLoadedConversationId(null);
+        localStorage.setItem("lastConversationId", self.lastLoadedConversationId());
         self.isProcessing(false);
     };
 
@@ -392,8 +421,43 @@ export function AppViewModel() {
         }
     }
 
+    self.palmMessages = [];
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
+
+        if (self.selectedModel().indexOf("bison") !== -1) {
+            self.userInput("");
+            userInput.style.height = '30px';
+            userInput.focus();
+            self.isPalmEnabled(true);
+            self.isLoading(true);
+            let messageContext;
+
+            if (self.palmMessages.length === 0) {
+                self.palmMessages.push({ content: messageText });
+                self.messages.push({ role: "user", content: messageText });
+                this.scrollToBottom();
+
+                messageContext = self.palmMessages.slice(0);
+            }
+            else {
+                self.messages.push({ role: "user", content: messageText });
+                this.scrollToBottom();
+                messageContext = self.palmMessages.slice(0);
+                messageContext.push({ content: messageText });
+            }
+
+            const response = await fetchPalmResponse(messageContext);
+            self.palmMessages.push({ content: response });
+            self.messages.push({ role: "assistant", content: response });
+
+            self.saveMessages();
+            this.scrollToBottom();
+            self.isLoading(false);
+            return;
+        }
+
+        self.isPalmEnabled(false);
 
         if (!messageText || messageText === "") {
             return;
@@ -463,11 +527,11 @@ export function AppViewModel() {
         }));
 
         // Find the index of the selected conversation in storedConversations
-        const conversationIndex = self.storedConversations().findIndex(conversation => conversation.title === self.selectedConversation().title);
+        const conversationIndex = self.storedConversations().findIndex(conversation => conversation.conversation.title === self.selectedConversation().title);
 
         if (conversationIndex !== -1) {
             // Update the message history of the selected conversation
-            self.storedConversations()[conversationIndex].messageHistory = savedMessages;
+            self.storedConversations()[conversationIndex].conversation.messageHistory = savedMessages;
         } 
         else {
             if (JSON.parse(self.selectedAutoSaveOption())) {
@@ -486,56 +550,66 @@ export function AppViewModel() {
     };
 
     self.saveNewConversations = async function () {
-        self.isProcessing(true);
-
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            localStorage.setItem("gpt-conversations", JSON.stringify([newConversation]));
+            const newConversation = {
+                messageHistory: self.messages().slice(0),
+                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            };
+
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            localStorage.setItem("lastConversationId", "0");
+            self.lastLoadedConversationId(0);
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            // Find the index of the conversation that has a 15% or more match in assistant's answers
-            const conversationIndex = storedConversations.findIndex((storedConversation) => {
-                const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
-                const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
+            newConversation.conversationId = storedConversations.length - 1;
 
-                const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
-                    return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
+            if (self.lastLoadedConversationId() !== null) {
+                const conversationIndex = storedConversations.findIndex(conversation => { 
+                    return conversation.id === parseInt(self.lastLoadedConversationId());
                 });
-
-                const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
-
-                return matchingPercentage >= 15;
-            });
-
-            if (conversationIndex !== -1) {
                 // Update the existing conversation's messageHistory with the new values
-                storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
+                storedConversations[conversationIndex].conversation.messageHistory = newConversation.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
-                storedConversations.push(newConversation);
+                const newConversationWithTitle = {
+                    messageHistory: self.messages().slice(0),
+                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                };
+
+                let highestId = 0;
+                for (const conversation of storedConversations) {
+                    if (conversation.id > highestId) {
+                        highestId = conversation.id;
+                    }
+                }
+
+                storedConversations[storedConversations.length] = { };
+                storedConversations[storedConversations.length - 1].id = highestId + 1; 
+                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle;
+                self.lastLoadedConversationId(highestId + 1);
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+            localStorage.setItem("lastConversationId", self.lastLoadedConversationId());
         }
 
         self.conversations(loadConversationTitles());
         self.storedConversations(loadStoredConversations());
 
-        // Add the default option back to the conversations array if it's not already there
-        const defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
-        if (self.conversations()[0].title !== defaultOption.title) {
-            self.conversations.unshift(defaultOption);
-        }
+        self.selectedConversation(self.conversations()[self.conversations().length]);
+        self.loadSelectedConversation();
+    }
 
-        self.selectedConversation(self.conversations()[0]);
-        self.isProcessing(false);
+    self.copyText = function(content) {
+        navigator.clipboard.writeText(content);
     }
 
     self.clearMessages = async function () {
@@ -543,39 +617,53 @@ export function AppViewModel() {
 
         const newConversation = {
             messageHistory: self.messages().slice(0),
-            title: await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
         };
 
         newConversation.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            localStorage.setItem("gpt-conversations", JSON.stringify([newConversation]));
+            const newConversation = {
+                messageHistory: self.messages().slice(0),
+                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            };
+
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            localStorage.setItem("lastConversationId", "0");
+            self.lastLoadedConversationId(0);
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            // Find the index of the conversation that has a 15% or more match in assistant's answers
-            const conversationIndex = storedConversations.findIndex((storedConversation) => {
-                const storedAssistantAnswers = storedConversation.messageHistory.filter(msg => msg.role === 'assistant');
-                const newAssistantAnswers = newConversation.messageHistory.filter(msg => msg.role === 'assistant');
+            newConversation.conversationId = storedConversations.length - 1;
 
-                const matchingAnswers = storedAssistantAnswers.filter((storedAnswer, index) => {
-                    return index < newAssistantAnswers.length && storedAnswer.content === newAssistantAnswers[index].content;
+            if (self.selectedAutoSaveOption() && self.lastLoadedConversationId() !== null) {
+                // Update the existing conversation's messageHistory with the new values
+
+                const conversationIndex = storedConversations.findIndex(conversation => { 
+                    return conversation.id === parseInt(self.lastLoadedConversationId());
                 });
 
-                const matchingPercentage = (matchingAnswers.length / storedAssistantAnswers.length) * 100;
-
-                return matchingPercentage >= 15;
-            });
-
-            if (conversationIndex !== -1) {
-                // Update the existing conversation's messageHistory with the new values
-                storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
+                storedConversations[conversationIndex].conversation.messageHistory = newConversation.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
-                storedConversations.push(newConversation);
+                const newConversationWithTitle = {
+                    messageHistory: self.messages().slice(0),
+                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                };
+
+                let highestId = 0;
+                for (const conversation of storedConversations) {
+                    if (conversation.id > highestId) {
+                        highestId = conversation.id;
+                    }
+                }
+
+                storedConversations[storedConversations.length] = { };
+                storedConversations[storedConversations.length - 1].id = highestId + 1; 
+                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle; 
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+            localStorage.setItem("lastConversationId", null);
         }
 
         self.conversations(loadConversationTitles());
@@ -583,14 +671,9 @@ export function AppViewModel() {
 
         localStorage.removeItem("gpt-messages");
         self.messages([]);
+        self.lastLoadedConversationId(null);
 
-        // Add the default option back to the conversations array if it's not already there
-        const defaultOption = { title: 'Choose an existing conversation', messageHistory: [] };
-        if (self.conversations()[0].title !== defaultOption.title) {
-            self.conversations.unshift(defaultOption);
-        }
-
-        self.selectedConversation(self.conversations()[0]);
+        self.selectedConversation({ messageHistory: [], title: 'placeholder'});
         self.isProcessing(false);
     };
 
@@ -611,8 +694,22 @@ export function AppViewModel() {
         self.updateScrollButtonVisibility();
     };
 
-    if (self.conversations().length > 1) {
-        self.selectedConversation(self.conversations()[self.conversations().length - 1]);
-        self.loadSelectedConversation();
+    if (self.conversations().length > 0) {
+
+        if (localStorage.getItem("lastConversationId") !== "null") {
+            self.lastLoadedConversationId(localStorage.getItem("lastConversationId"));
+                
+            const conversationIndex = self.conversations().findIndex(conversation => { 
+                return conversation.id === parseInt(self.lastLoadedConversationId());
+            });
+
+            self.selectedConversation(self.conversations()[conversationIndex].conversation);
+            self.loadSelectedConversation();
+        }
+        else {
+            self.selectedConversation(self.conversations()[0].conversation);
+            self.loadSelectedConversation();
+        }
+
     }
 }
