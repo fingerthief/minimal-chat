@@ -31,6 +31,7 @@ On Android the process is basically the same except the name of the option is **
 - Code Syntax Highlighting
 - Basic DALL-E Integration (Prefix GPT model messages with **image::** and then your description to generate images)
 - Conversation message search
+- Conversation Importing/Exporting
 - Customizable settings
 - Responsive layout for mobile use
 - Auto Save New Conversations Option
@@ -40,9 +41,9 @@ On Android the process is basically the same except the name of the option is **
 
 ![Screenshot 2023-07-23 at 11-45-06 MinimalGPT](https://github.com/fingerthief/minimal-gpt/assets/2380471/f9ef7f23-2e20-4939-933b-855ae2e44502)
 
-### Local Conversation Saving
+### Local Conversation Saving and Conversation Importing/Exporting Via File
 
-![Web capture_28-7-2023_195420_192 168 0 7](https://github.com/fingerthief/minimal-gpt/assets/2380471/d78ed0f7-9f31-4fc4-9179-773c2d134993)
+![import-export](https://github.com/fingerthief/minimal-gpt/assets/2380471/12f78b86-512d-484a-91b2-21a50b0f455c)
 
 ### Conversation search
 
