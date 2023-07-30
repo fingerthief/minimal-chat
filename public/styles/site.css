@@ -10707,7 +10707,7 @@ button:hover {
   /* For Internet Explorer and Edge */
 }
 .sidebar.open {
-  z-index: 9999;
+  z-index: 99999999;
   opacity: 1;
   transition: z-index 0.15s step-start, opacity 0.15s linear;
 }

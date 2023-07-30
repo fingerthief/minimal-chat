@@ -18,6 +18,7 @@
     "@google-ai/generativelanguage": "^0.2.1",
     "del": "^7.0.0",
     "dotenv": "^16.0.3",
+    "firebase": "^10.1.0",
     "google-auth-library": "^9.0.0",
     "gulp": "^4.0.2",
     "gulp-html-replace": "^1.6.2",

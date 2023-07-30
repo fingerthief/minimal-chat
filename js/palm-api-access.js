@@ -1,6 +1,7 @@
 
 
 const MODEL_NAME = "chat-bison-001";
+let retryCount = 0;
 
 export async function fetchPalmResponse(messages) {
     const API_KEY = localStorage.getItem("palmKey");
@@ -23,16 +24,25 @@ export async function fetchPalmResponse(messages) {
     
             console.log(result.candidates[0].content);
     
+            retryCount = 0;
             return reponseText;
     }
     catch (err) {
-        console.error("Error fetching PaLM Response:", err);
-        return "An error occurred while fetching PaLM response. Please try again.";
+
+        if (retryCount < 5) {
+            retryCount++;
+
+            return await this.fetchPalmResponse(messages);
+        }
+        else {
+            console.error("Error fetching PaLM Response:", err);
+            return "An error occurred while fetching PaLM response. Please try again.";
+        }
     }
         
 }
 
-let retryCount = 0;
+
 let baseMessages;
 export async function fetchPalmConversationTitle(messages) {
     baseMessages = messages;
@@ -55,17 +65,15 @@ export async function fetchPalmConversationTitle(messages) {
             const result = await response.json();
             const reponseText = result.candidates[0].content;
     
-            console.log(result.candidates[0].content);
-    
             return reponseText;      
     } catch (error) {
         if (retryCount < 5) {
             retryCount++;
             console.log("retrying PaLM title generation attempt:" + retryCount)
-            return self.fetchPalmConversationTitle(baseMessages);
+            return await this.fetchPalmConversationTitle(baseMessages);
         }
 
-        throw error;
+        return error;
     }
  
 }
