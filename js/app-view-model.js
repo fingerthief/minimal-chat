@@ -14,7 +14,7 @@ import {
     fetchPalmConversationTitle
 } from './palm-api-access.js';
 
-import "../node_modules/swiped-events/dist/swiped-events.min.js"
+import "../node_modules/swiped-events/dist/swiped-events.min.js";
 
 const ko = window.ko;
 const messagesContainer = document.querySelector('.messages');
@@ -149,6 +149,8 @@ export function AppViewModel() {
             this.style.zIndex = '-9999';
         }
     }
+
+    const appBody = document.getElementById('app-container');
 
     const userInput = document.getElementById('user-input');
     userInput.addEventListener('input', autoResize);
@@ -343,7 +345,7 @@ export function AppViewModel() {
     };
 
 
-
+    let retryCount = 0;
     async function fetchGPTResponseStream(conversation, attitude, model) {
 
         let lastMessageContent = "";
@@ -356,7 +358,6 @@ export function AppViewModel() {
             return isGPT;
         });
 
-        console.log(gptMessagesOnly);
         const prompt = `Me: ${conversation}\nAI:`;
         let storedApiKey = localStorage.getItem("gptKey");
 
@@ -414,21 +415,29 @@ export function AppViewModel() {
                 }
             }
 
+            retryCount = 0;
             return self.streamedMessageText();
         } catch (error) {
-            console.error("Error fetching GPT response:", error);
-            return "An error occurred while fetching GPT response stream.";
+
+            if (retryCount < 5) {
+                retryCount++;
+                return await self.fetchGPTResponseStream(conversation, attitude, model);
+            }
+            else {
+                console.error("Error fetching GPT response:", error);
+                return "An error occurred while fetching GPT response stream.";
+            }
         }
     }
 
     self.palmMessages = [];
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
+        //appBody.focus();
 
         if (self.selectedModel().indexOf("bison") !== -1) {
             self.userInput("");
             userInput.style.height = '30px';
-            userInput.focus();
             self.isPalmEnabled(true);
             self.isLoading(true);
             let messageContext;

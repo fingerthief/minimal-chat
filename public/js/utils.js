@@ -15,6 +15,7 @@ export function wrapCodeSnippets(input) {
     return wrapped;
 }
 
+let retryCount = 0;
 export async function getConversationTitleFromGPT(messages, model, sliderValue) {
     try {
         const apiKey = document.getElementById('api-key');
@@ -38,11 +39,18 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
         const result = await response.json();
 
         if (result.choices && result.choices.length > 0) {
+            retryCount = 0;
             return result.choices[0].message.content;
         } else {
-            return "I'm sorry, I couldn't generate a response.";
+            throw "I'm sorry, I couldn't generate a response.";
         }
     } catch (error) {
+
+        if (retryCount < 5) {
+            retryCount++;
+            self.getConversationTitleFromGPT(messages, model, sliderValue);
+        }
+
         console.error("Error fetching GPT response:", error);
         return "An error occurred while generating conversaton title.";
     }
