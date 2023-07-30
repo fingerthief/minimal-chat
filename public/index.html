@@ -124,10 +124,10 @@
                                 data-bind="textInput: userSearchInput"></textarea>
                         </div>
                         <!-- ko foreach: filteredMessages -->
-                        <div
+                        <div 
                             data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                             <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
-                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                            <span id="message-contents"   data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
                         <!-- /ko -->
 
@@ -135,14 +135,14 @@
                         <!-- ko ifnot: selectedModel().indexOf('bison') !== -1 -->
                         <!-- ko foreach: messages()-->
                         <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
-                        <div
+                        <div  
                             data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                             <span class="label"
                                 data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
                             <!-- <div class="copy-text">
                                             <button data-bind="click: () => { $parent.copyText(content); }">Copy</button>
                                         </div> -->
-                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                            <span id="message-contents"  data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
                         <!-- /ko -->
                         <!-- /ko -->
@@ -151,26 +151,27 @@
                         <!-- ko if: selectedModel().indexOf('bison') !== -1 -->
                         <!-- ko foreach: messages() -->
                         <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
-                        <div
+                        <div  
                             data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                             <span class="label" data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
-                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                            <span  id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
                         <!-- /ko -->
                         <!-- /ko -->
                         <!-- /ko -->
 
                         <!-- ko if: isLoading() && !isPalmEnabled() -->
-                        <div class="gpt message padded">
+                        <div class="gpt message padded" >
                             <span class="label">GPT</span>
-                            <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
+                            <span  data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
                         </div>
                         <!-- /ko -->
 
                         <!-- ko if: isLoading() && isPalmEnabled() -->
-                        <div class="gpt message padded">
+                        <div class="gpt message padded" > 
                             <span class="label">PaLM</span>
-                            <span data-bind="text: 'Generating response...'"></span>
+                            <span data-bind="text: 'Generating response '"></span>
+                            <span class="loading spinner"></span>
                         </div>
                         <!-- /ko -->
 
@@ -188,7 +189,7 @@
                         </div>
                     </div>
 
-                    <form id="chat-form" data-bind="submit: sendMessage">
+                    <form id="chat-form" data-bind="submit: sendMessage, event: { 'swiped-left': swipedLeft, 'swiped-right': swipedRight }" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
                         <textarea id="user-input" class="user-input-text" rows="1" placeholder=""
                             data-bind="textInput: userInput"></textarea>
                         <span data-bind="visible: isLoading" class="loading input-spinner"></span>

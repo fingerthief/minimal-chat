@@ -176,15 +176,25 @@ export function AppViewModel() {
         localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
     }
 
-    document.addEventListener('swiped-left', function(e) {
+    self.swipedLeft = function () {
         self.isSidebarOpen(false);
         self.showConversationOptions(!self.showConversationOptions());
-    });
+    }
 
-    document.addEventListener('swiped-right', function(e) {
+    self.swipedRight = function () {
         self.showConversationOptions(false);
         self.isSidebarOpen(!self.isSidebarOpen());
-    });
+    }
+
+    // document.addEventListener('swiped-left', function(e) {
+    //     self.isSidebarOpen(false);
+    //     self.showConversationOptions(!self.showConversationOptions());
+    // });
+
+    // document.addEventListener('swiped-right', function(e) {
+    //     self.showConversationOptions(false);
+    //     self.isSidebarOpen(!self.isSidebarOpen());
+    // });
 
     self.filteredMessages = ko.computed(() => {
         const searchQuery = self.userSearchInput().toLowerCase();
