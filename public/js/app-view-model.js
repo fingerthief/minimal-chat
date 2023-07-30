@@ -485,7 +485,6 @@ export function AppViewModel() {
 
             self.userInput("");
             userInput.style.height = '30px';
-            userInput.focus();
 
             const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
 
@@ -509,7 +508,6 @@ export function AppViewModel() {
         // Reset the user input field
         userInput.value = '';
         userInput.style.height = '30px';
-        userInput.focus();
         
 
         self.streamedMessageText("");
