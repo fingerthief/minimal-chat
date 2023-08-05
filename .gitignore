@@ -105,3 +105,5 @@ database.rules.json
 .firebaserc
 .firebase/hosting.cHVibGlj.cache
 gtag.txt
+
+node_modules/
