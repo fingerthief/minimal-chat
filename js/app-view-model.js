@@ -3,8 +3,6 @@ import {
     getConversationTitleFromGPT
 } from './utils.js';
 import {
-    fetchGPTResponse,
-    loadMessagesFromLocalStorage,
     loadConversationTitles,
     loadStoredConversations,
     generateDALLEImage
@@ -45,6 +43,9 @@ export function AppViewModel() {
     self.selectedAutoSaveOption = ko.observable(
         localStorage.getItem('selectedAutoSaveOption') || true,
     );
+
+    self.selectedDallEImageCount = ko.observable(localStorage.getItem('selectedAutoSaveOption') || '4');
+    self.selectedDallEImageResolution = ko.observable(localStorage.getItem('selectedImageResolutionOption') || '256x256');
 
     hljs.configure({ ignoreUnescapedHTML: true });
 
@@ -164,7 +165,6 @@ export function AppViewModel() {
             return;
         }
 
-        this.style.height = 'auto';
         this.style.height = `${this.scrollHeight}px`;
     }
 
@@ -186,16 +186,6 @@ export function AppViewModel() {
         self.isSidebarOpen(!self.isSidebarOpen());
     }
 
-    // document.addEventListener('swiped-left', function(e) {
-    //     self.isSidebarOpen(false);
-    //     self.showConversationOptions(!self.showConversationOptions());
-    // });
-
-    // document.addEventListener('swiped-right', function(e) {
-    //     self.showConversationOptions(false);
-    //     self.isSidebarOpen(!self.isSidebarOpen());
-    // });
-
     self.filteredMessages = ko.computed(() => {
         const searchQuery = self.userSearchInput().toLowerCase();
         if (searchQuery.length === 0) {
@@ -216,6 +206,13 @@ export function AppViewModel() {
         localStorage.setItem('selectedAutoSaveOption', self.selectedAutoSaveOption());
     };
 
+    self.saveSelectedDallEImageCountOption = function () {
+        localStorage.setItem('selectedImageCountOption', self.selectedDallEImageCount());
+    };
+
+    self.saveSelectedDallEImageResolutionOption = function () {
+        localStorage.setItem('selectedImageResolutionOption', self.selectedDallEImageResolution());
+    };
 
     self.selectedModel.subscribe(() => {
         self.saveSelectedModel();
@@ -231,6 +228,13 @@ export function AppViewModel() {
 
     self.selectedAutoSaveOption.subscribe(() => {
         self.saveSelectedAutoSaveOption();
+    });
+
+    self.selectedDallEImageCount.subscribe(() => {
+        self.saveSelectedDallEImageCountOption();
+    });
+    self.selectedDallEImageResolution.subscribe(() => {
+        self.saveSelectedDallEImageResolutionOption();
     });
 
     self.onShowConversationsClick = async function () {
@@ -286,7 +290,33 @@ export function AppViewModel() {
         return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
     }  
 
+    hotkeys('ctrl+shift+m', function (event, handler) {
+        event.preventDefault();
+        self.isSidebarOpen(false);
+        self.showConversationOptions(true);
+    });
+
+    hotkeys('ctrl+shift+s', function (event, handler) {
+        event.preventDefault();
+        self.showConversationOptions(false);
+        self.isSidebarOpen(true);
+    });
+
+    hotkeys('ctrl+shift+i', function (event, handler) {
+        event.preventDefault();
+        self.clearMessages();
+    });
+
     userInput.addEventListener('keypress', (event) => {
+
+        console.log(event);
+
+        if (event.key === 'Enter' && event.shiftKey) {
+            event.preventDefault(); // Prevent the default behavior of the Enter key
+            self.userInput(self.userInput() + " \n");
+            return;
+        }
+
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevent the default behavior of the Enter key
             self.sendMessage(); // Call the sendMessage function
@@ -478,11 +508,7 @@ export function AppViewModel() {
 
         self.isPalmEnabled(false);
 
-        if (!messageText || messageText === "") {
-            return;
-        }
-
-        if (self.isLoading() || self.isGeneratingImage()) {
+        if (!messageText || messageText === "" || self.isLoading() || self.isGeneratingImage()) {
             return;
         }
 
@@ -794,6 +820,5 @@ export function AppViewModel() {
             self.selectedConversation(self.conversations()[0].conversation);
             self.loadSelectedConversation();
         }
-
     }
 }

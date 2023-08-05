@@ -48,8 +48,8 @@ export async function generateDALLEImage(conversation) {
             },
             body: JSON.stringify({
                 prompt: conversation,
-                n: 8,
-                size: "256x256",
+                n: parseInt(localStorage.getItem("selectedImageCountOption")) || 4,
+                size: localStorage.getItem("selectedImageResolutionOption") || "256x256",
             }),
         });
 

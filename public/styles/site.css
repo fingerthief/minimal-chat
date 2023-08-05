@@ -10530,6 +10530,7 @@ button:hover {
   padding-right: 16px;
   border-radius: 25px;
   text-overflow: clip;
+  overflow: hidden;
   max-width: 80%;
   min-width: 5%;
   margin-bottom: 8px;
@@ -10684,6 +10685,22 @@ button:hover {
   position: relative;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #665067;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4f3d50;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5d455e;
+}
+
 .sidebar {
   background-color: #2b2431;
   width: 315px;
@@ -10691,7 +10708,8 @@ button:hover {
   padding: 8px;
   border: 2px solid #665067;
   overflow: auto;
-  max-height: 75vh;
+  max-height: 80vh;
+  min-height: 80vh;
   min-height: 400px;
   display: flex;
   flex-direction: column;
@@ -10702,10 +10720,12 @@ button:hover {
   transition: z-index 0.15s step-end, opacity 0.15s linear;
   justify-content: space-between;
   align-items: stretch;
-  scrollbar-width: none;
-  /* For Firefox */
-  -ms-overflow-style: none;
-  /* For Internet Explorer and Edge */
+  scrollbar-width: thin;
+  scrollbar-color: #665067 #665067;
+}
+.sidebar .sidebar-content-container {
+  overflow: auto;
+  text-overflow: clip;
 }
 .sidebar.open {
   z-index: 99999999;
