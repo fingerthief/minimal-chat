@@ -22,8 +22,6 @@ export async function fetchPalmResponse(messages) {
             const result = await response.json();
             const reponseText = result.candidates[0].content;
     
-            console.log(result.candidates[0].content);
-    
             retryCount = 0;
             return reponseText;
     }
