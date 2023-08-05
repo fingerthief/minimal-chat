@@ -543,8 +543,12 @@ export function AppViewModel() {
             content: message.content
         }));
 
-        // Find the index of the selected conversation in storedConversations
-        const conversationIndex = self.storedConversations().findIndex(conversation => conversation.conversation.title === self.selectedConversation().title);
+        let conversationIndex = -1;
+
+        if (self.selectedConversation()) {
+            // Find the index of the selected conversation in storedConversations
+            conversationIndex = self.storedConversations().findIndex(conversation => conversation.conversation.title === self.selectedConversation().title);
+        }
 
         if (conversationIndex !== -1) {
             // Update the message history of the selected conversation
