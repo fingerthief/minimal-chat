@@ -461,7 +461,8 @@ export function AppViewModel() {
 
             if (retryCount < 5) {
                 retryCount++;
-                return await self.fetchGPTResponseStream(conversation, attitude, model);
+                console.log("Retry Number: " + retryCount);
+                return await fetchGPTResponseStream(conversation, attitude, model);
             }
             else {
                 console.error("Error fetching GPT response:", error);

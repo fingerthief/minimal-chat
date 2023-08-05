@@ -7,6 +7,7 @@ export async function fetchPalmResponse(messages) {
     const API_KEY = localStorage.getItem("palmKey");
     const ATTITUDE = localStorage.getItem("palm-attitude");
     try {
+
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta2/models/${MODEL_NAME}:generateMessage?key=${API_KEY}`, {
                 method: "POST",
                 headers: {
@@ -29,6 +30,8 @@ export async function fetchPalmResponse(messages) {
 
         if (retryCount < 5) {
             retryCount++;
+            console.log("Retry count: " + retryCount);
+            await sleep(1000);
 
             return await fetchPalmResponse(messages);
         }
@@ -40,6 +43,9 @@ export async function fetchPalmResponse(messages) {
         
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 let baseMessages;
 export async function fetchPalmConversationTitle(messages) {
