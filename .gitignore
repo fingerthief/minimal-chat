@@ -36,7 +36,7 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
-public
+
 
 # Dependency directories
 node_modules/
@@ -107,11 +107,3 @@ database.rules.json
 .firebaserc
 .firebase/hosting.cHVibGlj.cache
 gtag.txt
-public/index.html
-public/index.html
-public/index.scss
-public/js/app-view-model.js
-public/styles/site.css
-public/styles/site.css.map
-public/index.html
-public/index.html
