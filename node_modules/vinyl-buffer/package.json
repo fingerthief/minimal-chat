@@ -1,0 +1,34 @@
+{
+  "name": "vinyl-buffer",
+  "description": "Convert streaming vinyl files to use buffers",
+  "version": "1.0.1",
+  "main": "index.js",
+  "dependencies": {
+    "bl": "^1.2.1",
+    "through2": "^2.0.3"
+  },
+  "devDependencies": {
+    "tape": "~2.5.0",
+    "vinyl-source-stream": "~2.0.0"
+  },
+  "scripts": {
+    "test": "node test"
+  },
+  "author": "Hugh Kennedy <hughskennedy@gmail.com> (http://hughsk.io/)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hughsk/vinyl-buffer"
+  },
+  "bugs": {
+    "url": "https://github.com/hughsk/vinyl-buffer/issues"
+  },
+  "homepage": "https://github.com/hughsk/vinyl-buffer",
+  "keywords": [
+    "vinyl",
+    "gulpfriendly",
+    "convert",
+    "buffer",
+    "stream"
+  ]
+}

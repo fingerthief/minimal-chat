@@ -1,0 +1,1 @@
+{"version":3,"file":"saveAssets.d.ts","sourceRoot":"","sources":["../../../src/commands/bundle/saveAssets.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AAIH,OAAO,KAAK,EAAC,SAAS,EAAC,MAAM,OAAO,CAAC;AAgBrC,iBAAS,UAAU,CACjB,MAAM,EAAE,aAAa,CAAC,SAAS,CAAC,EAChC,QAAQ,EAAE,MAAM,EAChB,UAAU,EAAE,MAAM,GAAG,SAAS,EAC9B,gBAAgB,EAAE,MAAM,GAAG,SAAS,6BA0DrC;AA8CD,eAAe,UAAU,CAAC"}
