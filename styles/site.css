@@ -10586,6 +10586,7 @@ button:hover {
   float: left;
   background-color: #433944;
   color: #f0f0f0;
+  overflow: auto;
   text-overflow: clip;
 }
 .message.gpt .label {
