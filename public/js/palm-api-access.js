@@ -30,7 +30,7 @@ export async function fetchPalmResponse(messages) {
         if (retryCount < 5) {
             retryCount++;
 
-            return await this.fetchPalmResponse(messages);
+            return await fetchPalmResponse(messages);
         }
         else {
             console.error("Error fetching PaLM Response:", err);
@@ -68,7 +68,7 @@ export async function fetchPalmConversationTitle(messages) {
         if (retryCount < 5) {
             retryCount++;
             console.log("retrying PaLM title generation attempt:" + retryCount)
-            return await this.fetchPalmConversationTitle(baseMessages);
+            return await fetchPalmConversationTitle(baseMessages);
         }
 
         return error;
