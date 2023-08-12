@@ -37,6 +37,17 @@ On Android the process is basically the same except the name of the option is **
 - Auto Save New Conversations Option
 - PWA Support
 
+### Swipe Gestures
+
+- Swipe to the **Left** on the bottom input box and your **Conversations** dialog will appear.
+- Swipe to the **Right** on the bottom input box and your **Settings** dialog will appear.
+
+### Keyboard Shortcuts
+
+- `Control + Shift + m` Opens the  conversations dialog
+- `Control + Shift + s` Opens the settings dialog
+- `Control + Shift + i` Starts a new conversation
+
 ### Minimal chat layout
 
 ![Screenshot 2023-07-23 at 11-45-06 MinimalGPT](https://github.com/fingerthief/minimal-gpt/assets/2380471/f9ef7f23-2e20-4939-933b-855ae2e44502)
