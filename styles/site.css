@@ -10916,6 +10916,7 @@ button:hover {
   align-items: center;
   width: 100%;
   margin-bottom: 10px;
+  margin-bottom: 25px;
   padding-bottom: 25px;
   border-bottom: 2px solid gray;
 }
@@ -10945,6 +10946,7 @@ button:hover {
 }
 
 .control {
+  margin-bottom: 25px;
   padding-bottom: 25px;
   border-bottom: 2px solid gray;
 }
@@ -10957,6 +10959,7 @@ button:hover {
   flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 25px;
   padding-bottom: 25px;
   border-bottom: 2px solid gray;
 }
