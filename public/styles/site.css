@@ -8242,7 +8242,7 @@ readers do not read off random characters that represent icons */
   font-style: normal;
   font-weight: 900;
   font-display: block;
-  src: url("../web-fonts/fa-solid-900.woff2") format("woff2"), url("../web-fonts/fa-solid-900.ttf") format("truetype");
+  src: url("../webfonts/fa-solid-900.woff2") format("woff2"), url("../webfonts/fa-solid-900.ttf") format("truetype");
 }
 .fas,
 .fa-solid {
@@ -8264,7 +8264,7 @@ readers do not read off random characters that represent icons */
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("../web-fonts/fa-regular-400.woff2") format("woff2"), url("../web-fonts/fa-regular-400.ttf") format("truetype");
+  src: url("../webfonts/fa-regular-400.woff2") format("woff2"), url("../webfonts/fa-regular-400.ttf") format("truetype");
 }
 .far,
 .fa-regular {
@@ -8286,7 +8286,7 @@ readers do not read off random characters that represent icons */
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url("../web-fonts/fa-brands-400.woff2") format("woff2"), url("../web-fonts/fa-brands-400.ttf") format("truetype");
+  src: url("../webfonts/fa-brands-400.woff2") format("woff2"), url("../webfonts/fa-brands-400.ttf") format("truetype");
 }
 .fab,
 .fa-brands {
@@ -10299,7 +10299,7 @@ readers do not read off random characters that represent icons */
 
 @font-face {
   font-family: "Helvetica";
-  src: url("/web-fonts/Helvetica.ttf") format("truetype");
+  src: url("/webfonts/Helvetica.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
@@ -10398,7 +10398,7 @@ body {
   font-size: 18px;
   color: #f0f0f0;
   resize: vertical;
-  overflow: auto;
+  overflow: hidden;
   white-space: pre-wrap;
   min-height: 35px;
   border-radius: 30px;
@@ -10529,8 +10529,6 @@ button:hover {
   padding-left: 16px;
   padding-right: 16px;
   border-radius: 25px;
-  text-overflow: clip;
-  overflow: hidden;
   max-width: 80%;
   min-width: 5%;
   margin-bottom: 8px;
@@ -10586,6 +10584,8 @@ button:hover {
   float: left;
   background-color: #433944;
   color: #f0f0f0;
+}
+.message.gpt p {
   overflow: auto;
   text-overflow: clip;
 }

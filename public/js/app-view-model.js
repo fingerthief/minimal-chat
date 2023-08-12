@@ -165,7 +165,7 @@ export function AppViewModel() {
             return;
         }
 
-        this.style.height = `${this.scrollHeight}px`;
+        this.style.height = `fit-content`;
     }
 
     if (!localStorage.getItem('selectedModel')) {

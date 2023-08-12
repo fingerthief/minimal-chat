@@ -7,7 +7,7 @@ import fs from 'fs';
 const srcFiles = [
   './styles/**/*',
   './node_modules/**/*',
-  './web-fonts/**/*',
+  './webfonts/**/*',
   './js/**/*',
   './images/**/*',
   './index.html',

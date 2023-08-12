@@ -4,12 +4,12 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/regular.scss";
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
-$fa-font-path: "../web-fonts";
+$fa-font-path: "../webfonts";
 $icon-color: #c7a0c8;
 
 @font-face {
     font-family: 'Helvetica';
-    src: url('/web-fonts/Helvetica.ttf') format('truetype');
+    src: url('/webfonts/Helvetica.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
 }
@@ -115,7 +115,7 @@ body {
     font-size: 18px;
     color: #f0f0f0;
     resize: vertical;
-    overflow: auto;
+    overflow: hidden;
     white-space: pre-wrap;
     min-height: 35px;
     border-radius: 30px;
@@ -261,8 +261,6 @@ button {
     padding-left: 16px;
     padding-right: 16px;
     border-radius: 25px;
-    text-overflow: clip;
-    overflow: hidden;
     max-width: 80%;
     min-width: 5%;
     margin-bottom: 8px;
@@ -329,9 +327,11 @@ button {
         background-color: #433944;
         color: #f0f0f0;
 
+    p {
 
-        overflow: auto;
-        text-overflow: clip;
+            overflow: auto;
+            text-overflow: clip;
+        }
 
         .label {
             background-color: #433944;

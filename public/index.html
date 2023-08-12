@@ -167,6 +167,7 @@
                         <!-- ko ifnot: selectedModel().indexOf('bison') !== -1 -->
                         <!-- ko foreach: messages()-->
                         <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
+                        
                         <div  
                             data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                             <span class="label"
