@@ -10353,7 +10353,7 @@ body {
   padding: 10px;
   position: relative;
   max-height: 96dvh;
-  min-height: 400px;
+  min-height: 80vh;
   scrollbar-width: none;
   /* For Firefox */
   -ms-overflow-style: none;
@@ -10570,6 +10570,8 @@ button:hover {
   background-color: #473253;
   right: 0px;
   border-radius: 20px;
+  margin-top: -10px;
+  padding: 6px;
 }
 .message.user::after {
   content: "";
@@ -10593,6 +10595,8 @@ button:hover {
   background-color: #433944;
   left: 0px;
   border-radius: 20px;
+  margin-top: -10px;
+  padding: 6px;
 }
 .message.gpt::after {
   content: "";
