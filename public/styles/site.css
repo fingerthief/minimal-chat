@@ -10396,6 +10396,7 @@ body {
   outline: none;
   background-color: #1c1c1e;
   font-size: 18px;
+  min-width: 89vw;
   color: #f0f0f0;
   resize: vertical;
   overflow: hidden;
@@ -10450,7 +10451,7 @@ button:hover {
   color: #c7a0c8;
   position: fixed;
   min-height: 50px;
-  top: 73px;
+  top: 112px;
   display: grid;
   align-content: center;
   right: 7px;
@@ -10480,7 +10481,7 @@ button:hover {
   color: #433944;
   position: fixed;
   min-height: 0px;
-  top: 73px;
+  top: 112px;
   display: grid;
   align-content: center;
   right: 82px;
@@ -10504,9 +10505,14 @@ button:hover {
 .gpt.label {
   font-size: 0.7em;
   display: block;
+  min-width: 45px;
   margin-bottom: 2px;
   color: rgba(255, 255, 255, 0.7);
   text-align: right;
+}
+
+.icon {
+  color: #9d81a0;
 }
 
 .gpt {
@@ -10517,6 +10523,7 @@ button:hover {
   border-bottom: 2px solid slategray;
   font-size: 0.9em;
   font-weight: bolder;
+  min-width: 45px;
 }
 
 .hljs {
@@ -10529,7 +10536,7 @@ button:hover {
   padding-left: 16px;
   padding-right: 16px;
   border-radius: 25px;
-  max-width: 80%;
+  max-width: 74%;
   min-width: 5%;
   margin-bottom: 8px;
   clear: both;
@@ -10557,6 +10564,7 @@ button:hover {
   position: absolute;
   top: -18px;
   font-size: 12px;
+  min-width: 45px;
   font-weight: bold;
   padding: 2px 5px;
   border-radius: 5px;
@@ -10571,6 +10579,7 @@ button:hover {
   right: 0px;
   border-radius: 20px;
   margin-top: -10px;
+  min-width: 45px;
   padding: 6px;
 }
 .message.user::after {
@@ -10919,8 +10928,8 @@ button:hover {
   align-items: center;
   width: 100%;
   margin-bottom: 10px;
-  margin-bottom: 25px;
-  padding-bottom: 25px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
   border-bottom: 2px solid gray;
 }
 .slider-container input[type=range] {
@@ -10949,8 +10958,8 @@ button:hover {
 }
 
 .control {
-  margin-bottom: 25px;
-  padding-bottom: 25px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
   border-bottom: 2px solid gray;
 }
 
@@ -10962,8 +10971,8 @@ button:hover {
   flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
-  padding-bottom: 25px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
   border-bottom: 2px solid gray;
 }
 .api-key input {

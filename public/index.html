@@ -34,7 +34,9 @@
         <div class="sidebar box" id="settings-dialog" data-bind="css: { open: isSidebarOpen }">
             <!-- Add settings content here -->
             <div class="settings-header">
-                <h2>Settings | V3.2.3</h2>
+                <h2 data-bind="click: () => { window.location.reload(true); }">
+                    <span class="fa-solid fa-arrows-rotate"></span>
+                    Settings | V3.2.4</h2>
             </div>
             <div class="sidebar-content-container">
                 <div class="api-key">
@@ -150,7 +152,7 @@
                         </div>
                     </div>
                     <div class="messages" id="messagesContainer">
-                        <div class="floating-button" data-bind="click: showSearchField, stopClickPropagation: {}">
+                        <div class="floating-button" data-bind="visible: messages().length > 2, click: showSearchField, stopClickPropagation: {}">
                             <span class="fa-solid fa-magnifying-glass fa-xl"></span>
                         </div>
                         <div class="floating-search-field" id="floating-search-field"
@@ -173,8 +175,11 @@
                         
                         <div  
                             data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <span class="label"
-                                data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                            <div class="label">
+                                <span class="fa-solid fa-robot icon" data-bind="visible: role !== 'user'"></span>
+                                <span class="fa-solid fa-circle-user icon" data-bind="visible: role === 'user'"></span>
+                                <span data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                            </div>
                             <!-- <div class="copy-text">
                                             <button data-bind="click: () => { $parent.copyText(content); }">Copy</button>
                                         </div> -->
@@ -198,7 +203,10 @@
 
                         <!-- ko if: isLoading() && !isPalmEnabled() -->
                         <div class="gpt message padded" >
-                            <span class="label">GPT</span>
+                            <div class="label">
+                                <span class="fa-solid fa-robot icon"></span>
+                                <span>GPT</span>
+                            </div>
                             <span  data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
                         </div>
                         <!-- /ko -->

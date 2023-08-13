@@ -44,7 +44,7 @@ export function AppViewModel() {
         localStorage.getItem('selectedAutoSaveOption') || true,
     );
 
-    self.selectedDallEImageCount = ko.observable(localStorage.getItem('selectedAutoSaveOption') || '4');
+    self.selectedDallEImageCount = ko.observable(localStorage.getItem('selectedImageCountOption') || '4');
     self.selectedDallEImageResolution = ko.observable(localStorage.getItem('selectedImageResolutionOption') || '256x256');
 
     hljs.configure({ ignoreUnescapedHTML: true });
