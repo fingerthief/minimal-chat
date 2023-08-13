@@ -166,7 +166,7 @@ export function AppViewModel() {
         }
 
         this.style.height = 'auto';
-        this.style.height = `${this.scrollHeight}px`;
+        this.style.height = `${this.scrollHeight - 15}px`;
     }
 
     if (!localStorage.getItem('selectedModel')) {
@@ -306,6 +306,11 @@ export function AppViewModel() {
     hotkeys('ctrl+shift+i', function (event, handler) {
         event.preventDefault();
         self.clearMessages();
+    });
+
+    hotkeys('ctrl+shift+f', function (event, handler) {
+        event.preventDefault();
+        self.showSearchField();
     });
 
     userInput.addEventListener('keypress', (event) => {
