@@ -37,7 +37,7 @@ On Android the process is basically the same except the name of the option is **
 - Auto Save New Conversations Option
 - PWA Support
 
-### Swipe Gestures
+### Mobile Swipe Gestures
 
 - Swipe to the **Left** on the bottom input box and your **Conversations** dialog will appear.
 - Swipe to the **Right** on the bottom input box and your **Settings** dialog will appear.
