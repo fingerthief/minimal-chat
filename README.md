@@ -47,6 +47,7 @@ On Android the process is basically the same except the name of the option is **
 - `Control + Shift + m` Opens the  conversations dialog
 - `Control + Shift + s` Opens the settings dialog
 - `Control + Shift + i` Starts a new conversation
+- `Control + Shift + f` Activates search within the conversation
 
 ### Minimal chat layout
 
