@@ -153,8 +153,12 @@
                         <!-- ko foreach: filteredMessages -->
                         <div 
                             data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <span class="label" data-bind="text: role === 'user' ? 'Me' : 'GPT'"></span>
-                            <span id="message-contents"   data-bind="html: $parent.formatMessage(content, false)"></span>
+                            <div class="label">
+                                <span class="fa-solid fa-robot icon" data-bind="visible: role !== 'user'"></span>
+                                <span class="fa-solid fa-circle-user icon" data-bind="visible: role === 'user'"></span>
+                                <span  data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 ? 'GPT' : 'PaLM'"></span>
+                            </div>
+                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
                         <!-- /ko -->
 
@@ -163,8 +167,7 @@
                         <!-- ko foreach: messages()-->
                         <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
                         
-                        <div  
-                            data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                        <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                             <div class="label">
                                 <span class="fa-solid fa-robot icon" data-bind="visible: role !== 'user'"></span>
                                 <span class="fa-solid fa-circle-user icon" data-bind="visible: role === 'user'"></span>
@@ -184,8 +187,12 @@
                         <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
                         <div  
                             data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <span class="label" data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
-                            <span  id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                            <div class="label">
+                                <span class="fa-solid fa-robot icon" data-bind="visible: role !== 'user'"></span>
+                                <span class="fa-solid fa-circle-user icon" data-bind="visible: role === 'user'"></span>
+                                <span data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
+                            </div>
+                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
                         <!-- /ko -->
                         <!-- /ko -->
@@ -203,7 +210,10 @@
 
                         <!-- ko if: isLoading() && isPalmEnabled() -->
                         <div class="gpt message padded" > 
-                            <span class="label">PaLM</span>
+                            <div class="label">
+                                <span class="fa-solid fa-robot icon"></span>
+                                <span>PaLM</span>
+                            </div>
                             <span data-bind="text: 'Generating response '"></span>
                             <span class="loading spinner"></span>
                         </div>
@@ -211,7 +221,10 @@
 
                         <!-- ko if: isGeneratingImage -->
                         <div class="gpt message padded">
-                            <span class="label">DALL-E</span>
+                            <div class="label">
+                                <span class="fa-solid fa-robot icon"></span>
+                                <span>DALL-E</span>
+                            </div>
                             <span data-bind="text: 'Generating Image, this might take a minute.'"></span><span
                                 class="loading spinner"></span>
                         </div>
