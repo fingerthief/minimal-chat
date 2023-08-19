@@ -265,11 +265,11 @@ button {
 
 .message {
     position: relative;
-    padding-left: 16px;
-    padding-right: 16px;
-    border-radius: 25px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 8px;
     max-width: 85%;
-    min-width: 5%;
+    min-width: 8%;
     margin-bottom: 8px;
     clear: both;
     margin-top: 18px;
@@ -307,8 +307,8 @@ button {
 
     .label {
         position: absolute;
-        top: -21px;
-        font-size: 15px;
+        top: -15px;
+        font-size: 13px;
         min-width: 62px;
         font-weight: bold;
         padding: 2px 5px;
@@ -326,12 +326,15 @@ button {
         margin-top: 40px;
 
         .label {
+            border-radius: 8px;
+            border-right: 6px solid #614a63;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
             background-color: #473253;
-            border-radius: 20px;
             margin-top: -20px;
             overflow: hidden;
-            right: -10px;
-            min-width: 62px;
+            right: -6px;
+            min-width: 50px;
             padding: 6px;
         }
     }
@@ -353,12 +356,16 @@ button {
         }
 
         .label {
+            border-left: 6px solid #6a576c;
             background-color: #433944;
             left: 0px;
-            border-radius: 20px;
+            border-radius: 8px;    
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
             margin-top: -20px;
-            left: -10px;
+            left: -6px;
             padding: 6px;
+            min-width: 54px;
         }
     }
 }
