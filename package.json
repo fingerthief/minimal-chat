@@ -1,6 +1,6 @@
 {
   "name": "gpt-chat-bot",
-  "version": "3.2.5",
+  "version": "3.3.0",
   "description": "**MinimalGPT** is an open-source GPT chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT chat when the user sends a message and when a user saves a conversation to generate a conversation title.",
   "main": "index.js",
   "scripts": {

@@ -480,7 +480,19 @@ export function AppViewModel() {
     self.palmMessages = [];
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
-        //appBody.focus();
+
+        // if (messageText.toLowerCase().startsWith("weather::")) {
+        //     self.userInput("");
+        //     userInput.style.height = '30px';
+
+        //     self.messages.push({ role: 'user', content:  messageText});
+
+        //     self.messages.push({ role: 'assistant', content: `<br><div><iframe src="https://personalizedweather.onrender.com/" width="600" height="500"></iframe></div><br>`});
+
+        //     self.saveMessages();
+        //     this.scrollToBottom();
+        //     return;
+        // }
 
         if (self.selectedModel().indexOf("bison") !== -1) {
             self.userInput("");

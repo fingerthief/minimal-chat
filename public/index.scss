@@ -268,11 +268,18 @@ button {
     padding-left: 16px;
     padding-right: 16px;
     border-radius: 25px;
-    max-width: 74%;
+    max-width: 85%;
     min-width: 5%;
     margin-bottom: 8px;
     clear: both;
     margin-top: 18px;
+    font-size: 0.95em;
+    line-height: 1.5;
+
+    // &::before {
+    //     width: 3vw;
+    //     background-color: $icon-color;
+    // }
 
     .copy-text {
         position: relative;
@@ -300,9 +307,9 @@ button {
 
     .label {
         position: absolute;
-        top: -18px;
-        font-size: 12px;
-        min-width: 45px;
+        top: -21px;
+        font-size: 15px;
+        min-width: 62px;
         font-weight: bold;
         padding: 2px 5px;
         border-radius: 5px;
@@ -313,23 +320,19 @@ button {
         background-color: #473253;
         color: #fff;
 
+        border-right: 6px solid #614a63;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        margin-top: 40px;
+
         .label {
             background-color: #473253;
-            right: 0px;
             border-radius: 20px;
-            margin-top: -10px;
-            min-width: 45px;
+            margin-top: -20px;
+            overflow: hidden;
+            right: -10px;
+            min-width: 62px;
             padding: 6px;
-        }
-
-        &::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: -5px;
-            border-width: 5px 0 0 5px;
-            border-style: solid;
-            border-color: transparent #0077ff;
         }
     }
 
@@ -337,6 +340,11 @@ button {
         float: left;
         background-color: #433944;
         color: #f0f0f0;
+
+        border-left: 6px solid #6a576c;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        margin-top: 40px;
 
     p {
 
@@ -348,18 +356,9 @@ button {
             background-color: #433944;
             left: 0px;
             border-radius: 20px;
-            margin-top: -10px;
+            margin-top: -20px;
+            left: -10px;
             padding: 6px;
-        }
-
-        &::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -5px;
-            border-width: 5px 5px 0 0;
-            border-style: solid;
-            border-color: transparent #444;
         }
     }
 }
