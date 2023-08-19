@@ -8,7 +8,8 @@
     "scss-build": "sass ./index.scss ./styles/site.css",
     "build": "gulp",
     "publish": "npm run scss-build && npm run build && firebase deploy",
-    "publish-beta": "npm run scss-build && npm run build && firebase hosting:channel:deploy beta"
+    "publish-beta": "npm run scss-build && npm run build && firebase hosting:channel:deploy beta",
+    "publish-all": "npm run scss-build && npm run build && firebase hosting:channel:deploy beta && firebase deploy"
   },
   "author": "",
   "license": "ISC",
