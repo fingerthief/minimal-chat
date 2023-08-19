@@ -314,9 +314,6 @@ export function AppViewModel() {
     });
 
     userInput.addEventListener('keypress', (event) => {
-
-        console.log(event);
-
         if (event.key === 'Enter' && event.shiftKey) {
             event.preventDefault(); // Prevent the default behavior of the Enter key
             self.userInput(self.userInput() + " \n");
@@ -373,12 +370,8 @@ export function AppViewModel() {
             return conversation.id === parseInt(self.lastLoadedConversationId());
         });
 
-        console.log("removing index " + conversationIndex);
-        console.log(self.storedConversations());
-
         self.storedConversations().splice(conversationIndex, 1);
         self.storedConversations.valueHasMutated();
-        console.log(self.storedConversations());
 
         localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
         self.storedConversations(loadStoredConversations());
