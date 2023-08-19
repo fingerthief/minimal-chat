@@ -51,29 +51,30 @@ On Android the process is basically the same except the name of the option is **
 
 ### Minimal chat layout
 
-![Screenshot 2023-07-23 at 11-45-06 MinimalGPT](https://github.com/fingerthief/minimal-gpt/assets/2380471/f9ef7f23-2e20-4939-933b-855ae2e44502)
+![main](https://github.com/fingerthief/minimal-gpt/assets/2380471/da778a1d-ee39-4488-926b-9f2c414e699f)
 
 ### Local Conversation Saving and Conversation Importing/Exporting Via File
 
-![import-export](https://github.com/fingerthief/minimal-gpt/assets/2380471/12f78b86-512d-484a-91b2-21a50b0f455c)
+![convos](https://github.com/fingerthief/minimal-gpt/assets/2380471/20908247-806b-4f3b-b4fc-75e980735098)
 
 ### Conversation search
 
-![Screenshot 2023-07-23 114733](https://github.com/fingerthief/minimal-gpt/assets/2380471/27b23efd-b93a-417c-b8a3-929378c49908)
+![convos](https://github.com/fingerthief/minimal-gpt/assets/2380471/ea2c388f-82f7-4fed-85ba-93a6f89cf74b)
 
 ### Google PaLM 2 Model Support
 
-![palm_small](https://github.com/fingerthief/minimal-gpt/assets/2380471/55eaabac-7125-4266-9188-b357034c74e9)
+![Screenshot 2023-08-18 202911](https://github.com/fingerthief/minimal-gpt/assets/2380471/df224a22-8498-40be-9bb0-dce27f3ef2d1)
 
 ### DALL-E Integration
 
-![Screenshot 2023-07-23 115242](https://github.com/fingerthief/minimal-gpt/assets/2380471/4231d9aa-771a-481f-b3f3-b6e4b9879d8e)
+![Web capture_18-8-2023_203422_192 168 0 7](https://github.com/fingerthief/minimal-gpt/assets/2380471/384e67f0-a9f1-4c64-9dab-8321492c763b)
 
 ### Settings
 
-![settings](https://github.com/fingerthief/minimal-gpt/assets/2380471/aa55a67c-043a-442e-ac43-76022994f4d1)
+![Web capture_18-8-2023_20368_192 168 0 7](https://github.com/fingerthief/minimal-gpt/assets/2380471/f0147371-5096-40e7-a28d-8ac8d9294d2a)
 
 ## Run Web App Locally
+
 
 To run the web app locally, you'll need `NodeJS` installed so NPM is available. Then, navigate to the project directory in VSCode and run the following commands:
 
