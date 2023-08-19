@@ -1,16 +1,16 @@
 import {
     wrapCodeSnippets,
     getConversationTitleFromGPT
-} from './utils.js';
+} from '../js/utils-90639eefc0.js';
 import {
     loadConversationTitles,
     loadStoredConversations,
     generateDALLEImage
-} from './storage.js';
+} from '../js/storage-9774ccdfa3.js';
 import {
     fetchPalmResponse,
     fetchPalmConversationTitle
-} from './palm-api-access.js';
+} from '../js/palm-api-access-e290107082.js';
 
 import "../node_modules/swiped-events/dist/swiped-events.min.js";
 
