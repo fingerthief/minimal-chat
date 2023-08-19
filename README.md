@@ -59,7 +59,7 @@ On Android the process is basically the same except the name of the option is **
 
 ### Conversation search
 
-![convos](https://github.com/fingerthief/minimal-gpt/assets/2380471/ea2c388f-82f7-4fed-85ba-93a6f89cf74b)
+![Screenshot 2023-08-18 202911](https://github.com/fingerthief/minimal-gpt/assets/2380471/98f23214-c2fc-4bbd-87c9-91c894934b0f)
 
 ### Google PaLM 2 Model Support
 
