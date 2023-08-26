@@ -4,6 +4,9 @@ import newer from 'gulp-newer';
 import rev from 'gulp-rev';
 import revReplace from 'gulp-rev-replace';
 import rename from 'gulp-rename';
+import uglify from 'gulp-uglify';
+import cleanCSS from 'gulp-clean-css';
+import htmlmin from 'gulp-htmlmin';
 
 // Array of source files to be processed by gulp
 const srcFiles = [
@@ -13,12 +16,11 @@ const srcFiles = [
   './js/**/*',
   './images/**/*',
   './index.html',
-  './index.scss',
   './index.js',
   './manifest.webmanifest',
-  '!./node_modules/**/*',
   '!./webfonts/**',
-  '!./images/**'
+  '!./images/**',
+  '!./node_modules/**/*',
 ];
 
 // Directories to be used later
@@ -88,5 +90,53 @@ gulp.task('rename-index', function() {
     .pipe(gulp.dest(dest));
 });
 
+//delete hash named index file
+gulp.task('delete-hash-index', async () => {
+  return await del([dest + '/index-*.html'], { force: true });
+});
+
+// Task to minify JavaScript files
+gulp.task('minify-js', function() {
+  return gulp.src(dest + '/js/**/*.js') // Source of JavaScript files
+    .pipe(uglify()) // Apply uglify for minification
+    .pipe(gulp.dest(dest + '/js')); // Output directory
+});
+
+// Task to minify CSS files
+gulp.task('minify-css', function() {
+  return gulp.src(dest + '/styles/**/*.css') // Source of CSS files
+    .pipe(cleanCSS()) // Apply cleanCSS for minification
+    .pipe(gulp.dest(dest + '/styles')); // Output directory
+});
+
+// Task to minify HTML files
+gulp.task('minify-html', function() {
+  return gulp.src(dest + '/*.html') // Source of HTML files
+    .pipe(htmlmin({ collapseWhitespace: true })) // Apply htmlmin for minification
+    .pipe(gulp.dest(dest)); // Output directory
+});
+
+// gulp.task('rollup', function() {
+//   return gulp.src('./**/*.js')
+//     .pipe(sourcemaps.init())
+//     .pipe(rollup({
+//       // any option supported by Rollup can be set here, including sourceMap
+//       input: './src/main.js',
+//       output: {
+//         format: 'umd'
+//       },
+//       plugins: [
+//         babel({
+//           exclude: 'node_modules/**', // only transpile our source code
+//           presets: ['@babel/env']
+//         }),
+//         resolve(),
+//         commonjs()
+//       ]
+//     }))
+//     .pipe(sourcemaps.write('.'))
+//     .pipe(gulp.dest(dest + '/js'));
+// });
+
 // The 'default' task runs all the tasks in the specified order
-gulp.task('default', gulp.series('import-del', 'clean', 'copy', 'revReplace', 'copy_modules', 'copy-fonts', 'copy-images', 'rename-index'));
+gulp.task('default', gulp.series('import-del', 'clean', 'copy', 'minify-js', 'minify-css', 'minify-html', 'revReplace', 'copy_modules', 'copy-fonts', 'copy-images', 'rename-index', 'delete-hash-index'));
