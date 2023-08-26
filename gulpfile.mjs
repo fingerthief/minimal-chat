@@ -7,6 +7,14 @@ import rename from 'gulp-rename';
 import uglify from 'gulp-uglify';
 import cleanCSS from 'gulp-clean-css';
 import htmlmin from 'gulp-htmlmin';
+import htmlclean from 'gulp-htmlclean';
+import cheerio from 'gulp-cheerio';
+import replace from 'gulp-replace';
+
+import rollupEach from 'gulp-rollup-each';
+import rollupBabel from '@rollup/plugin-babel';
+import rollupResolve from '@rollup/plugin-node-resolve';
+import rollupCommonjs from '@rollup/plugin-commonjs';
 
 // Array of source files to be processed by gulp
 const srcFiles = [
@@ -73,9 +81,9 @@ gulp.task('copy-fonts', function(){
 
 // Task to copy images directory to public directory
 gulp.task('copy-images', function(){
-  return gulp.src("./images")
-      .pipe(newer(dest + "/images"))
-      .pipe(gulp.dest(dest + "/images"));
+  return gulp.src("./images/**")
+      .pipe(newer(dest + "/images/**"))
+      .pipe(gulp.dest(dest + "/images/"));
 });
 
 // 'clean' task deletes all files in the 'public' directory, excluding webfonts. images and node_modules directories
@@ -97,9 +105,9 @@ gulp.task('delete-hash-index', async () => {
 
 // Task to minify JavaScript files
 gulp.task('minify-js', function() {
-  return gulp.src(dest + '/js/**/*.js') // Source of JavaScript files
+  return gulp.src(dest + '/*.js') // Source of JavaScript files
     .pipe(uglify()) // Apply uglify for minification
-    .pipe(gulp.dest(dest + '/js')); // Output directory
+    .pipe(gulp.dest(dest + '/')); // Output directory
 });
 
 // Task to minify CSS files
@@ -116,27 +124,51 @@ gulp.task('minify-html', function() {
     .pipe(gulp.dest(dest)); // Output directory
 });
 
-// gulp.task('rollup', function() {
-//   return gulp.src('./**/*.js')
-//     .pipe(sourcemaps.init())
-//     .pipe(rollup({
-//       // any option supported by Rollup can be set here, including sourceMap
-//       input: './src/main.js',
-//       output: {
-//         format: 'umd'
-//       },
-//       plugins: [
-//         babel({
-//           exclude: 'node_modules/**', // only transpile our source code
-//           presets: ['@babel/env']
-//         }),
-//         resolve(),
-//         commonjs()
-//       ]
-//     }))
-//     .pipe(sourcemaps.write('.'))
-//     .pipe(gulp.dest(dest + '/js'));
-// });
+gulp.task('rollup', function() {
+  return gulp.src(dest + '/index-*.js') // Source of JavaScript files
+    .pipe(rollupEach({
+      plugins: [
+        rollupBabel({
+          presets: ['@babel/preset-env']
+        }),
+        rollupResolve(),
+        rollupCommonjs()
+      ]
+    }, {
+      format: 'umd',
+      name: 'MyModule'
+    }))
+    .pipe(gulp.dest(dest + '/')); // Output directory
+    
+});
+
+gulp.task('delete-duplicate-images-folder', async () => {
+    await del(dest + '/images/**');
+});
+
+gulp.task('finalize-files', async () => {
+  return await del([dest + '/**/*', '!' + dest, , '!' + dest + '/webfonts/**', '!' + dest + '/images', '!' + dest + '/index-*.js', '!' + dest + '/index.html',
+  '!' + dest + '/manifest-*.webmanifest', '!' + dest + '/styles/**'], { force: true });
+});
+
+
+gulp.task('clean-html', function() {
+  var firstScript = true;
+  return gulp.src(dest + '/index.html')
+    .pipe(cheerio({
+      run: function($, file) {
+        $('script[type="module"]').each(function() {
+            if (firstScript) {
+              firstScript = false;
+            } else {
+              $(this).remove();
+            }
+          
+        });
+      },
+    }))
+    .pipe(gulp.dest(dest + '/'));
+});
 
 // The 'default' task runs all the tasks in the specified order
-gulp.task('default', gulp.series('import-del', 'clean', 'copy', 'minify-js', 'minify-css', 'minify-html', 'revReplace', 'copy_modules', 'copy-fonts', 'copy-images', 'rename-index', 'delete-hash-index'));
+gulp.task('default', gulp.series('import-del', 'clean', 'copy', 'revReplace', 'copy_modules', 'copy-fonts', 'rollup',  'copy-images', 'minify-js', 'minify-css', 'minify-html', 'rename-index', 'delete-hash-index', 'clean-html', 'finalize-files'));
