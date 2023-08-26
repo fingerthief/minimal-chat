@@ -107,4 +107,4 @@ database.rules.json
 gtag.txt
 
 node_modules/**
-public/**
+public/
