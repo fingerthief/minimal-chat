@@ -98,10 +98,6 @@ export function AppViewModel() {
 
     };
 
-    const userSearchInput = document.getElementById("user-search-input");
-    userSearchInput.addEventListener('input', autoResize);
-    userSearchInput.addEventListener('focus', autoResize);
-
     const floatinSearchField = document.getElementById('floating-search-field');
     floatinSearchField.addEventListener('transitionend', zIndexAfterTransition)
 
@@ -136,14 +132,13 @@ export function AppViewModel() {
     });
 
     let blurTimeout;
-
-    userSearchInput.addEventListener('blur', function (event) {
+    self.onUserSearchBlur = function (event) {
         clearTimeout(blurTimeout);
         blurTimeout = setTimeout(function () {
             // Your blur event logic here
             self.showSearchField();
         }, 200);
-    });
+    }
 
     function zIndexAfterTransition() {
         if (!self.showingSearchField()) {
@@ -154,11 +149,11 @@ export function AppViewModel() {
     const appBody = document.getElementById('app-container');
 
     const userInput = document.getElementById('user-input');
-    userInput.addEventListener('input', autoResize);
-    userInput.addEventListener('focus', autoResize);
-    userInput.addEventListener('blur', autoResize);
+    userInput.addEventListener('input', self.autoResize);
+    userInput.addEventListener('focus', self.autoResize);
+    userInput.addEventListener('blur', self.autoResize);
 
-    function autoResize() {
+    self.autoResize = function () {
         if (!self.userInput() || self.userInput().trim() === "") {
 
             this.style.height = '30px';
@@ -351,7 +346,7 @@ export function AppViewModel() {
 
         if (!self.showingSearchField()) {
             floatinSearchField.style.zIndex = '9999';
-            userSearchInput.focus();
+            //userSearchInput.focus();
         }
 
         self.showingSearchField(!self.showingSearchField());

@@ -14,15 +14,6 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <title>MinimalGPT</title>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-R42YRRG1Y1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    gtag('config', 'G-R42YRRG1Y1');
-</script>
 
 <body class="app-body">
     <div id="fileUploadDiv">
@@ -35,7 +26,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V3.3.2</h2>
+                    Settings | V3.3.3</h2>
             </div>
             <div class="sidebar-content-container">
                 <div class="api-key">
@@ -60,7 +51,6 @@
                         <option value="8">8</option>
                         <option value="9">9</option>
                         <option value="10">10</option>
-            
                     </select>
                 </div>
                 <div class="control">
@@ -157,87 +147,82 @@
                         <div class="floating-search-field" id="floating-search-field"
                             data-bind="css: showingSearchField() ? 'show' : ''">
                             <textarea id="user-search-input" class="search-input-text" rows="1" placeholder=""
-                                data-bind="textInput: userSearchInput"></textarea>
+                                data-bind="textInput: userSearchInput(), event: { input: autoResize, focus: autoResize, blur: onUserSearchBlur }"></textarea>
                         </div>
-                        <!-- ko foreach: filteredMessages -->
-                        <div 
-                            data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <div class="label">
-                                <span class="fa-solid fa-robot icon fa-lg" data-bind="visible: role !== 'user'"></span>
-                                <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
-                                <span  data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 ? 'GPT' : 'PaLM'"></span>
-                            </div>
-                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
-                        </div>
-                        <!-- /ko -->
 
-
-                        <!-- ko ifnot: selectedModel().indexOf('bison') !== -1 -->
-                        <!-- ko foreach: messages()-->
-                        <!-- ko if:  $parent.userSearchInput().trim().length === 0-->
-                        
-                        <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <div class="label">
-                                <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>
-                                <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
-                                <span data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                        <div data-bind="foreach: filteredMessages">
+                            <div data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                                <div class="label">
+                                    <span class="fa-solid fa-robot icon fa-lg" data-bind="visible: role !== 'user'"></span>
+                                    <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
+                                    <span
+                                        data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 ? 'GPT' : 'PaLM'"></span>
+                                </div>
+                                <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                             </div>
-                            <!-- <div class="copy-text">
-                                            <button data-bind="click: () => { $parent.copyText(content); }">Copy</button>
-                                        </div> -->
-                            <span id="message-contents" data-bind="html: content.toLowerCase().includes('https://personalizedweather.onrender.com/') ? content : $parent.formatMessage(content, false)"></span>
                         </div>
-                        <!-- /ko -->
-                        <!-- /ko -->
-                        <!-- /ko -->
 
-                        <!-- ko if: selectedModel().indexOf('bison') !== -1 -->
-                        <!-- ko foreach: messages() -->
-                        <!-- ko if:  $parent.userSearchInput().trim().length === 0 -->
-                        <div  
-                            data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                            <div class="label">
-                                <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>
-                                <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
-                                <span data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
+                        <div data-bind="ifnot: selectedModel().indexOf('bison') !== -1">
+                            <div data-bind="foreach: messages()">
+                                <div data-bind="if: $parent.userSearchInput().trim().length === 0">
+                                    <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                                        <div class="label">
+                                            <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>
+                                            <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
+                                            <span data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
+                                        </div>
+                                        <span id="message-contents" data-bind="html: content.toLowerCase().includes('https://personalizedweather.onrender.com/') ? content : $parent.formatMessage(content, false)"></span>
+                                    </div>
+                                </div>
                             </div>
-                            <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                         </div>
-                        <!-- /ko -->
-                        <!-- /ko -->
-                        <!-- /ko -->
 
-                        <!-- ko if: isLoading() && !isPalmEnabled() -->
-                        <div class="gpt message padded" >
-                            <div class="label">
-                                <span class="fa-solid fa-robot fa-lg icon"></span>
-                                <span>GPT</span>
+                        <div data-bind="if: selectedModel().indexOf('bison') !== -1">
+                            <div data-bind="foreach: messages()">
+                                <div data-bind="if: $parent.userSearchInput().trim().length === 0">
+                                    <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                                        <div class="label">
+                                            <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>
+                                            <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
+                                            <span data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
+                                        </div>
+                                        <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
+                                    </div>
+                                </div>
                             </div>
-                            <span  data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
                         </div>
-                        <!-- /ko -->
 
-                        <!-- ko if: isLoading() && isPalmEnabled() -->
-                        <div class="gpt message padded" > 
-                            <div class="label">
-                                <span class="fa-solid fa-robot fa-lg icon"></span>
-                                <span>PaLM</span>
+                        <div data-bind="if: isLoading() && !isPalmEnabled()">
+                            <div class="gpt message padded" >
+                                <div class="label">
+                                    <span class="fa-solid fa-robot fa-lg icon"></span>
+                                    <span>GPT</span>
+                                </div>
+                                <span  data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
                             </div>
-                            <span data-bind="text: 'Generating response '"></span>
-                            <span class="loading spinner"></span>
                         </div>
-                        <!-- /ko -->
 
-                        <!-- ko if: isGeneratingImage -->
-                        <div class="gpt message padded">
-                            <div class="label">
-                                <span class="fa-solid fa-robot fa-lg icon"></span>
-                                <span>DALL-E</span>
+                        <div data-bind="if: isLoading() && isPalmEnabled()">
+                            <div class="gpt message padded">
+                                <div class="label">
+                                    <span class="fa-solid fa-robot fa-lg icon"></span>
+                                    <span>PaLM</span>
+                                </div>
+                                <span data-bind="text: 'Generating response '"></span>
+                                <span class="loading spinner"></span>
                             </div>
-                            <span data-bind="text: 'Generating Image, this might take a minute.'"></span><span
-                                class="loading spinner"></span>
                         </div>
-                        <!-- /ko -->
+
+                        <div data-bind="if: isGeneratingImage">
+                            <div class="gpt message padded">
+                                <div class="label">
+                                    <span class="fa-solid fa-robot fa-lg icon"></span>
+                                    <span>DALL-E</span>
+                                </div>
+                                <span data-bind="text: 'Generating Image, this might take a minute.'"></span>
+                                <span class="loading spinner"></span>
+                            </div>
+                        </div>
 
                         <div class="floating-button scroll" id="scroll-button"
                             data-bind="click: scrollToBottom(), css: shouldShowScrollButton() === true ? 'show' : ''">
