@@ -42,6 +42,8 @@ export async function generateDALLEImage(conversation) {
     try {
         const response = await fetch("https://api.openai.com/v1/images/generations", {
             method: "POST",
+            model: "dall-e-3",
+            quality: "hd",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
