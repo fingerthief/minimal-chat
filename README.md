@@ -23,13 +23,13 @@ On Android the process is basically the same except the name of the option is **
 ## Features
 
 - Minimal chat layout
-- OpenAI GPT 3.5 and GPT 4 Support
+- OpenAI GPT 3.5, GPT 4, GPT-4-Turbo Support
 - Google PaLM 2 Support
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
 - Code Syntax Highlighting
-- Basic DALL-E Integration (Prefix GPT model messages with **image::** and then your description to generate images)
+- Basic DALL-E 3 Integration (Prefix GPT model messages with **image::** and then your description to generate images)
 - Conversation message search
 - Conversation Importing/Exporting
 - Customizable settings
