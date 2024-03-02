@@ -24,6 +24,7 @@ On Android the process is basically the same except the name of the option is **
 
 - Minimal chat layout
 - OpenAI GPT 3.5, GPT 4, GPT-4-Turbo Support
+- GPT-Vision activated by starting a message with **vision::** and then your prompt
 - Google PaLM 2 Support
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
