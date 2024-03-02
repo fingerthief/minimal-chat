@@ -516,7 +516,7 @@ export function AppViewModel() {
                         content: visionFormattedMessages
                     }
                 ],
-                max_tokens: 1200
+                max_tokens: 4096
             };
 
             fetch("https://api.openai.com/v1/chat/completions", {
@@ -532,7 +532,6 @@ export function AppViewModel() {
                     self.messages.push({ role: 'assistant', content: data.choices[0].message.content });
 
                     self.saveMessages();
-                    self.scrollToBottom();
                     self.isAnalyzingImage(false);
                 })
                 .catch(error => console.error('Error:', error));
