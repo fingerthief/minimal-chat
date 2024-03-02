@@ -31,6 +31,7 @@
     <div id="fileUploadDiv">
         <input type="file" id="fileUpload" style="display: none;" data-bind="event: { change: uploadFile }">
         <div data-bind="click: openFileSelector" style="display: none;">Upload File</div>
+        <input id="imageInput" data-bind="visible: false;" type="file">
     </div>
     <div class="app-container" id="app-container">
         <div class="sidebar box" id="settings-dialog" data-bind="css: { open: isSidebarOpen }">
@@ -38,7 +39,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V3.3.6</h2>
+                    Settings | V3.4.0</h2>
             </div>
             <div class="sidebar-content-container">
                 <div class="api-key">
@@ -234,6 +235,17 @@
                                     <span>DALL-E</span>
                                 </div>
                                 <span data-bind="text: 'Generating Image, this might take a minute.'"></span>
+                                <span class="loading spinner"></span>
+                            </div>
+                        </div>
+
+                        <div data-bind="if: isAnalyzingImage">
+                            <div class="gpt message padded">
+                                <div class="label">
+                                    <span class="fa-solid fa-robot fa-lg icon"></span>
+                                    <span>GPT Vision</span>
+                                </div>
+                                <span data-bind="text: 'Analyzing Image, this might take a minute.'"></span>
                                 <span class="loading spinner"></span>
                             </div>
                         </div>

@@ -26,6 +26,7 @@ export function AppViewModel() {
     self.shouldShowScrollButton = ko.observable(false);
     self.messages = ko.observableArray([]);
     self.isLoading = ko.observable(false);
+    self.isAnalyzingImage = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.palmSliderValue = ko.observable(localStorage.getItem('palm-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
@@ -98,17 +99,16 @@ export function AppViewModel() {
 
     };
 
-    const floatinSearchField = document.getElementById('floating-search-field');
-    floatinSearchField.addEventListener('transitionend', zIndexAfterTransition)
+    const floatingSearchField = document.getElementById('floating-search-field');
+    floatingSearchField.addEventListener('transitionend', zIndexAfterTransition)
 
-    floatinSearchField.style.zIndex = '-9999';
+    floatingSearchField.style.zIndex = '-9999';
 
     const apiKey = document.getElementById('api-key');
     apiKey.value = localStorage.getItem("gptKey");
 
     apiKey.addEventListener("blur", () => {
-        if (apiKey.value.trim() !== "")
-        {
+        if (apiKey.value.trim() !== "") {
             localStorage.setItem("gptKey", apiKey.value.trim());
         }
     });
@@ -117,8 +117,7 @@ export function AppViewModel() {
     palmApiKey.value = localStorage.getItem("palmKey");
 
     palmApiKey.addEventListener("blur", () => {
-        if (palmApiKey.value.trim() !== "")
-        {
+        if (palmApiKey.value.trim() !== "") {
             localStorage.setItem("palmKey", palmApiKey.value.trim());
         }
     });
@@ -234,13 +233,13 @@ export function AppViewModel() {
     });
 
     self.onShowConversationsClick = async function () {
-            self.showConversationOptions(!self.showConversationOptions());
+        self.showConversationOptions(!self.showConversationOptions());
     };
 
     document.addEventListener('click', (event) => {
         if (
             !event.target.closest('.sidebar') &&
-            !event.target.closest('.settings-btn') &&  !event.target.closest('.saved-conversations-dropdown')
+            !event.target.closest('.settings-btn') && !event.target.closest('.saved-conversations-dropdown')
         ) {
             self.isSidebarOpen(false);
             self.showConversationOptions(false);
@@ -279,12 +278,12 @@ export function AppViewModel() {
             }
         }
     };
-    
+
     messagesContainer.addEventListener('scroll', self.updateScrollButtonVisibility);
 
     function isScrollable(element) {
         return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
-    }  
+    }
 
     hotkeys('ctrl+shift+m', function (event, handler) {
         event.preventDefault();
@@ -345,7 +344,7 @@ export function AppViewModel() {
         clearTimeout(blurTimeout);
 
         if (!self.showingSearchField()) {
-            floatinSearchField.style.zIndex = '9999';
+            floatingSearchField.style.zIndex = '9999';
             //userSearchInput.focus();
         }
 
@@ -361,7 +360,7 @@ export function AppViewModel() {
 
         self.isProcessing(true);
 
-        const conversationIndex = self.storedConversations().findIndex(conversation => { 
+        const conversationIndex = self.storedConversations().findIndex(conversation => {
             return conversation.id === parseInt(self.lastLoadedConversationId());
         });
 
@@ -453,7 +452,7 @@ export function AppViewModel() {
             return self.streamedMessageText();
         } catch (error) {
 
-            if (retryCount < 5) {
+            if (retryCount < 50) {
                 retryCount++;
                 console.log("Retry Number: " + retryCount);
                 return await fetchGPTResponseStream(conversation, attitude, model);
@@ -465,22 +464,95 @@ export function AppViewModel() {
         }
     }
 
+
+
+    // Step 1: Add the encodeImage function
+    function encodeImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function analyzeImage(file) {
+        const storedApiKey = localStorage.getItem("gptKey");
+
+        encodeImage(file).then(base64Image => {
+            const apiKey = storedApiKey; // Ensure this is securely stored and used
+            let lastMessageContent = "";
+
+
+            let gptMessagesOnly = self.messages().filter(message => {
+                let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
+                lastMessageContent = message.content.trim().toLowerCase();
+                return isGPT;
+            });
+
+            let visionFormattedMessages = [];
+
+            for (let message of gptMessagesOnly) {
+                const visionFormattedMessage = 
+                    {
+                        type: "text",
+                        text: message.content
+                    }
+                ;
+
+                visionFormattedMessages.push(visionFormattedMessage);
+            }
+
+            visionFormattedMessages.push({
+                type: "image_url",
+                image_url: { url: base64Image }
+            })
+
+            const payload = {
+                model: "gpt-4-vision-preview",
+                messages: [
+                    {
+                        role: "user",
+                        content: visionFormattedMessages
+                    }
+                ],
+                max_tokens: 1200
+            };
+
+            fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    self.messages.push({ role: 'assistant', content: data.choices[0].message.content });
+
+                    self.saveMessages();
+                    self.scrollToBottom();
+                    self.isAnalyzingImage(false);
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    }
+
+    document.getElementById('imageInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            analyzeImage(file);
+        }
+    });
+
+
+
     self.palmMessages = [];
+    let lastMessageText;
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
-
-        // if (messageText.toLowerCase().startsWith("weather::")) {
-        //     self.userInput("");
-        //     userInput.style.height = '30px';
-
-        //     self.messages.push({ role: 'user', content:  messageText});
-
-        //     self.messages.push({ role: 'assistant', content: `<br><div><iframe src="https://personalizedweather.onrender.com/" width="600" height="500"></iframe></div><br>`});
-
-        //     self.saveMessages();
-        //     this.scrollToBottom();
-        //     return;
-        // }
+        lastMessageText = messageText;
 
         if (self.selectedModel().indexOf("bison") !== -1) {
             self.userInput("");
@@ -519,7 +591,7 @@ export function AppViewModel() {
             return;
         }
 
-        const imagePrompt =  self.userInput().trim();
+        const imagePrompt = self.userInput().trim();
 
         if (imagePrompt.toLowerCase().startsWith("image::")) {
             self.messages.push({ role: 'user', content: imagePrompt })
@@ -542,16 +614,28 @@ export function AppViewModel() {
             self.isGeneratingImage(false);
             return;
         }
-
-
+        
         self.messages.push({ role: 'user', content: messageText });
+
+        if (imagePrompt.toLowerCase().startsWith("vision::")) {
+            self.isAnalyzingImage(true);
+            document.getElementById('imageInput').click();
+
+            this.scrollToBottom();
+            
+            self.userInput("");
+            userInput.style.height = '30px';
+            return;
+        }
+
+
         this.scrollToBottom();
         self.userInput('');
 
         // Reset the user input field
         userInput.value = '';
         userInput.style.height = '30px';
-        
+
 
         self.streamedMessageText("");
         self.isLoading(true);
@@ -586,7 +670,7 @@ export function AppViewModel() {
         if (conversationIndex !== -1) {
             // Update the message history of the selected conversation
             self.storedConversations()[conversationIndex].conversation.messageHistory = savedMessages;
-        } 
+        }
         else {
             if (JSON.parse(self.selectedAutoSaveOption())) {
                 await this.saveNewConversations();
@@ -626,7 +710,7 @@ export function AppViewModel() {
             newConversation.conversationId = storedConversations.length - 1;
 
             if (self.lastLoadedConversationId() !== null) {
-                const conversationIndex = storedConversations.findIndex(conversation => { 
+                const conversationIndex = storedConversations.findIndex(conversation => {
                     return conversation.id === parseInt(self.lastLoadedConversationId());
                 });
                 // Update the existing conversation's messageHistory with the new values
@@ -645,8 +729,8 @@ export function AppViewModel() {
                     }
                 }
 
-                storedConversations[storedConversations.length] = { };
-                storedConversations[storedConversations.length - 1].id = highestId + 1; 
+                storedConversations[storedConversations.length] = {};
+                storedConversations[storedConversations.length - 1].id = highestId + 1;
                 storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle;
                 self.lastLoadedConversationId(highestId + 1);
             }
@@ -662,7 +746,7 @@ export function AppViewModel() {
         self.loadSelectedConversation();
     }
 
-    self.copyText = function(content) {
+    self.copyText = function (content) {
         navigator.clipboard.writeText(content);
     }
 
@@ -692,7 +776,7 @@ export function AppViewModel() {
             if (self.selectedAutoSaveOption() && self.lastLoadedConversationId() !== null) {
                 // Update the existing conversation's messageHistory with the new values
 
-                const conversationIndex = storedConversations.findIndex(conversation => { 
+                const conversationIndex = storedConversations.findIndex(conversation => {
                     return conversation.id === parseInt(self.lastLoadedConversationId());
                 });
 
@@ -711,9 +795,9 @@ export function AppViewModel() {
                     }
                 }
 
-                storedConversations[storedConversations.length] = { };
-                storedConversations[storedConversations.length - 1].id = highestId + 1; 
-                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle; 
+                storedConversations[storedConversations.length] = {};
+                storedConversations[storedConversations.length - 1].id = highestId + 1;
+                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle;
             }
 
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
@@ -727,7 +811,7 @@ export function AppViewModel() {
         self.messages([]);
         self.lastLoadedConversationId(null);
 
-        self.selectedConversation({ messageHistory: [], title: 'placeholder'});
+        self.selectedConversation({ messageHistory: [], title: 'placeholder' });
         self.isProcessing(false);
     };
 
@@ -798,7 +882,7 @@ export function AppViewModel() {
         self.downloadConversations("conversations.json", localStorage.getItem("gpt-conversations"))
     }
 
-    self.downloadConversations = function(filename, text) {
+    self.downloadConversations = function (filename, text) {
         let element = document.createElement('a');
 
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -815,8 +899,8 @@ export function AppViewModel() {
 
         if (localStorage.getItem("lastConversationId") !== "null") {
             self.lastLoadedConversationId(localStorage.getItem("lastConversationId"));
-                
-            const conversationIndex = self.conversations().findIndex(conversation => { 
+
+            const conversationIndex = self.conversations().findIndex(conversation => {
                 return conversation.id === parseInt(self.lastLoadedConversationId());
             });
 
