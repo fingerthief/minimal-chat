@@ -12,6 +12,8 @@ import {
     fetchPalmConversationTitle
 } from '../js/palm-api-access.js';
 
+import { fetchClaudeResponse, fetchClaudeConversationTitle } from '../js/claude-api-access.js';
+
 import "../node_modules/swiped-events/dist/swiped-events.min.js";
 
 const ko = window.ko;
@@ -29,12 +31,14 @@ export function AppViewModel() {
     self.isAnalyzingImage = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.palmSliderValue = ko.observable(localStorage.getItem('palm-attitude') || 50);
+    self.claudeSliderValue = ko.observable(localStorage.getItem('claude-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
     self.showConversationOptions = ko.observable(false);
     self.streamedMessageText = ko.observable();
     self.showingSearchField = ko.observable(false);
     self.filteredMessages = ko.observableArray([]);
     self.isPalmEnabled = ko.observable(false);
+    self.isClaudeEnabled = ko.observable(false);
     self.lastLoadedConversationId = ko.observable(null);
 
     self.selectedModel = ko.observable(
@@ -116,6 +120,15 @@ export function AppViewModel() {
     const palmApiKey = document.getElementById('palm-api-key');
     palmApiKey.value = localStorage.getItem("palmKey");
 
+    const claudeApiKey = document.getElementById('claude-api-key');
+    claudeApiKey.value = localStorage.getItem("claudeKey");
+
+    claudeApiKey.addEventListener("blur", () => {
+        if (claudeApiKey.value.trim() !== "") {
+            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
+        }
+    });
+
     palmApiKey.addEventListener("blur", () => {
         if (palmApiKey.value.trim() !== "") {
             localStorage.setItem("palmKey", palmApiKey.value.trim());
@@ -128,6 +141,10 @@ export function AppViewModel() {
 
     self.palmSliderValue.subscribe((attitude) => {
         localStorage.setItem("palm-attitude", attitude);
+    });
+
+    self.claudeSliderValue.subscribe((attitude) => {
+        localStorage.setItem("claude-attitude", attitude);
     });
 
     let blurTimeout;
@@ -217,6 +234,14 @@ export function AppViewModel() {
 
             for (const chatMessage of self.messages()) {
                 self.palmMessages.push({ content: chatMessage.content });
+            }
+        }
+
+        if (self.selectedModel() === "claude-3-opus-20240229") {
+            self.claudeMessages = [];
+
+            for (const chatMessage of self.messages()) {
+                self.claudeMessages.push({ role: chatMessage.role, content: chatMessage.content });
             }
         }
     });
@@ -377,6 +402,8 @@ export function AppViewModel() {
         self.isProcessing(false);
     };
 
+ 
+
 
     let retryCount = 0;
     async function fetchGPTResponseStream(conversation, attitude, model) {
@@ -464,8 +491,6 @@ export function AppViewModel() {
         }
     }
 
-
-
     // Step 1: Add the encodeImage function
     function encodeImage(file) {
         return new Promise((resolve, reject) => {
@@ -476,37 +501,53 @@ export function AppViewModel() {
         });
     }
 
-    function analyzeImage(file) {
-        const storedApiKey = localStorage.getItem("gptKey");
+    function getStringAfterComma(str) {
+        const [_, ...rest] = str.split(',');
+        return rest.join(',');
+    }
 
-        encodeImage(file).then(base64Image => {
-            const apiKey = storedApiKey; // Ensure this is securely stored and used
-            let lastMessageContent = "";
+    async function analyzeImage(file, fileType) {
+        const base64Image = await encodeImage(file);
 
+        let lastMessageContent = "";
 
-            let gptMessagesOnly = self.messages().filter(message => {
-                let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
-                lastMessageContent = message.content.trim().toLowerCase();
-                return isGPT;
-            });
+        let gptMessagesOnly = self.messages().filter(message => {
+            let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
+            lastMessageContent = message.content.trim().toLowerCase();
+            return isGPT;
+        });
 
-            let visionFormattedMessages = [];
+        self.userInput("");
+        userInput.style.height = '30px';
 
-            for (let message of gptMessagesOnly) {
-                const visionFormattedMessage = 
-                    {
-                        type: "text",
-                        text: message.content
-                    }
+        let storedApiKey = localStorage.getItem("claudeKey");
+
+        if (storedApiKey !== claudeApiKey.value.trim()) {
+            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
+            storedApiKey = claudeApiKey.value.trim();
+        }
+
+        const apiKey = storedApiKey; // Ensure this is securely stored and used
+
+        let visionFormattedMessages = [];
+
+        for (let message of gptMessagesOnly) {
+            const visionFormattedMessage =
+            {
+                type: "text",
+                text: message.content
+            }
                 ;
 
-                visionFormattedMessages.push(visionFormattedMessage);
-            }
+            visionFormattedMessages.push(visionFormattedMessage);
+        }
+
+        if (self.selectedModel().indexOf("gpt") !== -1) {
 
             visionFormattedMessages.push({
                 type: "image_url",
                 image_url: { url: base64Image }
-            })
+            });
 
             const payload = {
                 model: "gpt-4-vision-preview",
@@ -529,25 +570,78 @@ export function AppViewModel() {
             })
                 .then(response => response.json())
                 .then(data => {
-                    self.messages.push({ role: 'assistant', content: data.choices[0].message.content });
+                    addMessage("assistant", data.choices[0].message.content);
 
                     self.saveMessages();
                     self.isAnalyzingImage(false);
                 })
                 .catch(error => console.error('Error:', error));
-        });
+
+        }
+        else if (self.selectedModel().indexOf("claude") !== -1) {
+            visionFormattedMessages.push({
+                type: "image",
+                source: {
+                    "type": "base64",
+                    "media_type": fileType,
+                    "data": getStringAfterComma(base64Image)
+                }
+            });
+
+            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+                method: "POST",
+                headers: {
+                    "x-api-key": apiKey,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    max_tokens: 4096,
+                    stream: false,
+                    model: self.selectedModel(),
+                    messages: [
+                        {
+                            role: "user",
+                            content: visionFormattedMessages
+                        }
+                    ],
+                    temperature: 0.5
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.content && result.content.length > 0) {
+                addMessage("assistant", result.content[0].text);
+                self.claudeMessages.push({ role: "assistant", content: result.content[0].text })
+
+                self.saveMessages();
+                self.isAnalyzingImage(false);
+                self.scrollToBottom();
+            } else {
+                return "I'm sorry, I couldn't generate a response.";
+            }
+        }
+        else {
+            return "not implemented for selected model";
+        }
     }
 
-    document.getElementById('imageInput').addEventListener('change', function (event) {
+    document.getElementById('imageInput').addEventListener('change', async function (event) {
         const file = event.target.files[0];
+        const fileType = file.type;
         if (file) {
-            analyzeImage(file);
+            await analyzeImage(file, fileType);
         }
     });
 
+    function addMessage(role, message) {
+        self.messages.push({ role: role, content: message });
+    }
 
 
     self.palmMessages = [];
+    self.claudeMessages = [];
     let lastMessageText;
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
@@ -562,21 +656,70 @@ export function AppViewModel() {
 
             if (self.palmMessages.length === 0) {
                 self.palmMessages.push({ content: messageText });
-                self.messages.push({ role: "user", content: messageText });
+
+                addMessage("user", messageText);
+
                 this.scrollToBottom();
 
                 messageContext = self.palmMessages.slice(0);
             }
             else {
-                self.messages.push({ role: "user", content: messageText });
+                addMessage("user", messageText);
                 this.scrollToBottom();
                 messageContext = self.palmMessages.slice(0);
                 messageContext.push({ content: messageText });
             }
 
             const response = await fetchPalmResponse(messageContext);
+
             self.palmMessages.push({ content: response });
-            self.messages.push({ role: "assistant", content: response });
+
+            addMessage("assistant", response);
+
+            self.saveMessages();
+            this.scrollToBottom();
+            self.isLoading(false);
+            return;
+        }
+        else if (self.selectedModel().indexOf("claude") !== -1) {
+            const imagePrompt = self.userInput().trim();
+
+            if (imagePrompt.toLowerCase().startsWith("vision::")) {
+                addMessage("user", messageText);
+                self.claudeMessages.push({ role: "user", content: messageText });
+                self.isAnalyzingImage(true);
+                document.getElementById('imageInput').click();
+    
+                this.scrollToBottom();
+                return;
+            }
+
+            self.userInput("");
+            userInput.style.height = '30px';
+            self.isClaudeEnabled(true);
+            self.isLoading(true);
+
+          
+
+            if (self.claudeMessages.length === 0) {
+                self.claudeMessages.push({ role: "user", content: messageText });
+                addMessage("user", messageText);
+
+                this.scrollToBottom();
+            }
+            else {
+                self.claudeMessages.push({ role: "user", content: messageText });
+                addMessage("user", messageText);
+                this.scrollToBottom();
+            }
+
+            let messageContext = self.claudeMessages.slice(0);
+
+            const response = await fetchClaudeResponse(messageContext, self.claudeSliderValue(), self.selectedModel());
+
+            self.claudeMessages.push({ role: "assistant", content: response });
+
+            addMessage("assistant", response);
 
             self.saveMessages();
             this.scrollToBottom();
@@ -585,6 +728,7 @@ export function AppViewModel() {
         }
 
         self.isPalmEnabled(false);
+        self.isClaudeEnabled(false);
 
         if (!messageText || messageText === "" || self.isLoading() || self.isGeneratingImage()) {
             return;
@@ -593,7 +737,7 @@ export function AppViewModel() {
         const imagePrompt = self.userInput().trim();
 
         if (imagePrompt.toLowerCase().startsWith("image::")) {
-            self.messages.push({ role: 'user', content: imagePrompt })
+            addMessage("user", imagePrompt);
             self.isGeneratingImage(true);
             this.scrollToBottom();
 
@@ -603,18 +747,19 @@ export function AppViewModel() {
             const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
 
             let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
+
             for (const image of response.data) {
                 imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
             }
 
-            self.messages.push({ role: 'assistant', content: imageURLStrings });
+            addMessage('assistant', imageURLStrings);
             self.saveMessages();
             this.scrollToBottom();
             self.isGeneratingImage(false);
             return;
         }
         
-        self.messages.push({ role: 'user', content: messageText });
+        addMessage("user", messageText);
 
         if (imagePrompt.toLowerCase().startsWith("vision::")) {
             self.isAnalyzingImage(true);
@@ -643,7 +788,7 @@ export function AppViewModel() {
             const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel());
 
             self.isLoading(false);
-            self.messages.push({ role: 'assistant', content: response });
+            addMessage( 'assistant', response );
 
             self.saveMessages();
             this.scrollToBottom();
@@ -687,39 +832,68 @@ export function AppViewModel() {
     };
 
     self.saveNewConversations = async function () {
-        const newConversation = {
+        const newConversationWithTitle = {
             messageHistory: self.messages().slice(0),
-            title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            title: ""
         };
 
-        newConversation.messageHistory = self.messages().slice(0);
+        if (self.isPalmEnabled()) {
+            newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+        }
+        else if (self.isClaudeEnabled()) {
+            newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+        }
+        else {
+            newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+        }
+
+        newConversationWithTitle.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            const newConversation = {
+            const newConversationWithTitle = {
                 messageHistory: self.messages().slice(0),
-                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                title: ""
             };
 
-            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            if (self.isPalmEnabled()) {
+                newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+            }
+            else if (self.isClaudeEnabled()) {
+                newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+            }
+            else {
+                newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+            }
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversationWithTitle }]));
             localStorage.setItem("lastConversationId", "0");
             self.lastLoadedConversationId(0);
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            newConversation.conversationId = storedConversations.length - 1;
+            newConversationWithTitle.conversationId = storedConversations.length - 1;
 
             if (self.lastLoadedConversationId() !== null) {
                 const conversationIndex = storedConversations.findIndex(conversation => {
                     return conversation.id === parseInt(self.lastLoadedConversationId());
                 });
                 // Update the existing conversation's messageHistory with the new values
-                storedConversations[conversationIndex].conversation.messageHistory = newConversation.messageHistory;
+                storedConversations[conversationIndex].conversation.messageHistory = newConversationWithTitle.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
                 const newConversationWithTitle = {
                     messageHistory: self.messages().slice(0),
-                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                    title: ""
                 };
+    
+                if (self.isPalmEnabled()) {
+                    newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+                }
+                else if (self.isClaudeEnabled()) {
+                    newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+                }
+                else {
+                    newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+                }
 
                 let highestId = 0;
                 for (const conversation of storedConversations) {
@@ -759,12 +933,22 @@ export function AppViewModel() {
         newConversation.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            const newConversation = {
+            const newConversationWithTitle = {
                 messageHistory: self.messages().slice(0),
-                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                title: ""
             };
 
-            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            if (self.isPalmEnabled()) {
+                newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+            }
+            else if (self.isClaudeEnabled()) {
+                newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+            }
+            else {
+                newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+            }
+
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversationWithTitle }]));
             localStorage.setItem("lastConversationId", "0");
             self.lastLoadedConversationId(0);
         } else {
@@ -784,8 +968,18 @@ export function AppViewModel() {
                 // If the conversation doesn't exist, add it to the stored conversations
                 const newConversationWithTitle = {
                     messageHistory: self.messages().slice(0),
-                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                    title: ""
                 };
+
+                if (self.isPalmEnabled()) {
+                    newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+                }
+                else if (self.isClaudeEnabled()) {
+                    newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+                }
+                else {
+                    newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+                }
 
                 let highestId = 0;
                 for (const conversation of storedConversations) {
@@ -808,6 +1002,8 @@ export function AppViewModel() {
 
         localStorage.removeItem("gpt-messages");
         self.messages([]);
+        self.claudeMessages = [];
+        self.palmMessages = [];
         self.lastLoadedConversationId(null);
 
         self.selectedConversation({ messageHistory: [], title: 'placeholder' });
