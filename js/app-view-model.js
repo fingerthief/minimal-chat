@@ -29,12 +29,14 @@ export function AppViewModel() {
     self.isAnalyzingImage = ko.observable(false);
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.palmSliderValue = ko.observable(localStorage.getItem('palm-attitude') || 50);
+    self.claudeSliderValue = ko.observable(localStorage.getItem('claude-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
     self.showConversationOptions = ko.observable(false);
     self.streamedMessageText = ko.observable();
     self.showingSearchField = ko.observable(false);
     self.filteredMessages = ko.observableArray([]);
     self.isPalmEnabled = ko.observable(false);
+    self.isClaudeEnabled = ko.observable(false);
     self.lastLoadedConversationId = ko.observable(null);
 
     self.selectedModel = ko.observable(
@@ -116,6 +118,15 @@ export function AppViewModel() {
     const palmApiKey = document.getElementById('palm-api-key');
     palmApiKey.value = localStorage.getItem("palmKey");
 
+    const claudeApiKey = document.getElementById('claude-api-key');
+    claudeApiKey.value = localStorage.getItem("claudeKey");
+
+    claudeApiKey.addEventListener("blur", () => {
+        if (claudeApiKey.value.trim() !== "") {
+            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
+        }
+    });
+
     palmApiKey.addEventListener("blur", () => {
         if (palmApiKey.value.trim() !== "") {
             localStorage.setItem("palmKey", palmApiKey.value.trim());
@@ -128,6 +139,10 @@ export function AppViewModel() {
 
     self.palmSliderValue.subscribe((attitude) => {
         localStorage.setItem("palm-attitude", attitude);
+    });
+
+    self.claudeSliderValue.subscribe((attitude) => {
+        localStorage.setItem("claude-attitude", attitude);
     });
 
     let blurTimeout;
@@ -377,6 +392,8 @@ export function AppViewModel() {
         self.isProcessing(false);
     };
 
+ 
+
 
     let retryCount = 0;
     async function fetchGPTResponseStream(conversation, attitude, model) {
@@ -464,6 +481,95 @@ export function AppViewModel() {
         }
     }
 
+    let retryClaudeCount = 0;
+    async function fetchClaudeResponseStream(conversation, attitude, model) {
+
+        let lastMessageContent = "";
+        let indexAfterMessages = [];
+
+
+        let messagesOnly = conversation.filter(message => {
+            let isMessage = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
+            lastMessageContent = message.content.trim().toLowerCase();
+            return isMessage;
+        });
+
+        const prompt = `Me: ${conversation}\nAI:`;
+        let storedApiKey = localStorage.getItem("claudeKey");
+
+        if (storedApiKey !== claudeApiKey.value.trim()) {
+            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
+            storedApiKey = claudeApiKey.value.trim();
+        }
+
+        if (!localStorage.getItem("claude-attitude") || localStorage.getItem("claude-attitude") !== attitude) {
+            localStorage.setItem("claude-attitude", attitude);
+        }
+
+        try {
+
+            const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+                method: "POST",
+                headers: {
+                    'x-api-key': storedApiKey,
+                    "anthropic-version": "2023-06-01",
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    max_tokens: 4096,
+                    stream: true,
+                    model: model,
+                    messages: messagesOnly,
+                    temperature: attitude * 0.01
+                }),
+            });
+
+            // Read the response as a stream of data
+            const reader = await response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    break;
+                }
+                // Massage and parse the chunk of data
+                const chunk = decoder.decode(value);
+                const lines = chunk.split("\n");
+                const parsedLines = lines
+                    .map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
+                    .filter((line) => line !== "" && line !== "[DONE]") // Remove empty lines and "[DONE]"
+                    .map((line) => JSON.parse(line)); // Parse the JSON string
+
+                for (const parsedLine of parsedLines) {
+                    const { choices } = parsedLine;
+                    const { delta } = choices[0];
+                    const { content } = delta;
+                    // Update the UI with the new content
+                    if (content) {
+                        self.streamedMessageText((self.streamedMessageText() || "") + content);
+                        hljs.highlightAll();
+                        self.scrollToBottom();
+                    }
+                }
+            }
+
+            retryClaudeCount = 0;
+            return self.streamedMessageText();
+        } catch (error) {
+
+            if (retryClaudeCount < 0) {
+                retryClaudeCount++;
+                console.log("Retry Number: " + retryClaudeCount);
+                return await fetchClaudeResponseStream(conversation, attitude, model);
+            }
+            else {
+                console.error("Error fetching Claude response:", error);
+                return "An error occurred while fetching Claude response stream.";
+            }
+        }
+    }
+
 
 
     // Step 1: Add the encodeImage function
@@ -529,7 +635,7 @@ export function AppViewModel() {
             })
                 .then(response => response.json())
                 .then(data => {
-                    self.messages.push({ role: 'assistant', content: data.choices[0].message.content });
+                    addMessage("assistant", data.choices[0].message.content);
 
                     self.saveMessages();
                     self.isAnalyzingImage(false);
@@ -545,9 +651,13 @@ export function AppViewModel() {
         }
     });
 
+    function addMessage(role, message) {
+        self.messages.push({ role: role, content: message });
+    }
 
 
     self.palmMessages = [];
+    self.claudeMessages = [];
     let lastMessageText;
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
@@ -562,21 +672,59 @@ export function AppViewModel() {
 
             if (self.palmMessages.length === 0) {
                 self.palmMessages.push({ content: messageText });
-                self.messages.push({ role: "user", content: messageText });
+
+                addMessage("user", messageText);
+
                 this.scrollToBottom();
 
                 messageContext = self.palmMessages.slice(0);
             }
             else {
-                self.messages.push({ role: "user", content: messageText });
+                addMessage("user", messageText);
                 this.scrollToBottom();
                 messageContext = self.palmMessages.slice(0);
                 messageContext.push({ content: messageText });
             }
 
             const response = await fetchPalmResponse(messageContext);
+
             self.palmMessages.push({ content: response });
-            self.messages.push({ role: "assistant", content: response });
+
+            addMessage("assistant", response);
+
+            self.saveMessages();
+            this.scrollToBottom();
+            self.isLoading(false);
+            return;
+        }
+        else if (self.selectedModel().indexOf("claude") !== -1) {
+            self.userInput("");
+            userInput.style.height = '30px';
+            self.isClaudeEnabled(true);
+            self.isLoading(true);
+            let messageContext;
+
+            if (self.claudeMessages.length === 0) {
+                self.claudeMessages.push({ role: "user", content: messageText });
+
+                addMessage("user", messageText);
+
+                this.scrollToBottom();
+
+                messageContext = self.claudeMessages.slice(0);
+            }
+            else {
+                addMessage("user", messageText);
+                this.scrollToBottom();
+                messageContext = self.claudeMessages.slice(0);
+                messageContext.push({ role: "user", content: messageText });
+            }
+
+            const response = await fetchClaudeResponseStream(messageContext, self.claudeSliderValue(), self.selectedModel());
+
+            self.claudeMessages.push({ role: "assistant", content: response });
+
+            addMessage("assistant", response);
 
             self.saveMessages();
             this.scrollToBottom();
@@ -585,6 +733,7 @@ export function AppViewModel() {
         }
 
         self.isPalmEnabled(false);
+        self.isClaudeEnabled(false);
 
         if (!messageText || messageText === "" || self.isLoading() || self.isGeneratingImage()) {
             return;
@@ -593,7 +742,7 @@ export function AppViewModel() {
         const imagePrompt = self.userInput().trim();
 
         if (imagePrompt.toLowerCase().startsWith("image::")) {
-            self.messages.push({ role: 'user', content: imagePrompt })
+            addMessage("user", imagePrompt);
             self.isGeneratingImage(true);
             this.scrollToBottom();
 
@@ -603,18 +752,19 @@ export function AppViewModel() {
             const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
 
             let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
+
             for (const image of response.data) {
                 imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
             }
 
-            self.messages.push({ role: 'assistant', content: imageURLStrings });
+            addMessage('assistant', imageURLStrings);
             self.saveMessages();
             this.scrollToBottom();
             self.isGeneratingImage(false);
             return;
         }
         
-        self.messages.push({ role: 'user', content: messageText });
+        addMessage("user", messageText);
 
         if (imagePrompt.toLowerCase().startsWith("vision::")) {
             self.isAnalyzingImage(true);
@@ -643,7 +793,7 @@ export function AppViewModel() {
             const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel());
 
             self.isLoading(false);
-            self.messages.push({ role: 'assistant', content: response });
+            addMessage( 'assistant', response );
 
             self.saveMessages();
             this.scrollToBottom();
