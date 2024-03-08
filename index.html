@@ -187,7 +187,7 @@
                             </div>
                         </div>
 
-                        <div data-bind="ifnot: selectedModel().indexOf('bison') !== -1 && selectedModel().indexOf('claude') !== -1">
+                        <div data-bind="if: selectedModel().indexOf('gpt') !== -1">
                             <div data-bind="foreach: messages()">
                                 <div data-bind="if: $parent.userSearchInput().trim().length === 0">
                                     <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
@@ -232,7 +232,7 @@
                             </div>
                         </div>
 
-                        <div data-bind="if: isLoading() && !isPalmEnabled()">
+                        <div data-bind="if: isLoading() && !isPalmEnabled() && !isClaudeEnabled()">
                             <div class="gpt message padded" >
                                 <div class="label">
                                     <span class="fa-solid fa-robot fa-lg icon"></span>
@@ -252,6 +252,18 @@
                                 <span class="loading spinner"></span>
                             </div>
                         </div>
+
+                        <div data-bind="if: isLoading() && isClaudeEnabled()">
+                            <div class="gpt message padded">
+                                <div class="label">
+                                    <span class="fa-solid fa-robot fa-lg icon"></span>
+                                    <span>Claude</span>
+                                </div>
+                                <span data-bind="text: 'Generating response '"></span>
+                                <span class="loading spinner"></span>
+                            </div>
+                        </div>
+
 
                         <div data-bind="if: isGeneratingImage">
                             <div class="gpt message padded">

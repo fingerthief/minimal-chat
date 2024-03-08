@@ -234,6 +234,14 @@ export function AppViewModel() {
                 self.palmMessages.push({ content: chatMessage.content });
             }
         }
+
+        if (self.selectedModel() === "claude-3-opus-20240229") {
+            self.claudeMessages = [];
+
+            for (const chatMessage of self.messages()) {
+                self.claudeMessages.push({ role: chatMessage.role, content: chatMessage.content });
+            }
+        }
     });
 
     self.selectedAutoSaveOption.subscribe(() => {
@@ -508,54 +516,29 @@ export function AppViewModel() {
 
         try {
 
-            const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
                 method: "POST",
                 headers: {
-                    'x-api-key': storedApiKey,
+                    "x-api-key": storedApiKey,
                     "anthropic-version": "2023-06-01",
-                    'content-type': 'application/json'
+                    "content-type": "application/json"
                 },
                 body: JSON.stringify({
                     max_tokens: 4096,
-                    stream: true,
+                    stream: false,
                     model: model,
                     messages: messagesOnly,
                     temperature: attitude * 0.01
                 }),
             });
 
-            // Read the response as a stream of data
-            const reader = await response.body.getReader();
-            const decoder = new TextDecoder("utf-8");
+            const result = await response.json();
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    break;
-                }
-                // Massage and parse the chunk of data
-                const chunk = decoder.decode(value);
-                const lines = chunk.split("\n");
-                const parsedLines = lines
-                    .map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
-                    .filter((line) => line !== "" && line !== "[DONE]") // Remove empty lines and "[DONE]"
-                    .map((line) => JSON.parse(line)); // Parse the JSON string
-
-                for (const parsedLine of parsedLines) {
-                    const { choices } = parsedLine;
-                    const { delta } = choices[0];
-                    const { content } = delta;
-                    // Update the UI with the new content
-                    if (content) {
-                        self.streamedMessageText((self.streamedMessageText() || "") + content);
-                        hljs.highlightAll();
-                        self.scrollToBottom();
-                    }
-                }
+            if (result.content && result.content.length > 0) {
+                return result.content[0].text;
+            } else {
+                return "I'm sorry, I couldn't generate a response.";
             }
-
-            retryClaudeCount = 0;
-            return self.streamedMessageText();
         } catch (error) {
 
             if (retryClaudeCount < 0) {
@@ -566,6 +549,59 @@ export function AppViewModel() {
             else {
                 console.error("Error fetching Claude response:", error);
                 return "An error occurred while fetching Claude response stream.";
+            }
+        }
+    }
+
+    let claudeRetryTitleCount = 0;
+    async function fetchClaudeConversationTitle(messages) {
+        try {
+            let storedApiKey = localStorage.getItem("claudeKey");
+
+            if (storedApiKey !== claudeApiKey.value.trim()) {
+                localStorage.setItem("claudeKey", claudeApiKey.value.trim());
+                storedApiKey = claudeApiKey.value.trim();
+            }
+
+
+            let tempMessages = [...messages];
+            tempMessages.push({ role: 'user', content: "Summarize our conversation in 5 words or less." });
+
+            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+                method: "POST",
+                headers: {
+                    "x-api-key": storedApiKey,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    max_tokens: 200,
+                    stream: false,
+                    model: "claude-3-opus-20240229",
+                    messages: tempMessages,
+                    temperature: 0.1
+                }),
+            });
+
+            const result = await response.json();
+
+            claudeRetryTitleCount = 0;
+
+            if (result.content && result.content.length > 0) {
+                return result.content[0].text;
+            } else {
+                return "I'm sorry, I couldn't generate a response.";
+            }
+        } catch (error) {
+
+            if (claudeRetryTitleCount < 3) {
+                claudeRetryTitleCount++;
+                console.log("Retry Number: " + claudeRetryTitleCount);
+                return await fetchClaudeConversationTitle(conversation, attitude, model);
+            }
+            else {
+                console.error("Error fetching Claude response:", error);
+                return "An error occurred while fetching Claude conversation title.";
             }
         }
     }
@@ -714,10 +750,10 @@ export function AppViewModel() {
                 messageContext = self.claudeMessages.slice(0);
             }
             else {
+                self.claudeMessages.push({ role: "user", content: messageText });
                 addMessage("user", messageText);
                 this.scrollToBottom();
                 messageContext = self.claudeMessages.slice(0);
-                messageContext.push({ role: "user", content: messageText });
             }
 
             const response = await fetchClaudeResponseStream(messageContext, self.claudeSliderValue(), self.selectedModel());
@@ -837,39 +873,68 @@ export function AppViewModel() {
     };
 
     self.saveNewConversations = async function () {
-        const newConversation = {
+        const newConversationWithTitle = {
             messageHistory: self.messages().slice(0),
-            title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+            title: ""
         };
 
-        newConversation.messageHistory = self.messages().slice(0);
+        if (self.isPalmEnabled()) {
+            newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+        }
+        else if (self.isClaudeEnabled()) {
+            newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+        }
+        else {
+            newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+        }
+
+        newConversationWithTitle.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            const newConversation = {
+            const newConversationWithTitle = {
                 messageHistory: self.messages().slice(0),
-                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                title: ""
             };
 
-            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            if (self.isPalmEnabled()) {
+                newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+            }
+            else if (self.isClaudeEnabled()) {
+                newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+            }
+            else {
+                newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+            }
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversationWithTitle }]));
             localStorage.setItem("lastConversationId", "0");
             self.lastLoadedConversationId(0);
         } else {
             let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
 
-            newConversation.conversationId = storedConversations.length - 1;
+            newConversationWithTitle.conversationId = storedConversations.length - 1;
 
             if (self.lastLoadedConversationId() !== null) {
                 const conversationIndex = storedConversations.findIndex(conversation => {
                     return conversation.id === parseInt(self.lastLoadedConversationId());
                 });
                 // Update the existing conversation's messageHistory with the new values
-                storedConversations[conversationIndex].conversation.messageHistory = newConversation.messageHistory;
+                storedConversations[conversationIndex].conversation.messageHistory = newConversationWithTitle.messageHistory;
             } else {
                 // If the conversation doesn't exist, add it to the stored conversations
                 const newConversationWithTitle = {
                     messageHistory: self.messages().slice(0),
-                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                    title: ""
                 };
+    
+                if (self.isPalmEnabled()) {
+                    newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+                }
+                else if (self.isClaudeEnabled()) {
+                    newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+                }
+                else {
+                    newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+                }
 
                 let highestId = 0;
                 for (const conversation of storedConversations) {
@@ -909,12 +974,22 @@ export function AppViewModel() {
         newConversation.messageHistory = self.messages().slice(0);
 
         if (!localStorage.getItem("gpt-conversations")) {
-            const newConversation = {
+            const newConversationWithTitle = {
                 messageHistory: self.messages().slice(0),
-                title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                title: ""
             };
 
-            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversation }]));
+            if (self.isPalmEnabled()) {
+                newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+            }
+            else if (self.isClaudeEnabled()) {
+                newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+            }
+            else {
+                newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+            }
+
+            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversationWithTitle }]));
             localStorage.setItem("lastConversationId", "0");
             self.lastLoadedConversationId(0);
         } else {
@@ -934,8 +1009,18 @@ export function AppViewModel() {
                 // If the conversation doesn't exist, add it to the stored conversations
                 const newConversationWithTitle = {
                     messageHistory: self.messages().slice(0),
-                    title: self.isPalmEnabled() ? await fetchPalmConversationTitle(self.palmMessages.slice(0)) : await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue())
+                    title: ""
                 };
+
+                if (self.isPalmEnabled()) {
+                    newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+                }
+                else if (self.isClaudeEnabled()) {
+                    newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+                }
+                else {
+                    newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+                }
 
                 let highestId = 0;
                 for (const conversation of storedConversations) {
@@ -958,6 +1043,8 @@ export function AppViewModel() {
 
         localStorage.removeItem("gpt-messages");
         self.messages([]);
+        self.claudeMessages = [];
+        self.palmMessages = [];
         self.lastLoadedConversationId(null);
 
         self.selectedConversation({ messageHistory: [], title: 'placeholder' });
