@@ -12,6 +12,8 @@ import {
     fetchPalmConversationTitle
 } from '../js/palm-api-access.js';
 
+import { fetchClaudeResponse, fetchClaudeConversationTitle } from '../js/claude-api-access.js';
+
 import "../node_modules/swiped-events/dist/swiped-events.min.js";
 
 const ko = window.ko;
@@ -489,125 +491,6 @@ export function AppViewModel() {
         }
     }
 
-    let retryClaudeCount = 0;
-    async function fetchClaudeResponseStream(conversation, attitude, model) {
-
-        let lastMessageContent = "";
-        let indexAfterMessages = [];
-
-
-        let messagesOnly = conversation.filter(message => {
-            let isMessage = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
-            lastMessageContent = message.content.trim().toLowerCase();
-            return isMessage;
-        });
-
-        const prompt = `Me: ${conversation}\nAI:`;
-        let storedApiKey = localStorage.getItem("claudeKey");
-
-        if (storedApiKey !== claudeApiKey.value.trim()) {
-            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
-            storedApiKey = claudeApiKey.value.trim();
-        }
-
-        if (!localStorage.getItem("claude-attitude") || localStorage.getItem("claude-attitude") !== attitude) {
-            localStorage.setItem("claude-attitude", attitude);
-        }
-
-        try {
-
-            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
-                method: "POST",
-                headers: {
-                    "x-api-key": storedApiKey,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    max_tokens: 4096,
-                    stream: false,
-                    model: model,
-                    messages: messagesOnly,
-                    temperature: attitude * 0.01
-                }),
-            });
-
-            const result = await response.json();
-
-            if (result.content && result.content.length > 0) {
-                return result.content[0].text;
-            } else {
-                return "I'm sorry, I couldn't generate a response.";
-            }
-        } catch (error) {
-
-            if (retryClaudeCount < 0) {
-                retryClaudeCount++;
-                console.log("Retry Number: " + retryClaudeCount);
-                return await fetchClaudeResponseStream(conversation, attitude, model);
-            }
-            else {
-                console.error("Error fetching Claude response:", error);
-                return "An error occurred while fetching Claude response stream.";
-            }
-        }
-    }
-
-    let claudeRetryTitleCount = 0;
-    async function fetchClaudeConversationTitle(messages) {
-        try {
-            let storedApiKey = localStorage.getItem("claudeKey");
-
-            if (storedApiKey !== claudeApiKey.value.trim()) {
-                localStorage.setItem("claudeKey", claudeApiKey.value.trim());
-                storedApiKey = claudeApiKey.value.trim();
-            }
-
-
-            let tempMessages = [...messages];
-            tempMessages.push({ role: 'user', content: "Summarize our conversation in 5 words or less." });
-
-            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
-                method: "POST",
-                headers: {
-                    "x-api-key": storedApiKey,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    max_tokens: 200,
-                    stream: false,
-                    model: "claude-3-opus-20240229",
-                    messages: tempMessages,
-                    temperature: 0.1
-                }),
-            });
-
-            const result = await response.json();
-
-            claudeRetryTitleCount = 0;
-
-            if (result.content && result.content.length > 0) {
-                return result.content[0].text;
-            } else {
-                return "I'm sorry, I couldn't generate a response.";
-            }
-        } catch (error) {
-
-            if (claudeRetryTitleCount < 3) {
-                claudeRetryTitleCount++;
-                console.log("Retry Number: " + claudeRetryTitleCount);
-                return await fetchClaudeConversationTitle(conversation, attitude, model);
-            }
-            else {
-                console.error("Error fetching Claude response:", error);
-                return "An error occurred while fetching Claude conversation title.";
-            }
-        }
-    }
-
-
-
     // Step 1: Add the encodeImage function
     function encodeImage(file) {
         return new Promise((resolve, reject) => {
@@ -618,37 +501,53 @@ export function AppViewModel() {
         });
     }
 
-    function analyzeImage(file) {
-        const storedApiKey = localStorage.getItem("gptKey");
+    function getStringAfterComma(str) {
+        const [_, ...rest] = str.split(',');
+        return rest.join(',');
+    }
 
-        encodeImage(file).then(base64Image => {
-            const apiKey = storedApiKey; // Ensure this is securely stored and used
-            let lastMessageContent = "";
+    async function analyzeImage(file, fileType) {
+        const base64Image = await encodeImage(file);
 
+        let lastMessageContent = "";
 
-            let gptMessagesOnly = self.messages().filter(message => {
-                let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
-                lastMessageContent = message.content.trim().toLowerCase();
-                return isGPT;
-            });
+        let gptMessagesOnly = self.messages().filter(message => {
+            let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
+            lastMessageContent = message.content.trim().toLowerCase();
+            return isGPT;
+        });
 
-            let visionFormattedMessages = [];
+        self.userInput("");
+        userInput.style.height = '30px';
 
-            for (let message of gptMessagesOnly) {
-                const visionFormattedMessage = 
-                    {
-                        type: "text",
-                        text: message.content
-                    }
+        let storedApiKey = localStorage.getItem("claudeKey");
+
+        if (storedApiKey !== claudeApiKey.value.trim()) {
+            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
+            storedApiKey = claudeApiKey.value.trim();
+        }
+
+        const apiKey = storedApiKey; // Ensure this is securely stored and used
+
+        let visionFormattedMessages = [];
+
+        for (let message of gptMessagesOnly) {
+            const visionFormattedMessage =
+            {
+                type: "text",
+                text: message.content
+            }
                 ;
 
-                visionFormattedMessages.push(visionFormattedMessage);
-            }
+            visionFormattedMessages.push(visionFormattedMessage);
+        }
+
+        if (self.selectedModel().indexOf("gpt") !== -1) {
 
             visionFormattedMessages.push({
                 type: "image_url",
                 image_url: { url: base64Image }
-            })
+            });
 
             const payload = {
                 model: "gpt-4-vision-preview",
@@ -677,13 +576,62 @@ export function AppViewModel() {
                     self.isAnalyzingImage(false);
                 })
                 .catch(error => console.error('Error:', error));
-        });
+
+        }
+        else if (self.selectedModel().indexOf("claude") !== -1) {
+            visionFormattedMessages.push({
+                type: "image",
+                source: {
+                    "type": "base64",
+                    "media_type": fileType,
+                    "data": getStringAfterComma(base64Image)
+                }
+            });
+
+            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+                method: "POST",
+                headers: {
+                    "x-api-key": apiKey,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    max_tokens: 4096,
+                    stream: false,
+                    model: self.selectedModel(),
+                    messages: [
+                        {
+                            role: "user",
+                            content: visionFormattedMessages
+                        }
+                    ],
+                    temperature: 0.5
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.content && result.content.length > 0) {
+                addMessage("assistant", result.content[0].text);
+                self.claudeMessages.push({ role: "assistant", content: result.content[0].text })
+
+                self.saveMessages();
+                self.isAnalyzingImage(false);
+                self.scrollToBottom();
+            } else {
+                return "I'm sorry, I couldn't generate a response.";
+            }
+        }
+        else {
+            return "not implemented for selected model";
+        }
     }
 
-    document.getElementById('imageInput').addEventListener('change', function (event) {
+    document.getElementById('imageInput').addEventListener('change', async function (event) {
         const file = event.target.files[0];
+        const fileType = file.type;
         if (file) {
-            analyzeImage(file);
+            await analyzeImage(file, fileType);
         }
     });
 
@@ -734,29 +682,40 @@ export function AppViewModel() {
             return;
         }
         else if (self.selectedModel().indexOf("claude") !== -1) {
+            const imagePrompt = self.userInput().trim();
+
+            if (imagePrompt.toLowerCase().startsWith("vision::")) {
+                addMessage("user", messageText);
+                self.claudeMessages.push({ role: "user", content: messageText });
+                self.isAnalyzingImage(true);
+                document.getElementById('imageInput').click();
+    
+                this.scrollToBottom();
+                return;
+            }
+
             self.userInput("");
             userInput.style.height = '30px';
             self.isClaudeEnabled(true);
             self.isLoading(true);
-            let messageContext;
+
+          
 
             if (self.claudeMessages.length === 0) {
                 self.claudeMessages.push({ role: "user", content: messageText });
-
                 addMessage("user", messageText);
 
                 this.scrollToBottom();
-
-                messageContext = self.claudeMessages.slice(0);
             }
             else {
                 self.claudeMessages.push({ role: "user", content: messageText });
                 addMessage("user", messageText);
                 this.scrollToBottom();
-                messageContext = self.claudeMessages.slice(0);
             }
 
-            const response = await fetchClaudeResponseStream(messageContext, self.claudeSliderValue(), self.selectedModel());
+            let messageContext = self.claudeMessages.slice(0);
+
+            const response = await fetchClaudeResponse(messageContext, self.claudeSliderValue(), self.selectedModel());
 
             self.claudeMessages.push({ role: "assistant", content: response });
 
