@@ -23,11 +23,14 @@ On Android the process is basically the same except the name of the option is **
 ## Features
 
 - Minimal chat layout
-- **GPT 3.5** Support
-- **GPT 4** Support
-- **GPT-4-Turbo** Support
-- **GPT-Vision** activated by starting a message with **vision::** and then your prompt
-- Google **PaLM 2** Support
+- Models Suported
+    - **GPT 3.5**
+    - **GPT 4**
+    - **GPT-4-Turbo**
+    - **GPT-Vision** activated by having the **GPT-4 or GPT-Turbo** model selected and starting a message with **vision::** and then your prompt
+    - **PaLM 2**
+    - **Claude 3 Opus**
+    - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
@@ -91,5 +94,4 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 
 ### Building/Bundling (WIP)
 
-- A basic Gulpfile exists that copies the necessary files for running the application into a folder named `public`. However, there is no minification yet.
-- Running `npm run build` will perform the actions described in the point above.
+- Running `npm run build` will perform a dist build gulpfile process that incldues minification and cache busting (sort of) and output to the `public` folder.
