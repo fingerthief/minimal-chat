@@ -362,7 +362,7 @@ export function AppViewModel() {
         if (!self.selectedConversation()?.messageHistory) {
             return;
         }
-        
+
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
         self.showConversationOptions(false);
@@ -430,91 +430,103 @@ export function AppViewModel() {
  
 
 
-    let retryCount = 0;
-    async function fetchGPTResponseStream(conversation, attitude, model) {
+async function fetchGPTResponseStream(conversation, attitude, model) {
+    const gptMessagesOnly = filterGPTMessages(conversation);
+    const storedApiKey = getStoredApiKey();
+    saveAttitude(attitude);
 
-        let lastMessageContent = "";
-        let indexAfterMessages = [];
-
-
-        let gptMessagesOnly = conversation.filter(message => {
-            let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
-            lastMessageContent = message.content.trim().toLowerCase();
-            return isGPT;
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`
+            },
+            body: JSON.stringify({
+                model: model,
+                stream: true,
+                messages: gptMessagesOnly,
+                temperature: attitude * 0.01
+            }),
         });
 
-        const prompt = `Me: ${conversation}\nAI:`;
-        let storedApiKey = localStorage.getItem("gptKey");
+        await readResponseStream(response);
+        return self.streamedMessageText();
+    } catch (error) {
+        console.error("Error fetching GPT response:", error);
+        return retryFetchGPTResponseStream(conversation, attitude, model);
+    }
+}
 
-        if (storedApiKey !== apiKey.value.trim()) {
-            localStorage.setItem("gptKey", apiKey.value.trim());
-            storedApiKey = apiKey.value.trim();
-        }
+function filterGPTMessages(conversation) {
+    let lastMessageContent = "";
+    return conversation.filter(message => {
+        const isGPT = !message.content.trim().toLowerCase().startsWith("image::") &&
+                      !lastMessageContent.startsWith("image::");
+        lastMessageContent = message.content.trim().toLowerCase();
+        return isGPT;
+    });
+}
 
-        if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
-            localStorage.setItem("gpt-attitude", attitude);
-        }
+function getStoredApiKey() {
+    let storedApiKey = localStorage.getItem("gptKey");
+    if (storedApiKey !== apiKey.value.trim()) {
+        localStorage.setItem("gptKey", apiKey.value.trim());
+        storedApiKey = apiKey.value.trim();
+    }
+    return storedApiKey;
+}
 
-        try {
-            const response = await fetch("https://api.openai.com/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
-                },
-                body: JSON.stringify({
-                    model: model,
-                    stream: true,
-                    messages: gptMessagesOnly,
-                    temperature: attitude * 0.01
-                }),
-            });
+function saveAttitude(attitude) {
+    if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
+        localStorage.setItem("gpt-attitude", attitude);
+    }
+}
 
-            // Read the response as a stream of data
-            const reader = await response.body.getReader();
-            const decoder = new TextDecoder("utf-8");
+async function readResponseStream(response) {
+    const reader = await response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    break;
-                }
-                // Massage and parse the chunk of data
-                const chunk = decoder.decode(value);
-                const lines = chunk.split("\n");
-                const parsedLines = lines
-                    .map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
-                    .filter((line) => line !== "" && line !== "[DONE]") // Remove empty lines and "[DONE]"
-                    .map((line) => JSON.parse(line)); // Parse the JSON string
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-                for (const parsedLine of parsedLines) {
-                    const { choices } = parsedLine;
-                    const { delta } = choices[0];
-                    const { content } = delta;
-                    // Update the UI with the new content
-                    if (content) {
-                        self.streamedMessageText((self.streamedMessageText() || "") + content);
-                        hljs.highlightAll();
-                        self.scrollToBottom();
-                    }
-                }
-            }
+        const chunk = decoder.decode(value);
+        const parsedLines = parseResponseChunk(chunk);
 
-            retryCount = 0;
-            return self.streamedMessageText();
-        } catch (error) {
-
-            if (retryCount < 50) {
-                retryCount++;
-                console.log("Retry Number: " + retryCount);
-                return await fetchGPTResponseStream(conversation, attitude, model);
-            }
-            else {
-                console.error("Error fetching GPT response:", error);
-                return "An error occurred while fetching GPT response stream.";
+        for (const parsedLine of parsedLines) {
+            const { choices } = parsedLine;
+            const { delta } = choices[0];
+            const { content } = delta;
+            if (content) {
+                updateUI(content);
             }
         }
     }
+}
+
+function parseResponseChunk(chunk) {
+    const lines = chunk.split("\n");
+    return lines
+        .map((line) => line.replace(/^data: /, "").trim())
+        .filter((line) => line !== "" && line !== "[DONE]")
+        .map((line) => JSON.parse(line));
+}
+
+function updateUI(content) {
+    self.streamedMessageText((self.streamedMessageText() || "") + content);
+    hljs.highlightAll();
+    self.scrollToBottom();
+}
+
+async function retryFetchGPTResponseStream(conversation, attitude, model, retryCount = 0) {
+    if (retryCount < 50) {
+        console.log("Retry Number: " + (retryCount + 1));
+        return await fetchGPTResponseStream(conversation, attitude, model);
+    } else {
+        return "An error occurred while fetching GPT response stream.";
+    }
+}
 
     // Step 1: Add the encodeImage function
     function encodeImage(file) {
