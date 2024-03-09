@@ -94,6 +94,85 @@ export async function generateDALLEImage(conversation) {
     }
 }
 
+export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
+    const gptMessagesOnly = filterGPTMessages(conversation);
+
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("gptKey")}`,
+        },
+        body: JSON.stringify({
+            model: model,
+            stream: true,
+            messages: gptMessagesOnly,
+            temperature: attitude * 0.01
+        }),
+    };
+
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
+        const result = await readResponseStream(response, updateUiFunction);
+        return result;
+    } catch (error) {
+        console.error("Error fetching GPT response:", error);
+        return retryFetchGPTResponseStream(conversation, attitude, model);
+    }
+}
+
+async function readResponseStream(response, updateUiFunction) {
+    let decodedResult = "";
+
+    const reader = await response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+            return decodedResult
+        };
+        const chunk = decoder.decode(value);
+        const parsedLines = parseResponseChunk(chunk);
+        for (const parsedLine of parsedLines) {
+            const { choices } = parsedLine;
+            const { delta } = choices[0];
+            const { content } = delta;
+            if (content) {
+                decodedResult += content;
+                updateUiFunction(content);
+            }
+        }
+    }
+}
+
+
+async function retryFetchGPTResponseStream(conversation, attitude, model, retryCount = 0) {
+    if (retryCount < 5) {
+        console.log("Retry Number: " + (retryCount + 1));
+
+        return await fetchGPTResponseStream(conversation, attitude, model);
+    }
+    return "An error occurred while fetching GPT response stream.";
+}
+
+function parseResponseChunk(chunk) {
+    const lines = chunk.split("\n");
+    return lines
+        .map((line) => line.replace(/^data: /, "").trim())
+        .filter((line) => line !== "" && line !== "[DONE]")
+        .map((line) => JSON.parse(line));
+}
+
+function filterGPTMessages(conversation) {
+    let lastMessageContent = "";
+    return conversation.filter(message => {
+        const isGPT = !message.content.trim().toLowerCase().startsWith("image::") &&
+            !lastMessageContent.startsWith("image::");
+        lastMessageContent = message.content.trim().toLowerCase();
+        return isGPT;
+    });
+}
+
 function containsUrl(str) {
     const urlPattern = /https?:\/\/(?:www\.)?[^\s]+\.[^\s]+/i;
     return urlPattern.test(str);

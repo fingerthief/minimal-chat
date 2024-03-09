@@ -149,3 +149,60 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
         }
     }
 }
+
+export async function streamClaudeResponse(messages, model, attitude, updateUIFunction) {
+    const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "anthropic-version": "2023-06-01",
+            'X-API-Key': localStorage.getItem("claudeKey"),
+        },
+        body: JSON.stringify({
+            messages: messages,
+            temperature: attitude * 0.01,
+            max_tokens: 4096,
+            model: model,
+            stream: true,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    let result = '';
+    let decodedResult = "";
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        result += chunk;
+
+        // Process the streamed response chunk by chunk
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+            if (line.startsWith('data:')) {
+                const data = line.slice(5).trim();
+                if (data === '[DONE]') {
+                    return decodedResult;
+                }  
+
+                const token = JSON.parse(data);
+
+                if (token?.delta?.text) {
+                    decodedResult += token.delta.text;
+                    updateUIFunction(token?.delta?.text);
+                }
+
+                if (token?.type === "message_stop") {
+                    return decodedResult;
+                }
+            }
+        }
+    }
+}

@@ -6,17 +6,17 @@ import {
     loadConversationTitles,
     loadStoredConversations,
     generateDALLEImage,
-    fetchGPTVisionResponse
+    fetchGPTResponseStream
 } from '../js/gpt-api-access.js';
 import {
     fetchPalmResponse,
     fetchPalmConversationTitle
 } from '../js/palm-api-access.js';
 import {
-    fetchClaudeResponse,
     fetchClaudeConversationTitle,
-    fetchClaudeVisionResponse
+    streamClaudeResponse
 } from '../js/claude-api-access.js';
+import { analyzeImage } from '../js/image-analysis.js';
 import "../node_modules/swiped-events/dist/swiped-events.min.js";
 
 const ko = window.ko;
@@ -398,181 +398,40 @@ export function AppViewModel() {
         self.isProcessing(false);
     };
 
-    async function fetchGPTResponseStream(conversation, attitude, model) {
-        const gptMessagesOnly = filterGPTMessages(conversation);
-        saveAttitude(attitude);
-
-        const apiKey = getStoredApiKey();
-        const requestOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: model,
-                stream: true,
-                messages: gptMessagesOnly,
-                temperature: attitude * 0.01
-            }),
-        };
-
-        try {
-            const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
-            await readResponseStream(response);
-            return self.streamedMessageText();
-        } catch (error) {
-            console.error("Error fetching GPT response:", error);
-            return retryFetchGPTResponseStream(conversation, attitude, model);
-        }
-    }
-
-    function filterGPTMessages(conversation) {
-        let lastMessageContent = "";
-        return conversation.filter(message => {
-            const isGPT = !message.content.trim().toLowerCase().startsWith("image::") &&
-                !lastMessageContent.startsWith("image::");
-            lastMessageContent = message.content.trim().toLowerCase();
-            return isGPT;
-        });
-    }
-
-    function getStoredApiKey() {
-        const storedApiKey = localStorage.getItem("gptKey");
-        const trimmedApiKey = apiKey.value.trim();
-        if (storedApiKey !== trimmedApiKey) {
-            localStorage.setItem("gptKey", trimmedApiKey);
-            return trimmedApiKey;
-        }
-        return storedApiKey;
-    }
-
-    function getStoredClaudeApiKey() {
-        const storedApiKey = localStorage.getItem("claudeKey");
-        const trimmedApiKey = claudeApiKey.value.trim();
-        if (storedApiKey !== trimmedApiKey) {
-            localStorage.setItem("claudeKey", trimmedApiKey);
-            return trimmedApiKey;
-        }
-        return storedApiKey;
-    }
-
-    function saveAttitude(attitude) {
-        const storedAttitude = localStorage.getItem("gpt-attitude");
-        if (!storedAttitude || storedAttitude !== attitude) {
-            localStorage.setItem("gpt-attitude", attitude);
-        }
-    }
-
-    async function readResponseStream(response) {
-        const reader = await response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            const parsedLines = parseResponseChunk(chunk);
-            for (const parsedLine of parsedLines) {
-                const { choices } = parsedLine;
-                const { delta } = choices[0];
-                const { content } = delta;
-                if (content) {
-                    updateUI(content);
-                }
-            }
-        }
-    }
-
-    function parseResponseChunk(chunk) {
-        const lines = chunk.split("\n");
-        return lines
-            .map((line) => line.replace(/^data: /, "").trim())
-            .filter((line) => line !== "" && line !== "[DONE]")
-            .map((line) => JSON.parse(line));
-    }
-
     function updateUI(content) {
         self.streamedMessageText((self.streamedMessageText() || "") + content);
         hljs.highlightAll();
         self.scrollToBottom();
     }
 
-    async function retryFetchGPTResponseStream(conversation, attitude, model, retryCount = 0) {
-        if (retryCount < 50) {
-            console.log("Retry Number: " + (retryCount + 1));
-            return await fetchGPTResponseStream(conversation, attitude, model);
+    // Image input event listener
+    document.getElementById('imageInput').addEventListener('change', async function (event) {
+        const file = event.target.files[0];
+        const fileType = file.type;
+
+        if (!file) {
+            return;
         }
-        return "An error occurred while fetching GPT response stream.";
-    }
 
-    // Encode image as base64
-    async function encodeImage(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
+        await processImage(file, fileType);
+    });
 
-    // Get string after comma
-    function getStringAfterComma(str) {
-        const [_, ...rest] = str.split(',');
-        return rest.join(',');
-    }
-
-    // Analyze image
-    async function analyzeImage(file, fileType) {
-        const base64Image = await encodeImage(file);
-        const gptMessagesOnly = filterGPTMessages(self.messages());
+    async function processImage(file, fileType) {
         self.userInput("");
         userInput.style.height = '30px';
-        const visionFormattedMessages = formatMessagesForVision(gptMessagesOnly);
+        
+        const response = await analyzeImage(file, fileType,  self.messages().slice(0), self.selectedModel());
 
-        if (self.selectedModel().indexOf("gpt") !== -1) {
-            visionFormattedMessages.push({
-                type: "image_url",
-                image_url: { url: base64Image }
-            });
-            const response = await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem("gptKey"));
-            addMessage("assistant", response);
-        } else if (self.selectedModel().indexOf("claude") !== -1) {
-            visionFormattedMessages.push({
-                type: "image",
-                source: {
-                    "type": "base64",
-                    "media_type": fileType,
-                    "data": getStringAfterComma(base64Image)
-                }
-            });
-            const response = await fetchClaudeVisionResponse(visionFormattedMessages, getStoredClaudeApiKey(), self.selectedModel());
-            addMessage("assistant", response);
+        addMessage("assistant", response);
+
+        if (self.isClaudeEnabled()) {
             self.claudeMessages.push({ role: "assistant", content: response });
-        } else {
-            return "not implemented for selected model";
         }
 
         self.saveMessages();
         self.isAnalyzingImage(false);
         self.scrollToBottom();
     }
-
-    // Format messages for vision
-    function formatMessagesForVision(messages) {
-        return messages.map(message => ({
-            type: "text",
-            text: message.content
-        }));
-    }
-
-    // Image input event listener
-    document.getElementById('imageInput').addEventListener('change', async function (event) {
-        const file = event.target.files[0];
-        const fileType = file.type;
-        if (file) {
-            await analyzeImage(file, fileType);
-        }
-    });
 
     // Add message to messages array
     function addMessage(role, message) {
@@ -656,13 +515,14 @@ export function AppViewModel() {
 
         self.userInput("");
         userInput.style.height = '30px';
+        self.streamedMessageText("");
         self.isClaudeEnabled(true);
         self.isLoading(true);
         self.claudeMessages.push({ role: "user", content: messageText });
         addMessage("user", messageText);
         self.scrollToBottom();
 
-        const response = await fetchClaudeResponse(self.claudeMessages.slice(0), self.claudeSliderValue(), self.selectedModel());
+        const response = await streamClaudeResponse(self.claudeMessages.slice(0), self.selectedModel(), self.claudeSliderValue(), updateUI);
         self.claudeMessages.push({ role: "assistant", content: response });
         addMessage("assistant", response);
         self.saveMessages();
@@ -709,7 +569,9 @@ export function AppViewModel() {
         self.isLoading(true);
 
         try {
-            const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel());
+            self.streamedMessageText("");
+
+            const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel(), updateUI);
             self.isLoading(false);
             addMessage('assistant', response);
             self.saveMessages();

@@ -261,6 +261,17 @@
                             </div>
                         </div>
 
+                        <!-- Stream GPT Response -->
+                        <div data-bind="if: isLoading() && !isPalmEnabled() && isClaudeEnabled()">
+                            <div class="gpt message padded" >
+                                <div class="label">
+                                    <span class="fa-solid fa-robot fa-lg icon"></span>
+                                    <span>Claude</span>
+                                </div>
+                                <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
+                            </div>
+                        </div>
+
                         <!-- PaLM Loading Response -->
                         <div data-bind="if: isLoading() && isPalmEnabled()">
                             <div class="gpt message padded">
@@ -274,7 +285,7 @@
                         </div>
 
                         <!-- Claude Loading Response -->
-                        <div data-bind="if: isLoading() && isClaudeEnabled()">
+                        <!-- <div data-bind="if: isLoading() && isClaudeEnabled()">
                             <div class="gpt message padded">
                                 <div class="label">
                                     <span class="fa-solid fa-robot fa-lg icon"></span>
@@ -283,7 +294,7 @@
                                 <span data-bind="text: 'Generating response '"></span>
                                 <span class="loading spinner"></span>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- DALL-E Generating Image Loading -->
                         <div data-bind="if: isGeneratingImage">
@@ -333,6 +344,8 @@
     <script type="module" src="index.js"></script>
     <script type="module" src="js/app-view-model.js"></script>
     <script type="module" src="js/gpt-api-access.js"></script>
+    <script type="module" src="js/claude-api-access.js"></script>
+    <script type="module" src="js/image-analysis.js"></script>
     <script type="module" src="js/utils.js"></script>
     <script type="module" src="js/palm-api-access.js" type="module"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
