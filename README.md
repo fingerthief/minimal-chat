@@ -38,18 +38,18 @@ On Android the process is basically the same except the name of the option is **
 <h2>Table of Contents</h2>
 
 <ul>
+<li><a href="#obtaining-api-keys">Obtaining API Keys</a></li>
 <li><a href="#features">Features</a></li>
+<li><a href="#faq">FAQ</a></li>
 <li><a href="#mobile-swipe-gestures">Mobile Swipe Gestures</a></li>
 <li><a href="#keyboard-shortcuts">Keyboard Shortcuts</a></li>
 <li><a href="#screenshots">Screenshots</a></li>
 <li><a href="#run-web-app-locally">Run Web App Locally</a></li>
-<li><a href="#obtaining-api-keys">Obtaining API Keys</a></li>
 <li><a href="#contributing">Contributing</a></li>
 <li><a href="#troubleshooting">Troubleshooting</a></li>
 <li><a href="#future-plans">Future Plans</a></li>
 <li><a href="#credits">Credits</a></li>
 <li><a href="#license">License</a></li>
-<li><a href="#faq">FAQ</a></li>
 </ul>
 <h2>Features</h2>
 <ul>
