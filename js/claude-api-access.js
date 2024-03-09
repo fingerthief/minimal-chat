@@ -102,3 +102,34 @@ export async function fetchClaudeConversationTitle(messages) {
         }
     }
 }
+
+export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) {
+    const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+        method: "POST",
+        headers: {
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json"
+        },
+        body: JSON.stringify({
+            max_tokens: 4096,
+            stream: false,
+            model: model,
+            messages: [
+                {
+                    role: "user",
+                    content: visionMessages
+                }
+            ],
+            temperature: 0.5
+        }),
+    });
+
+    const result = await response.json();
+
+    if (result.content && result.content.length > 0) {
+        return result.content[0].text;
+    } else {
+        return "I'm sorry, I couldn't generate a response.";
+    }
+}

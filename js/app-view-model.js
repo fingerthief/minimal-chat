@@ -12,7 +12,7 @@ import {
     fetchPalmConversationTitle
 } from '../js/palm-api-access.js';
 
-import { fetchClaudeResponse, fetchClaudeConversationTitle } from '../js/claude-api-access.js';
+import { fetchClaudeResponse, fetchClaudeConversationTitle, fetchClaudeVisionResponse } from '../js/claude-api-access.js';
 
 import "../node_modules/swiped-events/dist/swiped-events.min.js";
 
@@ -363,6 +363,18 @@ export function AppViewModel() {
         self.showConversationOptions(false);
 
         self.messages(selectedMessages);
+
+        if (self.selectedModel().indexOf("claude") !== -1) {
+            for (const chatMessage of self.messages()) {
+                self.claudeMessages.push({ role: chatMessage.role, content: chatMessage.content });
+            }
+        }
+
+        if (self.selectedModel().indexOf("bison") !== -1) {
+            for (const chatMessage of self.messages()) {
+                self.palmMessages.push({ role: chatMessage.role, content: chatMessage.content });
+            }
+        }
     };
 
     self.showSearchField = async function (isFromSearch) {
@@ -536,8 +548,7 @@ export function AppViewModel() {
             {
                 type: "text",
                 text: message.content
-            }
-                ;
+            };
 
             visionFormattedMessages.push(visionFormattedMessage);
         }
@@ -588,39 +599,14 @@ export function AppViewModel() {
                 }
             });
 
-            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
-                method: "POST",
-                headers: {
-                    "x-api-key": apiKey,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    max_tokens: 4096,
-                    stream: false,
-                    model: self.selectedModel(),
-                    messages: [
-                        {
-                            role: "user",
-                            content: visionFormattedMessages
-                        }
-                    ],
-                    temperature: 0.5
-                }),
-            });
+            const response = await fetchClaudeVisionResponse(visionFormattedMessages, apiKey, self.selectedModel())
 
-            const result = await response.json();
+            addMessage("assistant", response);
+            self.claudeMessages.push({ role: "assistant", content: response })
 
-            if (result.content && result.content.length > 0) {
-                addMessage("assistant", result.content[0].text);
-                self.claudeMessages.push({ role: "assistant", content: result.content[0].text })
-
-                self.saveMessages();
-                self.isAnalyzingImage(false);
-                self.scrollToBottom();
-            } else {
-                return "I'm sorry, I couldn't generate a response.";
-            }
+            self.saveMessages();
+            self.isAnalyzingImage(false);
+            self.scrollToBottom();
         }
         else {
             return "not implemented for selected model";
@@ -699,20 +685,10 @@ export function AppViewModel() {
             self.isClaudeEnabled(true);
             self.isLoading(true);
 
-          
-
-            if (self.claudeMessages.length === 0) {
-                self.claudeMessages.push({ role: "user", content: messageText });
-                addMessage("user", messageText);
-
-                this.scrollToBottom();
-            }
-            else {
-                self.claudeMessages.push({ role: "user", content: messageText });
-                addMessage("user", messageText);
-                this.scrollToBottom();
-            }
-
+            self.claudeMessages.push({ role: "user", content: messageText });
+            addMessage("user", messageText);
+            this.scrollToBottom();
+        
             let messageContext = self.claudeMessages.slice(0);
 
             const response = await fetchClaudeResponse(messageContext, self.claudeSliderValue(), self.selectedModel());
