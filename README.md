@@ -1,7 +1,7 @@
 # [Try MinimalGPT/MinimalPaLM/MinimalClaude](https://minimalgpt.app/)
 
 <p><img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status">
-<img src="https://img.shields.io/badge/version-4.1.6-blue" alt="Version">
+<img src="https://img.shields.io/badge/version-4.1.7-blue" alt="Version">
 <img src="https://img.shields.io/badge/license-MIT-green" alt="License"></p>
 
 **MinimalGPT** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude chat when the user sends a message and when a user saves a conversation to generate a conversation title.
@@ -38,18 +38,18 @@ On Android the process is basically the same except the name of the option is **
 <h2>Table of Contents</h2>
 
 <ul>
+<li><a href="#obtaining-api-keys">Obtaining API Keys</a></li>
 <li><a href="#features">Features</a></li>
+<li><a href="#faq">FAQ</a></li>
 <li><a href="#mobile-swipe-gestures">Mobile Swipe Gestures</a></li>
 <li><a href="#keyboard-shortcuts">Keyboard Shortcuts</a></li>
 <li><a href="#screenshots">Screenshots</a></li>
 <li><a href="#run-web-app-locally">Run Web App Locally</a></li>
-<li><a href="#obtaining-api-keys">Obtaining API Keys</a></li>
 <li><a href="#contributing">Contributing</a></li>
 <li><a href="#troubleshooting">Troubleshooting</a></li>
 <li><a href="#future-plans">Future Plans</a></li>
 <li><a href="#credits">Credits</a></li>
 <li><a href="#license">License</a></li>
-<li><a href="#faq">FAQ</a></li>
 </ul>
 <h2>Features</h2>
 <ul>
