@@ -532,7 +532,6 @@ export function AppViewModel() {
 
     // Send image prompt
     async function sendImagePrompt(imagePrompt) {
-        addMessage("user", imagePrompt);
         self.isGeneratingImage(true);
         self.scrollToBottom();
         self.userInput("");

@@ -159,7 +159,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
             'X-API-Key': localStorage.getItem("claudeKey"),
         },
         body: JSON.stringify({
-            messages: messages,
+            messages: filterGPTMessages(messages),
             temperature: attitude * 0.01,
             max_tokens: 4096,
             model: model,
@@ -205,4 +205,14 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
             }
         }
     }
+}
+
+function filterGPTMessages(conversation) {
+    let lastMessageContent = "";
+    return conversation.filter(message => {
+        const isGPT = !message.content.trim().toLowerCase().startsWith("image::") &&
+            !lastMessageContent.startsWith("image::");
+        lastMessageContent = message.content.trim().toLowerCase();
+        return isGPT;
+    });
 }
