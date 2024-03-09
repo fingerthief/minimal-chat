@@ -421,7 +421,6 @@ export function AppViewModel() {
 
 async function fetchGPTResponseStream(conversation, attitude, model) {
     const gptMessagesOnly = filterGPTMessages(conversation);
-    const storedApiKey = getStoredApiKey();
     saveAttitude(attitude);
 
     try {
@@ -429,7 +428,7 @@ async function fetchGPTResponseStream(conversation, attitude, model) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`
+                "Authorization": `Bearer ${localStorage.getItem("gptKey") || 'Missing API Key'}`,
             },
             body: JSON.stringify({
                 model: model,
@@ -619,10 +618,13 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
     
         self.isPalmEnabled(false);
         self.isClaudeEnabled(false);
+
+        addMessage("user", messageText);
     
         if (!messageText || messageText === "" || self.isLoading() || self.isGeneratingImage()) {
             return;
         }
+        
     
         if (messageText.toLowerCase().startsWith("image::")) {
             await sendImagePrompt(messageText);
@@ -720,7 +722,7 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
     }
     
     async function sendGPTMessage(messageText) {
-        addMessage("user", messageText);
+        // addMessage("user", messageText);
         self.scrollToBottom();
         self.userInput('');
         userInput.value = '';
