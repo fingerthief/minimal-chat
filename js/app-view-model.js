@@ -384,7 +384,6 @@ export function AppViewModel() {
 
         if (!self.showingSearchField()) {
             floatingSearchField.style.zIndex = '9999';
-            //userSearchInput.focus();
         }
 
         self.showingSearchField(!self.showingSearchField());
@@ -395,27 +394,30 @@ export function AppViewModel() {
             return;
         }
 
-
-        self.storedConversations(loadStoredConversations());
-
         self.isProcessing(true);
 
-        const conversationIndex = self.storedConversations().findIndex(conversation => {
-            return conversation.id === parseInt(self.lastLoadedConversationId());
-        });
+        const storedConversations = loadStoredConversations();
+        const conversationIndex = storedConversations.findIndex(
+            (conversation) => conversation.id === parseInt(self.lastLoadedConversationId())
+        );
 
-        self.storedConversations().splice(conversationIndex, 1);
-        self.storedConversations.valueHasMutated();
+        if (conversationIndex !== -1) {
+            storedConversations.splice(conversationIndex, 1);
+            localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+        }
 
-        localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
-        self.storedConversations(loadStoredConversations());
+        self.storedConversations(storedConversations);
         self.messages([]);
         self.palmMessages = [];
         self.claudeMessages = [];
-        self.conversationTitles(loadConversationTitles());
-        self.conversations(loadConversationTitles());
+
+        const conversationTitles = loadConversationTitles();
+        self.conversationTitles(conversationTitles);
+        self.conversations(conversationTitles);
+
         self.lastLoadedConversationId(null);
-        localStorage.setItem("lastConversationId", self.lastLoadedConversationId());
+        localStorage.setItem("lastConversationId", null);
+
         self.isProcessing(false);
     };
 
@@ -465,6 +467,18 @@ function getStoredApiKey() {
     return storedApiKey;
 }
 
+function getStoredClaudeApiKey() {
+    const storedApiKey = localStorage.getItem("claudeKey");
+    const trimmedApiKey = claudeApiKey.value.trim();
+
+    if (storedApiKey !== trimmedApiKey) {
+        localStorage.setItem("claudeKey", trimmedApiKey);
+        return trimmedApiKey;
+    }
+
+    return storedApiKey;
+}
+
 function saveAttitude(attitude) {
     if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
         localStorage.setItem("gpt-attitude", attitude);
@@ -511,9 +525,9 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
     if (retryCount < 50) {
         console.log("Retry Number: " + (retryCount + 1));
         return await fetchGPTResponseStream(conversation, attitude, model);
-    } else {
-        return "An error occurred while fetching GPT response stream.";
-    }
+    } 
+
+    return "An error occurred while fetching GPT response stream.";
 }
 
     // Step 1: Add the encodeImage function
@@ -537,7 +551,7 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
         self.userInput("");
         userInput.style.height = '30px';
     
-        const storedApiKey = getStoredApiKey();
+        const storedApiKey = getStoredClaudeApiKey();
         const visionFormattedMessages = formatMessagesForVision(gptMessagesOnly);
     
         if (self.selectedModel().indexOf("gpt") !== -1) {
@@ -560,7 +574,7 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
                 }
             });
     
-            const response = await fetchClaudeVisionResponse(visionFormattedMessages, storedApiKey, self.selectedModel());
+            const response = await fetchClaudeVisionResponse(visionFormattedMessages, getStoredClaudeApiKey(), self.selectedModel());
             addMessage("assistant", response);
             self.claudeMessages.push({ role: "assistant", content: response });
             self.saveMessages();
@@ -569,15 +583,6 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
         } else {
             return "not implemented for selected model";
         }
-    }
-    
-    function getStoredApiKey() {
-        let storedApiKey = localStorage.getItem("claudeKey");
-        if (storedApiKey !== claudeApiKey.value.trim()) {
-            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
-            storedApiKey = claudeApiKey.value.trim();
-        }
-        return storedApiKey;
     }
     
     function formatMessagesForVision(messages) {
@@ -744,29 +749,21 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
     }
 
     self.saveMessages = async function () {
-        const savedMessages = self.messages().map(message => ({
-            role: message.role,
-            content: message.content
-        }));
+        const savedMessages = self.messages().map(({ role, content }) => ({ role, content }));
 
-        let conversationIndex = -1;
-
-        if (self.selectedConversation()) {
-            // Find the index of the selected conversation in storedConversations
-            conversationIndex = self.storedConversations().findIndex(conversation => conversation.conversation.title === self.selectedConversation().title);
-        }
+        const selectedConversation = self.selectedConversation();
+        const conversationIndex = selectedConversation
+            ? self.storedConversations().findIndex(
+                (conversation) => conversation.conversation.title === selectedConversation.title
+            )
+            : -1;
 
         if (conversationIndex !== -1) {
-            // Update the message history of the selected conversation
             self.storedConversations()[conversationIndex].conversation.messageHistory = savedMessages;
-        }
-        else {
-            if (JSON.parse(self.selectedAutoSaveOption())) {
-                await this.saveNewConversations();
-            }
+        } else if (JSON.parse(self.selectedAutoSaveOption())) {
+            await this.saveNewConversations();
         }
 
-        // Save the updated conversations to localStorage
         localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
     };
 
