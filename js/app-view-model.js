@@ -359,6 +359,10 @@ export function AppViewModel() {
             return;
         }
 
+        if (!self.selectedConversation()?.messageHistory) {
+            return;
+        }
+        
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
         self.showConversationOptions(false);
@@ -380,6 +384,7 @@ export function AppViewModel() {
                 self.palmMessages.push({ role: chatMessage.role, content: chatMessage.content });
             }
         }
+
     };
 
     self.showSearchField = async function (isFromSearch) {
@@ -795,92 +800,40 @@ export function AppViewModel() {
     };
 
     self.saveNewConversations = async function () {
-        const newConversationWithTitle = {
-            messageHistory: self.messages().slice(0),
-            title: ""
-        };
-
-        if (self.isPalmEnabled()) {
-            newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
-        }
-        else if (self.isClaudeEnabled()) {
-            newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
-        }
-        else {
-            newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
-        }
-
-        newConversationWithTitle.messageHistory = self.messages().slice(0);
-
-        if (!localStorage.getItem("gpt-conversations")) {
-            const newConversationWithTitle = {
-                messageHistory: self.messages().slice(0),
-                title: ""
-            };
-
-            if (self.isPalmEnabled()) {
-                newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
-            }
-            else if (self.isClaudeEnabled()) {
-                newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
-            }
-            else {
-                newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
-            }
-            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversationWithTitle }]));
+        const newConversationWithTitle = await createNewConversationWithTitle();
+    
+        const storedConversations = localStorage.getItem("gpt-conversations")
+            ? JSON.parse(localStorage.getItem("gpt-conversations"))
+            : [];
+    
+        if (storedConversations.length === 0) {
+            storedConversations.push({ id: 0, conversation: newConversationWithTitle });
             localStorage.setItem("lastConversationId", "0");
             self.lastLoadedConversationId(0);
         } else {
-            let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
-
             newConversationWithTitle.conversationId = storedConversations.length - 1;
-
+    
             if (self.lastLoadedConversationId() !== null) {
-                const conversationIndex = storedConversations.findIndex(conversation => {
-                    return conversation.id === parseInt(self.lastLoadedConversationId());
-                });
-                // Update the existing conversation's messageHistory with the new values
+                const conversationIndex = storedConversations.findIndex(
+                    conversation => conversation.id === parseInt(self.lastLoadedConversationId())
+                );
                 storedConversations[conversationIndex].conversation.messageHistory = newConversationWithTitle.messageHistory;
             } else {
-                // If the conversation doesn't exist, add it to the stored conversations
-                const newConversationWithTitle = {
-                    messageHistory: self.messages().slice(0),
-                    title: ""
-                };
-    
-                if (self.isPalmEnabled()) {
-                    newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
-                }
-                else if (self.isClaudeEnabled()) {
-                    newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
-                }
-                else {
-                    newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
-                }
-
-                let highestId = 0;
-                for (const conversation of storedConversations) {
-                    if (conversation.id > highestId) {
-                        highestId = conversation.id;
-                    }
-                }
-
-                storedConversations[storedConversations.length] = {};
-                storedConversations[storedConversations.length - 1].id = highestId + 1;
-                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle;
+                const highestId = Math.max(...storedConversations.map(conversation => conversation.id));
+                storedConversations.push({ id: highestId + 1, conversation: newConversationWithTitle });
                 self.lastLoadedConversationId(highestId + 1);
             }
-
-            localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
-            localStorage.setItem("lastConversationId", self.lastLoadedConversationId());
         }
-
+    
+        localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+        localStorage.setItem("lastConversationId", self.lastLoadedConversationId());
+    
         self.conversations(loadConversationTitles());
         self.storedConversations(loadStoredConversations());
-
-        self.selectedConversation(self.conversations()[self.conversations().length]);
+    
+        self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
-    }
+    };
 
     self.copyText = function (content) {
         navigator.clipboard.writeText(content);
@@ -888,90 +841,72 @@ export function AppViewModel() {
 
     self.clearMessages = async function () {
         self.isProcessing(true);
-
+    
         const newConversation = {
             messageHistory: self.messages().slice(0),
+            title: ""
         };
-
-        newConversation.messageHistory = self.messages().slice(0);
-
-        if (!localStorage.getItem("gpt-conversations")) {
-            const newConversationWithTitle = {
-                messageHistory: self.messages().slice(0),
-                title: ""
-            };
-
-            if (self.isPalmEnabled()) {
-                newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
-            }
-            else if (self.isClaudeEnabled()) {
-                newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
-            }
-            else {
-                newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
-            }
-
-            localStorage.setItem("gpt-conversations", JSON.stringify([{ id: 0, conversation: newConversationWithTitle }]));
+    
+        const storedConversations = localStorage.getItem("gpt-conversations")
+            ? JSON.parse(localStorage.getItem("gpt-conversations"))
+            : [];
+    
+        if (storedConversations.length === 0) {
+            const newConversationWithTitle = await createNewConversationWithTitle();
+            storedConversations.push({ id: 0, conversation: newConversationWithTitle });
             localStorage.setItem("lastConversationId", "0");
             self.lastLoadedConversationId(0);
         } else {
-            let storedConversations = JSON.parse(localStorage.getItem("gpt-conversations"));
-
             newConversation.conversationId = storedConversations.length - 1;
-
+    
             if (self.selectedAutoSaveOption() && self.lastLoadedConversationId() !== null) {
-                // Update the existing conversation's messageHistory with the new values
-
-                const conversationIndex = storedConversations.findIndex(conversation => {
-                    return conversation.id === parseInt(self.lastLoadedConversationId());
-                });
-
+                const conversationIndex = storedConversations.findIndex(
+                    conversation => conversation.id === parseInt(self.lastLoadedConversationId())
+                );
                 storedConversations[conversationIndex].conversation.messageHistory = newConversation.messageHistory;
             } else {
-                // If the conversation doesn't exist, add it to the stored conversations
-                const newConversationWithTitle = {
-                    messageHistory: self.messages().slice(0),
-                    title: ""
-                };
-
-                if (self.isPalmEnabled()) {
-                    newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
-                }
-                else if (self.isClaudeEnabled()) {
-                    newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
-                }
-                else {
-                    newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
-                }
-
-                let highestId = 0;
-                for (const conversation of storedConversations) {
-                    if (conversation.id > highestId) {
-                        highestId = conversation.id;
-                    }
-                }
-
-                storedConversations[storedConversations.length] = {};
-                storedConversations[storedConversations.length - 1].id = highestId + 1;
-                storedConversations[storedConversations.length - 1].conversation = newConversationWithTitle;
+                const newConversationWithTitle = await createNewConversationWithTitle();
+                const highestId = Math.max(...storedConversations.map(conversation => conversation.id));
+                storedConversations.push({ id: highestId + 1, conversation: newConversationWithTitle });
             }
-
-            localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
-            localStorage.setItem("lastConversationId", null);
         }
-
+    
+        localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
+        localStorage.setItem("lastConversationId", null);
+    
         self.conversations(loadConversationTitles());
         self.storedConversations(loadStoredConversations());
-
+    
+        resetMessages();
+    
+        self.selectedConversation({ messageHistory: [], title: 'placeholder' });
+        self.isProcessing(false);
+    };
+    
+    async function createNewConversationWithTitle() {
+        const newConversationWithTitle = {
+            messageHistory: self.messages().slice(0),
+            title: ""
+        };
+    
+        if (self.isPalmEnabled()) {
+            newConversationWithTitle.title = await fetchPalmConversationTitle(self.palmMessages.slice(0));
+        } else if (self.isClaudeEnabled()) {
+            newConversationWithTitle.title = await fetchClaudeConversationTitle(self.claudeMessages.slice(0));
+        } else {
+            newConversationWithTitle.title = await getConversationTitleFromGPT(self.messages().slice(0), self.selectedModel(), self.sliderValue());
+        }
+    
+        return newConversationWithTitle;
+    }
+    
+    function resetMessages() {
         localStorage.removeItem("gpt-messages");
         self.messages([]);
         self.claudeMessages = [];
         self.palmMessages = [];
         self.lastLoadedConversationId(null);
-
-        self.selectedConversation({ messageHistory: [], title: 'placeholder' });
-        self.isProcessing(false);
-    };
+    }
 
     self.scrollToBottom = function () {
         // Smooth scrolling
@@ -996,41 +931,36 @@ export function AppViewModel() {
 
     self.uploadFile = function (element, event) {
         const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const contents = e.target.result;
-
-                let isValid = false;
-
-                try {
-                    let parsedContents = JSON.parse(contents);
-
-                    for (const conversationItem of parsedContents) {
-                        if (conversationItem.id) {
-                            isValid = true;
-                        }
-                    }
-                }
-                catch (err) { console.log("bad file detected"); }
-
-                if (!isValid) {
+        if (!file) return;
+    
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const contents = e.target.result;
+    
+            try {
+                const parsedContents = JSON.parse(contents);
+    
+                if (!parsedContents.some(item => item.id)) {
+                    console.log("Invalid file format");
                     return;
                 }
-
+    
                 localStorage.setItem("gpt-conversations", contents);
                 self.conversations(loadConversationTitles());
                 self.storedConversations(loadStoredConversations());
-
-                self.selectedConversation(self.conversations()[self.conversations().length]);
+    
+                const lastConversationIndex = self.conversations().length - 1;
+                self.selectedConversation(self.conversations()[lastConversationIndex]);
                 self.loadSelectedConversation();
-
+    
                 self.showConversationOptions(true);
-
-            };
-            reader.readAsText(file);
-        }
-    }
+            } catch (err) {
+                console.log("Bad file detected");
+            }
+        };
+    
+        reader.readAsText(file);
+    };
 
     self.importConversationsClick = function () {
         self.openFileSelector();
