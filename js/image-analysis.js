@@ -1,5 +1,5 @@
-import { fetchGPTVisionResponse } from './gpt-api-access.js';
-import { fetchClaudeVisionResponse } from './claude-api-access.js';
+import { fetchGPTVisionResponse } from '../js/gpt-api-access.js';
+import { fetchClaudeVisionResponse } from '../js/claude-api-access.js';
 
 // Encode image as base64
 async function encodeImage(file) {
