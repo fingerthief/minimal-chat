@@ -103,33 +103,49 @@ export async function fetchClaudeConversationTitle(messages) {
     }
 }
 
+let claudeVisionRetryCount = 0;
 export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) {
-    const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
-        method: "POST",
-        headers: {
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json"
-        },
-        body: JSON.stringify({
-            max_tokens: 4096,
-            stream: false,
-            model: model,
-            messages: [
-                {
-                    role: "user",
-                    content: visionMessages
-                }
-            ],
-            temperature: 0.5
-        }),
-    });
+    try {
+        const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+            method: "POST",
+            headers: {
+                "x-api-key": apiKey,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                max_tokens: 4096,
+                stream: false,
+                model: model,
+                messages: [
+                    {
+                        role: "user",
+                        content: visionMessages
+                    }
+                ],
+                temperature: 0.5
+            }),
+        });
+    
+        const result = await response.json();
+    
+        if (result.content && result.content.length > 0) {
+            claudeVisionRetryCount = 0;
+            return result.content[0].text;
+        } else {
+            return "I'm sorry, I couldn't analyze the image. This usually is caused by uploading an image larger than 5MB in size.";
+        }
+    } catch (error) {
+        if (claudeVisionRetryCount < 3) {
 
-    const result = await response.json();
+            claudeVisionRetryCount++;
 
-    if (result.content && result.content.length > 0) {
-        return result.content[0].text;
-    } else {
-        return "I'm sorry, I couldn't generate a response.";
+            console.log("Retry Number: " + claudeVisionRetryCount);
+            return await fetchClaudeVisionResponse(visionMessages, apiKey, model);
+        }
+        else {
+            console.error("Error fetching Claude response:", error);
+            return "An error occurred while fetching Claude conversation title.";
+        }
     }
 }
