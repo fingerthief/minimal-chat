@@ -427,9 +427,6 @@ export function AppViewModel() {
         self.isProcessing(false);
     };
 
- 
-
-
 async function fetchGPTResponseStream(conversation, attitude, model) {
     const gptMessagesOnly = filterGPTMessages(conversation);
     const storedApiKey = getStoredApiKey();
@@ -462,7 +459,7 @@ function filterGPTMessages(conversation) {
     let lastMessageContent = "";
     return conversation.filter(message => {
         const isGPT = !message.content.trim().toLowerCase().startsWith("image::") &&
-                      !lastMessageContent.startsWith("image::");
+            !lastMessageContent.startsWith("image::");
         lastMessageContent = message.content.trim().toLowerCase();
         return isGPT;
     });
@@ -633,150 +630,142 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
     self.palmMessages = [];
     self.claudeMessages = [];
     let lastMessageText;
+    
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
         lastMessageText = messageText;
-
-        if (self.selectedModel().indexOf("bison") !== -1) {
-            self.userInput("");
-            userInput.style.height = '30px';
-            self.isPalmEnabled(true);
-            self.isLoading(true);
-            let messageContext;
-
-            if (self.palmMessages.length === 0) {
-                self.palmMessages.push({ content: messageText });
-
-                addMessage("user", messageText);
-
-                this.scrollToBottom();
-
-                messageContext = self.palmMessages.slice(0);
-            }
-            else {
-                addMessage("user", messageText);
-                this.scrollToBottom();
-                messageContext = self.palmMessages.slice(0);
-                messageContext.push({ content: messageText });
-            }
-
-            const response = await fetchPalmResponse(messageContext);
-
-            self.palmMessages.push({ content: response });
-
-            addMessage("assistant", response);
-
-            self.saveMessages();
-            this.scrollToBottom();
-            self.isLoading(false);
-            return;
-        }
-        else if (self.selectedModel().indexOf("claude") !== -1) {
-            const imagePrompt = self.userInput().trim();
-
-            if (imagePrompt.toLowerCase().startsWith("vision::")) {
-                addMessage("user", messageText);
-                self.claudeMessages.push({ role: "user", content: messageText });
-                self.isAnalyzingImage(true);
-                document.getElementById('imageInput').click();
     
-                this.scrollToBottom();
-                return;
-            }
-
-            self.userInput("");
-            userInput.style.height = '30px';
-            self.isClaudeEnabled(true);
-            self.isLoading(true);
-
-            self.claudeMessages.push({ role: "user", content: messageText });
-            addMessage("user", messageText);
-            this.scrollToBottom();
-        
-            let messageContext = self.claudeMessages.slice(0);
-
-            const response = await fetchClaudeResponse(messageContext, self.claudeSliderValue(), self.selectedModel());
-
-            self.claudeMessages.push({ role: "assistant", content: response });
-
-            addMessage("assistant", response);
-
-            self.saveMessages();
-            this.scrollToBottom();
-            self.isLoading(false);
+        if (self.selectedModel().indexOf("bison") !== -1) {
+            await sendPalmMessage(messageText);
+            return;
+        } else if (self.selectedModel().indexOf("claude") !== -1) {
+            await sendClaudeMessage(messageText);
             return;
         }
-
+    
         self.isPalmEnabled(false);
         self.isClaudeEnabled(false);
-
+    
         if (!messageText || messageText === "" || self.isLoading() || self.isGeneratingImage()) {
             return;
         }
-
-        const imagePrompt = self.userInput().trim();
-
-        if (imagePrompt.toLowerCase().startsWith("image::")) {
-            addMessage("user", imagePrompt);
-            self.isGeneratingImage(true);
-            this.scrollToBottom();
-
-            self.userInput("");
-            userInput.style.height = '30px';
-
-            const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
-
-            let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
-
-            for (const image of response.data) {
-                imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
-            }
-
-            addMessage('assistant', imageURLStrings);
-            self.saveMessages();
-            this.scrollToBottom();
-            self.isGeneratingImage(false);
+    
+        if (messageText.toLowerCase().startsWith("image::")) {
+            await sendImagePrompt(messageText);
             return;
         }
-        
-        addMessage("user", messageText);
-
-        if (imagePrompt.toLowerCase().startsWith("vision::")) {
+    
+        if (messageText.toLowerCase().startsWith("vision::")) {
+            await sendVisionPrompt();
+            return;
+        }
+    
+        await sendGPTMessage(messageText);
+    };
+    
+    async function sendPalmMessage(messageText) {
+        self.userInput("");
+        userInput.style.height = '30px';
+        self.isPalmEnabled(true);
+        self.isLoading(true);
+    
+        let messageContext;
+        if (self.palmMessages.length === 0) {
+            self.palmMessages.push({ content: messageText });
+            addMessage("user", messageText);
+            messageContext = self.palmMessages.slice(0);
+        } else {
+            addMessage("user", messageText);
+            messageContext = [...self.palmMessages, { content: messageText }];
+        }
+    
+        const response = await fetchPalmResponse(messageContext);
+        self.palmMessages.push({ content: response });
+        addMessage("assistant", response);
+    
+        self.saveMessages();
+        self.scrollToBottom();
+        self.isLoading(false);
+    }
+    
+    async function sendClaudeMessage(messageText) {
+        if (messageText.toLowerCase().startsWith("vision::")) {
+            addMessage("user", messageText);
+            self.claudeMessages.push({ role: "user", content: messageText });
             self.isAnalyzingImage(true);
             document.getElementById('imageInput').click();
-
-            this.scrollToBottom();
-            
-            self.userInput("");
-            userInput.style.height = '30px';
+            self.scrollToBottom();
             return;
         }
-
-
-        this.scrollToBottom();
+    
+        self.userInput("");
+        userInput.style.height = '30px';
+        self.isClaudeEnabled(true);
+        self.isLoading(true);
+    
+        self.claudeMessages.push({ role: "user", content: messageText });
+        addMessage("user", messageText);
+        self.scrollToBottom();
+    
+        const response = await fetchClaudeResponse(self.claudeMessages.slice(0), self.claudeSliderValue(), self.selectedModel());
+        self.claudeMessages.push({ role: "assistant", content: response });
+        addMessage("assistant", response);
+    
+        self.saveMessages();
+        self.scrollToBottom();
+        self.isLoading(false);
+    }
+    
+    async function sendImagePrompt(imagePrompt) {
+        addMessage("user", imagePrompt);
+        self.isGeneratingImage(true);
+        self.scrollToBottom();
+    
+        self.userInput("");
+        userInput.style.height = '30px';
+    
+        const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
+        let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
+    
+        for (const image of response.data) {
+            imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`
+        }
+    
+        addMessage('assistant', imageURLStrings);
+        self.saveMessages();
+        self.scrollToBottom();
+        self.isGeneratingImage(false);
+    }
+    
+    async function sendVisionPrompt() {
+        self.isAnalyzingImage(true);
+        document.getElementById('imageInput').click();
+        self.scrollToBottom();
+        self.userInput("");
+        userInput.style.height = '30px';
+    }
+    
+    async function sendGPTMessage(messageText) {
+        addMessage("user", messageText);
+        self.scrollToBottom();
         self.userInput('');
-
-        // Reset the user input field
         userInput.value = '';
         userInput.style.height = '30px';
-
-
+    
         self.streamedMessageText("");
         self.isLoading(true);
-
+    
         try {
             const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel());
-
             self.isLoading(false);
-            addMessage( 'assistant', response );
-
+            addMessage('assistant', response);
             self.saveMessages();
-            this.scrollToBottom();
+            self.scrollToBottom();
             hljs.highlightAll();
         } catch (error) {
             console.error("Error sending message:", error);
         }
-    };
+    }
 
     self.saveMessages = async function () {
         const savedMessages = self.messages().map(message => ({
