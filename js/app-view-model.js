@@ -22,6 +22,8 @@ const messagesContainer = document.querySelector('.messages');
 
 export function AppViewModel() {
     const self = this;
+
+    //#region Startup-Assignments
     self.userInput = ko.observable('');
     self.isGeneratingImage = ko.observable(false);
     self.userSearchInput = ko.observable('');
@@ -345,46 +347,36 @@ export function AppViewModel() {
             self.sendMessage(); // Call the sendMessage function
         }
     });
+    //#endregion 
 
     self.loadSelectedConversation = async function (value) {
-
         if (value) {
             self.selectedConversation(value.conversation);
-
             self.lastLoadedConversationId(value.id);
             localStorage.setItem('lastConversationId', self.lastLoadedConversationId());
         }
-
-        if (!self.selectedConversation()) {
+    
+        if (!self.selectedConversation() || !self.selectedConversation()?.messageHistory) {
             return;
         }
-
-        if (!self.selectedConversation()?.messageHistory) {
-            return;
-        }
-
+    
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
         self.showConversationOptions(false);
-
-        self.messages(selectedMessages);
-
+    
         if (self.selectedModel().indexOf("claude") !== -1) {
-            self.claudeMessages = [];
-
-            for (const chatMessage of self.messages()) {
-                self.claudeMessages.push({ role: chatMessage.role, content: chatMessage.content });
-            }
+            self.claudeMessages = selectedMessages.map(chatMessage => ({
+                role: chatMessage.role,
+                content: chatMessage.content
+            }));
         }
-
+    
         if (self.selectedModel().indexOf("bison") !== -1) {
-            self.palmMessages = [];
-            
-            for (const chatMessage of self.messages()) {
-                self.palmMessages.push({ role: chatMessage.role, content: chatMessage.content });
-            }
+            self.palmMessages = selectedMessages.map(chatMessage => ({
+                role: chatMessage.role,
+                content: chatMessage.content
+            }));
         }
-
     };
 
     self.showSearchField = async function (isFromSearch) {
@@ -542,55 +534,24 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
 
     async function analyzeImage(file, fileType) {
         const base64Image = await encodeImage(file);
-
-        let lastMessageContent = "";
-
-        let gptMessagesOnly = self.messages().filter(message => {
-            let isGPT = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
-            lastMessageContent = message.content.trim().toLowerCase();
-            return isGPT;
-        });
-
+        const gptMessagesOnly = filterGPTMessages(self.messages());
         self.userInput("");
         userInput.style.height = '30px';
-
-        let storedApiKey = localStorage.getItem("claudeKey");
-
-        if (storedApiKey !== claudeApiKey.value.trim()) {
-            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
-            storedApiKey = claudeApiKey.value.trim();
-        }
-
-        const apiKey = storedApiKey; // Ensure this is securely stored and used
-
-        let visionFormattedMessages = [];
-
-        for (let message of gptMessagesOnly) {
-            const visionFormattedMessage =
-            {
-                type: "text",
-                text: message.content
-            };
-
-            visionFormattedMessages.push(visionFormattedMessage);
-        }
-
+    
+        const storedApiKey = getStoredApiKey();
+        const visionFormattedMessages = formatMessagesForVision(gptMessagesOnly);
+    
         if (self.selectedModel().indexOf("gpt") !== -1) {
-
             visionFormattedMessages.push({
                 type: "image_url",
                 image_url: { url: base64Image }
             });
-
-            const response = await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem("gptKey"))
-
+    
+            const response = await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem("gptKey"));
             addMessage("assistant", response);
-
             self.saveMessages();
             self.isAnalyzingImage(false);
-
-        }
-        else if (self.selectedModel().indexOf("claude") !== -1) {
+        } else if (self.selectedModel().indexOf("claude") !== -1) {
             visionFormattedMessages.push({
                 type: "image",
                 source: {
@@ -599,19 +560,32 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, retryC
                     "data": getStringAfterComma(base64Image)
                 }
             });
-
-            const response = await fetchClaudeVisionResponse(visionFormattedMessages, apiKey, self.selectedModel())
-
+    
+            const response = await fetchClaudeVisionResponse(visionFormattedMessages, storedApiKey, self.selectedModel());
             addMessage("assistant", response);
-            self.claudeMessages.push({ role: "assistant", content: response })
-
+            self.claudeMessages.push({ role: "assistant", content: response });
             self.saveMessages();
             self.isAnalyzingImage(false);
             self.scrollToBottom();
-        }
-        else {
+        } else {
             return "not implemented for selected model";
         }
+    }
+    
+    function getStoredApiKey() {
+        let storedApiKey = localStorage.getItem("claudeKey");
+        if (storedApiKey !== claudeApiKey.value.trim()) {
+            localStorage.setItem("claudeKey", claudeApiKey.value.trim());
+            storedApiKey = claudeApiKey.value.trim();
+        }
+        return storedApiKey;
+    }
+    
+    function formatMessagesForVision(messages) {
+        return messages.map(message => ({
+            type: "text",
+            text: message.content
+        }));
     }
 
     document.getElementById('imageInput').addEventListener('change', async function (event) {
