@@ -36,6 +36,32 @@ export async function fetchGPTResponse(conversation, attitude, model) {
     }
 }
 
+export async function fetchGPTVisionResponse(visionMessages, apiKey) {
+    const payload = {
+        model: "gpt-4-vision-preview",
+        messages: [
+            {
+                role: "user",
+                content: visionMessages
+            }
+        ],
+        max_tokens: 4096
+    };
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    return data.choices[0].message.content;
+}
+
 export async function generateDALLEImage(conversation) {
     let storedApiKey = localStorage.getItem("gptKey");
 

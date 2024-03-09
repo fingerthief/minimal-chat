@@ -5,8 +5,9 @@ import {
 import {
     loadConversationTitles,
     loadStoredConversations,
-    generateDALLEImage
-} from '../js/storage.js';
+    generateDALLEImage,
+    fetchGPTVisionResponse
+} from '../js/gpt-api-access.js';
 import {
     fetchPalmResponse,
     fetchPalmConversationTitle
@@ -560,33 +561,12 @@ export function AppViewModel() {
                 image_url: { url: base64Image }
             });
 
-            const payload = {
-                model: "gpt-4-vision-preview",
-                messages: [
-                    {
-                        role: "user",
-                        content: visionFormattedMessages
-                    }
-                ],
-                max_tokens: 4096
-            };
+            const response = await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem("gptKey"))
 
-            fetch("https://api.openai.com/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
-                },
-                body: JSON.stringify(payload)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    addMessage("assistant", data.choices[0].message.content);
+            addMessage("assistant", response);
 
-                    self.saveMessages();
-                    self.isAnalyzingImage(false);
-                })
-                .catch(error => console.error('Error:', error));
+            self.saveMessages();
+            self.isAnalyzingImage(false);
 
         }
         else if (self.selectedModel().indexOf("claude") !== -1) {
