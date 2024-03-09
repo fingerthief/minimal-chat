@@ -1,47 +1,48 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Tanner Middleton">
     <meta name="description" content="An open source minimal GPT/DALL-E/PaLM chat web application.">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="styles/site.css">
-    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="manifest" href="manifest.webmanifest">
     <title>MinimalGPT</title>
 </head>
-
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-R42YRRG1Y1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    gtag('config', 'G-R42YRRG1Y1');
-</script>
-
-
 <body class="app-body">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R42YRRG1Y1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-R42YRRG1Y1');
+    </script>
+
+    <!-- File Upload -->
     <div id="fileUploadDiv">
         <input type="file" id="fileUpload" style="display: none;" data-bind="event: { change: uploadFile }">
         <div data-bind="click: openFileSelector" style="display: none;">Upload File</div>
         <input id="imageInput" data-bind="visible: false;" type="file">
     </div>
+
+    <!-- App Container -->
     <div class="app-container" id="app-container">
+        <!-- Settings Sidebar -->
         <div class="sidebar box" id="settings-dialog" data-bind="css: { open: isSidebarOpen }">
-            <!-- Add settings content here -->
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.1.6</h2>
+                    Settings | V4.1.7
+                </h2>
             </div>
             <div class="sidebar-content-container">
+                <!-- GPT Key -->
                 <div class="api-key">
                     <label for="api-key">GPT Key:</label>
                     <input autocomplete="off" id="api-key" placeholder="Enter your API Key...">
@@ -51,6 +52,8 @@
                     <input type="range" min="0" max="200" data-bind="value: sliderValue">
                     <span>Creative</span>
                 </div>
+
+                <!-- Claude Key -->
                 <div class="api-key">
                     <label for="api-key">Claude Key:</label>
                     <input autocomplete="off" id="claude-api-key" placeholder="Enter your API Key...">
@@ -60,6 +63,8 @@
                     <input type="range" min="0" max="200" data-bind="value: claudeSliderValue">
                     <span>Creative</span>
                 </div>
+
+                <!-- DALL-E Settings -->
                 <div class="control">
                     <label for="model-selector">DALL-E Image Count:</label>
                     <select id="model-selector" data-bind="value: selectedDallEImageCount">
@@ -83,6 +88,8 @@
                         <option value="1024x1024">1024x1024</option>
                     </select>
                 </div>
+
+                <!-- PaLM Key -->
                 <div class="api-key">
                     <label for="api-key">PaLM Key:</label>
                     <input id="palm-api-key" autocomplete="off" placeholder="Enter your API Key...">
@@ -92,6 +99,8 @@
                     <input type="range" min="0" max="100" data-bind="value: palmSliderValue">
                     <span>Creative</span>
                 </div>
+
+                <!-- Auto Save Conversations -->
                 <div class="control">
                     <label for="model-selector">Auto Save Conversations:</label>
                     <select id="model-selector" data-bind="value: selectedAutoSaveOption">
@@ -99,6 +108,8 @@
                         <option value="false">No</option>
                     </select>
                 </div>
+
+                <!-- Model Selection -->
                 <div class="control">
                     <label for="model-selector">Model:</label>
                     <select id="model-selector" data-bind="value: selectedModel">
@@ -114,8 +125,9 @@
                 <button class="close-btn" data-bind="click: toggleSidebar">Close</button>
             </div>
         </div>
+
+        <!-- Conversations Sidebar -->
         <div class="sidebar box" id="settings-dialog" data-bind="css: { open: showConversationOptions }">
-            <!-- Add conversations content here -->
             <div class="settings-header">
                 <h2>Conversations</h2>
             </div>
@@ -135,9 +147,12 @@
                 <button class="close-btn" data-bind="click: () => showConversationOptions(false)">Close</button>
             </div>
         </div>
+
+        <!-- Chat Container -->
         <div class="chat-container">
             <div class="container">
                 <div class="chat">
+                    <!-- Header -->
                     <div class="header box">
                         <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link" data-bind="visible: selectedModel().indexOf('bison') !== -1">
                             MinimalPaLM
@@ -148,49 +163,46 @@
                         <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link" data-bind="visible: selectedModel().indexOf('gpt') !== -1">
                             MinimalGPT
                         </a>
-                        <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank"
-                        class="no-style-link">
+                        <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
                             <span class="fa-brands fa-github"></span>
                         </a>
-
                         <div class="settings-btn fa-solid fa-sliders fa-xl" data-bind="click: toggleSidebar"></div>
-                        <div class="trash-btn fa-regular fa-trash-can fa-xl"
-                            data-bind="click: deleteCurrentConversation">
-                        </div>
+                        <div class="trash-btn fa-regular fa-trash-can fa-xl" data-bind="click: deleteCurrentConversation"></div>
                         <div class="conversations-count">
                             <div class="general-processing" data-bind="visible: isProcessing">
                                 <span class="loading spinner"></span>
                             </div>
-                            <span class="save-icon fa-regular fa-floppy-disk fa-xl"
-                                data-bind="click: clearMessages"></span>
-                            <span class="count-icon fa-xl fa-solid"
-                                data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>
-                            <div class="saved-conversations-dropdown fa-regular fa-comments fa-xl"
-                                data-bind="click: onShowConversationsClick"></div>
+                            <span class="save-icon fa-regular fa-floppy-disk fa-xl" data-bind="click: clearMessages"></span>
+                            <span class="count-icon fa-xl fa-solid" data-bind="css: storedConversations().length > 0 ? 'fa-' + storedConversations().length : 'fa-0'"></span>
+                            <div class="saved-conversations-dropdown fa-regular fa-comments fa-xl" data-bind="click: onShowConversationsClick"></div>
                         </div>
                     </div>
+
+                    <!-- Messages -->
                     <div class="messages" id="messagesContainer">
+                        <!-- Search Button -->
                         <div class="floating-button" data-bind="visible: messages().length, click: showSearchField, stopClickPropagation: {}">
                             <span class="fa-solid fa-magnifying-glass fa-xl"></span>
                         </div>
-                        <div class="floating-search-field" id="floating-search-field"
-                            data-bind="css: showingSearchField() ? 'show' : ''">
-                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder=""
-                                data-bind="textInput: userSearchInput(), event: { input: autoResize, focus: autoResize, blur: onUserSearchBlur }"></textarea>
+
+                        <!-- Search Field -->
+                        <div class="floating-search-field" id="floating-search-field" data-bind="css: showingSearchField() ? 'show' : ''">
+                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder="" data-bind="textInput: userSearchInput(), event: { input: autoResize, focus: autoResize, blur: onUserSearchBlur }"></textarea>
                         </div>
 
+                        <!-- Filtered Messages -->
                         <div data-bind="foreach: filteredMessages">
                             <div data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                                 <div class="label">
                                     <span class="fa-solid fa-robot icon fa-lg" data-bind="visible: role !== 'user'"></span>
                                     <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
-                                    <span
-                                        data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 ? 'GPT' : 'PaLM'"></span>
+                                    <span data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 ? 'GPT' : 'PaLM'"></span>
                                 </div>
                                 <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                             </div>
                         </div>
 
+                        <!-- GPT Messages -->
                         <div data-bind="if: selectedModel().indexOf('gpt') !== -1">
                             <div data-bind="foreach: messages()">
                                 <div data-bind="if: $parent.userSearchInput().trim().length === 0">
@@ -206,6 +218,7 @@
                             </div>
                         </div>
 
+                        <!-- PaLM Messages -->
                         <div data-bind="if: selectedModel().indexOf('bison') !== -1">
                             <div data-bind="foreach: messages()">
                                 <div data-bind="if: $parent.userSearchInput().trim().length === 0">
@@ -221,6 +234,7 @@
                             </div>
                         </div>
 
+                        <!-- Claude Messages -->
                         <div data-bind="if: selectedModel().indexOf('claude') !== -1">
                             <div data-bind="foreach: messages()">
                                 <div data-bind="if: $parent.userSearchInput().trim().length === 0">
@@ -236,6 +250,7 @@
                             </div>
                         </div>
 
+                        <!-- Stream GPT Response -->
                         <div data-bind="if: isLoading() && !isPalmEnabled() && !isClaudeEnabled()">
                             <div class="gpt message padded" >
                                 <div class="label">
@@ -246,6 +261,7 @@
                             </div>
                         </div>
 
+                        <!-- PaLM Loading Response -->
                         <div data-bind="if: isLoading() && isPalmEnabled()">
                             <div class="gpt message padded">
                                 <div class="label">
@@ -257,6 +273,7 @@
                             </div>
                         </div>
 
+                        <!-- Claude Loading Response -->
                         <div data-bind="if: isLoading() && isClaudeEnabled()">
                             <div class="gpt message padded">
                                 <div class="label">
@@ -268,7 +285,7 @@
                             </div>
                         </div>
 
-
+                        <!-- DALL-E Generating Image Loading -->
                         <div data-bind="if: isGeneratingImage">
                             <div class="gpt message padded">
                                 <div class="label">
@@ -280,6 +297,7 @@
                             </div>
                         </div>
 
+                        <!-- Vision Image Processing Loading Response -->
                         <div data-bind="if: isAnalyzingImage">
                             <div class="gpt message padded">
                                 <div class="label">
@@ -291,12 +309,14 @@
                             </div>
                         </div>
 
+                        <!-- Floating button to quick scroll to the bottom of the page -->
                         <div class="floating-button scroll" id="scroll-button"
                             data-bind="click: scrollToBottom(), css: shouldShowScrollButton() === true ? 'show' : ''">
                             <span class="fa-solid fa-circle-chevron-down fa-xl"></span>
                         </div>
                     </div>
 
+                    <!-- User Input Section -->
                     <form id="chat-form" data-bind="submit: sendMessage, event: { 'swiped-left': swipedLeft, 'swiped-right': swipedRight }" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
                         <textarea id="user-input" class="user-input-text" rows="1" placeholder=""
                             data-bind="textInput: userInput"></textarea>
