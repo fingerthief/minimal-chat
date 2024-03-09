@@ -366,12 +366,16 @@ export function AppViewModel() {
         self.messages(selectedMessages);
 
         if (self.selectedModel().indexOf("claude") !== -1) {
+            self.claudeMessages = [];
+
             for (const chatMessage of self.messages()) {
                 self.claudeMessages.push({ role: chatMessage.role, content: chatMessage.content });
             }
         }
 
         if (self.selectedModel().indexOf("bison") !== -1) {
+            self.palmMessages = [];
+            
             for (const chatMessage of self.messages()) {
                 self.palmMessages.push({ role: chatMessage.role, content: chatMessage.content });
             }
@@ -394,6 +398,7 @@ export function AppViewModel() {
             return;
         }
 
+
         self.storedConversations(loadStoredConversations());
 
         self.isProcessing(true);
@@ -408,6 +413,8 @@ export function AppViewModel() {
         localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
         self.storedConversations(loadStoredConversations());
         self.messages([]);
+        self.palmMessages = [];
+        self.claudeMessages = [];
         self.conversationTitles(loadConversationTitles());
         self.conversations(loadConversationTitles());
         self.lastLoadedConversationId(null);
