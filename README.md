@@ -1,10 +1,12 @@
-# [Try MinimalGPT/MinimalPaLM](https://minimalgpt.app/)
+# [Try MinimalGPT/MinimalPaLM/MinimalClaude](https://minimalgpt.app/)
 
-**MinimalGPT** is an open-source GPT chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT or PaLM chat when the user sends a message and when a user saves a conversation to generate a conversation title.
+**MinimalGPT** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude chat when the user sends a message and when a user saves a conversation to generate a conversation title.
 
-> ⚠️ **Note**: You must input your OpenAI API Key for GPT3 or GPT4 in order for GPT models to function.
+> ⚠️ **Note**: You must input your **OpenAI API** Key for GPT3 or GPT4 in order for **GPT** models to function.
 
-> ⚠️ **Note**: You must input your Google PaLM API Key in order for the PaLM model to function.
+> ⚠️ **Note**: You must input your **Google PaLM API** Key in order for the **PaLM** model to function.
+
+> ⚠️ **Note**: You must input your **Anthropic Claude-3 API** Key in order for the **Claude** model to function.
 
 ---
 
