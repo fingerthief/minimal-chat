@@ -198,7 +198,6 @@ export function loadConversationTitles() {
 }
 
 export function loadStoredConversations() {
-    hljs.highlightAll();
     const storedConversations = localStorage.getItem("gpt-conversations");
     return storedConversations ? JSON.parse(storedConversations) : [];
 }

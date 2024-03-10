@@ -53,7 +53,7 @@ export function AppViewModel() {
     self.filterText = ko.observable("");
 
     hljs.configure({ ignoreUnescapedHTML: true });
-
+    
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
     self.selectedConversation = ko.observable(self.storedConversations()[self.storedConversations().length]);
@@ -67,33 +67,6 @@ export function AppViewModel() {
             element.addEventListener('click', function (event) {
                 event.stopPropagation();
             });
-        }
-    };
-
-    // Markdown configuration
-    const defaults = {
-        html: false,
-        xhtmlOut: false,
-        breaks: false,
-        langPrefix: 'language-',
-        linkify: true,
-        typographer: true,
-        _highlight: false,
-        _strict: false,
-        _view: 'src'
-    };
-
-    defaults.highlight = function (str, lang) {
-        const md = window.markdownit(defaults);
-        var esc = md.utils.escapeHtml;
-        if (lang && hljs.getLanguage(lang)) {
-            try {
-                return '<pre class="hljs"><code>' +
-                    hljs.highlight(lang, str, true).value +
-                    '</code></pre>';
-            } catch (__) { }
-        } else {
-            return '<pre class="hljs"><code>' + esc(str) + '</code></pre>';
         }
     };
 
@@ -438,7 +411,6 @@ export function AppViewModel() {
 
     function updateUI(content) {
         self.streamedMessageText((self.streamedMessageText() || "") + content);
-        hljs.highlightAll();
         self.scrollToBottom();
     }
 
@@ -613,7 +585,6 @@ export function AppViewModel() {
             addMessage('assistant', response);
             self.saveMessages();
             self.scrollToBottom();
-            hljs.highlightAll();
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -638,9 +609,36 @@ export function AppViewModel() {
         localStorage.setItem("gpt-conversations", JSON.stringify(self.storedConversations()));
     };
 
+    const defaults = {
+        html: true,
+        xhtmlOut: false,
+        breaks: false,
+        langPrefix: 'language-',
+        linkify: true,
+        typographer: true,
+        _highlight: true,
+        _strict: false,
+        _view: 'src'
+    };
+
+    defaults.highlight = function (str, lang) {
+        const md = window.markdownit(defaults);
+        var esc = md.utils.escapeHtml;
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return '<pre class="hljs"><code>' +
+                    hljs.highlight(lang, str, true).value +
+                    '</code></pre>';
+            } catch (__) { }
+        } else {
+            return '<pre class="hljs"><code>' + esc(str) + '</code></pre>';
+        }
+    };
+
     self.formatMessage = function (message, isStartup) {
         let md = window.markdownit(defaults);
         let renderedMessage = wrapCodeSnippets(md.render(message));
+        hljs.highlightAll(md, renderedMessage)
         return renderedMessage;
     };
 
@@ -680,8 +678,19 @@ export function AppViewModel() {
         self.loadSelectedConversation();
     };
 
-    self.copyText = function (content) {
-        navigator.clipboard.writeText(content);
+    self.copyText = function (element) {
+        const handler = () => {
+            const content = element.textContent;
+            navigator.clipboard.writeText(content)
+                .then(() => {
+                    console.log('Content copied to clipboard');
+                })
+                .catch((error) => {
+                    console.error('Failed to copy content: ', error);
+                });
+        };
+
+        return handler;
     }
 
     self.clearMessages = async function () {
