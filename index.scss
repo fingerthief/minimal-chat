@@ -5,7 +5,7 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../webfonts";
-$icon-color: #c7a0c8;
+$icon-color: #947e95;
 
 @font-face {
     font-family: 'Helvetica';
@@ -487,76 +487,6 @@ button {
     background: #5d455e;
 }
 
-.sidebar-conversation {
-    background-color: #2b2431;
-    width: 90vw;
-    max-width: 650px;
-    border-radius: 8px;
-    padding: 8px;
-    border: 2px solid #665067;
-    overflow: auto;
-    max-height: 80vh;
-    min-height: 80vh;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: absolute;
-    
-    opacity: 0;
-    z-index: -1;
-    transition: z-index 0.15s step-end, opacity 0.15s linear;
-    justify-content: space-between;
-    align-items: stretch;
-
-        // For Firefox
-    scrollbar-width: thin;
-    scrollbar-color: #665067 #665067;
-
-    .sidebar-content-container {
-        overflow: auto;
-        text-overflow: clip;
-    }
-
-    &.open {
-        z-index: 99999999;
-        opacity: 1;
-
-        transition: z-index 0.15s step-start, opacity 0.15s linear;
-    }
-
-    .scrollable-list {
-        height: 55vh;
-        overflow: auto;
-
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        li {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10 and IE 11 */
-            user-select: none; /* Standard syntax */
-
-            &:hover {
-                background-color: #3d3346;
-            }
-        }
-    }
-}
-
-.sidebar-conversation::-webkit-scrollbar {
-    /* For Chrome, Safari, and Opera */
-    display: none;
-}
-
-
 .sidebar {
     background-color: #2b2431;
     width: 90vw;
@@ -814,7 +744,7 @@ $shadow-spread-radius: 0px;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #665067;
+            background: $icon-color;
             cursor: pointer;
         }
 

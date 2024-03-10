@@ -38,7 +38,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.1.9
+                    Settings | V4.2.0
                 </h2>
             </div>
             <div class="sidebar-content-container">
@@ -72,7 +72,7 @@
                 </div>
                 <div class="slider-container">
                     <span>Serious</span>
-                    <input type="range" min="0" max="200" data-bind="value: claudeSliderValue">
+                    <input type="range" min="0" max="100" data-bind="value: claudeSliderValue">
                     <span>Creative</span>
                 </div>
 
@@ -127,7 +127,7 @@
         </div>
 
         <!-- Conversations Sidebar -->
-        <div class="sidebar-conversation box" id="settings-dialog" data-bind="css: { open: showConversationOptions }">
+        <div class="sidebar box" id="settings-dialog" data-bind="css: { open: showConversationOptions }">
             <div class="settings-header">
                 <h2>Conversations</h2>
             </div>
