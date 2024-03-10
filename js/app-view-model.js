@@ -169,7 +169,8 @@ export function AppViewModel() {
     userSearchInputField.addEventListener('focus', self.autoResize);
 
     self.filterMessages = ko.computed(function () {
-        const searchQuery = self.filterText().trim();
+        const searchQuery = self.filterText().toLowerCase().trim();
+        
         if (searchQuery.length === 0) {
             self.hasFilterText(false);
             return self.messages();

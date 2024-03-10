@@ -38,7 +38,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.2.2
+                    Settings | V4.2.3
                 </h2>
             </div>
             <div class="sidebar-content-container">
@@ -222,7 +222,7 @@
                         <!-- PaLM Messages -->
                         <div data-bind="if: selectedModel().indexOf('bison') !== -1">
                             <div data-bind="foreach: messages()">
-                                <div data-bind="if: $parent.userSearchInput().trim().length === 0">
+                                <div data-bind="if: !$parent.hasFilterText()">
                                     <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                                         <div class="label">
                                             <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>
@@ -238,7 +238,7 @@
                         <!-- Claude Messages -->
                         <div data-bind="if: selectedModel().indexOf('claude') !== -1">
                             <div data-bind="foreach: messages()">
-                                <div data-bind="if: $parent.userSearchInput().trim().length === 0">
+                                <div data-bind="if: !$parent.hasFilterText()">
                                     <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                                         <div class="label">
                                             <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>
