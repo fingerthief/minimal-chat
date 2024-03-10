@@ -260,7 +260,6 @@ export function AppViewModel() {
             self.showConversationOptions(false);
         }
     });
-    //#endregion
 
     // Toggle sidebar
     self.toggleSidebar = () => {
@@ -332,6 +331,7 @@ export function AppViewModel() {
             self.sendMessage();
         }
     });
+    //#endregion
 
     // Load selected conversation
     self.loadSelectedConversation = async function (value) {
@@ -800,6 +800,15 @@ export function AppViewModel() {
         element.click();
 
         document.body.removeChild(element);
+    }
+
+    self.deleteAllConversationsClick = function () {
+        localStorage.setItem("gpt-conversations", "");
+        self.messages([]);
+        self.palmMessages = [];
+        self.claudeMessages = [];
+        self.conversations([]);
+        self.storedConversations([]);
     }
 
     const hasConversations = self.conversations().length > 0;
