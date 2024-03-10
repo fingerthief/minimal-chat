@@ -25,7 +25,7 @@ const messagesContainer = document.querySelector('.messages');
 export function AppViewModel() {
     const self = this;
 
-    // Startup assignments
+    //#region  Startup assignments
     self.userInput = ko.observable('');
     self.isGeneratingImage = ko.observable(false);
     self.userSearchInput = ko.observable('');
@@ -260,6 +260,7 @@ export function AppViewModel() {
             self.showConversationOptions(false);
         }
     });
+    //#endregion
 
     // Toggle sidebar
     self.toggleSidebar = () => {

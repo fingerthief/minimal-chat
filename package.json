@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start-server": "http-server ./ -p 8080 --cors",
+    "start-server-docker": "http-server . -p 3000 --cors",
     "scss-build": "sass ./index.scss ./styles/site.css",
     "build": "gulp",
     "publish": "npm run scss-build && npm run build && firebase deploy",
