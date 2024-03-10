@@ -38,7 +38,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.2.0
+                    Settings | V4.2.1
                 </h2>
             </div>
             <div class="sidebar-content-container">
@@ -188,16 +188,16 @@
 
                         <!-- Search Field -->
                         <div class="floating-search-field" id="floating-search-field" data-bind="css: showingSearchField() ? 'show' : ''">
-                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder="" data-bind="textInput: userSearchInput(), event: { input: autoResize, focus: autoResize, blur: onUserSearchBlur }"></textarea>
+                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder="" data-bind="textInput: filterText"></textarea>
                         </div>
 
                         <!-- Filtered Messages -->
-                        <div data-bind="foreach: filteredMessages">
-                            <div data-bind="visible: $parent.userSearchInput().trim().length > 0, css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
+                        <div data-bind="foreach: filterMessages">
+                            <div data-bind="visible: $parent.hasFilterText(), css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                                 <div class="label">
                                     <span class="fa-solid fa-robot icon fa-lg" data-bind="visible: role !== 'user'"></span>
                                     <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
-                                    <span data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 ? 'GPT' : 'PaLM'"></span>
+                                    <span data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 && $parent.selectedModel().indexOf('claude') === -1 ? 'GPT' : $parent.selectedModel().indexOf('claude') === -1 ? 'Claude' : 'PaLM'"></span>
                                 </div>
                                 <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                             </div>
@@ -206,7 +206,7 @@
                         <!-- GPT Messages -->
                         <div data-bind="if: selectedModel().indexOf('gpt') !== -1">
                             <div data-bind="foreach: messages()">
-                                <div data-bind="if: $parent.userSearchInput().trim().length === 0">
+                                <div data-bind="if: !$parent.hasFilterText()">
                                     <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
                                         <div class="label">
                                             <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>

@@ -41,6 +41,7 @@ export function AppViewModel() {
     self.showConversationOptions = ko.observable(false);
     self.streamedMessageText = ko.observable();
     self.showingSearchField = ko.observable(false);
+    self.hasFilterText = ko.observable(false);
     self.filteredMessages = ko.observableArray([]);
     self.isPalmEnabled = ko.observable(false);
     self.isClaudeEnabled = ko.observable(false);
@@ -49,6 +50,7 @@ export function AppViewModel() {
     self.selectedAutoSaveOption = ko.observable(localStorage.getItem('selectedAutoSaveOption') || true);
     self.selectedDallEImageCount = ko.observable(localStorage.getItem('selectedImageCountOption') || '4');
     self.selectedDallEImageResolution = ko.observable(localStorage.getItem('selectedImageResolutionOption') || '256x256');
+    self.filterText = ko.observable("");
 
     hljs.configure({ ignoreUnescapedHTML: true });
 
@@ -161,12 +163,14 @@ export function AppViewModel() {
 
     self.autoResize = function () {
         if (!self.userInput() || self.userInput().trim() === "") {
-            this.style.height = '30px';
+
+            userInput.style.height = '30px';
             return;
         }
-        this.style.height = 'auto';
-        this.style.height = `${this.scrollHeight - 15}px`;
-    };
+
+        userInput.style.height = 'auto';
+        userInput.style.height = `${userInput.scrollHeight - 15}px`;
+    }
 
     // Local storage setup
     if (!localStorage.getItem('selectedModel')) {
@@ -187,16 +191,49 @@ export function AppViewModel() {
         self.isSidebarOpen(!self.isSidebarOpen());
     };
 
-    // Filtered messages
-    self.filteredMessages = ko.computed(() => {
-        const searchQuery = self.userSearchInput().toLowerCase();
+    const userSearchInputField = document.getElementById('user-search-input');
+    userSearchInputField.addEventListener('input', self.autoResize);
+    userSearchInputField.addEventListener('focus', self.autoResize);
+
+    self.filterMessages = ko.computed(function () {
+        const searchQuery = self.filterText().trim();
         if (searchQuery.length === 0) {
+            self.hasFilterText(false);
             return self.messages();
         }
+
+        self.hasFilterText(true);
+
         return self.messages().filter((message) =>
             message.content.toLowerCase().includes(searchQuery)
         );
     });
+
+    let currentFilterText = "";
+    async function filterMessages(keyPressed) {
+        const searchQuery = userSearchInputField.value.trim();
+        if (searchQuery.length === 0) {
+            self.hasFilterText(false);
+            return self.filteredMessages(self.messages());
+        }
+
+        self.hasFilterText(true);
+
+        return self.filteredMessages(self.messages().filter((message) =>
+            message.content.toLowerCase().includes(searchQuery)
+        ));
+    }
+
+    async function checkForBackspace(event) {
+        const key = event.key;
+
+        if (key === "Backspace" || key === "Delete") {
+            if (userSearchInputField.value.trim().length > 0) {
+                filterMessages(key);
+            } 
+            return false;
+        }
+    }
 
     // Save selected options
     self.saveSelectedModel = function () {

@@ -10347,7 +10347,7 @@ a:hover, a:focus, a:active, a:visited {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #947e95;
+  color: #9f86a0;
   cursor: pointer;
 }
 .trash-btn:hover {
@@ -10435,7 +10435,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #947e95;
+  color: #9f86a0;
   position: absolute;
   min-height: 50px;
   display: grid;
@@ -10455,7 +10455,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #947e95;
+  color: #9f86a0;
   position: fixed;
   min-height: 50px;
   top: 112px;
@@ -10465,9 +10465,9 @@ button:hover {
   z-index: 99999;
   border-radius: 30px;
   min-width: 54px;
-  opacity: 1;
+  opacity: 0.2;
   justify-content: space-around;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.1s ease-in-out;
 }
 .floating-button.scroll {
   top: 76vh;
@@ -10477,7 +10477,7 @@ button:hover {
   opacity: 1;
 }
 .floating-button:hover {
-  background-color: #4a4a4c;
+  opacity: 1;
 }
 
 .floating-search-field {
@@ -10644,7 +10644,7 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 11px;
-  color: #947e95;
+  color: #9f86a0;
   float: right;
   position: relative;
 }
@@ -10652,7 +10652,7 @@ button:hover {
   padding: 2px;
   right: 65px;
   top: 8px;
-  color: #947e95;
+  color: #9f86a0;
   float: right;
   position: relative;
 }
@@ -10661,7 +10661,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #947e95;
+  color: #9f86a0;
   transform: translateY(-50%);
 }
 
@@ -10795,7 +10795,7 @@ button:hover {
   padding: 5px 10px;
   border: 1px solid #444;
   border-radius: 12px;
-  background-color: #665067;
+  background-color: #433444;
   color: white;
   cursor: pointer;
   width: 100%;
@@ -10817,7 +10817,7 @@ button:hover {
   border: 1px solid #444;
   border-radius: 12px;
   margin-right: 6px;
-  background-color: #665067;
+  background-color: #433444;
   color: white;
   cursor: pointer;
   width: 100%;
@@ -10888,7 +10888,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #947e95;
+  color: #9f86a0;
   cursor: pointer;
   outline: none;
 }
@@ -10948,7 +10948,7 @@ button:hover {
   flex-grow: 1;
   height: 15px;
   border-radius: 5px;
-  background: #916c93;
+  background: #5b3d5e;
   outline: none;
   margin-left: 10px;
 }
@@ -10957,7 +10957,7 @@ button:hover {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #947e95;
+  background: #9f86a0;
   cursor: pointer;
 }
 .slider-container input[type=range]::-moz-range-thumb {
