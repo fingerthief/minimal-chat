@@ -678,19 +678,18 @@ export function AppViewModel() {
         self.loadSelectedConversation();
     };
 
-    self.copyText = function (element) {
-        const handler = () => {
-            const content = element.textContent;
-            navigator.clipboard.writeText(content)
-                .then(() => {
-                    console.log('Content copied to clipboard');
-                })
-                .catch((error) => {
-                    console.error('Failed to copy content: ', error);
-                });
-        };
-
-        return handler;
+    self.copyText = function (text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text.content;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {document.execCommand('copy');
+            console.log('Content copied to clipboard');
+        } catch (error) {
+            console.error('Failed to copy content: ', error);
+        }
+        
+        document.body.removeChild(textarea);
     }
 
     self.clearMessages = async function () {
