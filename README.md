@@ -6,6 +6,14 @@
 
 **MinimalGPT** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude chat when the user sends a message and when a user saves a conversation to generate a conversation title.
 
+---
+
+## Self Host with Docker
+
+- `docker pull tannermiddleton/minimal-chat:latest`
+
+---
+
 > ⚠️ **Note**: You must input your **OpenAI API** Key for GPT3 or GPT4 in order for **GPT** models to function.
 
 > ⚠️ **Note**: You must input your **Google PaLM API** Key in order for the **PaLM** model to function.
