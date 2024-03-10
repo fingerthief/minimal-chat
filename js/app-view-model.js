@@ -183,32 +183,6 @@ export function AppViewModel() {
         );
     });
 
-    let currentFilterText = "";
-    async function filterMessages(keyPressed) {
-        const searchQuery = userSearchInputField.value.trim();
-        if (searchQuery.length === 0) {
-            self.hasFilterText(false);
-            return self.filteredMessages(self.messages());
-        }
-
-        self.hasFilterText(true);
-
-        return self.filteredMessages(self.messages().filter((message) =>
-            message.content.toLowerCase().includes(searchQuery)
-        ));
-    }
-
-    async function checkForBackspace(event) {
-        const key = event.key;
-
-        if (key === "Backspace" || key === "Delete") {
-            if (userSearchInputField.value.trim().length > 0) {
-                filterMessages(key);
-            } 
-            return false;
-        }
-    }
-
     // Save selected options
     self.saveSelectedModel = function () {
         localStorage.setItem('selectedModel', self.selectedModel());

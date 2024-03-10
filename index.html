@@ -197,7 +197,7 @@
                                 <div class="label">
                                     <span class="fa-solid fa-robot icon fa-lg" data-bind="visible: role !== 'user'"></span>
                                     <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
-                                    <span data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 && $parent.selectedModel().indexOf('claude') === -1 ? 'GPT' : $parent.selectedModel().indexOf('claude') === -1 ? 'Claude' : 'PaLM'"></span>
+                                    <span data-bind="text: role === 'user' ? 'User' : $parent.selectedModel().indexOf('bison') === -1 && $parent.selectedModel().indexOf('claude') === -1 ? 'GPT' : $parent.selectedModel().indexOf('claude') !== -1 ? 'Claude' : 'PaLM'"></span>
                                 </div>
                                 <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                             </div>
