@@ -59,6 +59,17 @@ On Android the process is basically the same except the name of the option is **
 <li><a href="#credits">Credits</a></li>
 <li><a href="#license">License</a></li>
 </ul>
+
+<h2>FAQ</h2>
+<p><strong>Q: Is MinimalGPT free to use?</strong>
+A: Yes, MinimalGPT is open-source and free to use. However, you’ll need to provide your own API keys for the language models you want to use.</p>
+<p><strong>Q: Can I use MinimalGPT without an internet connection?</strong>
+A: No, MinimalGPT requires an internet connection to communicate with the language model APIs.</p>
+<p><strong>Q: Are my conversations secure and private?</strong>
+A: Yes, all conversations are stored locally on your device and are not sent to any servers other than the necessary API calls to the language models.</p>
+<p><strong>Q: Can I use MinimalGPT on my mobile device?</strong>
+A: Yes, MinimalGPT is designed to be responsive and works well on mobile devices. You can even install it as a PWA for a native app-like experience.</p>
+
 <h2>Features</h2>
 <ul>
 <li>Minimal chat layout</li>
@@ -90,11 +101,6 @@ On Android the process is basically the same except the name of the option is **
 <li>Swipe to the <strong>Left</strong> on the bottom input box and your <strong>Conversations</strong> dialog will appear.</li>
 <li>Swipe to the <strong>Right</strong> on the bottom input box and your <strong>Settings</strong> dialog will appear.</li>
 </ul>
-
-### Mobile Swipe Gestures
-
-- Swipe to the **Left** on the bottom input box and your **Conversations** dialog will appear.
-- Swipe to the **Right** on the bottom input box and your **Settings** dialog will appear.
 
 ### Keyboard Shortcuts
 
@@ -137,16 +143,6 @@ On Android the process is basically the same except the name of the option is **
 </ul>
 <h2>License</h2>
 <p>MinimalGPT is released under the <a href="https://opensource.org/licenses/MIT">MIT License</a>. See the <code>LICENSE</code> file for more information.</p>
-
-<h2>FAQ</h2>
-<p><strong>Q: Is MinimalGPT free to use?</strong>
-A: Yes, MinimalGPT is open-source and free to use. However, you’ll need to provide your own API keys for the language models you want to use.</p>
-<p><strong>Q: Can I use MinimalGPT without an internet connection?</strong>
-A: No, MinimalGPT requires an internet connection to communicate with the language model APIs.</p>
-<p><strong>Q: Are my conversations secure and private?</strong>
-A: Yes, all conversations are stored locally on your device and are not sent to any servers other than the necessary API calls to the language models.</p>
-<p><strong>Q: Can I use MinimalGPT on my mobile device?</strong>
-A: Yes, MinimalGPT is designed to be responsive and works well on mobile devices. You can even install it as a PWA for a native app-like experience.</p>
 
 <h2>Run Web App Locally</h2>
 <p>To run the web app locally, you’ll need <code>NodeJS</code> installed so NPM is available. Then, navigate to the project directory in VSCode and run the following commands:</p>
