@@ -10542,7 +10542,7 @@ button:hover {
   position: relative;
   padding-left: 8px;
   padding-right: 8px;
-  border-radius: 8px;
+  border-radius: 12px;
   max-width: 85%;
   min-width: 8%;
   margin-bottom: 8px;

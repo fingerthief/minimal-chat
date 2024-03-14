@@ -8,6 +8,7 @@
     "start-server-docker": "http-server . -p 3000 --cors --silent",
     "scss-build": "sass ./index.scss ./styles/site.css",
     "build": "gulp",
+    "publish-site": "npm run scss-build && npm run build && firebase deploy",
     "publish": "npm run scss-build && npm run build && firebase deploy && docker build -t tannermiddleton/minimal-chat . && docker push tannermiddleton/minimal-chat:latest",
     "publish-beta": "npm run scss-build && npm run build && firebase hosting:channel:deploy beta",
     "publish-all": "npm run scss-build && npm run build && firebase hosting:channel:deploy beta && firebase deploy"
