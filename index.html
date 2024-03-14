@@ -38,7 +38,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.2.3
+                    Settings | V4.2.4
                 </h2>
             </div>
             <div class="sidebar-content-container">
@@ -188,7 +188,7 @@
 
                         <!-- Search Field -->
                         <div class="floating-search-field" id="floating-search-field" data-bind="css: showingSearchField() ? 'show' : ''">
-                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder="" data-bind="textInput: filterText"></textarea>
+                            <textarea id="user-search-input" class="search-input-text" rows="1" placeholder="" data-bind="textInput: filterText, event: { 'blur': onUserSearchBlur }"></textarea>
                         </div>
 
                         <!-- Filtered Messages -->
@@ -319,10 +319,10 @@
                     <!-- User Input Section -->
                     <form id="chat-form" data-bind="submit: sendMessage, event: { 'swiped-left': swipedLeft, 'swiped-right': swipedRight }" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
                         <textarea id="user-input" class="user-input-text" rows="1" placeholder=""
-                            data-bind="textInput: userInput"></textarea>
+                            data-bind="textInput: userInput, event: { 'input': autoResize, 'focus': autoResize, 'blur': autoResize }"></textarea>
                         <span data-bind="visible: isLoading" class="loading input-spinner"></span>
                         <div class="send-button box" data-bind="click: sendMessage">
-                            <span class="fa-regular fa-message fa-xl"></span>
+                            <span>Send</span>
                         </div>
                     </form>
                 </div>

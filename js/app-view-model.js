@@ -130,9 +130,6 @@ export function AppViewModel() {
 
     const appBody = document.getElementById('app-container');
     const userInput = document.getElementById('user-input');
-    userInput.addEventListener('input', self.autoResize);
-    userInput.addEventListener('focus', self.autoResize);
-    userInput.addEventListener('blur', self.autoResize);
 
     self.autoResize = function () {
         if (!self.userInput() || self.userInput().trim() === "") {
