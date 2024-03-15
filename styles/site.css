@@ -10350,9 +10350,6 @@ a:hover, a:focus, a:active, a:visited {
   color: #9f86a0;
   cursor: pointer;
 }
-.trash-btn:hover {
-  color: #4a4a4c;
-}
 
 .messages {
   overflow-y: auto;
@@ -10430,6 +10427,13 @@ button:hover {
   background-color: #4a4a4c;
 }
 
+.hover-increase-size {
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+.hover-increase-size:hover {
+  transform: scale(1.2);
+}
+
 .send-button {
   border: 1px solid #444;
   background-color: #2a3441;
@@ -10446,10 +10450,11 @@ button:hover {
   min-width: 65px;
   justify-content: space-around;
   opacity: 0.5;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 .send-button:hover {
-  background-color: #4a4a4c;
   opacity: 1;
+  transform: scale(1.05);
 }
 
 .floating-button {
@@ -10550,8 +10555,8 @@ button:hover {
   margin-bottom: 8px;
   clear: both;
   margin-top: 18px;
-  font-size: 0.95em;
-  line-height: 1.5;
+  font-size: 1em;
+  line-height: 1.75;
 }
 .message .copy-text {
   position: relative;
@@ -10574,7 +10579,7 @@ button:hover {
 .message .label {
   position: absolute;
   top: -15px;
-  color: #d1d5db;
+  color: #f3f4f6;
   font-size: 13px;
   min-width: 62px;
   font-weight: bold;
@@ -10584,7 +10589,7 @@ button:hover {
 .message.user {
   float: right;
   background-color: #473253;
-  color: #d1d5db;
+  color: #f3f4f6;
   border-right: 6px solid #614a63;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -10596,7 +10601,7 @@ button:hover {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   background-color: #473253;
-  margin-top: -20px;
+  margin-top: -23px;
   overflow: hidden;
   right: -6px;
   min-width: 50px;
@@ -10604,8 +10609,8 @@ button:hover {
 }
 .message.gpt {
   float: left;
-  background-color: #433944;
-  color: #d1d5db;
+  background-color: #4d3f4f;
+  color: #f3f4f6;
   border-left: 6px solid #6a576c;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
@@ -10617,13 +10622,13 @@ button:hover {
 }
 .message.gpt .label {
   border-left: 6px solid #6a576c;
-  background-color: #433944;
+  background-color: #4d3f4f;
   left: 0px;
-  color: #d1d5db;
+  color: #f3f4f6;
   border-radius: 8px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  margin-top: -20px;
+  margin-top: -23px;
   left: -6px;
   padding: 6px;
   min-width: 54px;
@@ -10893,9 +10898,6 @@ button:hover {
   color: #9f86a0;
   cursor: pointer;
   outline: none;
-}
-.settings-btn:hover {
-  color: #4a4a4c;
 }
 
 .message-tag {
