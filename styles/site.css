@@ -10632,6 +10632,38 @@ button:hover {
   left: -6px;
   padding: 6px;
   min-width: 54px;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+.message.gpt .label:hover::before {
+  content: "Click to copy";
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #000;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+.message.gpt .label:hover::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #000 transparent transparent transparent;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+.message.gpt .label:hover::before, .message.gpt .label:hover::after {
+  opacity: 1;
 }
 
 .saved-conversations {

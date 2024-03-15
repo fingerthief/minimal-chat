@@ -242,7 +242,7 @@
                             <div data-bind="foreach: messages()">
                                 <div data-bind="if: !$parent.hasFilterText()">
                                     <div data-bind="css: role === 'user' ? 'user message' : 'gpt message', attr: { 'data-role': role }">
-                                        <div class="label">
+                                        <div class="label" data-bind="click: $parent.copyText">
                                             <span class="fa-solid fa-robot fa-lg icon" data-bind="visible: role !== 'user'"></span>
                                             <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
                                             <span data-bind="text: role === 'user' ? 'User' : 'Claude'"></span>
