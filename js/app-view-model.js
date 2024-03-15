@@ -476,12 +476,32 @@ export function AppViewModel() {
     let lastMessageText;
 
     /**
-     * Sends a user message to the selected model (GPT, Palm, or Claude) and handles the response.
-     * @async
-     * @function sendMessage
-     * @memberof self
-     * @returns {Promise<void>}
-     */
+    * Sends a user message to the selected model (GPT, Palm, Claude, Image, or Vision) and handles the response.
+    *
+    * @async
+    * @function sendMessage
+    * @memberof self
+    * @returns {Promise<void>}
+    *
+    * @description
+    * The function performs the following steps:
+    * 1. Trims the user input and assigns it to the 'messageText' variable.
+    * 2. Updates the 'lastMessageText' variable with the current 'messageText'.
+    * 3. Checks the selected model:
+    *    - If "bison" is in the model name, calls 'sendPalmMessage' with the 'messageText' and returns.
+    *    - If "claude" is in the model name, calls 'sendClaudeMessage' with the 'messageText' and returns.
+    * 4. Disables Palm and Claude modes by setting 'isPalmEnabled' and 'isClaudeEnabled' observables to false.
+    * 5. Adds the user message to the chat using the 'addMessage' function with the role "user" and the 'messageText'.
+    * 6. If any of the following conditions are true, the function returns without further processing:
+    *    - 'messageText' is empty or an empty string
+    *    - 'isLoading' observable is true (indicating a loading state)
+    *    - 'isGeneratingImage' observable is true (indicating an image generation state)
+    * 7. If 'messageText' starts with "image::" (case-insensitive):
+    *    - Calls 'sendImagePrompt' with the 'messageText' and returns.
+    * 8. If 'messageText' starts with "vision::" (case-insensitive):
+    *    - Calls 'sendVisionPrompt' and returns.
+    * 9. If none of the above conditions are met, calls 'sendGPTMessage' with the 'messageText'.
+    */
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
         lastMessageText = messageText;
@@ -654,6 +674,24 @@ export function AppViewModel() {
         }
     }
 
+    /**
+     * Saves the current messages to the selected conversation or creates a new conversation if auto-save is enabled.
+     *@async
+    * @function saveMessages
+    * @memberof self
+    * @returns {Promise<void>}
+    *
+    * @description
+    * The function performs the following steps:
+    * 1. Maps the current messages to an array of objects containing only the 'role' and 'content' properties.
+    * 2. Retrieves the selected conversation from the 'selectedConversation' observable.
+    * 3. Finds the index of the selected conversation in the 'storedConversations' array.
+    * 4. If the selected conversation is found (index !== -1):
+    *    - Updates the 'messageHistory' property of the corresponding conversation in 'storedConversations' with the saved messages.
+    * 5. If the selected conversation is not found and the auto-save option is enabled:
+    *    - Calls the 'saveNewConversations' function to create a new conversation with the current messages.
+    * 6. Saves the updated 'storedConversations' array to the local storage with the key "gpt-conversations".
+    */
     self.saveMessages = async function () {
         const savedMessages = self.messages().map(({
             role,
