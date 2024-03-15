@@ -1,7 +1,7 @@
 # [Try MinimalGPT/MinimalPaLM/MinimalClaude](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-4.2.4-blue)
+![Version](https://img.shields.io/badge/version-4.2.5-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **MinimalGPT** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude chat when the user sends a message and when a user saves a conversation to generate a conversation title.
@@ -83,6 +83,8 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
   - **GPT-Vision** activated by having the **GPT-4 or GPT-Turbo** model selected and starting a message with **vision::** and then your prompt
   - **PaLM 2**
   - **Claude 3 Opus**
+  - **Claude 3 Sonnet**
+  - **Claude 3 Haiku**
   - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access

@@ -74,7 +74,7 @@ export async function fetchClaudeConversationTitle(messages) {
             body: JSON.stringify({
                 max_tokens: 200,
                 stream: false,
-                model: "claude-3-opus-20240229",
+                model: "claude-3-haiku-20240307",
                 messages: tempMessages,
                 temperature: 0.1
             }),

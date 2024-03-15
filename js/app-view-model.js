@@ -360,24 +360,37 @@ export function AppViewModel() {
         if (self.lastLoadedConversationId() === null) {
             return;
         }
+
         self.isProcessing(true);
         const storedConversations = loadStoredConversations();
+
         const conversationIndex = storedConversations.findIndex(
             (conversation) => conversation.id === parseInt(self.lastLoadedConversationId())
         );
+
         if (conversationIndex !== -1) {
             storedConversations.splice(conversationIndex, 1);
             localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
         }
+
         self.storedConversations(storedConversations);
+
         self.messages([]);
         self.palmMessages = [];
         self.claudeMessages = [];
+
         const conversationTitles = loadConversationTitles();
+
         self.conversationTitles(conversationTitles);
         self.conversations(conversationTitles);
         self.lastLoadedConversationId(null);
+
         localStorage.setItem("lastConversationId", null);
+
+        if (self.conversations().length > 0) {
+            this.loadSelectedConversation(self.conversations()[0]);
+        }
+
         self.isProcessing(false);
     };
 

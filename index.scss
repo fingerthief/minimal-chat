@@ -168,12 +168,13 @@ button {
     right: 7px;
     z-index: 99999;
     border-radius: 30px;
-    min-width: 54px;
+    min-width: 65px;
     justify-content: space-around;
-
+    opacity: 0.5;
 
     &:hover {
         background-color: #4a4a4c;
+        opacity: 1;
     }
 }
 
@@ -833,15 +834,10 @@ $shadow-spread-radius: 0px;
 }
 
 .input-spinner {
-    display: flex;
+    display: inline-block;
     width: 25px;
     color: lightskyblue;
     height: 25px;
-    min-width: 25px;
-    right: 66px;
-    top: 93.5%;
-    position: absolute;
-    z-index: 9000888;
     margin-left: 5px;
     border: 4px solid #3c8280;
     border-left-color: #1cdfd8;

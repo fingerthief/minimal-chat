@@ -38,7 +38,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.2.4
+                    Settings | V4.2.5
                 </h2>
             </div>
             <div class="sidebar-content-container">
@@ -51,6 +51,8 @@
                         <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
                         <option value="chat-bison-001">PaLM</option>
                         <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                        <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                        <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
                     </select>
                 </div>
 
@@ -320,9 +322,9 @@
                     <form id="chat-form" data-bind="submit: sendMessage, event: { 'swiped-left': swipedLeft, 'swiped-right': swipedRight }" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
                         <textarea id="user-input" class="user-input-text" rows="1" placeholder=""
                             data-bind="textInput: userInput, event: { 'input': autoResize, 'focus': autoResize, 'blur': autoResize }"></textarea>
-                        <span data-bind="visible: isLoading" class="loading input-spinner"></span>
                         <div class="send-button box" data-bind="click: sendMessage">
-                            <span>Send</span>
+                            <span data-bind="visible: isLoading" class="loading input-spinner"></span>
+                            <span data-bind="hidden: isLoading" >Send</span>
                         </div>
                     </form>
                 </div>
