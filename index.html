@@ -215,7 +215,7 @@
                                             <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
                                             <span data-bind="text: (role === 'user' ? 'User' : (role !== 'user' && $index() > 0 && $parent.messages()[$index() - 1].content.toLowerCase().startsWith('image::')) ? 'DALL-E' : 'GPT')"></span>
                                         </div>
-                                        <span id="message-contents" data-bind="html: $parent.formatMessage(content, false), click: $parent.copyText"></span>
+                                        <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                                     </div>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@
                                             <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
                                             <span data-bind="text: role === 'user' ? 'User' : 'PaLM'"></span>
                                         </div>
-                                        <span id="message-contents" data-bind="html: $parent.formatMessage(content, false), click: $parent.copyText"></span>
+                                        <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                                     </div>
                                 </div>
                             </div>
@@ -247,7 +247,7 @@
                                             <span class="fa-solid fa-circle-user fa-lg icon" data-bind="visible: role === 'user'"></span>
                                             <span data-bind="text: role === 'user' ? 'User' : 'Claude'"></span>
                                         </div>
-                                        <span id="message-contents" data-bind="html: $parent.formatMessage(content, false), click: $parent.copyText"></span>
+                                        <span id="message-contents" data-bind="html: $parent.formatMessage(content, false)"></span>
                                     </div>
                                 </div>
                             </div>

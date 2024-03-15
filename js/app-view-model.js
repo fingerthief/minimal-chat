@@ -16,7 +16,9 @@ import {
     fetchClaudeConversationTitle,
     streamClaudeResponse
 } from '../js/claude-api-access.js';
-import { analyzeImage } from '../js/image-analysis.js';
+import {
+    analyzeImage
+} from '../js/image-analysis.js';
 import "../node_modules/swiped-events/dist/swiped-events.min.js";
 
 const ko = window.ko;
@@ -52,8 +54,10 @@ export function AppViewModel() {
     self.selectedDallEImageResolution = ko.observable(localStorage.getItem('selectedImageResolutionOption') || '256x256');
     self.filterText = ko.observable("");
 
-    hljs.configure({ ignoreUnescapedHTML: true });
-    
+    hljs.configure({
+        ignoreUnescapedHTML: true
+    });
+
     self.conversationTitles = ko.observableArray(loadConversationTitles());
     self.storedConversations = ko.observableArray(loadStoredConversations());
     self.selectedConversation = ko.observable(self.storedConversations()[self.storedConversations().length]);
@@ -167,7 +171,7 @@ export function AppViewModel() {
 
     self.filterMessages = ko.computed(function () {
         const searchQuery = self.filterText().toLowerCase().trim();
-        
+
         if (searchQuery.length === 0) {
             self.hasFilterText(false);
             return self.messages();
@@ -204,13 +208,18 @@ export function AppViewModel() {
         if (self.selectedModel() === "chat-bison-001") {
             self.palmMessages = [];
             for (const chatMessage of self.messages()) {
-                self.palmMessages.push({ content: chatMessage.content });
+                self.palmMessages.push({
+                    content: chatMessage.content
+                });
             }
         }
         if (self.selectedModel() === "claude-3-opus-20240229") {
             self.claudeMessages = [];
             for (const chatMessage of self.messages()) {
-                self.claudeMessages.push({ role: chatMessage.role, content: chatMessage.content });
+                self.claudeMessages.push({
+                    role: chatMessage.role,
+                    content: chatMessage.content
+                });
             }
         }
     });
@@ -355,7 +364,29 @@ export function AppViewModel() {
         self.showingSearchField(!self.showingSearchField());
     };
 
-    // Delete current conversation
+    /**
+     * Deletes the current conversation and updates the stored conversations UI accordingly.
+     *
+     * @function
+     * @async
+     * @memberof self
+     * @returns {Promise<void>}
+     *
+     * @description
+     * This function performs the following steps:
+     * 1. Checks if there is a currently loaded conversation. If not, it returns.
+     * 2. Sets the processing state to true.
+     * 3. Loads the stored conversations from local storage.
+     * 4. Finds the index of the current conversation in the stored conversations array.
+     * 5. If the conversation is found, it removes it from the stored conversations array and updates local storage.
+     * 6. Updates the stored conversations observable with the modified array.
+     * 7. Clears the messages, palmMessages, and claudeMessages observables.
+     * 8. Loads the conversation titles from local storage.
+     * 9. Updates the conversationTitles and conversations observables with the loaded titles.
+     * 10. Sets the lastLoadedConversationId to null and updates local storage.
+     * 11. If there are any remaining conversations, it loads the first one.
+     * 12. Sets the processing state to false.
+     */
     self.deleteCurrentConversation = async function () {
         if (self.lastLoadedConversationId() === null) {
             return;
@@ -408,29 +439,35 @@ export function AppViewModel() {
             return;
         }
 
-        await processImage(file, fileType);
-    });
+        let visionReponse = await processImage(file, fileType);
 
-    async function processImage(file, fileType) {
-        self.userInput("");
-        userInput.style.height = '30px';
-        
-        const response = await analyzeImage(file, fileType,  self.messages().slice(0), self.selectedModel());
-
-        addMessage("assistant", response);
+        addMessage("assistant", visionReponse);
 
         if (self.isClaudeEnabled()) {
-            self.claudeMessages.push({ role: "assistant", content: response });
+            self.claudeMessages.push({
+                role: "assistant",
+                content: visionReponse
+            });
         }
 
         self.saveMessages();
         self.isAnalyzingImage(false);
         self.scrollToBottom();
+    });
+
+    async function processImage(file, fileType) {
+        self.userInput("");
+        userInput.style.height = '30px';
+
+        return await analyzeImage(file, fileType, self.messages().slice(0), self.selectedModel());
     }
 
     // Add message to messages array
     function addMessage(role, message) {
-        self.messages.push({ role: role, content: message });
+        self.messages.push({
+            role: role,
+            content: message
+        });
     }
 
     // Initialize message arrays
@@ -438,7 +475,13 @@ export function AppViewModel() {
     self.claudeMessages = [];
     let lastMessageText;
 
-    // Send message based on selected model
+    /**
+     * Sends a user message to the selected model (GPT, Palm, or Claude) and handles the response.
+     * @async
+     * @function sendMessage
+     * @memberof self
+     * @returns {Promise<void>}
+     */
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
         lastMessageText = messageText;
@@ -481,16 +524,22 @@ export function AppViewModel() {
 
         let messageContext;
         if (self.palmMessages.length === 0) {
-            self.palmMessages.push({ content: messageText });
+            self.palmMessages.push({
+                content: messageText
+            });
             addMessage("user", messageText);
             messageContext = self.palmMessages.slice(0);
         } else {
             addMessage("user", messageText);
-            messageContext = [...self.palmMessages, { content: messageText }];
+            messageContext = [...self.palmMessages, {
+                content: messageText
+            }];
         }
 
         const response = await fetchPalmResponse(messageContext);
-        self.palmMessages.push({ content: response });
+        self.palmMessages.push({
+            content: response
+        });
         addMessage("assistant", response);
         self.saveMessages();
         self.scrollToBottom();
@@ -501,25 +550,45 @@ export function AppViewModel() {
     async function sendClaudeMessage(messageText) {
         if (messageText.toLowerCase().startsWith("vision::")) {
             addMessage("user", messageText);
-            self.claudeMessages.push({ role: "user", content: messageText });
+
+            self.claudeMessages.push({
+                role: "user",
+                content: messageText
+            });
+
             self.isAnalyzingImage(true);
+
             document.getElementById('imageInput').click();
+
             self.scrollToBottom();
             return;
         }
 
         self.userInput("");
         userInput.style.height = '30px';
+
         self.streamedMessageText("");
         self.isClaudeEnabled(true);
         self.isLoading(true);
-        self.claudeMessages.push({ role: "user", content: messageText });
+
+        self.claudeMessages.push({
+            role: "user",
+            content: messageText
+        });
+
         addMessage("user", messageText);
+
         self.scrollToBottom();
 
         const response = await streamClaudeResponse(self.claudeMessages.slice(0), self.selectedModel(), self.claudeSliderValue(), updateUI);
-        self.claudeMessages.push({ role: "assistant", content: response });
+
+        self.claudeMessages.push({
+            role: "assistant",
+            content: response
+        });
+
         addMessage("assistant", response);
+
         self.saveMessages();
         self.scrollToBottom();
         self.isLoading(false);
@@ -547,18 +616,24 @@ export function AppViewModel() {
     // Send vision prompt
     async function sendVisionPrompt() {
         self.isAnalyzingImage(true);
+
         document.getElementById('imageInput').click();
+
         self.scrollToBottom();
+
         self.userInput("");
+
         userInput.style.height = '30px';
     }
 
     // Send GPT message
     async function sendGPTMessage(messageText) {
         self.scrollToBottom();
+
         self.userInput('');
         userInput.value = '';
         userInput.style.height = '30px';
+
         self.streamedMessageText("");
         self.isLoading(true);
 
@@ -566,9 +641,13 @@ export function AppViewModel() {
             self.streamedMessageText("");
 
             const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel(), updateUI);
+
             self.isLoading(false);
+
             addMessage('assistant', response);
+
             self.saveMessages();
+
             self.scrollToBottom();
         } catch (error) {
             console.error("Error sending message:", error);
@@ -576,14 +655,20 @@ export function AppViewModel() {
     }
 
     self.saveMessages = async function () {
-        const savedMessages = self.messages().map(({ role, content }) => ({ role, content }));
+        const savedMessages = self.messages().map(({
+            role,
+            content
+        }) => ({
+            role,
+            content
+        }));
 
         const selectedConversation = self.selectedConversation();
-        const conversationIndex = selectedConversation
-            ? self.storedConversations().findIndex(
+        const conversationIndex = selectedConversation ?
+            self.storedConversations().findIndex(
                 (conversation) => conversation.conversation.title === selectedConversation.title
-            )
-            : -1;
+            ) :
+            -1;
 
         if (conversationIndex !== -1) {
             self.storedConversations()[conversationIndex].conversation.messageHistory = savedMessages;
@@ -614,7 +699,7 @@ export function AppViewModel() {
                 return '<pre class="hljs"><code>' +
                     hljs.highlight(lang, str, true).value +
                     '</code></pre>';
-            } catch (__) { }
+            } catch (__) {}
         } else {
             return '<pre class="hljs"><code>' + esc(str) + '</code></pre>';
         }
@@ -627,15 +712,37 @@ export function AppViewModel() {
         return renderedMessage;
     };
 
+    /**
+     * Saves a new conversation or updates an existing one.
+     *
+     * @async
+     * @function saveNewConversations
+     * @memberof self
+     * @returns {Promise<void>}
+     ** @description
+     * The function performs the following steps:
+     * 1. Creates a new conversation with a title using reateNewConversationWith()
+     * 2. Retrieves the stored conversations from local storage or initializes an empty array.
+     * 3. If there are no stored conversations, adds the new conversation with an ID of 0 and updates the last loaded conversation ID.
+     * 4. If there are stored conversations:
+     *    - Sets the conversation ID of the new conversation to the length of stored conversations minus 1.
+     *    - If there is a last loaded conversation ID, finds the corresponding conversation and updates its message history.
+     *    - If there is no last loaded conversation ID, assigns a new ID to the new conversation and adds it to the stored conversations.
+     * 5. Saves the updated stored conversations and the last loaded conversation ID to local storage.
+     * 6. Updates the conversations and storedConversations observables with the loaded conversation titles and stored conversations.
+     * 7. Sets the selected conversation to the newly created conversation and loads it.
+     */
     self.saveNewConversations = async function () {
         const newConversationWithTitle = await createNewConversationWithTitle();
 
-        const storedConversations = localStorage.getItem("gpt-conversations")
-            ? JSON.parse(localStorage.getItem("gpt-conversations"))
-            : [];
+        const storedConversations = localStorage.getItem("gpt-conversations") ?
+            JSON.parse(localStorage.getItem("gpt-conversations")) : [];
 
         if (storedConversations.length === 0) {
-            storedConversations.push({ id: 0, conversation: newConversationWithTitle });
+            storedConversations.push({
+                id: 0,
+                conversation: newConversationWithTitle
+            });
             localStorage.setItem("lastConversationId", "0");
             self.lastLoadedConversationId(0);
         } else {
@@ -648,7 +755,10 @@ export function AppViewModel() {
                 storedConversations[conversationIndex].conversation.messageHistory = newConversationWithTitle.messageHistory;
             } else {
                 const highestId = Math.max(...storedConversations.map(conversation => conversation.id));
-                storedConversations.push({ id: highestId + 1, conversation: newConversationWithTitle });
+                storedConversations.push({
+                    id: highestId + 1,
+                    conversation: newConversationWithTitle
+                });
                 self.lastLoadedConversationId(highestId + 1);
             }
         }
@@ -668,64 +778,94 @@ export function AppViewModel() {
         textarea.value = text.content;
         document.body.appendChild(textarea);
         textarea.select();
-        try {document.execCommand('copy');
+        try {
+            document.execCommand('copy');
             console.log('Content copied to clipboard');
         } catch (error) {
             console.error('Failed to copy content: ', error);
         }
-        
+
         document.body.removeChild(textarea);
     }
 
+    /**
+     * Clears the current messages and creates a new conversation or updates an existing one.
+     *
+     * @async
+     * @function clearMessages
+     * @memberof self
+     * @returns {Promise<void>}
+     *
+     * @description
+     * The function performs the following steps:
+     * 1. Sets the processing state to true.
+     * 2. Creates a new conversation object with the current message history and an empty title.
+     * 3. Retrieves the stored conversations using getStoredConversations()
+     * 4. If there are no stored conversations, creates and stores a new conversation using createAndStoreNewConversation()
+     * 5. If there are stored conversations:
+     *    - Sets the conversation ID of the new conversation to the length of stored conversations minus 1.
+     *    - If auto-save is selected and there is a last loaded conversation ID, updates the existing conversation using updateExistingConversation()
+     *    - Otherwise, creates and stores a new conversation using createAndStoreNewConversation()
+     * 6. Saves the updated stored conversations to local storage and sets the last loaded conversation ID to null.
+     * 7. Updates the conversations and storedConversations observables with the loaded conversation titles and stored conversations.
+     * 8. Resets the messages using resetMessages()
+     * 9. Sets the selected conversation to a placeholder object with an empty message history and title.
+     * 10. Sets the processing state to false.
+     */
     self.clearMessages = async function () {
         self.isProcessing(true);
-    
+
         const newConversation = {
             messageHistory: self.messages().slice(0),
             title: ""
         };
-    
+
         const storedConversations = getStoredConversations();
-    
+
         if (storedConversations.length === 0) {
             await createAndStoreNewConversation(storedConversations, newConversation);
         } else {
             newConversation.conversationId = storedConversations.length - 1;
-    
+
             if (self.selectedAutoSaveOption() && self.lastLoadedConversationId() !== null) {
                 updateExistingConversation(storedConversations, newConversation);
             } else {
                 await createAndStoreNewConversation(storedConversations, newConversation);
             }
         }
-    
+
         localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations));
         localStorage.setItem("lastConversationId", null);
-    
+
         self.conversations(loadConversationTitles());
         self.storedConversations(loadStoredConversations());
         resetMessages();
-        self.selectedConversation({ messageHistory: [], title: 'placeholder' });
-    
+        self.selectedConversation({
+            messageHistory: [],
+            title: 'placeholder'
+        });
+
         self.isProcessing(false);
     };
-    
+
     function getStoredConversations() {
-        return localStorage.getItem("gpt-conversations")
-            ? JSON.parse(localStorage.getItem("gpt-conversations"))
-            : [];
+        return localStorage.getItem("gpt-conversations") ?
+            JSON.parse(localStorage.getItem("gpt-conversations")) : [];
     }
-    
+
     async function createAndStoreNewConversation(storedConversations, newConversation) {
         const newConversationWithTitle = await createNewConversationWithTitle();
-        const highestId = storedConversations.length > 0
-            ? Math.max(...storedConversations.map(conversation => conversation.id))
-            : -1;
-        storedConversations.push({ id: highestId + 1, conversation: newConversationWithTitle });
+        const highestId = storedConversations.length > 0 ?
+            Math.max(...storedConversations.map(conversation => conversation.id)) :
+            -1;
+        storedConversations.push({
+            id: highestId + 1,
+            conversation: newConversationWithTitle
+        });
         localStorage.setItem("lastConversationId", (highestId + 1).toString());
         self.lastLoadedConversationId(highestId + 1);
     }
-    
+
     function updateExistingConversation(storedConversations, newConversation) {
         const conversationIndex = storedConversations.findIndex(
             conversation => conversation.id === parseInt(self.lastLoadedConversationId())
