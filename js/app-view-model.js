@@ -423,6 +423,20 @@ export function AppViewModel() {
         }
 
         self.isProcessing(false);
+
+        Toastify({
+            text: "Conversation Deleted",
+            duration: 2000,
+            newWindow: true,
+            close: true,
+            gravity: "bottom", // `top` or `bottom`
+            position: "center", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "linear-gradient(to right, #473253, #4d3f4f)",
+            },
+            onClick: function () { } // Callback after click
+        }).showToast();
     };
 
     function updateUI(content) {
@@ -504,6 +518,24 @@ export function AppViewModel() {
     */
     self.sendMessage = async function () {
         const messageText = self.userInput().trim();
+
+        if (self.userInput().trim().length === 0) {
+            Toastify({
+                text: "Please Enter a Prompt First",
+                duration: 2000,
+                newWindow: true,
+                close: true,
+                gravity: "bottom", // `top` or `bottom`
+                position: "center", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, #473253, #4d3f4f)",
+                },
+                onClick: function () { } // Callback after click
+            }).showToast();
+            return;
+        }
+
         lastMessageText = messageText;
 
         if (self.selectedModel().indexOf("bison") !== -1) {
@@ -632,6 +664,28 @@ export function AppViewModel() {
         self.scrollToBottom();
         self.isGeneratingImage(false);
     }
+
+    self.visionimageUploadClick = async function () {
+        if (self.userInput().trim().length === 0) {
+            Toastify({
+                text: "Please Enter a Prompt First",
+                duration: 2000,
+                newWindow: true,
+                close: true,
+                gravity: "bottom", // `top` or `bottom`
+                position: "center", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, #473253, #4d3f4f)",
+                },
+                onClick: function () { } // Callback after click
+            }).showToast();
+            return;
+        }
+
+        self.userInput('vision:: ' + self.userInput());
+        await self.sendMessage();
+    };
 
     // Send vision prompt
     async function sendVisionPrompt() {

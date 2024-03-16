@@ -38,7 +38,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.2.5
+                    Settings | V4.2.6
                 </h2>
             </div>
             <div class="sidebar-content-container">
@@ -321,6 +321,9 @@
                     <form id="chat-form" data-bind="submit: sendMessage, event: { 'swiped-left': swipedLeft, 'swiped-right': swipedRight }" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
                         <textarea id="user-input" class="user-input-text" rows="1" placeholder=""
                             data-bind="textInput: userInput, event: { 'input': autoResize, 'focus': autoResize, 'blur': autoResize }"></textarea>
+                        <div class="image-button box" data-bind="click: visionimageUploadClick">
+                            <span class="fa-solid fa-image fa-lg"></span>
+                        </div>
                         <div class="send-button box" data-bind="click: sendMessage">
                             <span data-bind="visible: isLoading" class="loading input-spinner"></span>
                             <span data-bind="hidden: isLoading" >Send</span>
@@ -343,6 +346,8 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
 
 </html>

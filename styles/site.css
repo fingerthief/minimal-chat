@@ -10434,6 +10434,29 @@ button:hover {
   transform: scale(1.2);
 }
 
+.image-button {
+  border: 1px solid #444;
+  background-color: #2a3441;
+  cursor: pointer;
+  outline: none;
+  color: #9f86a0;
+  position: absolute;
+  min-height: 49px;
+  display: grid;
+  align-content: center;
+  right: 77px;
+  z-index: 99999;
+  border-radius: 30px;
+  min-width: 50px;
+  justify-content: space-around;
+  opacity: 0.5;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.image-button:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
 .send-button {
   border: 1px solid #444;
   background-color: #2a3441;

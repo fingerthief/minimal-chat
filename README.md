@@ -1,7 +1,7 @@
 # [Try MinimalGPT/MinimalPaLM/MinimalClaude](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-4.2.5-blue)
+![Version](https://img.shields.io/badge/version-4.2.6-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **MinimalGPT** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude chat when the user sends a message and when a user saves a conversation to generate a conversation title.
