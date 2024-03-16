@@ -38,7 +38,7 @@
             <div class="settings-header">
                 <h2 data-bind="click: () => { window.location.reload(true); }">
                     <span class="fa-solid fa-arrows-rotate"></span>
-                    Settings | V4.3.0
+                    Settings | V4.3.1
                 </h2>
             </div>
             <div class="sidebar-content-container">
@@ -123,7 +123,7 @@
                     </select>
                 </div>
             </div>
-            <div>
+            <div class="bottom-panel">
                 <button class="close-btn" data-bind="click: toggleSidebar">Close</button>
             </div>
         </div>
@@ -140,13 +140,13 @@
                     </ul>
                 </div>
             </div>
-            <div class="import-export-container">
+            <div class="bottom-panel import-export-container">
                 <button class="import-export-btn" data-bind="click: () => { clearMessages(); showConversationOptions(false); }">New</button>
                 <button class="import-export-btn" data-bind="click: importConversationsClick">Import</button>
                 <button class="import-export-btn" data-bind="click: exportConversationsClick">Export</button>
                 <button class="import-export-btn" data-bind="click: deleteAllConversationsClick">Purge</button>
             </div>
-            <div>
+            <div class="bottom-panel">
                 <button class="close-btn" data-bind="click: () => showConversationOptions(false)">Close</button>
             </div>
         </div>
@@ -261,6 +261,8 @@
                                     <span>GPT</span>
                                 </div>
                                 <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
+                                <span data-bind="visible: streamedMessageText().trim().length === 0">Waiting For Stream Response...</span>
+                                <span class="loading spinner" data-bind="visible: streamedMessageText().trim().length === 0"></span>
                             </div>
                         </div>
 
@@ -272,6 +274,8 @@
                                     <span>Claude</span>
                                 </div>
                                 <span data-bind="html: formatMessage(streamedMessageText() || ''), false"></span>
+                                <span data-bind="visible: streamedMessageText().trim().length === 0">Waiting For Stream Response...</span>
+                                <span class="loading spinner" data-bind="visible: streamedMessageText().trim().length === 0"></span>
                             </div>
                         </div>
 

@@ -106,7 +106,6 @@ a {
         right: 62px;
         z-index: 99999;
         border-radius: 30px;
-        min-width: 50px;
         justify-content: space-around;
         transition: background-color 0.3s ease, transform 0.2s ease;
     
@@ -169,7 +168,7 @@ a {
         appearance: none;
         background-color: #333;
         color: #fff;
-        padding: 10px 20px;
+        padding: 6px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
@@ -379,7 +378,7 @@ button {
 
     &.user {
         float: right;
-        background-color: #473253;
+        background-color: #3d3144;
         color: #dadbde;
 
         border-right: 6px solid #614a63;
@@ -392,7 +391,7 @@ button {
             border-right: 6px solid #614a63;
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
-            background-color: #473253;
+            background-color: #3d3144;
             margin-top: -23px;
             overflow: hidden;
             right: -6px;
@@ -403,7 +402,7 @@ button {
 
     &.gpt {
         float: left;
-        background-color:  #4d3f4f;
+        background-color:  #4a424a;
         color: #dadbde;
 
         border-left: 6px solid #6a576c;
@@ -418,7 +417,7 @@ button {
 
         .label {
             border-left: 6px solid #6a576c;
-            background-color: #4d3f4f;
+            background-color:  #4a424a;
             left: 0px;
             color: #dadbde;
             border-radius: 8px;
@@ -573,7 +572,7 @@ button {
 }
 
 .sidebar {
-    background-color: #282728;
+    background-color: #262431;
     width: 90vw;
     max-width: 650px;
     border-radius: 8px;
@@ -654,15 +653,22 @@ button {
     background-color: #3d3c3e;
     color: white;
     cursor: pointer;
-    width: 100%;
+    width: 98%;
     font-size: 18px;
     height: 50px;
     outline: none;
     margin-bottom: 10px; // Add some margin at the bottom
+    transition: background-color 0.2s ease, transform 0.2s ease;
 
     &:hover {
-        background-color: #4a4a4c;
+        background-color: #3e3e3f;
+        transform: scale(1.03);
     }
+}
+
+.bottom-panel {
+    display: flex;
+    justify-content: center;
 }
 
 .import-export-container {
@@ -683,6 +689,7 @@ button {
         height: 50px;
         outline: none;
         margin-bottom: -12px; // Add some margin at the bottom
+        max-width: 152px;
     
         &:hover {
             background-color: #4a4a4c;
