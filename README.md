@@ -51,7 +51,7 @@ On Android the process is basically the same except the name of the option is **
 - [FAQ](#faq)
 - [Mobile Swipe Gestures](#mobile-swipe-gestures)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Screenshots](#screenshots)
+- [Application Demo (PWA)](#applcation-demo-pwa)
 - [Run Web App Locally](#run-web-app-locally)
 - [Contributing](#contributing)
 - [Troubleshooting](#troubleshooting)
@@ -167,27 +167,9 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 
 - Running `npm run build` will perform a dist build gulpfile process that incldues minification and cache busting (sort of) and output to the `public` folder.
 
-## Screenshots
+## Applcation Demo (PWA)
 
-### Minimal chat layout
-
-![main](https://github.com/fingerthief/minimal-gpt/assets/2380471/da778a1d-ee39-4488-926b-9f2c414e699f)
-
-### Local Conversation Saving and Conversation Importing/Exporting Via File
-
-![convos](https://github.com/fingerthief/minimal-gpt/assets/2380471/20908247-806b-4f3b-b4fc-75e980735098)
-
-### Conversation search
-
-![Screenshot 2023-08-18 202911](https://github.com/fingerthief/minimal-gpt/assets/2380471/98f23214-c2fc-4bbd-87c9-91c894934b0f)
-
-### Google PaLM 2 Model Support
-
-![Screenshot 2023-08-18 202911](https://github.com/fingerthief/minimal-gpt/assets/2380471/df224a22-8498-40be-9bb0-dce27f3ef2d1)
-
-### DALL-E Integration
-
-![Web capture_18-8-2023_203422_192 168 0 7](https://github.com/fingerthief/minimal-gpt/assets/2380471/384e67f0-a9f1-4c64-9dab-8321492c763b)
+[![Application Demo installed as a PWA](https://img.youtube.com/vi/YdxMAGbOohN0/0.jpg)](https://www.youtube.com/watch?v=dxMAGbOohN0)
 
 ### Settings
 
