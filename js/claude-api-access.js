@@ -176,39 +176,39 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
 
 let claudeStreamRetryCount = 0;
 export async function streamClaudeResponse(messages, model, attitude, updateUIFunction) {
-    const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            "anthropic-version": "2023-06-01",
-            'X-API-Key': localStorage.getItem("claudeKey"),
-        },
-        body: JSON.stringify({
-            messages: filterGPTMessages(messages),
-            temperature: attitude * 0.01,
-            max_tokens: 4096,
-            model: model,
-            stream: true
-        }),
-    });
+    try {
+        const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "anthropic-version": "2023-06-01",
+                'X-API-Key': localStorage.getItem("claudeKey"),
+            },
+            body: JSON.stringify({
+                messages: filterGPTMessages(messages),
+                temperature: attitude * 0.01,
+                max_tokens: 4096,
+                model: model,
+                stream: true
+            }),
+        });
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf-8');
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
 
-    let result = '';
-    let decodedResult = "";
-    while (true) {
-        try {
+        let result = '';
+        let decodedResult = "";
+        while (true) {
             const { value, done } = await reader.read();
             if (done) break;
-    
+
             const chunk = decoder.decode(value);
             result += chunk;
-    
+
             // Process the streamed response chunk by chunk
             const lines = chunk.split('\n');
             for (const line of lines) {
@@ -216,43 +216,43 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
                     const data = line.slice(5).trim();
                     if (data === '[DONE]') {
                         return decodedResult;
-                    }  
-    
+                    }
+
                     const token = JSON.parse(data);
-    
+
                     if (token?.delta?.text) {
                         claudeStreamRetryCount = 0;
                         decodedResult += token.delta.text;
                         updateUIFunction(token?.delta?.text, false);
                     }
-    
+
                     if (token?.type === "message_stop") {
                         return decodedResult;
                     }
                 }
             }
         }
-        catch (error) {
-            if (claudeStreamRetryCount < numberOfRetryAttemptsAllowed) {
-                claudeStreamRetryCount++;
-                showToast("Error: An error occurred during the stream response. Retrying...");
+    }
+    catch (error) {
+        if (claudeStreamRetryCount < numberOfRetryAttemptsAllowed) {
+            claudeStreamRetryCount++;
+            showToast("Error: An error occurred during the stream response. Retrying...");
 
-                updateUIFunction("", true);
+            updateUIFunction("", true);
 
-                console.log("Retry Number: " + claudeStreamRetryCount);
+            console.log("Retry Number: " + claudeStreamRetryCount);
 
-                showToast(`Failed streamClaudeResponse Request. Retrying...Attempt #${claudeStreamRetryCount}`);
+            showToast(`Failed streamClaudeResponse Request. Retrying...Attempt #${claudeStreamRetryCount}`);
 
-                await sleep(1000);
+            await sleep(1000);
 
-                return await streamClaudeResponse(messages, model, attitude, updateUIFunction);
-            }
-            else {
-                showToast(`Retry Attempts Failed for streamClaudeResponse Request.`);
+            return await streamClaudeResponse(messages, model, attitude, updateUIFunction);
+        }
+        else {
+            showToast(`Retry Attempts Failed for streamClaudeResponse Request.`);
 
-                console.error("Error fetching Claude response:", error);
-                return "An error occurred while fetching Claude conversation title.";
-            }
+            console.error("Error fetching Claude response:", error);
+            return "An error occurred while fetching Claude conversation title.";
         }
     }
 }
