@@ -171,6 +171,8 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 
 [![Application Demo installed as a PWA](https://img.youtube.com/vi/YdxMAGbOohN0/0.jpg)](https://www.youtube.com/watch?v=dxMAGbOohN0)
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/dxMAGbOohN0?si=usjTgNKYPwgJlg4Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ### Settings
 
 ![minimal-chat-settings](https://github.com/fingerthief/minimal-gpt/assets/2380471/7d40f1a8-c297-4d43-bd4a-fae22d94c2ad)
