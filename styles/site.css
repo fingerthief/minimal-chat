@@ -10431,6 +10431,7 @@ a:hover, a:focus, a:active, a:visited {
 #chat-form textarea {
   padding-top: 14px;
   padding-left: 20px;
+  padding-right: 100px;
   transition: 0.2s height ease-in-out;
 }
 
@@ -10470,6 +10471,8 @@ a:hover, a:focus, a:active, a:visited {
   min-height: 30px;
   border-radius: 30px;
   transition: 0.2s height ease-in-out;
+  padding: 14px;
+  padding-top: 20px;
 }
 
 button {

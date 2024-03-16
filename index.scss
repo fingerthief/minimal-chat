@@ -146,7 +146,6 @@ a {
         outline: none;
         background-color: #1c1c1e;
         font-size: 18px;
-        // max-width: 91.5vw;
         color: #f0f0f0;
         resize: vertical;
         overflow: hidden;
@@ -154,14 +153,13 @@ a {
         min-height: 35px;
         border-radius: 30px;
         transition: 0.2s height ease-in-out;
-        //border-top-right-radius: 30px;
-        //border-bottom-right-radius: 30px;
 
     }
 
     textarea {
         padding-top: 14px;
         padding-left: 20px;
+        padding-right: 100px;
         transition: 0.2s height ease-in-out;
     }
 }
@@ -208,6 +206,8 @@ a {
     min-height: 30px;
     border-radius: 30px;
     transition: 0.2s height ease-in-out;
+    padding: 14px;
+    padding-top: 20px;
 }
 
 
