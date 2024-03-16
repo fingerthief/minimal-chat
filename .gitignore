@@ -108,3 +108,4 @@ gtag.txt
 
 node_modules/**
 public/
+cors-proxy/**
