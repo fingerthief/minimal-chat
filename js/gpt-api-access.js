@@ -5,6 +5,10 @@ apiKey.value = localStorage.getItem("gptKey");
 
 const numberOfRetryAttemptsAllowed = 5;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 let gptResponseRetryCount = 0;
 export async function fetchGPTResponse(conversation, attitude, model) {
     const prompt = `Me: ${conversation}\nAI:`;

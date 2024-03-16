@@ -4,6 +4,10 @@ const MODEL_NAME = "chat-bison-001";
 let retryCount = 0;
 const numberOfRetriesAllowed = 5;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function fetchPalmResponse(messages) {
     const API_KEY = localStorage.getItem("palmKey");
     const ATTITUDE = localStorage.getItem("palm-attitude");

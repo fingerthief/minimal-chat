@@ -1,6 +1,6 @@
 {
   "name": "minimal-chat",
-  "version": "4.3.1",
+  "version": "4.3.2",
   "description": "**MinimalChat** is an open-source GPT/DALL-E/PaLM/Claude LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT chat when the user sends a message and when a user saves a conversation to generate a conversation title.",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,7 @@
     "start-server-docker": "http-server . -p 3000 --cors --silent",
     "scss-build": "sass ./index.scss ./styles/site.css",
     "build": "gulp",
+    "publish-docker": "docker build -t tannermiddleton/minimal-chat . && docker push tannermiddleton/minimal-chat:latest",
     "publish-site": "npm run scss-build && npm run build && firebase deploy",
     "publish": "npm run scss-build && npm run build && firebase deploy && docker build -t tannermiddleton/minimal-chat . && docker push tannermiddleton/minimal-chat:latest",
     "publish-beta": "npm run scss-build && npm run build && firebase hosting:channel:deploy beta",

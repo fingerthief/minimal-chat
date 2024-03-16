@@ -188,7 +188,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
             temperature: attitude * 0.01,
             max_tokens: 4096,
             model: model,
-            stream: true,
+            stream: true
         }),
     });
 
