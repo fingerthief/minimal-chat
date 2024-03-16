@@ -5,7 +5,7 @@
 @use "./node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
 
 $fa-font-path: "../webfonts";
-$icon-color: #9f86a0;
+$icon-color: rgb(187, 187, 187);
 
 @font-face {
     font-family: 'Helvetica';
@@ -95,13 +95,12 @@ a {
     height: 50px;
     border-top: 1px solid #444;
     .image-button {
-        border: 1px solid #444;
-        background-color: #2a3441;
+        background-color: transparent;
         cursor: pointer;
         outline: none;
-        color: #9f86a0;
+        color: $icon-color;
         position: absolute;
-        min-height: 50px;
+        min-height: 55px;
         display: grid;
         align-content: center;
         right: 62px;
@@ -112,19 +111,19 @@ a {
         transition: background-color 0.3s ease, transform 0.2s ease;
     
         &:hover {
-            transform: scale(1.05);
+            transform: scale(1.30);
         }
     }
     
     
     .send-button {
-        border: 1px solid #444;
-        background-color: #2a3441;
+        //border: 1px solid #444;
+        background-color: transparent;
         cursor: pointer;
         outline: none;
         color: $icon-color;
         position: absolute;
-        min-height: 50px;
+        min-height: 55px;
         display: grid;
         align-content: center;
         right: 7px;
@@ -135,7 +134,7 @@ a {
         transition: background-color 0.3s ease, transform 0.2s ease;
     
         &:hover {
-            transform: scale(1.05);
+            transform: scale(1.30);
         }
     }
 
@@ -147,7 +146,7 @@ a {
         outline: none;
         background-color: #1c1c1e;
         font-size: 18px;
-        max-width: 91.5vw;
+        // max-width: 91.5vw;
         color: #f0f0f0;
         resize: vertical;
         overflow: hidden;
@@ -494,7 +493,7 @@ button {
 
     .save-icon {
         padding: 2px;
-        right: 65px;
+        right: 69px;
         top: 8px;
         color: $icon-color;
         float: right;

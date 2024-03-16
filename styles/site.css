@@ -10347,7 +10347,7 @@ a:hover, a:focus, a:active, a:visited {
   left: 50px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   cursor: pointer;
 }
 
@@ -10376,13 +10376,12 @@ a:hover, a:focus, a:active, a:visited {
   border-top: 1px solid #444;
 }
 #chat-form .image-button {
-  border: 1px solid #444;
-  background-color: #2a3441;
+  background-color: transparent;
   cursor: pointer;
   outline: none;
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   position: absolute;
-  min-height: 50px;
+  min-height: 55px;
   display: grid;
   align-content: center;
   right: 62px;
@@ -10393,16 +10392,15 @@ a:hover, a:focus, a:active, a:visited {
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 #chat-form .image-button:hover {
-  transform: scale(1.05);
+  transform: scale(1.3);
 }
 #chat-form .send-button {
-  border: 1px solid #444;
-  background-color: #2a3441;
+  background-color: transparent;
   cursor: pointer;
   outline: none;
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   position: absolute;
-  min-height: 50px;
+  min-height: 55px;
   display: grid;
   align-content: center;
   right: 7px;
@@ -10413,7 +10411,7 @@ a:hover, a:focus, a:active, a:visited {
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 #chat-form .send-button:hover {
-  transform: scale(1.05);
+  transform: scale(1.3);
 }
 #chat-form #user-input {
   flex-grow: 1;
@@ -10422,7 +10420,6 @@ a:hover, a:focus, a:active, a:visited {
   outline: none;
   background-color: #1c1c1e;
   font-size: 18px;
-  max-width: 91.5vw;
   color: #f0f0f0;
   resize: vertical;
   overflow: hidden;
@@ -10498,7 +10495,7 @@ button:hover {
   background-color: #2a3441;
   cursor: pointer;
   outline: none;
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   position: fixed;
   min-height: 50px;
   top: 112px;
@@ -10719,15 +10716,15 @@ button:hover {
   padding: 2px;
   top: 8px;
   right: 11px;
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   float: right;
   position: relative;
 }
 .conversations-count .save-icon {
   padding: 2px;
-  right: 65px;
+  right: 69px;
   top: 8px;
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   float: right;
   position: relative;
 }
@@ -10736,7 +10733,7 @@ button:hover {
   position: absolute;
   top: 50%;
   right: 10px;
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   transform: translateY(-50%);
 }
 
@@ -10963,7 +10960,7 @@ button:hover {
   transform: translateY(-50%);
   background-color: transparent;
   border: none;
-  color: #9f86a0;
+  color: rgb(187, 187, 187);
   cursor: pointer;
   outline: none;
 }
@@ -11029,7 +11026,7 @@ button:hover {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #9f86a0;
+  background: rgb(187, 187, 187);
   cursor: pointer;
 }
 .slider-container input[type=range]::-moz-range-thumb {

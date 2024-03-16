@@ -834,8 +834,6 @@ export function AppViewModel() {
 
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
-
-        showToast("Conversation Saved");
     };
 
     self.copyText = function (text) {
@@ -913,6 +911,8 @@ export function AppViewModel() {
         });
 
         self.isProcessing(false);
+
+        showToast("Conversation Saved");
     };
 
     function getStoredConversations() {
@@ -1046,6 +1046,7 @@ export function AppViewModel() {
         self.claudeMessages = [];
         self.conversations([]);
         self.storedConversations([]);
+        showToast("All Conversations Deleted.");
     }
 
     const hasConversations = self.conversations().length > 0;
