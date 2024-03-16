@@ -173,4 +173,5 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 
 ### Settings
 
-![Web capture_18-8-2023_20368_192 168 0 7](https://github.com/fingerthief/minimal-gpt/assets/2380471/f0147371-5096-40e7-a28d-8ac8d9294d2a)
+![minimal-chat-settings](https://github.com/fingerthief/minimal-gpt/assets/2380471/7d40f1a8-c297-4d43-bd4a-fae22d94c2ad)
+
