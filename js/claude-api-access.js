@@ -1,3 +1,5 @@
+import { showToast } from "../js/utils.js";
+
 let retryClaudeCount = 0;
 export async function fetchClaudeResponse(conversation, attitude, model) {
 
@@ -51,7 +53,7 @@ export async function fetchClaudeResponse(conversation, attitude, model) {
         }
         else {
             console.error("Error fetching Claude response:", error);
-            return "An error occurred while fetching Claude response stream.";
+            return "An error occurred while fetching Claude response.";
         }
     }
 }
@@ -87,6 +89,8 @@ export async function fetchClaudeConversationTitle(messages) {
         if (result.content && result.content.length > 0) {
             return result.content[0].text;
         } else {
+            showToast("Error: Failed to generate conversation title");
+            
             return "I'm sorry, I couldn't generate a response.";
         }
     } catch (error) {
@@ -150,6 +154,7 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
     }
 }
 
+let claudeStreamRetryCount = 0;
 export async function streamClaudeResponse(messages, model, attitude, updateUIFunction) {
     const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
         method: 'POST',
@@ -177,31 +182,50 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
     let result = '';
     let decodedResult = "";
     while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        result += chunk;
-
-        // Process the streamed response chunk by chunk
-        const lines = chunk.split('\n');
-        for (const line of lines) {
-            if (line.startsWith('data:')) {
-                const data = line.slice(5).trim();
-                if (data === '[DONE]') {
-                    return decodedResult;
-                }  
-
-                const token = JSON.parse(data);
-
-                if (token?.delta?.text) {
-                    decodedResult += token.delta.text;
-                    updateUIFunction(token?.delta?.text);
+        try {
+            const { value, done } = await reader.read();
+            if (done) break;
+    
+            const chunk = decoder.decode(value);
+            result += chunk;
+    
+            // Process the streamed response chunk by chunk
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('data:')) {
+                    const data = line.slice(5).trim();
+                    if (data === '[DONE]') {
+                        return decodedResult;
+                    }  
+    
+                    const token = JSON.parse(data);
+    
+                    if (token?.delta?.text) {
+                        claudeStreamRetryCount = 0;
+                        decodedResult += token.delta.text;
+                        updateUIFunction(token?.delta?.text, false);
+                    }
+    
+                    if (token?.type === "message_stop") {
+                        return decodedResult;
+                    }
                 }
+            }
+        }
+        catch (error) {
+            if (claudeStreamRetryCount < 3) {
+                claudeStreamRetryCount++;
+                showToast("Error: An error occurred during the stream response. Retrying...");
 
-                if (token?.type === "message_stop") {
-                    return decodedResult;
-                }
+                updateUIFunction("", true);
+
+                console.log("Retry Number: " + claudeStreamRetryCount);
+
+                return await streamClaudeResponse(messages, model, attitude, updateUIFunction);
+            }
+            else {
+                console.error("Error fetching Claude response:", error);
+                return "An error occurred while fetching Claude conversation title.";
             }
         }
     }

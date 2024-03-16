@@ -88,11 +88,109 @@ a {
     display: none;
 }
 
+
 #chat-form {
     display: flex;
     padding: 6px;
     height: 50px;
     border-top: 1px solid #444;
+    .image-button {
+        border: 1px solid #444;
+        background-color: #2a3441;
+        cursor: pointer;
+        outline: none;
+        color: #9f86a0;
+        position: absolute;
+        min-height: 50px;
+        display: grid;
+        align-content: center;
+        right: 62px;
+        z-index: 99999;
+        border-radius: 30px;
+        min-width: 50px;
+        justify-content: space-around;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+    
+    
+    .send-button {
+        border: 1px solid #444;
+        background-color: #2a3441;
+        cursor: pointer;
+        outline: none;
+        color: $icon-color;
+        position: absolute;
+        min-height: 50px;
+        display: grid;
+        align-content: center;
+        right: 7px;
+        z-index: 99999;
+        border-radius: 30px;
+        min-width: 50px;
+        justify-content: space-around;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+
+    
+    #user-input {
+        flex-grow: 1;
+        z-index: 9999;
+        border: 1px solid #444;
+        outline: none;
+        background-color: #1c1c1e;
+        font-size: 18px;
+        max-width: 91.5vw;
+        color: #f0f0f0;
+        resize: vertical;
+        overflow: hidden;
+        white-space: pre-wrap;
+        min-height: 35px;
+        border-radius: 30px;
+        transition: 0.2s height ease-in-out;
+        //border-top-right-radius: 30px;
+        //border-bottom-right-radius: 30px;
+
+    }
+
+    textarea {
+        padding-top: 14px;
+        padding-left: 20px;
+        transition: 0.2s height ease-in-out;
+    }
+}
+
+.select-dropdown {
+    select {
+        appearance: none;
+        background-color: #333;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+
+        &:hover {
+            background-color: #444;
+        }
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    option {
+        background-color: #222;
+        color: #fff;
+    }
 }
 
 
@@ -113,31 +211,6 @@ a {
     transition: 0.2s height ease-in-out;
 }
 
-#user-input {
-    flex-grow: 1;
-    z-index: 9999;
-    border: 1px solid #444;
-    outline: none;
-    background-color: #1c1c1e;
-    font-size: 18px;
-    min-width: 89vw;
-    color: #f0f0f0;
-    resize: vertical;
-    overflow: hidden;
-    white-space: pre-wrap;
-    min-height: 35px;
-    border-radius: 30px;
-    transition: 0.2s height ease-in-out;
-    //border-top-right-radius: 30px;
-    //border-bottom-right-radius: 30px;
-
-}
-
-textarea {
-    padding-top: 14px;
-    padding-left: 20px;
-    transition: 0.2s height ease-in-out;
-}
 
 button {
     border: 1px solid #444;
@@ -159,50 +232,7 @@ button {
     }
 }
 
-.image-button {
-    border: 1px solid #444;
-    background-color: #2a3441;
-    cursor: pointer;
-    outline: none;
-    color: #9f86a0;
-    position: absolute;
-    min-height: 50px;
-    display: grid;
-    align-content: center;
-    right: 62px;
-    z-index: 99999;
-    border-radius: 30px;
-    min-width: 50px;
-    justify-content: space-around;
-    transition: background-color 0.3s ease, transform 0.2s ease;
 
-    &:hover {
-        transform: scale(1.05);
-    }
-}
-
-
-.send-button {
-    border: 1px solid #444;
-    background-color: #2a3441;
-    cursor: pointer;
-    outline: none;
-    color: $icon-color;
-    position: absolute;
-    min-height: 50px;
-    display: grid;
-    align-content: center;
-    right: 7px;
-    z-index: 99999;
-    border-radius: 30px;
-    min-width: 50px;
-    justify-content: space-around;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-
-    &:hover {
-        transform: scale(1.05);
-    }
-}
 
 .floating-button {
     border: 1px solid #444;

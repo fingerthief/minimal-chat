@@ -1,6 +1,7 @@
 import {
     wrapCodeSnippets,
-    getConversationTitleFromGPT
+    getConversationTitleFromGPT,
+    showToast
 } from '../js/utils.js';
 import {
     loadConversationTitles,
@@ -423,23 +424,17 @@ export function AppViewModel() {
         }
 
         self.isProcessing(false);
-
-        Toastify({
-            text: "Conversation Deleted",
-            duration: 2000,
-            newWindow: true,
-            close: true,
-            gravity: "bottom", // `top` or `bottom`
-            position: "center", // `left`, `center` or `right`
-            stopOnFocus: true, // Prevents dismissing of toast on hover
-            style: {
-                background: "linear-gradient(to right, #473253, #4d3f4f)",
-            },
-            onClick: function () { } // Callback after click
-        }).showToast();
+        showToast("Conversation Deleted");
     };
 
-    function updateUI(content) {
+    function updateUI(content, reset) {
+
+        if (reset === true) {
+            self.streamedMessageText("");
+            self.scrollToBottom();
+            return;
+        }
+
         self.streamedMessageText((self.streamedMessageText() || "") + content);
         self.scrollToBottom();
     }
@@ -520,19 +515,7 @@ export function AppViewModel() {
         const messageText = self.userInput().trim();
 
         if (self.userInput().trim().length === 0) {
-            Toastify({
-                text: "Please Enter a Prompt First",
-                duration: 2000,
-                newWindow: true,
-                close: true,
-                gravity: "bottom", // `top` or `bottom`
-                position: "center", // `left`, `center` or `right`
-                stopOnFocus: true, // Prevents dismissing of toast on hover
-                style: {
-                    background: "linear-gradient(to right, #473253, #4d3f4f)",
-                },
-                onClick: function () { } // Callback after click
-            }).showToast();
+            showToast("Please Enter a Prompt First");
             return;
         }
 
@@ -667,19 +650,7 @@ export function AppViewModel() {
 
     self.visionimageUploadClick = async function () {
         if (self.userInput().trim().length === 0) {
-            Toastify({
-                text: "Please Enter a Prompt First",
-                duration: 2000,
-                newWindow: true,
-                close: true,
-                gravity: "bottom", // `top` or `bottom`
-                position: "center", // `left`, `center` or `right`
-                stopOnFocus: true, // Prevents dismissing of toast on hover
-                style: {
-                    background: "linear-gradient(to right, #473253, #4d3f4f)",
-                },
-                onClick: function () { } // Callback after click
-            }).showToast();
+            showToast("Please Enter a Prompt First");
             return;
         }
 
@@ -863,6 +834,8 @@ export function AppViewModel() {
 
         self.selectedConversation(self.conversations()[self.conversations().length - 1]);
         self.loadSelectedConversation();
+
+        showToast("Conversation Saved");
     };
 
     self.copyText = function (text) {
@@ -878,6 +851,8 @@ export function AppViewModel() {
         }
 
         document.body.removeChild(textarea);
+
+        showToast("Copied message text");
     }
 
     /**
