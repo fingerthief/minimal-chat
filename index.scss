@@ -166,10 +166,10 @@ button {
     outline: none;
     color: #9f86a0;
     position: absolute;
-    min-height: 49px;
+    min-height: 50px;
     display: grid;
     align-content: center;
-    right: 77px;
+    right: 62px;
     z-index: 99999;
     border-radius: 30px;
     min-width: 50px;
@@ -197,7 +197,7 @@ button {
     right: 7px;
     z-index: 99999;
     border-radius: 30px;
-    min-width: 65px;
+    min-width: 50px;
     justify-content: space-around;
     opacity: 0.5;
     transition: background-color 0.3s ease, transform 0.2s ease;
