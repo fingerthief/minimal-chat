@@ -10449,11 +10449,9 @@ button:hover {
   border-radius: 30px;
   min-width: 50px;
   justify-content: space-around;
-  opacity: 0.5;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 .image-button:hover {
-  opacity: 1;
   transform: scale(1.05);
 }
 
@@ -10472,11 +10470,9 @@ button:hover {
   border-radius: 30px;
   min-width: 50px;
   justify-content: space-around;
-  opacity: 0.5;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 .send-button:hover {
-  opacity: 1;
   transform: scale(1.05);
 }
 
