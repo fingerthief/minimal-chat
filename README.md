@@ -4,7 +4,7 @@
 ![Version](https://img.shields.io/badge/version-4.3.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**MinimalGPT** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude chat when the user sends a message and when a user saves a conversation to generate a conversation title.
+**MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
 
 ---
 
@@ -171,8 +171,6 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 
 [![Application Demo installed as a PWA](https://i9.ytimg.com/vi_webp/dxMAGbOohN0/mq2.webp?sqp=CJy1168G-oaymwEmCMACELQB8quKqQMa8AEB-AG-BIACgAqKAgwIABABGGMgTyhlMA8=&rs=AOn4CLAEING3jNuCeohMzvAHRMHnJqFKaA)](https://www.youtube.com/watch?v=dxMAGbOohN0)
 
-
 ### Settings
 
-![minimal-chat-settings](https://github.com/fingerthief/minimal-gpt/assets/2380471/7d40f1a8-c297-4d43-bd4a-fae22d94c2ad)
-
+![Screenshot 2024-03-16 at 13-42-53 MinimalChat](https://github.com/fingerthief/minimal-chat/assets/2380471/e691b134-d1d7-4ead-9bdb-b20879c3d1fd)
