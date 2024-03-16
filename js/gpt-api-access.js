@@ -1,6 +1,11 @@
+import { showToast } from "../js/utils.js";
+
 const apiKey = document.getElementById('api-key');
 apiKey.value = localStorage.getItem("gptKey");
 
+const numberOfRetryAttemptsAllowed = 5;
+
+let gptResponseRetryCount = 0;
 export async function fetchGPTResponse(conversation, attitude, model) {
     const prompt = `Me: ${conversation}\nAI:`;
     let storedApiKey = localStorage.getItem("gptKey");
@@ -26,16 +31,29 @@ export async function fetchGPTResponse(conversation, attitude, model) {
         const result = await response.json();
 
         if (result.choices && result.choices.length > 0) {
+            gptResponseRetryCount = 0;
             return result.choices[0].message.content;
         } else {
-            return "I'm sorry, I couldn't generate a response.";
+            return "Error parsing fetchGPTResponse response object.";
         }
     } catch (error) {
-        console.error("Error fetching GPT response:", error);
+        if (gptResponseRetryCount < numberOfRetryAttemptsAllowed) {
+            gptResponseRetryCount++;
+
+            showToast(`Failed fetchGPTResponse Request. Retrying...Attempt #${gptResponseRetryCount}`);
+
+            await sleep(1000);
+
+            return await fetchGPTResponse(conversation, attitude, model);
+        }
+
+        showToast(`Retry Attempts Failed for fetchGPTResponse Request.`);
+
         return "An error occurred while fetching GPT response.";
     }
 }
 
+let gptVisionRetryCount = 0;
 export async function fetchGPTVisionResponse(visionMessages, apiKey) {
     const payload = {
         model: "gpt-4-vision-preview",
@@ -48,20 +66,41 @@ export async function fetchGPTVisionResponse(visionMessages, apiKey) {
         max_tokens: 4096
     };
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(payload)
-    });
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(payload)
+        });
+    
+        const data = await response.json();
 
-    const data = await response.json();
+        gptVisionRetryCount = 0;
+    
+        return data.choices[0].message.content;
+    }
+    catch (error) {
 
-    return data.choices[0].message.content;
+        if (gptVisionRetryCount < numberOfRetryAttemptsAllowed) {
+            gptVisionRetryCount++;
+
+            showToast(`Failed fetchGPTVisionResponse Request. Retrying...Attempt #${dalleRetryCount}`);
+
+            await sleep(1000);
+
+            return fetchGPTVisionResponse(visionMessages, apiKey);
+        }
+
+        showToast(`Retry Attempts Failed for fetchGPTVisionResponse Request.`);
+        return "Error generating GPT Vision response."
+    }
+
 }
 
+let dalleRetryCount = 0;
 export async function generateDALLEImage(conversation) {
     let storedApiKey = localStorage.getItem("gptKey");
 
@@ -84,16 +123,30 @@ export async function generateDALLEImage(conversation) {
         const result = await response.json();
 
         if (result.data && result.data.length > 0) {
+            dalleRetryCount = 0;
             return result;
         } else {
             return "I'm sorry, I couldn't generate an image. The prompt may not be allowed by the API.";
         }
     } catch (error) {
+        if (dalleRetryCount < numberOfRetryAttemptsAllowed) {
+            dalleRetryCount++;
+
+            showToast(`Failed generateDALLEImage Request. Retrying...Attempt #${dalleRetryCount}`);
+
+            await sleep(1000);
+
+            return await generateDALLEImage(conversation);
+        }
+
+        showToast(`Retry Attempts Failed for generateDALLEImage Request.`);
         console.error("Error fetching DALL-E response:", error);
         return "An error generating DALL-E image.";
     }
 }
 
+
+let gptStreamRetryCount = 0;
 export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
     const gptMessagesOnly = filterGPTMessages(conversation);
 
@@ -113,11 +166,14 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
 
     try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
+
         const result = await readResponseStream(response, updateUiFunction);
+        
+        gptStreamRetryCount = 0;
         return result;
     } catch (error) {
         console.error("Error fetching GPT response:", error);
-        return retryFetchGPTResponseStream(conversation, attitude, model);
+        return retryFetchGPTResponseStream(conversation, attitude, model, updateUiFunction);
     }
 }
 
@@ -145,13 +201,21 @@ async function readResponseStream(response, updateUiFunction) {
     }
 }
 
+async function retryFetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
+    if (gptStreamRetryCount < numberOfRetryAttemptsAllowed) {
+        console.log("Retry Number: " + (gptStreamRetryCount + 1));
 
-async function retryFetchGPTResponseStream(conversation, attitude, model, retryCount = 0) {
-    if (retryCount < 5) {
-        console.log("Retry Number: " + (retryCount + 1));
+        updateUiFunction("", true);
+
+        showToast(`Failed fetchGPTResponseStream Request. Retrying...Attempt #${gptStreamRetryCount}`);
+
+        await sleep(1000);
 
         return await fetchGPTResponseStream(conversation, attitude, model);
     }
+
+    showToast(`Retry Attempts Failed for fetchGPTResponseStream Request.`);
+
     return "An error occurred while fetching GPT response stream.";
 }
 

@@ -1,5 +1,7 @@
 import { showToast } from "../js/utils.js";
 
+const numberOfRetryAttemptsAllowed = 5;
+
 let retryClaudeCount = 0;
 export async function fetchClaudeResponse(conversation, attitude, model) {
 
@@ -46,12 +48,18 @@ export async function fetchClaudeResponse(conversation, attitude, model) {
         }
     } catch (error) {
 
-        if (retryClaudeCount < 0) {
+        if (retryClaudeCount < numberOfRetryAttemptsAllowed) {
             retryClaudeCount++;
+
+            showToast(`Failed fetchClaudeResponse Request. Retrying...Attempt #${retryClaudeCount}`);
+
+            await sleep(1000);
+
             console.log("Retry Number: " + retryClaudeCount);
             return await fetchClaudeResponse(conversation, attitude, model);
         }
         else {
+            showToast(`Retry Attempts Failed for fetchClaudeResponse Request.`);
             console.error("Error fetching Claude response:", error);
             return "An error occurred while fetching Claude response.";
         }
@@ -95,12 +103,18 @@ export async function fetchClaudeConversationTitle(messages) {
         }
     } catch (error) {
 
-        if (claudeRetryTitleCount < 3) {
+        if (claudeRetryTitleCount < numberOfRetryAttemptsAllowed) {
             claudeRetryTitleCount++;
             console.log("Retry Number: " + claudeRetryTitleCount);
+
+            showToast(`Failed fetchClaudeConversationTitle Request. Retrying...Attempt #${claudeRetryTitleCount}`);
+
+            await sleep(1000);
+
             return await fetchClaudeConversationTitle(conversation, attitude, model);
         }
         else {
+            showToast(`Retry Attempts Failed for fetchClaudeConversationTitle Request.`);
             console.error("Error fetching Claude response:", error);
             return "An error occurred while fetching Claude conversation title.";
         }
@@ -140,14 +154,20 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
             return "I'm sorry, I couldn't analyze the image. This usually is caused by uploading an image larger than 5MB in size.";
         }
     } catch (error) {
-        if (claudeVisionRetryCount < 3) {
+        if (claudeVisionRetryCount < numberOfRetryAttemptsAllowed) {
 
             claudeVisionRetryCount++;
+
+            showToast(`Failed fetchClaudeVisionResponse Request. Retrying...Attempt #${claudeVisionRetryCount}`);
+
+            await sleep(1000);
 
             console.log("Retry Number: " + claudeVisionRetryCount);
             return await fetchClaudeVisionResponse(visionMessages, apiKey, model);
         }
         else {
+            showToast(`Retry Attempts Failed for fetchClaudeVisionResponse Request.`);
+
             console.error("Error fetching Claude response:", error);
             return "An error occurred while fetching Claude conversation title.";
         }
@@ -213,7 +233,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
             }
         }
         catch (error) {
-            if (claudeStreamRetryCount < 3) {
+            if (claudeStreamRetryCount < numberOfRetryAttemptsAllowed) {
                 claudeStreamRetryCount++;
                 showToast("Error: An error occurred during the stream response. Retrying...");
 
@@ -221,9 +241,15 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
 
                 console.log("Retry Number: " + claudeStreamRetryCount);
 
+                showToast(`Failed streamClaudeResponse Request. Retrying...Attempt #${claudeStreamRetryCount}`);
+
+                await sleep(1000);
+
                 return await streamClaudeResponse(messages, model, attitude, updateUIFunction);
             }
             else {
+                showToast(`Retry Attempts Failed for streamClaudeResponse Request.`);
+
                 console.error("Error fetching Claude response:", error);
                 return "An error occurred while fetching Claude conversation title.";
             }

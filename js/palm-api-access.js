@@ -2,6 +2,7 @@
 
 const MODEL_NAME = "chat-bison-001";
 let retryCount = 0;
+const numberOfRetriesAllowed = 5;
 
 export async function fetchPalmResponse(messages) {
     const API_KEY = localStorage.getItem("palmKey");
@@ -28,14 +29,18 @@ export async function fetchPalmResponse(messages) {
     }
     catch (err) {
 
-        if (retryCount < 5) {
+        if (retryCount < numberOfRetriesAllowed) {
             retryCount++;
             console.log("Retry count: " + retryCount);
+            
+            showToast(`Failed fetchPalmResponse Request. Retrying...Attempt #${retryCount}`);
             await sleep(1000);
 
             return await fetchPalmResponse(messages);
         }
         else {
+            showToast(`Retry Attempts Failed for fetchPalmResponse Request.`);
+
             console.error("Error fetching PaLM Response:", err);
             return "An error occurred while fetching PaLM response. Please try again.";
         }
@@ -71,11 +76,18 @@ export async function fetchPalmConversationTitle(messages) {
     
             return reponseText;      
     } catch (error) {
-        if (retryCount < 5) {
+        if (retryCount < numberOfRetriesAllowed) {
             retryCount++;
+
+            showToast(`Failed fetchPalmConversationTitle Request. Retrying...Attempt #${retryCount}`);
+
+            await sleep(1000);
+
             console.log("retrying PaLM title generation attempt:" + retryCount)
             return await fetchPalmConversationTitle(baseMessages);
         }
+
+        showToast(`Retry Attempts Failed for fetchPalmConversationTitle Request.`);
 
         return error;
     }
