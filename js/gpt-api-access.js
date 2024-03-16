@@ -1,13 +1,10 @@
-import { showToast } from "../js/utils.js";
+import { showToast, sleep } from "../js/utils.js";
 
 const apiKey = document.getElementById('api-key');
 apiKey.value = localStorage.getItem("gptKey");
 
 const numberOfRetryAttemptsAllowed = 5;
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 let gptResponseRetryCount = 0;
 export async function fetchGPTResponse(conversation, attitude, model) {

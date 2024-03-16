@@ -1,4 +1,4 @@
-import { showToast } from "../js/utils.js";
+import { showToast, sleep } from "../js/utils.js";
 
 const numberOfRetryAttemptsAllowed = 5;
 
