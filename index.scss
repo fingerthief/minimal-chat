@@ -241,14 +241,14 @@ button {
     color: $icon-color;
     position: fixed;
     min-height: 50px;
-    top: 112px;
+    top: 130px;
     display: grid;
     align-content: center;
     right: 7px;
     z-index: 99999;
     border-radius: 30px;
     min-width: 54px;
-    opacity: 0.2;
+    opacity: 0.5;
     justify-content: space-around;
     transition: opacity 0.1s ease-in-out;
 
@@ -275,7 +275,7 @@ button {
     color: #433944;
     position: fixed;
     min-height: 0px;
-    top: 112px;
+    top: 130px;
     display: grid;
     align-content: center;
     right: 82px;
@@ -369,7 +369,7 @@ button {
     .label {
         position: absolute;
         top: -15px;
-        color: #f3f4f6;
+        color: #dadbde;
         font-size: 13px;
         min-width: 62px;
         font-weight: bold;
@@ -380,7 +380,7 @@ button {
     &.user {
         float: right;
         background-color: #473253;
-        color: #f3f4f6;
+        color: #dadbde;
 
         border-right: 6px solid #614a63;
         border-top-right-radius: 0;
@@ -404,7 +404,7 @@ button {
     &.gpt {
         float: left;
         background-color:  #4d3f4f;
-        color: #f3f4f6;
+        color: #dadbde;
 
         border-left: 6px solid #6a576c;
         border-top-left-radius: 0;
@@ -420,7 +420,7 @@ button {
             border-left: 6px solid #6a576c;
             background-color: #4d3f4f;
             left: 0px;
-            color: #f3f4f6;
+            color: #dadbde;
             border-radius: 8px;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
@@ -573,12 +573,12 @@ button {
 }
 
 .sidebar {
-    background-color: #2b2431;
+    background-color: #282728;
     width: 90vw;
     max-width: 650px;
     border-radius: 8px;
     padding: 8px;
-    border: 2px solid #665067;
+    border: 2px solid #3d3c3e;
     overflow: auto;
     max-height: 80vh;
     min-height: 80vh;
@@ -651,7 +651,7 @@ button {
     padding: 5px 10px;
     border: 1px solid #444;
     border-radius: 12px;
-    background-color: #433444;
+    background-color: #3d3c3e;
     color: white;
     cursor: pointer;
     width: 100%;
@@ -675,7 +675,7 @@ button {
         border: 1px solid #444;
         border-radius: 12px;
         margin-right: 6px;
-        background-color: #433444;;
+        background-color: #3d3c3e;
         color: white;
         cursor: pointer;
         width: 100%;
@@ -816,7 +816,7 @@ $shadow-spread-radius: 0px;
         flex-grow: 1;
         height: 15px;
         border-radius: 5px;
-        background: #5b3d5e;;
+        background: #828282;
         outline: none;
         margin-left: 10px;
 
@@ -825,7 +825,7 @@ $shadow-spread-radius: 0px;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: $icon-color;
+            background: #5b525c;
             cursor: pointer;
         }
 
@@ -833,7 +833,7 @@ $shadow-spread-radius: 0px;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #665067;
+            background:  #5b525c;
             cursor: pointer;
         }
     }
