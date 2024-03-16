@@ -793,7 +793,7 @@ $shadow-spread-radius: 0px;
 
 .no-style-link {
     text-decoration: none;
-    color: #c7a0c8;
+    color: $icon-color;
 
     &:hover,
     &:focus {

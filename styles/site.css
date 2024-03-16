@@ -10996,7 +10996,7 @@ button:hover {
 
 .no-style-link {
   text-decoration: none;
-  color: #c7a0c8;
+  color: rgb(187, 187, 187);
 }
 .no-style-link:hover, .no-style-link:focus {
   text-decoration: none;
