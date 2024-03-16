@@ -171,7 +171,6 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 
 [![Application Demo installed as a PWA](https://img.youtube.com/vi/YdxMAGbOohN0/0.jpg)](https://www.youtube.com/watch?v=dxMAGbOohN0)
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/dxMAGbOohN0?si=usjTgNKYPwgJlg4Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 ### Settings
 
