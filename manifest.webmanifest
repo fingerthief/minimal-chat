@@ -4,9 +4,9 @@
     "display": "standalone",
     "scope": "/",
     "start_url": "/",
-    "name": "MinimalGPT",
-    "short_name": "MinimalGPT",
-    "description": "An open source minimal GPT/DALL-E chat web application.",
+    "name": "MinimalChat",
+    "short_name": "MinimalChat",
+    "description": "An open source minimal GPT/DALL-E/PaLM/Claude LLM chat web application.",
     "icons": [
         {
             "src": "images/icon-48-48.png",
