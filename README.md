@@ -1,4 +1,4 @@
-# [Try MinimalGPT/MinimalPaLM/MinimalClaude](https://minimalgpt.app/)
+# [Try MinimalGPT/MinimalPaLM/MinimalClaude (Click to Try)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Version](https://img.shields.io/badge/version-4.2.6-blue)
