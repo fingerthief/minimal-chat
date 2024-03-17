@@ -1,6 +1,6 @@
 {
   "name": "minimal-chat",
-  "version": "4.3.2",
+  "version": "4.3.3",
   "description": "**MinimalChat** is an open-source GPT/DALL-E/PaLM/Claude LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT chat when the user sends a message and when a user saves a conversation to generate a conversation title.",
   "main": "index.js",
   "scripts": {

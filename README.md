@@ -169,7 +169,7 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 
 ## Applcation Demo (PWA)
 
-[![Application Demo installed as a PWA](https://i9.ytimg.com/vi_webp/dxMAGbOohN0/mq2.webp?sqp=CJy1168G-oaymwEmCMACELQB8quKqQMa8AEB-AG-BIACgAqKAgwIABABGGMgTyhlMA8=&rs=AOn4CLAEING3jNuCeohMzvAHRMHnJqFKaA)](https://www.youtube.com/watch?v=dxMAGbOohN0)
+[![Application Demo installed as a PWA](https://img.youtube.com/vi/dxMAGbOohN0/0.jpg)](https://www.youtube.com/watch?v=dxMAGbOohN0)
 
 ### Settings
 
