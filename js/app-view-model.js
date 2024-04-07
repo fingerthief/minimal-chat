@@ -251,9 +251,11 @@ export function AppViewModel() {
 
         if(self.selectedModel() === "lmstudio") {
             localStorage.setItem("useLocalModel", true);
+            self.isUsingLocalModel(true);
         }
         else {
             localStorage.setItem("useLocalModel", false);
+            self.isUsingLocalModel(false);
         }
     });
 
@@ -720,6 +722,11 @@ export function AppViewModel() {
             let response;
 
             if (self.isUsingLocalModel()) {
+
+                self.localModelName(localStorage.getItem('localModelName') || '');
+                self.localSliderValue(localStorage.getItem('local-attitude') || 50);
+                self.localModelEndpoint(localStorage.getItem('localModelEndpoint') || '');
+
                 response = await fetchLocalModelResponseStream(self.messages(), self.localSliderValue(), self.localModelName(), self.localModelEndpoint(), updateUI);
             }
             else {
