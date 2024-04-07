@@ -178,6 +178,37 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
     }
 }
 
+let localStreamRetryCount = 0;
+export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction) {
+    const gptMessagesOnly = filterGPTMessages(conversation);
+    
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer lm-studio`,
+        },
+        body: JSON.stringify({
+            model: model,
+            stream: true,
+            messages: gptMessagesOnly,
+            temperature: attitude * 0.01
+        }),
+    };
+
+    try {
+        const response = await fetch(localModelEndpoint, requestOptions);
+
+        const result = await readResponseStream(response, updateUiFunction);
+        
+        localStreamRetryCount = 0;
+        return result;
+    } catch (error) {
+        console.error("Error fetching Local Model response:", error);
+        return fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction);
+    }
+}
+
 async function readResponseStream(response, updateUiFunction) {
     let decodedResult = "";
 

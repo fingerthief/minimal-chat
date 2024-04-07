@@ -7,7 +7,8 @@ import {
     loadConversationTitles,
     loadStoredConversations,
     generateDALLEImage,
-    fetchGPTResponseStream
+    fetchGPTResponseStream, 
+    fetchLocalModelResponseStream
 } from '../js/gpt-api-access.js';
 import {
     fetchPalmResponse,
@@ -40,6 +41,7 @@ export function AppViewModel() {
     self.sliderValue = ko.observable(localStorage.getItem('gpt-attitude') || 50);
     self.palmSliderValue = ko.observable(localStorage.getItem('palm-attitude') || 50);
     self.claudeSliderValue = ko.observable(localStorage.getItem('claude-attitude') || 50);
+    self.localSliderValue = ko.observable(localStorage.getItem('local-attitude') || 50);
     self.isSidebarOpen = ko.observable(false);
     self.showConversationOptions = ko.observable(false);
     self.streamedMessageText = ko.observable();
@@ -48,7 +50,10 @@ export function AppViewModel() {
     self.filteredMessages = ko.observableArray([]);
     self.isPalmEnabled = ko.observable(false);
     self.isClaudeEnabled = ko.observable(false);
+    self.isUsingLocalModel = ko.observable(localStorage.getItem('useLocalModel') || false);
     self.lastLoadedConversationId = ko.observable(null);
+    self.localModelName = ko.observable(localStorage.getItem('localModelName') || '');
+    self.localModelEndpoint = ko.observable(localStorage.getItem('localModelEndpoint') || '');
     self.selectedModel = ko.observable(localStorage.getItem('selectedModel') || 'gpt-3.5-turbo');
     self.selectedAutoSaveOption = ko.observable(localStorage.getItem('selectedAutoSaveOption') || true);
     self.selectedDallEImageCount = ko.observable(localStorage.getItem('selectedImageCountOption') || '4');
@@ -88,6 +93,22 @@ export function AppViewModel() {
         }
     });
 
+    const localModel = document.getElementById('model-name');
+    localModel.value = localStorage.getItem("localModelName");
+    localModel.addEventListener("blur", () => {
+        if (localModel.value.trim() !== "") {
+            localStorage.setItem("localModelName", localModel.value.trim());
+        }
+    });
+
+    const localModelEndpoint = document.getElementById('local-model-endpoint');
+    localModelEndpoint.value = localStorage.getItem("localModelEndpoint");
+    localModelEndpoint.addEventListener("blur", () => {
+        if (localModelEndpoint.value.trim() !== "") {
+            localStorage.setItem("localModelEndpoint", localModelEndpoint.value.trim());
+        }
+    });
+
     const palmApiKey = document.getElementById('palm-api-key');
     palmApiKey.value = localStorage.getItem("palmKey");
 
@@ -116,6 +137,10 @@ export function AppViewModel() {
 
     self.claudeSliderValue.subscribe((attitude) => {
         localStorage.setItem("claude-attitude", attitude);
+    });
+
+    self.localSliderValue.subscribe((attitude) => {
+        localStorage.setItem("local-attitude", attitude);
     });
 
     // Blur timeout
@@ -222,6 +247,13 @@ export function AppViewModel() {
                     content: chatMessage.content
                 });
             }
+        }
+
+        if(self.selectedModel() === "lmstudio") {
+            localStorage.setItem("useLocalModel", true);
+        }
+        else {
+            localStorage.setItem("useLocalModel", false);
         }
     });
 
@@ -685,7 +717,14 @@ export function AppViewModel() {
         try {
             self.streamedMessageText("");
 
-            const response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel(), updateUI);
+            let response;
+
+            if (self.isUsingLocalModel()) {
+                response = await fetchLocalModelResponseStream(self.messages(), self.localSliderValue(), self.localModelName(), self.localModelEndpoint(), updateUI);
+            }
+            else {
+                response = await fetchGPTResponseStream(self.messages(), self.sliderValue(), self.selectedModel(), updateUI);
+            }
 
             self.isLoading(false);
 
@@ -771,7 +810,6 @@ export function AppViewModel() {
     self.formatMessage = function (message, isStartup) {
         let md = window.markdownit(defaults);
         let renderedMessage = wrapCodeSnippets(md.render(message));
-        hljs.highlightAll(md, renderedMessage)
         return renderedMessage;
     };
 
