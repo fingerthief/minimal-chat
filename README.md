@@ -1,7 +1,7 @@
 ## [Try MinimalGPT/MinimalPaLM/MinimalClaude (Public Site)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-4.3.2-blue)
+![Version](https://img.shields.io/badge/version-4.4.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
@@ -86,6 +86,7 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
   - **Claude 3 Sonnet**
   - **Claude 3 Haiku**
   - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
+  - **Local LLM Model (Via LM Studio)** users configure the current model name and lmstudio api endpoint url in the settings panel. **NOTE:** The api endpoint url must end in `v1/chat/completions` to work. For example `http://192.168.0.82:1234/v1/chat/completions`
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
