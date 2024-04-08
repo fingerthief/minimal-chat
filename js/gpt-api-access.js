@@ -174,6 +174,8 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
         return result;
     } catch (error) {
         console.error("Error fetching GPT response:", error);
+        gptStreamRetryCount++;
+
         return retryFetchGPTResponseStream(conversation, attitude, model, updateUiFunction);
     }
 }
@@ -205,7 +207,15 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
         return result;
     } catch (error) {
         console.error("Error fetching Local Model response:", error);
-        return fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction);
+        localStreamRetryCount++
+
+        if (localStreamRetryCount < 3) {
+            await sleep(1500);
+            return fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction);
+        }
+
+        return "Error fetching response from Local LLM Model";
+
     }
 }
 
@@ -241,7 +251,7 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, update
 
         showToast(`Failed fetchGPTResponseStream Request. Retrying...Attempt #${gptStreamRetryCount}`);
 
-        await sleep(1000);
+        await sleep(1500);
 
         return await fetchGPTResponseStream(conversation, attitude, model);
     }
