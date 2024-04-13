@@ -374,7 +374,7 @@ export function AppViewModel() {
         const selectedMessages = self.selectedConversation().messageHistory;
         self.messages(selectedMessages);
         self.showConversationOptions(false);
-
+        
         if (self.selectedModel().indexOf("claude") !== -1) {
             self.claudeMessages = selectedMessages.map(chatMessage => ({
                 role: chatMessage.role,
