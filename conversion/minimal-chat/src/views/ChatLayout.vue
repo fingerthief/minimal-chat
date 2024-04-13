@@ -3,43 +3,43 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import messageItem from '@/components/message-item.vue';
+import chatInput from '@/components/chat-input.vue';
+import chatHeader from '@/components/chat-header.vue';
 
-let isSidebarOpen = ref(false);
-let showConversationOptions = ref(false);
-let selectedModel = ref(localStorage.getItem("selectedModel") || "");
 let isProcessing = ref(false);
-let storedConversations = ref(JSON.parse(localStorage.getItem("gpt-conversations")) || []);
 let hasFilterText = ref(false);
+let selectedModel = ref(localStorage.getItem("selectedModel") || "");
+
 
 let messages = ref([]);
 
-const userInput = ref('');
-const isLoading = ref(false);
+// Reactive state for user input
+const userText = ref('');
 
-const faConversationsCountClass = computed(() => {
-    const length = storedConversations.value.length;
-    return `fa-${length > 0 ? length : '0'}`;
-});
+// Method to update user input based on child component's emitted value
+const updateUserText = (newText) => {
+    userText.value = newText;
+};
 
-function toggleSidebar() {
-    isSidebarOpen.value = !isSidebarOpen.value;
+function handleToggleSidebar() {
+    console.log('Sidebar toggled');
 }
 
-function deleteCurrentConversation() {
-    //TODO
+function handleDeleteConversation() {
+    console.log('Conversation deleted');
 }
 
-function clearMessages() {
-    //TODO
+function handleClearMessages() {
+    console.log('Messages cleared');
 }
 
-function onShowConversationsClick() {
-    //TODO
+function handleShowConversations() {
+    console.log('Show conversations');
 }
 
 function sendMessage(event) {
     // TODO: Implement send message logic
-    console.log('Sending message:', userInput.value);
+    console.log('Sending message:', userText.value);
 }
 
 function visionImageUploadClick() {
@@ -65,9 +65,9 @@ function swipedRight(event) {
 onMounted(() => {
     // Initialization code here
     messages.value.push({
-            role: "user",
-            content: "Hello"
-        });
+        role: "user",
+        content: "Hello"
+    });
 
     messages.value.push({
         role: "assistant",
@@ -95,72 +95,21 @@ onMounted(() => {
                 <div class="container">
                     <div class="chat">
                         <!-- Header -->
-                        <div class="header box">
-                            <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank"
-                                class="no-style-link" data-bind="visible: selectedModel().indexOf('bison') !== -1">
-                                MinimalPaLM
-                            </a>
-                            <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank"
-                                class="no-style-link" v-show="selectedModel.indexOf('claude') !== -1">
-                                MinimalClaude
-                            </a>
-                            <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank"
-                                class="no-style-link" v-show="selectedModel.indexOf('gpt') !== -1">
-                                MinimalGPT
-                            </a>
-                            <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank"
-                                class="no-style-link" v-show="selectedModel.indexOf('lmstudio') !== -1">
-                                MinimalLocal
-                            </a>
-                            <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank"
-                                class="no-style-link">
-                                <span class="fa-brands fa-github"></span>
-                            </a>
-                            <div class="hover-increase-size settings-btn fa-solid fa-sliders fa-lg"
-                                @click="toggleSidebar"></div>
-                            <div class="hover-increase-size trash-btn fa-solid fa-trash-can fa-lg"
-                                @click="deleteCurrentConversation"></div>
-                            <div class="conversations-count">
-                                <div class="general-processing" v-show="isProcessing">
-                                    <span class="loading spinner"></span>
-                                </div>
-                                <span class="hover-increase-size save-icon fa-solid fa-floppy-disk fa-xl"
-                                    @click="clearMessages"></span>
-                                <span class="count-icon fa-xl fa-solid" :class="faConversationsCountClass"></span>
-                                <div class="hover-increase-size saved-conversations-dropdown fa-solid fa-message fa-xl"
-                                    @click="onShowConversationsClick"></div>
-                            </div>
-                        </div>
+                        <chatHeader :selectedModel="selectedModel" />
+
                         <!-- Messages -->
                         <div class="messages" id="messagesContainer">
                             <div v-for="(message, index) in messages" :key="index">
-                                <messageItem
-                                    :role="message.role"
-                                    :content="message.content"
-                                    :hasFilterText="hasFilterText"
-                                    :messages="messages"
-                                    :index="index"
-                                />
+                                <messageItem :role="message.role" :content="message.content"
+                                    :hasFilterText="hasFilterText" :messages="messages" :index="index" />
                             </div>
                         </div>
                         <!-- User Input Section -->
-                        <form id="chat-form" @submit.prevent="sendMessage" @swipeleft="swipedLeft"
-                            @swiperight="swipedRight">
-                            <textarea id="user-input" class="user-input-text" rows="1" placeholder=""
-                                v-model="userInput" @input="autoResize" @focus="autoResize"
-                                @blur="autoResize"></textarea>
-                            <div class="image-button" @click="visionImageUploadClick">
-                                <span class="fa-solid fa-image fa-xl"></span>
-                            </div>
-                            <div class="send-button" @click="sendMessage">
-                                <span v-show="isLoading" class="loading input-spinner"></span>
-                                <span v-show="!isLoading" class="fa-solid fa-circle-arrow-up fa-xl"></span>
-                            </div>
-                        </form>
+                        <chatInput :userInput="userText" @update:userInput="updateUserText" />
                     </div>
                 </div>
-                <!-- Chat content goes here -->
             </div>
+            <!-- Chat content goes here -->
         </div>
     </div>
 </template>
@@ -185,8 +134,9 @@ $icon-color: rgb(187, 187, 187);
 .app-body {
     z-index: 0;
     width: 99vw;
-    height: 98vh;
+    height: 90vh;
     position: relative;
+    max-height: 90vh;
 }
 
 body {
@@ -235,15 +185,6 @@ a {
     }
 }
 
-.trash-btn {
-    position: absolute;
-    left: 50px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: $icon-color;
-    cursor: pointer;
-}
-
 
 .messages {
     overflow-y: auto;
@@ -261,82 +202,6 @@ a {
 .messages::-webkit-scrollbar {
     /* For Chrome, Safari, and Opera */
     display: none;
-}
-
-
-#chat-form {
-    display: flex;
-    padding: 6px;
-    height: 50px;
-    border-top: 1px solid #444;
-
-    .image-button {
-        background-color: transparent;
-        cursor: pointer;
-        outline: none;
-        color: $icon-color;
-        position: absolute;
-        min-height: 55px;
-        display: grid;
-        align-content: center;
-        right: 62px;
-        z-index: 99999;
-        border-radius: 30px;
-        justify-content: space-around;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-
-        &:hover {
-            transform: scale(1.30);
-        }
-    }
-
-
-    .send-button {
-        //border: 1px solid #444;
-        background-color: transparent;
-        cursor: pointer;
-        outline: none;
-        color: $icon-color;
-        position: absolute;
-        min-height: 55px;
-        display: grid;
-        align-content: center;
-        right: 7px;
-        z-index: 99999;
-        border-radius: 30px;
-        min-width: 50px;
-        justify-content: space-around;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-
-        &:hover {
-            transform: scale(1.30);
-        }
-    }
-
-
-    #user-input {
-        flex-grow: 1;
-        z-index: 9999;
-        border: 1px solid #444;
-        outline: none;
-        background-color: #1c1c1e;
-        font-size: 18px;
-        color: #f0f0f0;
-        resize: vertical;
-        overflow: hidden;
-        white-space: pre-wrap;
-        min-height: 50px;
-        border-radius: 30px;
-        transition: 0.2s height ease-in-out;
-
-    }
-
-    textarea {
-        padding-top: 14px;
-        padding-left: 20px;
-        padding-right: 100px;
-        transition: 0.2s height ease-in-out;
-    }
 }
 
 .select-dropdown {
@@ -614,76 +479,6 @@ button {
     }
 }
 
-.saved-conversations {
-    display: none;
-}
-
-.saved-conversations--visible {
-    display: flex;
-
-}
-
-.conversations-count {
-    display: contents;
-    position: relative;
-    left: 0px;
-
-    .count-icon {
-        padding: 2px;
-        top: 8px;
-        right: 11px;
-        color: $icon-color;
-        float: right;
-        position: relative;
-    }
-
-    .save-icon {
-        padding: 2px;
-        right: 69px;
-        top: 8px;
-        color: $icon-color;
-        float: right;
-        position: relative;
-    }
-}
-
-.saved-conversations-dropdown {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    color: $icon-color;
-    transform: translateY(-50%);
-}
-
-.saved-conversations-dropdown select {
-    padding: 6px 12px;
-    font-size: 14px;
-    border: 1px solid #5a5a5a;
-    border-radius: 4px;
-    background-color: #3a3a3a;
-    color: #f1f1f1;
-    /* Change the text color to a lighter shade */
-    cursor: pointer;
-}
-
-.saved-conversations-dropdown select:focus {
-    outline: none;
-    /* Remove the default focus outline */
-    box-shadow: 0 0 0 1px #5a5a5a;
-}
-
-.clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
-}
-
-.clear-button {
-    width: 72%;
-    margin-bottom: 10px;
-    padding: 5px 10px;
-}
-
 
 .app-container {
     position: relative; // Add relative positioning
@@ -888,21 +683,6 @@ $shadow-offset-y: 1px;
 $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 
-.box {
-    box-shadow: $shadow-offset-x $shadow-offset-y $shadow-blur-radius $shadow-spread-radius $shadow-color;
-}
-
-.header {
-    background-color: #202124;
-    padding: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    border-bottom: 1px solid #2b2c30;
-    position: relative; // Add this line
-    border-radius: 4px;
-}
-
 .settings-header {
     font-size: 18px;
     font-weight: bold;
@@ -910,18 +690,6 @@ $shadow-spread-radius: 0px;
     margin-top: -7px;
     position: relative;
     border-bottom: 5px solid gray;
-}
-
-.settings-btn {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: transparent;
-    border: none;
-    color: $icon-color;
-    cursor: pointer;
-    outline: none;
 }
 
 .message-tag {
@@ -1069,18 +837,6 @@ $shadow-spread-radius: 0px;
     width: 10px;
     color: lightskyblue;
     height: 10px;
-    margin-left: 5px;
-    border: 4px solid #3c8280;
-    border-left-color: #1cdfd8;
-    border-radius: 50%;
-    animation: spinner 1s linear infinite;
-}
-
-.input-spinner {
-    display: inline-block;
-    width: 25px;
-    color: lightskyblue;
-    height: 25px;
     margin-left: 5px;
     border: 4px solid #3c8280;
     border-left-color: #1cdfd8;

@@ -55,8 +55,7 @@ function formatMessage(content, isImage) {
 <style lang="scss" scoped>
 .message {
     position: relative;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding: 12px;
     border-radius: 12px;
     max-width: 85%;
     min-width: 8%;
