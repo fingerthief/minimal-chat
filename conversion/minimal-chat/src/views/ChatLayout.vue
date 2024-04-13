@@ -1,17 +1,94 @@
 <!-- eslint-disable no-unused-vars -->
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
+import settingsDialog from '@/components/settings-dialog.vue';
+import conversationsDialog from '@/components/conversations-dialog.vue';
 
-let isProcessing = ref(false);
-let hasFilterText = ref(false);
-let selectedModel = ref(localStorage.getItem("selectedModel") || "");
+const isProcessing = ref(false);
+const hasFilterText = ref(false);
+const selectedModel = ref(localStorage.getItem("selectedModel") || "");
+const isSidebarOpen = ref(false);
+const showConversationOptions = ref(false);
+const messages = ref([]);
 
+const localModelName = ref(localStorage.getItem("localModelName") || '');
+const localModelEndpoint = ref(localStorage.getItem("localModelEndpoint") || '');
+const localSliderValue = ref(parseInt(localStorage.getItem("local-attitude")) || 50);
+const gptKey = ref(localStorage.getItem("gptKey") || '');
+const sliderValue = ref(parseInt(localStorage.getItem("gpt-attitude")) || 50);
+const claudeKey = ref(localStorage.getItem("claudeKey") || '');
+const claudeSliderValue = ref(parseInt(localStorage.getItem("claude-attitude")) || 50);
+const selectedDallEImageCount = ref(parseInt(localStorage.getItem("selectedDallEImageCount")) || 1);
+const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImageResolution") || '256x256');
+const palmKey = ref(localStorage.getItem("palmKey") || '');
+const palmSliderValue = ref(parseInt(localStorage.getItem("palm-attitude")) || 50);
+const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
 
-let messages = ref([]);
+// Watchers that update local storage when values change
+watch(selectedModel, (newValue) => {
+    console.log("hit watcher: " + newValue);
+    if (newValue.startsWith("lmstudio")) {
+        localStorage.setItem('useLocalModel', true);
+    }
+    else {
+        localStorage.setItem('useLocalModel', false);
+    }
+
+    localStorage.setItem('selectedModel', newValue);
+});
+
+watch(localModelName, (newValue) => {
+    localStorage.setItem('localModelName', newValue);
+});
+
+watch(localModelEndpoint, (newValue) => {
+    localStorage.setItem('localModelEndpoint', newValue);
+});
+
+watch(localSliderValue, (newValue) => {
+    localStorage.setItem('local-attitude', newValue);
+});
+
+watch(gptKey, (newValue) => {
+    localStorage.setItem('gptKey', newValue);
+});
+
+watch(sliderValue, (newValue) => {
+    localStorage.setItem('gpt-attitude', newValue);
+});
+
+watch(claudeKey, (newValue) => {
+    localStorage.setItem('claudeKey', newValue);
+});
+
+watch(claudeSliderValue, (newValue) => {
+    localStorage.setItem('claude-attitude', newValue);
+});
+
+watch(selectedDallEImageCount, (newValue) => {
+    localStorage.setItem('selectedDallEImageCount', newValue);
+});
+
+watch(selectedDallEImageResolution, (newValue) => {
+    localStorage.setItem('selectedDallEImageResolution', newValue);
+});
+
+watch(palmKey, (newValue) => {
+    localStorage.setItem('palmKey', newValue);
+});
+
+watch(palmSliderValue, (newValue) => {
+    localStorage.setItem('palmSliderValue', newValue);
+});
+
+watch(selectedAutoSaveOption, (newValue) => {
+    localStorage.setItem('selectedAutoSaveOption', newValue);
+});
+
 
 // Reactive state for user input
 const userText = ref('');
@@ -21,8 +98,8 @@ const updateUserText = (newText) => {
     userText.value = newText;
 };
 
-function handleToggleSidebar() {
-    console.log('Sidebar toggled');
+function toggleSidebar() {
+    isSidebarOpen.value = !isSidebarOpen.value;
 }
 
 function handleDeleteConversation() {
@@ -33,8 +110,8 @@ function handleClearMessages() {
     console.log('Messages cleared');
 }
 
-function handleShowConversations() {
-    console.log('Show conversations');
+function showConversations() {
+    showConversationOptions.value = !showConversationOptions.value;
 }
 
 function sendMessage(event) {
@@ -62,6 +139,48 @@ function swipedRight(event) {
     console.log('Swiped right');
 }
 
+const handleLoadConversation = (conversation) => {
+    // Logic to load selected conversation
+};
+
+const handleNewConversation = () => {
+    // Logic to handle new conversation creation
+};
+
+const handleImportConversations = () => {
+    // Logic to import conversations
+};
+
+const handleExportConversations = () => {
+    // Logic to export conversations
+};
+
+const handlePurgeConversations = () => {
+    // Logic to purge all conversations
+};
+
+const refs = {
+    selectedModel,
+    localModelName,
+    localModelEndpoint,
+    localSliderValue,
+    gptKey,
+    sliderValue,
+    claudeKey,
+    claudeSliderValue,
+    selectedDallEImageCount,
+    selectedDallEImageResolution,
+    palmKey,
+    palmSliderValue,
+    selectedAutoSaveOption
+};
+// Event handlers for updating the parent's state when the child emits an update
+const updateSetting = (field, value) => {
+    if (field in refs) {
+        refs[field].value = value;
+    }
+};
+
 onMounted(() => {
     // Initialization code here
     messages.value.push({
@@ -82,21 +201,40 @@ onMounted(() => {
         <div class="app-container" id="app-container">
             <!-- Settings Sidebar -->
             <div class="sidebar box" id="settings-dialog" :class="{ open: isSidebarOpen }">
-                <!-- Settings content goes here -->
+                <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel"
+                    :localModelName="localModelName" :localModelEndpoint="localModelEndpoint"
+                    :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
+                    :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
+                    :selectedDallEImageCount="selectedDallEImageCount"
+                    :selectedDallEImageResolution="selectedDallEImageResolution" :palmKey="palmKey"
+                    :palmSliderValue="palmSliderValue" :selectedAutoSaveOption="selectedAutoSaveOption"
+                    @update:model="updateSetting('selectedModel', $event)"
+                    @update:localModelName="updateSetting('localModelName', $event)"
+                    @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"
+                    @update:localSliderValue="updateSetting('localSliderValue', $event)"
+                    @update:gptKey="updateSetting('gptKey', $event)"
+                    @update:sliderValue="updateSetting('sliderValue', $event)"
+                    @update:claudeKey="updateSetting('claudeKey', $event)"
+                    @update:claudeSliderValue="updateSetting('claudeSliderValue', $event)"
+                    @update:selectedDallEImageCount="updateSetting('selectedDallEImageCount', $event)"
+                    @update:selectedDallEImageResolution="updateSetting('selectedDallEImageResolution', $event)"
+                    @update:palmKey="updateSetting('palmKey', $event)"
+                    @update:palmSliderValue="updateSetting('palmSliderValue', $event)"
+                    @update:selectedAutoSaveOption="updateSetting('selectedAutoSaveOption', $event)"
+                    @toggle-sidebar="toggleSidebar" />
             </div>
-
             <!-- Conversations Sidebar -->
             <div class="sidebar box" id="conversations-dialog" :class="{ open: showConversationOptions }">
-                <!-- Conversations content goes here -->
+                <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
+                    @toggle-sidebar="showConversations" @load-conversation="handleLoadConversation"
+                    @new-conversation="handleNewConversation" @import-conversations="handleImportConversations"
+                    @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations" />
             </div>
-
-            <!-- Chat Container -->
             <div class="chat-container">
                 <div class="container">
                     <div class="chat">
-                        <!-- Header -->
-                        <chatHeader :selectedModel="selectedModel" />
-
+                        <chatHeader :selectedModel="selectedModel" :isSidebarOpen="isSidebarOpen"
+                            @toggle-sidebar="toggleSidebar" @toggle-conversations="showConversations" />
                         <!-- Messages -->
                         <div class="messages" id="messagesContainer">
                             <div v-for="(message, index) in messages" :key="index">
@@ -104,7 +242,6 @@ onMounted(() => {
                                     :hasFilterText="hasFilterText" :messages="messages" :index="index" />
                             </div>
                         </div>
-                        <!-- User Input Section -->
                         <chatInput :userInput="userText" @update:userInput="updateUserText" />
                     </div>
                 </div>
@@ -203,33 +340,6 @@ a {
     /* For Chrome, Safari, and Opera */
     display: none;
 }
-
-.select-dropdown {
-    select {
-        appearance: none;
-        background-color: #333;
-        color: #fff;
-        padding: 6px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-
-        &:hover {
-            background-color: #444;
-        }
-
-        &:focus {
-            outline: none;
-        }
-    }
-
-    option {
-        background-color: #222;
-        color: #fff;
-    }
-}
-
 
 #user-search-input {
     flex-grow: 1;
@@ -595,57 +705,6 @@ button {
     }
 }
 
-.close-btn {
-    align-self: flex-end; // Align the button to the right
-    padding: 5px 10px;
-    border: 1px solid #444;
-    border-radius: 12px;
-    background-color: #3d3c3e;
-    color: white;
-    cursor: pointer;
-    width: 98%;
-    font-size: 18px;
-    height: 50px;
-    outline: none;
-    margin-bottom: 10px; // Add some margin at the bottom
-    transition: background-color 0.2s ease, transform 0.2s ease;
-
-    &:hover {
-        background-color: #3e3e3f;
-        transform: scale(1.03);
-    }
-}
-
-.bottom-panel {
-    display: flex;
-    justify-content: center;
-}
-
-.import-export-container {
-
-    display: flex;
-
-    .import-export-btn {
-        align-self: flex-end; // Align the button to the right
-        padding: 5px 10px;
-        border: 1px solid #444;
-        border-radius: 12px;
-        margin-right: 6px;
-        background-color: #3d3c3e;
-        color: white;
-        cursor: pointer;
-        width: 100%;
-        font-size: 18px;
-        height: 50px;
-        outline: none;
-        margin-bottom: -12px; // Add some margin at the bottom
-        max-width: 152px;
-
-        &:hover {
-            background-color: #4a4a4c;
-        }
-    }
-}
 
 
 .chat-container {
@@ -683,15 +742,6 @@ $shadow-offset-y: 1px;
 $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 
-.settings-header {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    margin-top: -7px;
-    position: relative;
-    border-bottom: 5px solid gray;
-}
-
 .message-tag {
     display: flex;
     flex-direction: column;
@@ -719,92 +769,6 @@ $shadow-spread-radius: 0px;
 .message-container.gpt .message-tag {
     background-color: #234b4a;
     color: #f0f0f0;
-}
-
-.no-style-link {
-    text-decoration: none;
-    color: $icon-color;
-
-    &:hover,
-    &:focus {
-        text-decoration: none;
-    }
-}
-
-.slider-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 10px;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid gray;
-
-    input[type="range"] {
-        -webkit-appearance: none;
-        flex-grow: 1;
-        height: 15px;
-        border-radius: 5px;
-        background: #828282;
-        outline: none;
-        margin-left: 10px;
-
-        &::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #5b525c;
-            cursor: pointer;
-        }
-
-        &::-moz-range-thumb {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #5b525c;
-            cursor: pointer;
-        }
-    }
-}
-
-.control {
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid gray;
-}
-
-.api-key {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    margin-bottom: 10px;
-    flex-wrap: nowrap;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid gray;
-
-    input {
-        width: 70%;
-        padding: 5px;
-        border: 1px solid #444;
-        border-radius: 5px;
-        background-color: #1c1c1e;
-        color: #f0f0f0;
-        outline: none;
-        margin-top: 5px;
-    }
-}
-
-.settings-section {
-    border-bottom: 1px solid #e0e0e0;
-    padding: 1rem 0;
-}
-
-.settings-section h3 {
-    margin-bottom: 0.5rem;
 }
 
 .loading {

@@ -9,12 +9,14 @@ const props = defineProps({
     selectedModel: {
         type: String,
         required: true
-    }
+    },
+    isSidebarOpen: Boolean,
+    showConversationOptions: Boolean
 });
 
+const emit = defineEmits(['toggle-sidebar','toggle-conversations']);
+
 let storedConversations = ref(JSON.parse(localStorage.getItem("gpt-conversations")) || []);
-let isSidebarOpen = ref(false);
-let showConversationOptions = ref(false);
 
 const faConversationsCountClass = computed(() => {
     const length = storedConversations.value.length;
@@ -22,7 +24,7 @@ const faConversationsCountClass = computed(() => {
 });
 
 function toggleSidebar() {
-    isSidebarOpen.value = !isSidebarOpen.value;
+    emit('toggle-sidebar');
 }
 
 function deleteCurrentConversation() {
@@ -35,6 +37,7 @@ function clearMessages() {
 
 function onShowConversationsClick() {
     // Implement showing conversations logic
+    emit('toggle-conversations');
 }
 </script>
 
