@@ -19,6 +19,8 @@
 > ⚠️ **Note**: You must input your **Google PaLM API** Key in order for the **PaLM** model to function.
 
 > ⚠️ **Note**: You must input your **Anthropic Claude-3 API** Key in order for the **Claude** model to function.
+>
+> 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
 
 ## Obtaining API Keys
 
