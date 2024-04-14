@@ -54,7 +54,7 @@ function toggleSidebar() {
     <div class="settings-header">
         <h2 @click="reloadPage">
             <span>
-                <RefreshCcw />
+                <RefreshCcw :size="36" :stroke-width="2" />
             </span>
             Settings | V4.4.2
         </h2>
@@ -227,12 +227,13 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .settings-header {
-    font-size: 18px;
+    font-size: 30px;
     font-weight: bold;
     text-align: center;
     margin-top: -7px;
     position: relative;
     border-bottom: 5px solid gray;
+    padding: 15px;
 }
 
 .close-btn {

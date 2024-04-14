@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
 import { SendHorizontal } from 'lucide-vue-next';
-
+import "swiped-events";
 
 // Define props and emits
 const props = defineProps({
@@ -9,7 +9,7 @@ const props = defineProps({
     isLoading: Boolean
 });
 
-const emit = defineEmits(['update:userInput', 'send-message']);
+const emit = defineEmits(['update:userInput', 'send-message', 'swipe-left', 'swipe-right']);
 // Local reactive stat
 const localUserInput = ref(props.userInput);
 
@@ -27,11 +27,13 @@ const sendMessage = () => {
     autoResize();
 };
 
-const swipedLeft = () => {
-};
+function swipedLeft() {
+    emit('swipe-left');
+}
 
-const swipedRight = () => {
-};
+function swipedRight() {
+    emit('swipe-right');
+}
 
 const autoResize = () => {
     if (!localUserInput.value || localUserInput.value.trim() === "") {
@@ -48,7 +50,8 @@ const visionImageUploadClick = () => {
 </script>
 
 <template>
-    <form @submit.prevent="sendMessage" id="chat-form" @swipeleft="swipedLeft" @swiperight="swipedRight">
+    <form @submit.prevent="sendMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
+        data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
         <textarea class="user-input-text" id="user-input" rows="1" placeholder="" v-model="localUserInput"
             ref="userInputRef" @input="autoResize" @focus="autoResize" @blur="autoResize"
             @keypress.enter.prevent="sendMessage"></textarea>

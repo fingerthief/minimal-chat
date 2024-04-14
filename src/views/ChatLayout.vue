@@ -245,7 +245,6 @@ function addMessage(role, message) {
     });
 }
 
-
 function scrollToBottom() {
     const tempMessagesContainer = messagesContainer.value;
 
@@ -491,9 +490,6 @@ async function sendClaudeMessage(messageText) {
         return;
     }
 
-    // this.userInput = "";
-    // this.$refs.userInput.style.height = '30px';
-
     streamedMessageText.value = "";
     isClaudeEnabled.value = true;
     isLoading.value = true;
@@ -524,19 +520,14 @@ function visionImageUploadClick() {
     console.log('Image upload clicked');
 }
 
-function autoResize(event) {
-    // TODO: Implement auto resize logic
-    console.log('Auto resizing input');
-}
-
 function swipedLeft(event) {
-    // TODO: Implement swipe left logic
-    console.log('Swiped left');
+    isSidebarOpen.value = false;
+    showConversationOptions.value = !showConversationOptions.value;
 }
 
 function swipedRight(event) {
-    // TODO: Implement swipe right logic
-    console.log('Swiped right');
+    showConversationOptions.value = false;
+    isSidebarOpen.value = !isSidebarOpen.value;
 }
 
 function handleLoadConversation(conversation) {
@@ -589,7 +580,6 @@ function selectConversation(conversationId) {
         console.error('Conversation with ID ' + conversationId + ' not found.');
     }
 }
-
 
 function loadSelectedConversation(conversation) {
     if (conversation) {
@@ -663,7 +653,7 @@ onMounted(() => {
                                 :isPalmEnabled="isPalmEnabled" :streamedMessageText="streamedMessageText" />
                         </div>
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
-                            @update:userInput="updateUserText" />
+                            @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
             </div>
