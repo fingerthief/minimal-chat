@@ -132,7 +132,7 @@ export async function generateDALLEImage(conversation) {
         if (dalleRetryCount < numberOfRetryAttemptsAllowed) {
             dalleRetryCount++;
 
-            // showToast(`Failed generateDALLEImage Request. Retrying...Attempt #${dalleRetryCount}`);
+            showToast(`Failed generateDALLEImage Request. Retrying...Attempt #${dalleRetryCount}`);
 
             await sleep(1000);
 

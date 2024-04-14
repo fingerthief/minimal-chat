@@ -204,7 +204,7 @@ async function sendMessage(event) {
     const messageText = userText.value.trim();
 
     if (userText.value.trim().length === 0) {
-        // showToast("Please Enter a Prompt First");
+        showToast("Please Enter a Prompt First");
         return;
     }
 
@@ -370,7 +370,7 @@ async function clearMessages() {
 
     isProcessing.value = false;
 
-    // showToast("Conversation Saved");
+    showToast("Conversation Saved");
 }
 
 async function saveNewConversations() {
