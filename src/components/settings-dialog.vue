@@ -14,8 +14,6 @@ const props = defineProps({
     claudeSliderValue: Number,
     selectedDallEImageCount: Number,
     selectedDallEImageResolution: String,
-    palmKey: String,
-    palmSliderValue: Number,
     selectedAutoSaveOption: String
 });
 
@@ -30,8 +28,6 @@ const emit = defineEmits([
     'update:claudeSliderValue',
     'update:selectedDallEImageCount',
     'update:selectedDallEImageResolution',
-    'update:palmKey',
-    'update:palmSliderValue',
     'update:selectedAutoSaveOption',
     'toggle-sidebar'
 ]);
@@ -67,11 +63,10 @@ function toggleSidebar() {
                 <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                 <option value="gpt-4">GPT-4</option>
                 <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                <option value="chat-bison-001">PaLM</option>
                 <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                <option value="lmstudio">(lmstudio) Local LLM Model</option>
+                <option value="lmstudio">Local Model (LM Studio) </option>
             </select>
         </div>
         <!-- Local Model Name -->
@@ -133,18 +128,6 @@ function toggleSidebar() {
                 <option value="512x512">512x512</option>
                 <option value="1024x1024">1024x1024</option>
             </select>
-        </div>
-        <!-- PaLM Key -->
-        <div class="api-key">
-            <label for="palm-api-key">PaLM Key:</label>
-            <input id="palm-api-key" :value="palmKey" @input="update('palmKey', $event.target.value)">
-        </div>
-        <!-- PaLM Slider Value -->
-        <div class="slider-container">
-            <span>Serious</span>
-            <input type="range" min="0" max="100" :value="palmSliderValue"
-                @blur="update('palmSliderValue', $event.target.value)">
-            <span>Creative</span>
         </div>
         <!-- Auto Save Conversations -->
         <div class="control select-dropdown">

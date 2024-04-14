@@ -44,10 +44,6 @@ function onShowConversationsClick() {
 
 <template>
     <div class="header box">
-        <a v-show="props.selectedModel.includes('bison')"
-            href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
-            MinimalPaLM
-        </a>
         <a v-show="props.selectedModel.includes('claude')"
             href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             MinimalClaude

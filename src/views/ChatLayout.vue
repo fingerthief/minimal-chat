@@ -4,7 +4,6 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, fetchLocalModelResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
-import { fetchPalmConversationTitle } from '@/libs/palm-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 
@@ -14,11 +13,10 @@ import chatHeader from '@/components/chat-header.vue';
 import settingsDialog from '@/components/settings-dialog.vue';
 import conversationsDialog from '@/components/conversations-dialog.vue';
 
-//#region refs
+//#region Refs
 const isAnalyzingImage = ref(false);
 const userText = ref('');
 const isLoading = ref(false);
-const isPalmEnabled = ref(false);
 const isClaudeEnabled = ref(false);
 const isUsingLocalModel = ref(false);
 const isGeneratingImage = ref(false);
@@ -39,8 +37,6 @@ const claudeKey = ref(localStorage.getItem("claudeKey") || '');
 const claudeSliderValue = ref(parseInt(localStorage.getItem("claude-attitude")) || 50);
 const selectedDallEImageCount = ref(parseInt(localStorage.getItem("selectedDallEImageCount")) || 1);
 const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImageResolution") || '256x256');
-const palmKey = ref(localStorage.getItem("palmKey") || '');
-const palmSliderValue = ref(parseInt(localStorage.getItem("palm-attitude")) || 50);
 const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
 
 const conversations = ref(loadConversationTitles());
@@ -52,7 +48,7 @@ const displayConversations = computed(() => conversations);
 const messagesContainer = ref(null);
 //#endregion
 
-//#region watchers
+//#region Watchers
 // Watchers that update local storage when values change
 watch(selectedModel, (newValue) => {
     const MODEL_TYPES = {
@@ -65,8 +61,7 @@ watch(selectedModel, (newValue) => {
     let useLocalModel = false;
     const flags = {
         isUsingLocalModel: false,
-        isClaudeEnabled: false,
-        isPalmEnabled: false
+        isClaudeEnabled: false
     };
 
     // Determine settings based on model type
@@ -78,10 +73,7 @@ watch(selectedModel, (newValue) => {
         useLocalModel = true;
         flags.isClaudeEnabled = true;
     }
-    else if (newValue.includes(MODEL_TYPES.BISON)) {
-        useLocalModel = true;
-        flags.isPalmEnabled = true;
-    }
+
 
     // Apply settings
     try {
@@ -89,7 +81,6 @@ watch(selectedModel, (newValue) => {
         localStorage.setItem('selectedModel', newValue);
         isUsingLocalModel.value = flags.isUsingLocalModel;
         isClaudeEnabled.value = flags.isClaudeEnabled;
-        isPalmEnabled.value = flags.isPalmEnabled;
     }
     catch (error) {
         console.error('Error updating settings:', error);
@@ -132,27 +123,61 @@ watch(selectedDallEImageResolution, (newValue) => {
     localStorage.setItem('selectedDallEImageResolution', newValue);
 });
 
-watch(palmKey, (newValue) => {
-    localStorage.setItem('palmKey', newValue);
-});
-
-watch(palmSliderValue, (newValue) => {
-    localStorage.setItem('palmSliderValue', newValue);
-});
-
 watch(selectedAutoSaveOption, (newValue) => {
     localStorage.setItem('selectedAutoSaveOption', newValue);
 });
 //#endregion watchers
 
+//#region UI Updates
+function scrollToBottom() {
+    const tempMessagesContainer = messagesContainer.value;
+
+    if (tempMessagesContainer) {
+        // Smooth scrolling
+        tempMessagesContainer.scrollTo({
+            top: tempMessagesContainer.scrollHeight,
+            behavior: 'smooth',
+        });
+
+        // Fallback to ensure the container is scrolled to the bottom
+        setTimeout(() => {
+            tempMessagesContainer.scrollTo({
+                top: tempMessagesContainer.scrollHeight,
+            });
+        }, 500); // Adjust the timeout duration as needed
+
+        //this.updateScrollButtonVisibility();
+    }
+}
+
 const updateUserText = (newText) => {
     userText.value = newText;
 };
 
+function resetMessages() {
+    localStorage.removeItem("gpt-messages");
+    messages.value = [];
+    lastLoadedConversationId.value = null;
+}
+
+function updateUI(content, reset) {
+
+    if (reset === true) {
+        streamedMessageText.value = "";
+        scrollToBottom();
+        return;
+    }
+
+    streamedMessageText.value = (streamedMessageText.value || "") + content;
+    scrollToBottom();
+}
+
 function toggleSidebar() {
     isSidebarOpen.value = !isSidebarOpen.value;
 }
+//#endregion
 
+//#region Conversation Handling
 function deleteCurrentConversation() {
     if (lastLoadedConversationId.value === null) {
         return;
@@ -192,109 +217,6 @@ function deleteCurrentConversation() {
 
 function showConversations() {
     showConversationOptions.value = !showConversationOptions.value;
-}
-
-let lastMessageText;
-async function sendMessage(event) {
-    const messageText = userText.value.trim();
-
-    if (userText.value.trim().length === 0) {
-        showToast("Please Enter a Prompt First");
-        return;
-    }
-
-    lastMessageText = messageText;
-
-    if (selectedModel.value.indexOf("bison") !== -1) {
-        await sendPalmMessage(messageText);
-        return;
-    } else if (selectedModel.value.indexOf("claude") !== -1) {
-        await sendClaudeMessage(messageText);
-        return;
-    }
-
-    isPalmEnabled.value = false;
-    isClaudeEnabled.value = false;
-    addMessage("user", messageText);
-
-    if (!messageText || messageText === "" || isLoading.value || isGeneratingImage.value) {
-        return;
-    }
-
-    if (messageText.toLowerCase().startsWith("image::")) {
-        await sendImagePrompt(messageText);
-        return;
-    }
-
-    if (messageText.toLowerCase().startsWith("vision::")) {
-        await sendVisionPrompt();
-        return;
-    }
-
-    await sendGPTMessage(messageText);
-}
-
-function addMessage(role, message) {
-    messages.value.push({
-        role: role,
-        content: message
-    });
-}
-
-function scrollToBottom() {
-    const tempMessagesContainer = messagesContainer.value;
-
-    if (tempMessagesContainer) {
-        // Smooth scrolling
-        tempMessagesContainer.scrollTo({
-            top: tempMessagesContainer.scrollHeight,
-            behavior: 'smooth',
-        });
-
-        // Fallback to ensure the container is scrolled to the bottom
-        setTimeout(() => {
-            tempMessagesContainer.scrollTo({
-                top: tempMessagesContainer.scrollHeight,
-            });
-        }, 500); // Adjust the timeout duration as needed
-
-        //this.updateScrollButtonVisibility();
-    }
-}
-
-async function sendGPTMessage(message) {
-    scrollToBottom();
-
-    userText.value = "";
-
-    streamedMessageText.value = "";
-    isLoading.value = true;
-
-    try {
-        let response;
-
-        if (isUsingLocalModel.value) {
-
-            localModelName.value = localStorage.getItem('localModelName') || '';
-            localSliderValue.value = localStorage.getItem('local-attitude') || 50;
-            localModelEndpoint.value = localStorage.getItem('localModelEndpoint') || '';
-
-            response = await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI);
-        }
-        else {
-            response = await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI);
-        }
-
-        isLoading.value = false;
-
-        addMessage('assistant', response);
-
-        await saveMessages();
-
-        scrollToBottom();
-    } catch (error) {
-        console.error("Error sending message:", error);
-    }
 }
 
 async function saveMessages() {
@@ -416,10 +338,7 @@ async function createNewConversationWithTitle() {
         title: ""
     };
 
-    if (isPalmEnabled.value) {
-        newConversationWithTitle.title = await fetchPalmConversationTitle(messages.value.slice(0));
-    }
-    else if (isClaudeEnabled.value) {
+    if (isClaudeEnabled.value) {
         newConversationWithTitle.title = await fetchClaudeConversationTitle(messages.value.slice(0));
     }
     else {
@@ -451,25 +370,143 @@ async function updateExistingConversation(storedConversations, newConversation) 
     storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
 }
 
-function resetMessages() {
-    localStorage.removeItem("gpt-messages");
-    messages.value = [];
-    lastLoadedConversationId.value = null;
+function handleImportConversations() {
+    openFileSelector();
 }
 
-function updateUI(content, reset) {
+function handleExportConversations() {
+    const filename = "conversations.json";
+    const text = localStorage.getItem("gpt-conversations")
 
-    if (reset === true) {
-        streamedMessageText.value = "";
-        scrollToBottom();
+    let element = document.createElement('a');
+
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
+function handlePurgeConversations() {
+    localStorage.setItem("gpt-conversations", "");
+    messages.value = [];
+    conversations.value = [];
+    storedConversations.value = [];
+    showToast("All Conversations Deleted.");
+}
+
+function selectConversation(conversationId) {
+    if (!conversations.value.length) {
         return;
     }
 
-    streamedMessageText.value = (streamedMessageText.value || "") + content;
-    scrollToBottom();
+    const conversation = conversations.value.find(c => c.id === conversationId);
+
+    if (conversation) {
+        selectedConversation.value = conversation;
+        loadSelectedConversation(selectedConversation.value);
+    } else {
+        console.error('Conversation with ID ' + conversationId + ' not found.');
+    }
 }
 
-async function sendPalmMessage(message) {
+function loadSelectedConversation(conversation) {
+    if (conversation) {
+        selectedConversation.value = conversation;
+        lastLoadedConversationId.value = conversation.id;
+        localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
+    }
+
+    if (!selectedConversation.value || !selectedConversation.value.conversation.messageHistory) {
+        return;
+    }
+
+    const selectedMessages = selectedConversation.value.conversation.messageHistory;
+    messages.value = selectedMessages;
+    showConversationOptions.value = false;
+}
+//#endregion
+
+//#region Messages Handling
+let lastMessageText;
+async function sendMessage(event) {
+    const messageText = userText.value.trim();
+
+    if (userText.value.trim().length === 0) {
+        showToast("Please Enter a Prompt First");
+        return;
+    }
+
+    lastMessageText = messageText;
+
+    if (selectedModel.value.indexOf("claude") !== -1) {
+        await sendClaudeMessage(messageText);
+        return;
+    }
+
+    isClaudeEnabled.value = false;
+    addMessage("user", messageText);
+
+    if (!messageText || messageText === "" || isLoading.value || isGeneratingImage.value) {
+        return;
+    }
+
+    if (messageText.toLowerCase().startsWith("image::")) {
+        await sendImagePrompt(messageText);
+        return;
+    }
+
+    if (messageText.toLowerCase().startsWith("vision::")) {
+        await sendVisionPrompt();
+        return;
+    }
+
+    await sendGPTMessage(messageText);
+}
+
+function addMessage(role, message) {
+    messages.value.push({
+        role: role,
+        content: message
+    });
+}
+
+async function sendGPTMessage(message) {
+    scrollToBottom();
+
+    userText.value = "";
+
+    streamedMessageText.value = "";
+    isLoading.value = true;
+
+    try {
+        let response;
+
+        if (isUsingLocalModel.value) {
+
+            localModelName.value = localStorage.getItem('localModelName') || '';
+            localSliderValue.value = localStorage.getItem('local-attitude') || 50;
+            localModelEndpoint.value = localStorage.getItem('localModelEndpoint') || '';
+
+            response = await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI);
+        }
+        else {
+            response = await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI);
+        }
+
+        isLoading.value = false;
+
+        addMessage('assistant', response);
+
+        await saveMessages();
+
+        scrollToBottom();
+    } catch (error) {
+        console.error("Error sending message:", error);
+    }
 }
 
 async function sendClaudeMessage(messageText) {
@@ -528,98 +565,35 @@ async function sendVisionPrompt(message) {
 
     userText.value = "";
 }
+//#endregion
 
-function swipedLeft(event) {
-    isSidebarOpen.value = false;
-    showConversationOptions.value = !showConversationOptions.value;
-}
+//#region Image Processing
+async function imageInputChanged(event) {
+    const file = event.target.files[0];
+    const fileType = file.type;
 
-function swipedRight(event) {
-    showConversationOptions.value = false;
-    isSidebarOpen.value = !isSidebarOpen.value;
-}
-
-function handleImportConversations() {
-    openFileSelector();
-}
-
-function handleExportConversations() {
-    const filename = "conversations.json";
-    const text = localStorage.getItem("gpt-conversations")
-
-    let element = document.createElement('a');
-
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-}
-
-function handlePurgeConversations() {
-    localStorage.setItem("gpt-conversations", "");
-    messages.value = [];
-    conversations.value = [];
-    storedConversations.value = [];
-    showToast("All Conversations Deleted.");
-}
-
-const refs = {
-    selectedModel,
-    localModelName,
-    localModelEndpoint,
-    localSliderValue,
-    gptKey,
-    sliderValue,
-    claudeKey,
-    claudeSliderValue,
-    selectedDallEImageCount,
-    selectedDallEImageResolution,
-    palmKey,
-    palmSliderValue,
-    selectedAutoSaveOption
-};
-// Event handlers for updating the parent's state when the child emits an update
-const updateSetting = (field, value) => {
-    if (field in refs) {
-        refs[field].value = value;
-    }
-};
-
-function selectConversation(conversationId) {
-    if (!conversations.value.length) {
+    if (!file) {
         return;
     }
 
-    const conversation = conversations.value.find(c => c.id === conversationId);
+    let visionReponse = await processImage(file, fileType);
 
-    if (conversation) {
-        selectedConversation.value = conversation;
-        loadSelectedConversation(selectedConversation.value);
-    } else {
-        console.error('Conversation with ID ' + conversationId + ' not found.');
-    }
+    addMessage("assistant", visionReponse);
+
+    saveMessages();
+    isAnalyzingImage.value = false;
+    scrollToBottom();
 }
 
-function loadSelectedConversation(conversation) {
-    if (conversation) {
-        selectedConversation.value = conversation;
-        lastLoadedConversationId.value = conversation.id;
-        localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
-    }
+async function processImage(file, fileType) {
+    userText.value = "";
 
-    if (!selectedConversation.value || !selectedConversation.value.conversation.messageHistory) {
-        return;
-    }
-
-    const selectedMessages = selectedConversation.value.conversation.messageHistory;
-    messages.value = selectedMessages;
-    showConversationOptions.value = false;
+    return await analyzeImage(file, fileType, messages.value.slice(0), selectedModel.value);
 }
 
+//#endregion
+
+//#region File/Upload Handling
 function uploadFile(element, event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -656,29 +630,42 @@ function uploadFile(element, event) {
 function openFileSelector() {
     document.getElementById('fileUpload').click();
 }
+//#endregion
 
-async function imageInputChanged(event) {
-    const file = event.target.files[0];
-    const fileType = file.type;
+//#region Swipe Events
+function swipedLeft(event) {
+    isSidebarOpen.value = false;
+    showConversationOptions.value = !showConversationOptions.value;
+}
 
-    if (!file) {
-        return;
+function swipedRight(event) {
+    showConversationOptions.value = false;
+    isSidebarOpen.value = !isSidebarOpen.value;
+}
+//#endregion
+
+//#region Utils
+const refs = {
+    selectedModel,
+    localModelName,
+    localModelEndpoint,
+    localSliderValue,
+    gptKey,
+    sliderValue,
+    claudeKey,
+    claudeSliderValue,
+    selectedDallEImageCount,
+    selectedDallEImageResolution,
+    selectedAutoSaveOption
+};
+// Event handlers for updating the parent's state when the child emits an update
+const updateSetting = (field, value) => {
+    if (field in refs) {
+        refs[field].value = value;
     }
+};
 
-    let visionReponse = await processImage(file, fileType);
-
-    addMessage("assistant", visionReponse);
-
-    saveMessages();
-    isAnalyzingImage.value = false;
-    scrollToBottom();
-}
-
-async function processImage(file, fileType) {
-    userText.value = "";
-
-    return await analyzeImage(file, fileType, messages.value.slice(0), selectedModel.value);
-}
+//#endregion
 
 onMounted(() => {
     selectedModel.value = localStorage.getItem("selectedModel") || "";
@@ -703,8 +690,8 @@ onMounted(() => {
                     :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
                     :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
                     :selectedDallEImageCount="selectedDallEImageCount"
-                    :selectedDallEImageResolution="selectedDallEImageResolution" :palmKey="palmKey"
-                    :palmSliderValue="palmSliderValue" :selectedAutoSaveOption="selectedAutoSaveOption"
+                    :selectedDallEImageResolution="selectedDallEImageResolution"
+                    :selectedAutoSaveOption="selectedAutoSaveOption"
                     @update:model="updateSetting('selectedModel', $event)"
                     @update:localModelName="updateSetting('localModelName', $event)"
                     @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"
@@ -715,8 +702,6 @@ onMounted(() => {
                     @update:claudeSliderValue="updateSetting('claudeSliderValue', $event)"
                     @update:selectedDallEImageCount="updateSetting('selectedDallEImageCount', $event)"
                     @update:selectedDallEImageResolution="updateSetting('selectedDallEImageResolution', $event)"
-                    @update:palmKey="updateSetting('palmKey', $event)"
-                    @update:palmSliderValue="updateSetting('palmSliderValue', $event)"
                     @update:selectedAutoSaveOption="updateSetting('selectedAutoSaveOption', $event)"
                     @toggle-sidebar="toggleSidebar" />
             </div>
@@ -738,8 +723,8 @@ onMounted(() => {
                         <div class="messages" id="messagesContainer" ref="messagesContainer">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
-                                :isPalmEnabled="isPalmEnabled" :isAnalyzingImage="isAnalyzingImage"
-                                :streamedMessageText="streamedMessageText" :isGeneratingImage="isGeneratingImage" />
+                                :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
+                                :isGeneratingImage="isGeneratingImage" />
                         </div>
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
                             @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
@@ -750,7 +735,6 @@ onMounted(() => {
         </div>
     </div>
 </template>
-
 
 <style lang="scss">
 $icon-color: rgb(187, 187, 187);

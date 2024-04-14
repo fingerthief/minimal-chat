@@ -1,10 +1,10 @@
-## [Try MinimalGPT/MinimalPaLM/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
+## [Try MinimalGPT/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Version](https://img.shields.io/badge/version-4.4.2-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
+**MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
 
 ---
 
@@ -16,8 +16,6 @@
 
 > ⚠️ **Note**: You must input your **OpenAI API** Key for GPT3 or GPT4 in order for **GPT** models to function.
 
-> ⚠️ **Note**: You must input your **Google PaLM API** Key in order for the **PaLM** model to function.
-
 > ⚠️ **Note**: You must input your **Anthropic Claude-3 API** Key in order for the **Claude** model to function.
 
 ## Obtaining API Keys
@@ -25,7 +23,6 @@
 To use MinimalGPT with the various language models, you'll need to obtain API keys from their respective providers:
 
 - **OpenAI (GPT-3, GPT-4)**: Sign up for an API key at [OpenAI's website](https://beta.openai.com/signup/).
-- **Google PaLM**: Follow the instructions in the [Google PaLM API documentation](https://developers.generativeai.google/tutorials/setup) to set up your API key.
 - **Anthropic Claude-3**: Request access to the Claude API by filling out the form on [Anthropic's website](https://www.anthropic.com/product).
 
 Once you have your API keys, input them in the app's settings to start using the corresponding language models.
@@ -81,16 +78,15 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
   - **GPT 4**
   - **GPT-4-Turbo**
   - **GPT-Vision** activated by having the **GPT-4 or GPT-Turbo** model selected and starting a message with **vision::** and then your prompt
-  - **PaLM 2**
   - **Claude 3 Opus**
   - **Claude 3 Sonnet**
   - **Claude 3 Haiku**
   - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
   - **Local LLM Model (Via [LM Studio](https://lmstudio.ai/))** users configure the current model name and [LM Studio](https://lmstudio.ai/) api endpoint url in the settings panel.
-    - **Local Model Name**: The name of the model you are hosting locally 
+    - **Local Model Name**: The name of the model you are hosting locally
     - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
   - **Local URL**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on
-    - **Note**: The endpoint must end with `v1/chat/completions` to function. e,g `http://192.168.0.82:1234/v1/chat/completions` 
+    - **Note**: The endpoint must end with `v1/chat/completions` to function. e,g `http://192.168.0.82:1234/v1/chat/completions`
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
@@ -110,7 +106,7 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
 
 ### Keyboard Shortcuts
 
-- `Control + Shift + m` Opens the  conversations dialog
+- `Control + Shift + m` Opens the conversations dialog
 - `Control + Shift + s` Opens the settings dialog
 - `Control + Shift + i` Starts a new conversation
 - `Control + Shift + f` Activates search within the conversation
@@ -149,7 +145,6 @@ Stay tuned for updates and new releases!
 MinimalGPT is made possible thanks to the following libraries, frameworks, and resources:
 
 - [OpenAI API](https://openai.com/)
-- [Google PaLM API](https://developers.generativeai.google/)
 - [Anthropic Claude API](https://www.anthropic.com/)
 
 ## License

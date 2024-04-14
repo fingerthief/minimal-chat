@@ -9,7 +9,6 @@ const props = defineProps({
     isLoading: Boolean,
     isAnalyzingImage: Boolean,
     isGeneratingImage: Boolean,
-    isPalmEnabled: Boolean,
     isClaudeEnabled: Boolean,
     isUsingLocalModel: Boolean,
     streamedMessageText: String
@@ -54,9 +53,6 @@ function label(role, index) {
     else if (role !== 'user' && index > 0 && props.isClaudeEnabled) {
         return 'Claude';
     }
-    else if (role !== 'user' && index > 0 && props.isPalmEnabled) {
-        return 'PaLM';
-    }
     else if (role !== 'user' && index > 0 && props.isUsingLocalModel) {
         return 'Local LLM';
     }
@@ -68,7 +64,7 @@ function label(role, index) {
 };
 
 // Methods
-function formatMessage(content, isImage) {
+function formatMessage(content) {
     let md = window.markdownit(defaults);
     let renderedMessage = wrapCodeSnippets(md.render(content));
     return renderedMessage;
@@ -83,7 +79,7 @@ function formatMessage(content, isImage) {
                 <div class="label">
                     <span>{{ label(message.role, index) }}</span>
                 </div>
-                <span class="message-contents" v-html="formatMessage(message.content, false)"></span>
+                <span class="message-contents" v-html="formatMessage(message.content)"></span>
             </div>
         </div>
     </div>
@@ -92,10 +88,9 @@ function formatMessage(content, isImage) {
             <div class="label padded">
                 <span v-show="!props.isClaudeEnabled && !props.isUsingLocalModel">GPT</span>
                 <span v-show="props.isClaudeEnabled">Claude</span>
-                <span v-show="props.isPalmEnabled">PaLM</span>
                 <span v-show="props.isUsingLocalModel">Local LLM</span>
             </div>
-            <span v-html="formatMessage(props.streamedMessageText || '', false)"></span>
+            <span v-html="formatMessage(props.streamedMessageText || '')"></span>
             <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>
             <span v-if="!props.streamedMessageText.trim().length" class="loading spinner"></span>
         </div>
@@ -105,7 +100,6 @@ function formatMessage(content, isImage) {
             <div class="label padded">
                 <span v-show="!props.isClaudeEnabled">GPT</span>
                 <span v-show="props.isClaudeEnabled">Claude</span>
-                <span v-show="props.isPalmEnabled">PaLM</span>
                 <span v-show="props.isUsingLocalModel">Local LLM</span>
             </div>
             <span v-show="props.isAnalyzingImage">Generating Vision Response...</span>
