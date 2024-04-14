@@ -450,6 +450,8 @@ async function sendMessage(event) {
     isClaudeEnabled.value = false;
     addMessage("user", messageText);
 
+    userText.value = "";
+
     if (!messageText || messageText === "" || isLoading.value || isGeneratingImage.value) {
         return;
     }
@@ -591,6 +593,15 @@ async function processImage(file, fileType) {
     return await analyzeImage(file, fileType, messages.value.slice(0), selectedModel.value);
 }
 
+async function visionimageUploadClick() {
+    if (userText.value.trim().length === 0) {
+        showToast("Please Enter a Prompt First");
+        return;
+    }
+
+    userText.value = 'vision:: ' + userText.value;
+    await sendMessage();
+};
 //#endregion
 
 //#region File/Upload Handling
@@ -729,7 +740,8 @@ onMounted(() => {
                         </div>
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
-                            @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
+                            @vision-prompt="visionimageUploadClick" @update:userInput="updateUserText"
+                            @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
             </div>
@@ -799,7 +811,7 @@ a {
 .messages {
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 10px;
+    padding: 3px;
     position: relative;
     max-height: 96dvh;
     min-height: 80vh;
@@ -1049,8 +1061,8 @@ pre {
     min-width: 350px;
     //border: 1px solid #444;
     border-radius: 4px;
-    width: 99dvw;
-    max-width: 99dvw;
+    width: 100vw;
+    max-width: 100vw;
     background-color: #2c2c2e;
     justify-content: space-between;
 }
@@ -1062,7 +1074,7 @@ pre {
     flex-grow: 1;
     min-height: 90vh;
     min-width: 350px;
-    max-width: 99dvw;
+    max-width: 100vw;
     border-top: 1px solid #444;
     width: 50%;
     background-color: #202124;

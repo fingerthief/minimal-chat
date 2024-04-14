@@ -9,7 +9,7 @@ const props = defineProps({
     isLoading: Boolean
 });
 
-const emit = defineEmits(['update:userInput', 'send-message', 'swipe-left', 'swipe-right']);
+const emit = defineEmits(['update:userInput', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt']);
 // Local reactive stat
 const localUserInput = ref(props.userInput);
 
@@ -46,6 +46,8 @@ const autoResize = () => {
 };
 
 const visionImageUploadClick = () => {
+    emit("vision-prompt");
+    localUserInput.value = "";
 };
 </script>
 

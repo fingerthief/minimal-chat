@@ -12,10 +12,16 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "lint:css": "stylelint '**/*.scss'",
-    "lint:css:fix": "stylelint '**/*.scss' --fix"
+    "lint:css:fix": "stylelint '**/*.scss' --fix",
+    "start-server-docker": "http-server . -p 3000 --cors --silent",
+    "publish-docker": "npm run build && docker build -t tannermiddleton/minimal-chat . && docker push tannermiddleton/minimal-chat:latest",
+    "publish-site": "npm run build && firebase deploy",
+    "publish": "npm run build && firebase deploy && docker build -t tannermiddleton/minimal-chat . && docker push tannermiddleton/minimal-chat:latest",
+    "publish-beta": "npm run build && firebase hosting:channel:deploy beta"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.1",
+    "http-server": "^14.1.1",
     "lucide-vue-next": "^0.368.0",
     "swiped-events": "^1.1.9",
     "vue": "^3.4.21",
