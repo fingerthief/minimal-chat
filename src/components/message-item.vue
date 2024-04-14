@@ -49,15 +49,6 @@ function messageClass(role) {
     return role === 'user' ? 'user message' : 'gpt message';
 };
 
-function label(role, index) {
-    if (role === 'user') {
-        return 'User';
-    }
-    else {
-        return "<Atom>"
-    }
-};
-
 // Methods
 function formatMessage(content) {
     let md = window.markdownit(defaults);

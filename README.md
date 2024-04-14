@@ -152,13 +152,15 @@ To run the web app locally, you'll need `NodeJS` installed so NPM is available. 
 2. Start local server: `npm run dev` (terminal will output the IP and port the server is running on)
 3. That's it! The app is now running locally.
 
+Also `npm run build` will output a dist folder with minified files etc...`npm run preview` will run a local server using the dist build as a base,
+
 ### Compiling Your SCSS to CSS
 
 - Vue handles this with a recompiles during hot reloads.
 
 ### Building/Bundling (WIP)
 
-- Running `npm run build` will perform a dist build process that incldues minification and cache busting (sort of) and output to the `public` folder.
+- Running `npm run build` will perform a dist build process that incldues minification and cache busting (sort of) and output to the `dist` folder.
 
 ## Applcation Demo (PWA)
 
