@@ -1,5 +1,8 @@
+<!-- eslint-disable no-undef -->
+<!-- eslint-disable no-empty -->
 <script setup>
-import { wrapCodeSnippets } from '@/libs/utils';
+import { wrapCodeSnippets, showToast } from '@/libs/utils';
+import { Atom, SquareUser } from 'lucide-vue-next';
 
 // Props
 const props = defineProps({
@@ -50,16 +53,8 @@ function label(role, index) {
     if (role === 'user') {
         return 'User';
     }
-    else if (role !== 'user' && index > 0 && props.isClaudeEnabled) {
-        return 'Claude';
-    }
-    else if (role !== 'user' && index > 0 && props.isUsingLocalModel) {
-        return 'Local LLM';
-    }
-    else if (role !== 'user' && index > 0 && props.messages[index - 1].content.toLowerCase().startsWith('image::')) {
-        return 'DALL-E';
-    } else {
-        return 'GPT';
+    else {
+        return "<Atom>"
     }
 };
 
@@ -70,14 +65,35 @@ function formatMessage(content) {
     return renderedMessage;
 }
 
+
+function copyText(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text.content;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        console.log('Content copied to clipboard');
+    } catch (error) {
+        console.error('Failed to copy content: ', error);
+    }
+
+    document.body.removeChild(textarea);
+
+    showToast("Copied message text");
+}
+
 </script>
 
 <template>
     <div>
         <div v-for="(message, index) in props.messages" :key="index">
             <div :class="messageClass(message.role, index)">
-                <div class="label">
-                    <span>{{ label(message.role, index) }}</span>
+                <div v-show="message.role === 'user'" @click="copyText(message)" class="label">
+                    <SquareUser />
+                </div>
+                <div v-show="message.role !== 'user'" @click="copyText(message)" class="label">
+                    <Atom />
                 </div>
                 <span class="message-contents" v-html="formatMessage(message.content)"></span>
             </div>
@@ -86,9 +102,7 @@ function formatMessage(content) {
     <div v-if="props.isLoading">
         <div class="gpt message">
             <div class="label padded">
-                <span v-show="!props.isClaudeEnabled && !props.isUsingLocalModel">GPT</span>
-                <span v-show="props.isClaudeEnabled">Claude</span>
-                <span v-show="props.isUsingLocalModel">Local LLM</span>
+                <Atom />
             </div>
             <span v-html="formatMessage(props.streamedMessageText || '')"></span>
             <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>
@@ -98,9 +112,7 @@ function formatMessage(content) {
     <div v-if="props.isAnalyzingImage || props.isGeneratingImage">
         <div class="gpt message">
             <div class="label padded">
-                <span v-show="!props.isClaudeEnabled">GPT</span>
-                <span v-show="props.isClaudeEnabled">Claude</span>
-                <span v-show="props.isUsingLocalModel">Local LLM</span>
+                <Atom />
             </div>
             <span v-show="props.isAnalyzingImage">Generating Vision Response...</span>
             <span v-show="props.isGeneratingImage">Generating Image...</span>
@@ -113,7 +125,6 @@ function formatMessage(content) {
 .padded {
     padding: 10px;
 }
-
 
 .message {
     position: relative;
@@ -155,9 +166,9 @@ function formatMessage(content) {
         position: absolute;
         top: -15px;
         color: #dadbde;
-        font-size: 13px;
         min-width: 62px;
-        font-weight: bold;
+        font-size: 0.9em;
+        font-weight: bolder;
         padding: 2px 5px;
         border-radius: 5px;
     }
@@ -183,6 +194,11 @@ function formatMessage(content) {
             right: -6px;
             min-width: 50px;
             padding: 6px;
+            font-size: 0.9em;
+            font-weight: bolder;
+            max-height: 35px;
+            padding-left: 13px;
+            color: #bdbec1;
         }
     }
 
@@ -205,16 +221,19 @@ function formatMessage(content) {
             border-left: 6px solid #6a576c;
             background-color: #4a424a;
             left: 0px;
-            color: #dadbde;
+            color: #bdbec1;
             border-radius: 8px;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
             margin-top: -23px;
             left: -6px;
+            font-size: 0.9em;
+            font-weight: bolder;
             padding: 6px;
             min-width: 54px;
             cursor: pointer;
             transition: opacity 0.2s ease-in-out;
+            max-height: 35px;
 
             &:hover::before {
                 content: 'Click to copy';
@@ -258,7 +277,8 @@ function formatMessage(content) {
     color: #00ccff;
 
     &.label {
-        font-size: 0.7em;
+        font-size: 1em;
+        font-weight: bolder;
         display: block;
         min-width: 45px;
         margin-bottom: 2px;
@@ -300,8 +320,8 @@ $shadow-spread-radius: 0px;
     border-radius: 50%;
     width: 20px;
     height: 20px;
-    font-size: 0.7em;
-    font-weight: bold;
+    font-size: 1em;
+    font-weight: 900;
 }
 
 .message-container {

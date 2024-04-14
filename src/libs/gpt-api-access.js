@@ -1,9 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { showToast, sleep } from "./utils";
 
-
 const numberOfRetryAttemptsAllowed = 5;
-
 
 let gptResponseRetryCount = 0;
 export async function fetchGPTResponse(conversation, attitude, model) {
@@ -115,8 +113,8 @@ export async function generateDALLEImage(conversation) {
             },
             body: JSON.stringify({
                 prompt: conversation,
-                n: parseInt(localStorage.getItem("selectedImageCountOption")) || 4,
-                size: localStorage.getItem("selectedImageResolutionOption") || "256x256",
+                n: (parseInt(localStorage.getItem("selectedDallEImageCount")) || 2),
+                size: localStorage.getItem("selectedDallEImageResolution") || "256x256",
             }),
         });
 

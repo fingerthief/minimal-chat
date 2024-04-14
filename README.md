@@ -1,7 +1,7 @@
 ## [Try MinimalGPT/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-4.4.2-blue)
+![Version](https://img.shields.io/badge/version-5.0.0b-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
@@ -92,7 +92,6 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
 - Markdown Support
 - Code Syntax Highlighting
 - Basic **DALL-E 3** Integration (Prefix GPT model messages with **image::** and then your description to generate images)
-- Conversation message search
 - Conversation Importing/Exporting
 - Customizable settings
 - Responsive layout for mobile use
@@ -103,13 +102,6 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
 
 - Swipe to the **Left** on the bottom input box and your **Conversations** dialog will appear.
 - Swipe to the **Right** on the bottom input box and your **Settings** dialog will appear.
-
-### Keyboard Shortcuts
-
-- `Control + Shift + m` Opens the conversations dialog
-- `Control + Shift + s` Opens the settings dialog
-- `Control + Shift + i` Starts a new conversation
-- `Control + Shift + f` Activates search within the conversation
 
 ## Contributing
 
@@ -144,8 +136,9 @@ Stay tuned for updates and new releases!
 
 MinimalGPT is made possible thanks to the following libraries, frameworks, and resources:
 
-- [OpenAI API](https://openai.com/)
-- [Anthropic Claude API](https://www.anthropic.com/)
+- **[OpenAI API](https://openai.com/)**
+- **[Anthropic Claude API](https://www.anthropic.com/)**
+- **[LM Studio](https://lmstudio.ai/)**
 
 ## License
 
@@ -156,16 +149,16 @@ MinimalGPT is released under the [MIT License](https://opensource.org/licenses/M
 To run the web app locally, you'll need `NodeJS` installed so NPM is available. Then, navigate to the project directory in VSCode and run the following commands:
 
 1. Install needed packages: `npm install`
-2. Start local server: `npm run start-server` (terminal will output the IP and port the server is running on)
+2. Start local server: `npm run dev` (terminal will output the IP and port the server is running on)
 3. That's it! The app is now running locally.
 
 ### Compiling Your SCSS to CSS
 
-- Run the command `npm run scss-build`
+- Vue handles this with a recompiles during hot reloads.
 
 ### Building/Bundling (WIP)
 
-- Running `npm run build` will perform a dist build gulpfile process that incldues minification and cache busting (sort of) and output to the `public` folder.
+- Running `npm run build` will perform a dist build process that incldues minification and cache busting (sort of) and output to the `public` folder.
 
 ## Applcation Demo (PWA)
 

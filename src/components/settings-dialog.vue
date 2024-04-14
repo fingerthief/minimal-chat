@@ -50,9 +50,9 @@ function toggleSidebar() {
     <div class="settings-header">
         <h2 @click="reloadPage">
             <span>
-                <RefreshCcw :size="36" :stroke-width="2" />
+                <RefreshCcw :size="30" :stroke-width="2" />
             </span>
-            Settings | V4.4.2
+            Settings | V5.0.0 Beta
         </h2>
     </div>
     <div class="sidebar-content-container">
@@ -210,13 +210,16 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .settings-header {
-    font-size: 30px;
+    font-size: 24px;
     font-weight: bold;
     text-align: center;
     margin-top: -7px;
     position: relative;
     border-bottom: 5px solid gray;
-    padding: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 25px;
+    padding-top: 25px;
 }
 
 .close-btn {

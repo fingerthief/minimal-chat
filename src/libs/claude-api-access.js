@@ -200,16 +200,19 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
         const decoder = new TextDecoder('utf-8');
 
         let result = '';
-        let decodedResult = "";
+        let decodedResult = '';
+
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value);
+            const chunk = decoder.decode(value, { stream: true });
             result += chunk;
 
-            // Process the streamed response chunk by chunk
-            const lines = chunk.split('\n');
+            // Efficiently process the streamed response chunk by chunk
+            const lines = result.split('\n');
+            result = lines.pop(); // Keep incomplete line for next chunk processing
+
             for (const line of lines) {
                 if (line.startsWith('data:')) {
                     const data = line.slice(5).trim();
@@ -217,42 +220,40 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
                         return decodedResult;
                     }
 
-                    const token = JSON.parse(data);
+                    try {
+                        const token = JSON.parse(data);
 
-                    if (token?.delta?.text) {
-                        claudeStreamRetryCount = 0;
-                        decodedResult += token.delta.text;
-                        updateUIFunction(token?.delta?.text, false);
-                    }
+                        if (token?.delta?.text) {
+                            claudeStreamRetryCount = 0;
+                            decodedResult += token.delta.text;
+                            updateUIFunction(token.delta.text, false);
+                        }
 
-                    if (token?.type === "message_stop") {
-                        return decodedResult;
+                        if (token?.type === "message_stop") {
+                            return decodedResult;
+                        }
+                    } catch (parseError) {
+                        console.error("JSON parsing error:", parseError);
+                        continue;
                     }
                 }
             }
         }
+    } catch (error) {
+        handleStreamError(error, updateUIFunction, messages, model, attitude);
     }
-    catch (error) {
-        if (claudeStreamRetryCount < numberOfRetryAttemptsAllowed) {
-            claudeStreamRetryCount++;
-            showToast("Error: An error occurred during the stream response. Retrying...");
+}
 
-            updateUIFunction("", true);
-
-            console.log("Retry Number: " + claudeStreamRetryCount);
-
-            showToast(`Failed streamClaudeResponse Request. Retrying...Attempt #${claudeStreamRetryCount}`);
-
-            await sleep(1000);
-
-            return await streamClaudeResponse(messages, model, attitude, updateUIFunction);
-        }
-        else {
-            showToast(`Retry Attempts Failed for streamClaudeResponse Request.`);
-
-            console.error("Error fetching Claude response:", error);
-            return "An error occurred while fetching Claude conversation title.";
-        }
+function handleStreamError(error, updateUIFunction, messages, model, attitude) {
+    if (claudeStreamRetryCount < numberOfRetryAttemptsAllowed) {
+        claudeStreamRetryCount++;
+        showToast(`Error: An error occurred during the stream response. Retrying... Attempt #${claudeStreamRetryCount}`);
+        updateUIFunction("", true);
+        setTimeout(() => streamClaudeResponse(messages, model, attitude, updateUIFunction), 1000);
+    } else {
+        showToast("Retry Attempts Failed for streamClaudeResponse Request.");
+        console.error("Error fetching Claude response:", error);
+        return "An error occurred while fetching Claude conversation title.";
     }
 }
 

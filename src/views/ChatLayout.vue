@@ -594,7 +594,7 @@ async function processImage(file, fileType) {
 //#endregion
 
 //#region File/Upload Handling
-function uploadFile(element, event) {
+function uploadFile(event, element) {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -668,7 +668,7 @@ const updateSetting = (field, value) => {
 //#endregion
 
 onMounted(() => {
-    selectedModel.value = localStorage.getItem("selectedModel") || "";
+    selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
     selectConversation(lastLoadedConversationId.value); //by index
 });
 </script>
@@ -715,6 +715,7 @@ onMounted(() => {
             <div class="chat-container">
                 <div class="container">
                     <div class="chat">
+                        <!-- Header -->
                         <chatHeader :selectedModel="selectedModel" :isSidebarOpen="isSidebarOpen"
                             :storedConversations="storedConversations" @toggle-sidebar="toggleSidebar"
                             @delete-conversation="deleteCurrentConversation" @toggle-conversations="showConversations"
@@ -726,6 +727,7 @@ onMounted(() => {
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
                                 :isGeneratingImage="isGeneratingImage" />
                         </div>
+                        <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
                             @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
