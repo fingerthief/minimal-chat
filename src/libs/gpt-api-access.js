@@ -40,14 +40,14 @@ export async function fetchGPTResponse(conversation, attitude, model) {
         if (gptResponseRetryCount < numberOfRetryAttemptsAllowed) {
             gptResponseRetryCount++;
 
-            //showToast(`Failed fetchGPTResponse Request. Retrying...Attempt #${gptResponseRetryCount}`);
+            showToast(`Failed fetchGPTResponse Request. Retrying...Attempt #${gptResponseRetryCount}`);
 
             await sleep(1000);
 
             return await fetchGPTResponse(conversation, attitude, model);
         }
 
-        //showToast(`Retry Attempts Failed for fetchGPTResponse Request.`);
+        showToast(`Retry Attempts Failed for fetchGPTResponse Request.`);
 
         return "An error occurred while fetching GPT response.";
     }
@@ -75,11 +75,11 @@ export async function fetchGPTVisionResponse(visionMessages, apiKey) {
             },
             body: JSON.stringify(payload)
         });
-    
+
         const data = await response.json();
 
         gptVisionRetryCount = 0;
-    
+
         return data.choices[0].message.content;
     }
     catch (error) {
@@ -132,14 +132,14 @@ export async function generateDALLEImage(conversation) {
         if (dalleRetryCount < numberOfRetryAttemptsAllowed) {
             dalleRetryCount++;
 
-           // showToast(`Failed generateDALLEImage Request. Retrying...Attempt #${dalleRetryCount}`);
+            // showToast(`Failed generateDALLEImage Request. Retrying...Attempt #${dalleRetryCount}`);
 
             await sleep(1000);
 
             return await generateDALLEImage(conversation);
         }
 
-        //showToast(`Retry Attempts Failed for generateDALLEImage Request.`);
+        showToast(`Retry Attempts Failed for generateDALLEImage Request.`);
         console.error("Error fetching DALL-E response:", error);
         return "An error generating DALL-E image.";
     }
@@ -168,7 +168,7 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
         const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
 
         const result = await readResponseStream(response, updateUiFunction);
-        
+
         gptStreamRetryCount = 0;
         return result;
     } catch (error) {
@@ -182,7 +182,7 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
 let localStreamRetryCount = 0;
 export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction) {
     const gptMessagesOnly = filterGPTMessages(conversation);
-    
+
     const requestOptions = {
         method: "POST",
         headers: {
@@ -201,7 +201,7 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
         const response = await fetch(localModelEndpoint, requestOptions);
 
         const result = await readResponseStream(response, updateUiFunction);
-        
+
         localStreamRetryCount = 0;
         return result;
     } catch (error) {
@@ -248,20 +248,19 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, update
 
         updateUiFunction("", true);
 
-        //showToast(`Failed fetchGPTResponseStream Request. Retrying...Attempt #${gptStreamRetryCount}`);
+        showToast(`Failed fetchGPTResponseStream Request. Retrying...Attempt #${gptStreamRetryCount}`);
 
         await sleep(1500);
 
         return await fetchGPTResponseStream(conversation, attitude, model);
     }
 
-    //showToast(`Retry Attempts Failed for fetchGPTResponseStream Request.`);
+    showToast(`Retry Attempts Failed for fetchGPTResponseStream Request.`);
 
     return "An error occurred while fetching GPT response stream.";
 }
 
 let buffer = "";  // Buffer to hold incomplete JSON data across chunks
-
 function parseResponseChunk(chunk) {
     buffer += chunk;  // Append new chunk to buffer
     const lines = buffer.split("\n");
@@ -271,20 +270,29 @@ function parseResponseChunk(chunk) {
 
     const results = [];
     for (const line of completeLines) {
-        const cleanedLine = line.replace(/^data: /, "").trim();
-        if (cleanedLine !== "" && cleanedLine !== "[DONE]") {
+        let cleanedLine = line.trim();
+
+        // Check if the line contains the control message [DONE] and remove it
+        if (cleanedLine.includes("[DONE]")) {
+            cleanedLine = cleanedLine.replace("[DONE]", "").trim();
+        }
+
+        // Remove any "data: " prefix that might be present after cleaning
+        // Using regex to handle any case variations and extra spaces
+        cleanedLine = cleanedLine.replace(/^data:\s*/i, "").trim();
+
+        // Attempt to parse the JSON if the cleaned line is not empty
+        if (cleanedLine !== "") {
             try {
                 const parsed = JSON.parse(cleanedLine);
                 results.push(parsed);
             } catch (error) {
                 console.error("Failed to parse JSON:", cleanedLine, error);
-                // Handle parsing error, e.g., by ignoring this line or logging the error
             }
         }
     }
     return results;
 }
-
 
 function filterGPTMessages(conversation) {
     let lastMessageContent = "";

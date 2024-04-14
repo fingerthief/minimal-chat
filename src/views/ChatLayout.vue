@@ -2,10 +2,11 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream } from '@/libs/gpt-api-access';
+import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, fetchLocalModelResponseStream } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { fetchPalmConversationTitle } from '@/libs/palm-api-access';
-import { getConversationTitleFromGPT } from '@/libs/utils';
+import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
+import { analyzeImage } from '@/libs/image-analysis';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -187,7 +188,7 @@ function deleteCurrentConversation() {
     }
 
     isProcessing.value = false;
-    //showToast("Conversation Deleted");
+    showToast("Conversation Deleted");
 }
 
 function handleClearMessages() {
@@ -271,9 +272,6 @@ async function sendGPTMessage(message) {
     scrollToBottom();
 
     userText.value = "";
-    // self.userInput('');
-    // userInput.value = '';
-    // userInput.style.height = '30px';
 
     streamedMessageText.value = "";
     isLoading.value = true;
@@ -287,7 +285,7 @@ async function sendGPTMessage(message) {
             localSliderValue.value = localStorage.getItem('local-attitude') || 50;
             localModelEndpoint.value = localStorage.getItem('localModelEndpoint') || '';
 
-            //response = await fetchLocalModelResponseStream(self.messages(), self.localSliderValue(), self.localModelName(), self.localModelEndpoint(), updateUI);
+            response = await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI);
         }
         else {
             response = await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI);
@@ -484,7 +482,7 @@ async function sendClaudeMessage(messageText) {
 
         isAnalyzingImage.value = true;
 
-        //document.getElementById('imageInput').click();
+        document.getElementById('imageInput').click();
 
         scrollToBottom();
         return;
@@ -512,8 +510,14 @@ async function sendImagePrompt(message) {
 }
 
 async function sendVisionPrompt(message) {
-}
+    isAnalyzingImage.value = true;
 
+    document.getElementById('imageInput').click();
+
+    scrollToBottom();
+
+    userText.value = "";
+}
 
 function visionImageUploadClick() {
     // TODO: Implement image upload logic
@@ -572,7 +576,12 @@ const updateSetting = (field, value) => {
 };
 
 function selectConversation(conversationId) {
+    if (!conversations.value.length) {
+        return;
+    }
+
     const conversation = conversations.value.find(c => c.id === conversationId);
+
     if (conversation) {
         selectedConversation.value = conversation;
         loadSelectedConversation(selectedConversation.value);
@@ -597,14 +606,79 @@ function loadSelectedConversation(conversation) {
     showConversationOptions.value = false;
 }
 
+function uploadFile(element, event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const contents = e.target.result;
+
+        try {
+            const parsedContents = JSON.parse(contents);
+
+            if (!parsedContents.some(item => item.id)) {
+                console.log("Invalid file format");
+                return;
+            }
+
+            localStorage.setItem("gpt-conversations", contents);
+            conversations.value = loadConversationTitles();
+            storedConversations.value = loadStoredConversations();
+
+            const lastConversationIndex = conversations.value.length - 1;
+            selectedConversation.value = conversations.value[lastConversationIndex];
+            loadSelectedConversation();
+
+            showConversationOptions.value = true;
+        } catch (err) {
+            console.log("Bad file detected");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+function openFileSelector() {
+    document.getElementById('fileUpload').click();
+}
+
+async function imageInputChanged(event) {
+    const file = event.target.files[0];
+    const fileType = file.type;
+
+    if (!file) {
+        return;
+    }
+
+    let visionReponse = await processImage(file, fileType);
+
+    addMessage("assistant", visionReponse);
+
+    saveMessages();
+    isAnalyzingImage.value = false;
+    scrollToBottom();
+}
+
+async function processImage(file, fileType) {
+    userText.value = "";
+
+    return await analyzeImage(file, fileType, messages.value.slice(0), selectedModel.value);
+}
+
 onMounted(() => {
     selectedModel.value = localStorage.getItem("selectedModel") || "";
     selectConversation(lastLoadedConversationId.value); //by index
-
 });
 </script>
 
 <template>
+    <!-- File Upload -->
+    <div id="fileUploadDiv">
+        <input type="file" id="fileUpload" style="display: none;" @change="uploadFile">
+        <div @click="openFileSelector" style="display: none;">Upload File</div>
+        <input id="imageInput" @change="imageInputChanged" style="display: none;" type="file">
+    </div>
     <div class="app-body">
         <!-- App Container -->
         <div class="app-container" id="app-container">
@@ -650,7 +724,8 @@ onMounted(() => {
                         <div class="messages" id="messagesContainer" ref="messagesContainer">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
-                                :isPalmEnabled="isPalmEnabled" :streamedMessageText="streamedMessageText" />
+                                :isPalmEnabled="isPalmEnabled" :isAnalyzingImage="isAnalyzingImage"
+                                :streamedMessageText="streamedMessageText" />
                         </div>
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
                             @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />

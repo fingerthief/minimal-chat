@@ -63,7 +63,7 @@ function onShowConversationsClick() {
         <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             <span class="fa-brands fa-github"></span>
         </a>
-        <div class="hover-increase-size settings-btn" @click="toggleSidebar">
+        <div class="settings-btn" @click="toggleSidebar">
             <Settings2 />
         </div>
         <div class="hover-increase-size trash-btn fa-solid fa-trash-can fa-lg" @click="deleteCurrentConversation"></div>

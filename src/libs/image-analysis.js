@@ -1,5 +1,5 @@
-import { fetchGPTVisionResponse } from '../js/gpt-api-access.js';
-import { fetchClaudeVisionResponse } from '../js/claude-api-access.js';
+import { fetchGPTVisionResponse } from './gpt-api-access.js';
+import { fetchClaudeVisionResponse } from './claude-api-access.js';
 
 // Encode image as base64
 async function encodeImage(file) {
@@ -47,10 +47,10 @@ export async function analyzeImage(file, fileType, messages, model) {
             type: "image_url",
             image_url: { url: base64Image }
         });
-        
+
         return await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem("gptKey"));
-    } 
-    
+    }
+
     if (model.indexOf("claude") !== -1) {
         visionFormattedMessages.push({
             type: "image",
@@ -62,7 +62,7 @@ export async function analyzeImage(file, fileType, messages, model) {
         });
 
         return await fetchClaudeVisionResponse(visionFormattedMessages, localStorage.getItem("claudeKey"), model);
-    } 
+    }
 
     return "not implemented for selected model";
 }

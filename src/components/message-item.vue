@@ -8,6 +8,7 @@ const props = defineProps({
     hasFilterText: Boolean,
     messages: Array,
     isLoading: Boolean,
+    isAnalyzingImage: Boolean,
     isPalmEnabled: Boolean,
     isClaudeEnabled: Boolean,
     isUsingLocalModel: Boolean,
@@ -67,7 +68,7 @@ function formatMessage(content, isImage) {
         <div class="gpt message">
             <div class="label padded">
                 <Bot :size="18" :stroke-width="1" />
-                <span class="padded" v-show="!props.isClaudeEnabled">GPT</span>
+                <span class="padded" v-show="!props.isClaudeEnabled && !props.isUsingLocalModel">GPT</span>
                 <span class="padded" v-show="props.isClaudeEnabled">Claude</span>
                 <span class="padded" v-show="props.isPalmEnabled">PaLM</span>
                 <span class="padded" v-show="props.isUsingLocalModel">Local LLM</span>
@@ -75,6 +76,19 @@ function formatMessage(content, isImage) {
             <span v-html="formatMessage(props.streamedMessageText || '', false)"></span>
             <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>
             <span v-if="!props.streamedMessageText.trim().length" class="loading spinner"></span>
+        </div>
+    </div>
+    <div v-if="props.isAnalyzingImage">
+        <div class="gpt message">
+            <div class="label padded">
+                <Bot :size="18" :stroke-width="1" />
+                <span class="padded" v-show="!props.isClaudeEnabled">GPT</span>
+                <span class="padded" v-show="props.isClaudeEnabled">Claude</span>
+                <span class="padded" v-show="props.isPalmEnabled">PaLM</span>
+                <span class="padded" v-show="props.isUsingLocalModel">Local LLM</span>
+            </div>
+            <span>Generating Vision Response...</span>
+            <span class="loading spinner"></span>
         </div>
     </div>
 </template>
