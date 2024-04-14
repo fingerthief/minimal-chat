@@ -14,14 +14,9 @@ a,
   }
 }
 
-body {
-  display: flex;
-}
-
 #app {
   min-width: 20vw;
   width: 99vw;
   font-weight: normal;
   z-index: 0;
 }
-

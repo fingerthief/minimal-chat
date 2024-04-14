@@ -4,13 +4,11 @@ import { ref, watch, defineEmits } from 'vue';
 
 // Define props and emits
 const props = defineProps({
-    userInput: String
+    userInput: String,
+    isLoading: Boolean
 });
 
 const emit = defineEmits(['update:userInput', 'send-message']);
-
-const isLoading = ref(false);
-
 // Local reactive stat
 const localUserInput = ref(props.userInput);
 
@@ -46,8 +44,8 @@ const visionImageUploadClick = () => {
             <span class="fa-solid fa-image fa-xl"></span>
         </div>
         <div class="send-button" @click="sendMessage">
-            <span v-show="isLoading" class="loading input-spinner"></span>
-            <span v-show="!isLoading" class="fa-solid fa-circle-arrow-up">
+            <span v-show="props.isLoading" class="loading input-spinner"></span>
+            <span v-show="!props.isLoading" class="fa-solid fa-circle-arrow-up">
             </span>
         </div>
     </form>
@@ -127,24 +125,6 @@ $icon-color: rgb(187, 187, 187);
         padding-left: 20px;
         padding-right: 100px;
         transition: 0.2s height ease-in-out;
-    }
-
-    @keyframes spinner {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .spinner {
-        display: inline-block;
-        width: 10px;
-        color: lightskyblue;
-        height: 10px;
-        margin-left: 5px;
-        border: 4px solid #3c8280;
-        border-left-color: #1cdfd8;
-        border-radius: 50%;
-        animation: spinner 1s linear infinite;
     }
 
     .input-spinner {

@@ -21,7 +21,17 @@ function messageClass(role) {
 function label(role, index) {
     if (role === 'user') {
         return 'User';
-    } else if (role !== 'user' && index > 0 && props.messages[index - 1].content.toLowerCase().startsWith('image::')) {
+    }
+    else if (role !== 'user' && index > 0 && props.isClaudeEnabled) {
+        return 'Claude';
+    }
+    else if (role !== 'user' && index > 0 && props.isPalmEnabled) {
+        return 'PaLM';
+    }
+    else if (role !== 'user' && index > 0 && props.isUsingLocalModel) {
+        return 'Local LLM';
+    }
+    else if (role !== 'user' && index > 0 && props.messages[index - 1].content.toLowerCase().startsWith('image::')) {
         return 'DALL-E';
     } else {
         return 'GPT';
@@ -50,11 +60,14 @@ function formatMessage(content, isImage) {
             </div>
         </div>
     </div>
-    <div v-if="props.isLoading && !props.isPalmEnabled && !props.isClaudeEnabled && !props.isUsingLocalModel">
+    <div v-if="props.isLoading">
         <div class="gpt message padded">
             <div class="label">
                 <span class="fa-solid fa-robot fa-lg icon"></span>
-                <span>GPT</span>
+                <span v-show="!props.isClaudeEnabled">GPT</span>
+                <span v-show="props.isClaudeEnabled">Claude</span>
+                <span v-show="props.isPalmEnabled">PaLM</span>
+                <span v-show="props.isUsingLocalModel">Local LLM</span>
             </div>
             <span v-html="formatMessage(props.streamedMessageText || '', false)"></span>
             <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>

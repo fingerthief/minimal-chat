@@ -3,7 +3,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream } from '@/libs/gpt-api-access';
-import { fetchClaudeConversationTitle } from '@/libs/claude-api-access';
+import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { fetchPalmConversationTitle } from '@/libs/palm-api-access';
 import { getConversationTitleFromGPT } from '@/libs/utils';
 
@@ -14,6 +14,7 @@ import settingsDialog from '@/components/settings-dialog.vue';
 import conversationsDialog from '@/components/conversations-dialog.vue';
 
 //#region refs
+const isAnalyzingImage = ref(false);
 const userText = ref('');
 const isLoading = ref(false);
 const isPalmEnabled = ref(false);
@@ -22,7 +23,7 @@ const isUsingLocalModel = ref(false);
 const isGeneratingImage = ref(false);
 const isProcessing = ref(false);
 const hasFilterText = ref(false);
-const selectedModel = ref(localStorage.getItem("selectedModel") || "");
+const selectedModel = ref("");
 const isSidebarOpen = ref(false);
 const showConversationOptions = ref(false);
 const messages = ref([]);
@@ -52,15 +53,45 @@ const displayConversations = computed(() => conversations);
 //#region watchers
 // Watchers that update local storage when values change
 watch(selectedModel, (newValue) => {
-    console.log("hit watcher: " + newValue);
-    if (newValue.startsWith("lmstudio")) {
-        localStorage.setItem('useLocalModel', true);
+    const MODEL_TYPES = {
+        LMSTUDIO: 'lmstudio',
+        CLAUDE: 'claude',
+        BISON: 'bison'
+    };
+
+    // Default settings
+    let useLocalModel = false;
+    const flags = {
+        isUsingLocalModel: false,
+        isClaudeEnabled: false,
+        isPalmEnabled: false
+    };
+
+    // Determine settings based on model type
+    if (newValue.includes(MODEL_TYPES.LMSTUDIO)) {
+        useLocalModel = true;
+        flags.isUsingLocalModel = true;
     }
-    else {
-        localStorage.setItem('useLocalModel', false);
+    else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
+        useLocalModel = true;
+        flags.isClaudeEnabled = true;
+    }
+    else if (newValue.includes(MODEL_TYPES.BISON)) {
+        useLocalModel = true;
+        flags.isPalmEnabled = true;
     }
 
-    localStorage.setItem('selectedModel', newValue);
+    // Apply settings
+    try {
+        localStorage.setItem('useLocalModel', useLocalModel);
+        localStorage.setItem('selectedModel', newValue);
+        isUsingLocalModel.value = flags.isUsingLocalModel;
+        isClaudeEnabled.value = flags.isClaudeEnabled;
+        isPalmEnabled.value = flags.isPalmEnabled;
+    }
+    catch (error) {
+        console.error('Error updating settings:', error);
+    }
 });
 
 watch(localModelName, (newValue) => {
@@ -424,7 +455,37 @@ function updateUI(content, reset) {
 async function sendPalmMessage(message) {
 }
 
-async function sendClaudeMessage(message) {
+async function sendClaudeMessage(messageText) {
+    if (messageText.toLowerCase().startsWith("vision::")) {
+        addMessage("user", messageText);
+
+        isAnalyzingImage.value = true;
+
+        //document.getElementById('imageInput').click();
+
+        // this.scrollToBottom();
+        return;
+    }
+
+    // this.userInput = "";
+    // this.$refs.userInput.style.height = '30px';
+
+    streamedMessageText.value = "";
+    isClaudeEnabled.value = true;
+    isLoading.value = true;
+
+    addMessage("user", messageText);
+
+    //this.scrollToBottom();
+
+    const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI);
+
+    addMessage("assistant", response);
+
+    saveMessages();
+
+    //this.scrollToBottom();
+    isLoading.value = false;
 }
 
 async function sendImagePrompt(message) {
@@ -523,6 +584,7 @@ function loadSelectedConversation(conversation) {
 }
 
 onMounted(() => {
+    selectedModel.value = localStorage.getItem("selectedModel") || "";
     selectConversation(lastLoadedConversationId.value); //by index
 
 });
@@ -574,9 +636,9 @@ onMounted(() => {
                         <div class="messages" id="messagesContainer">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
-                                :streamedMessageText="streamedMessageText" />
+                                :isPalmEnabled="isPalmEnabled" :streamedMessageText="streamedMessageText" />
                         </div>
-                        <chatInput :userInput="userText" @send-message="sendMessage"
+                        <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
                             @update:userInput="updateUserText" />
                     </div>
                 </div>
@@ -919,40 +981,7 @@ button {
     justify-content: space-between;
 }
 
-.loading {
-    background-color: #3a3a3c;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.loading::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -5px;
-    border-width: 5px 5px 0 0;
-    border-style: solid;
-    border-color: transparent #3a3a3c;
-}
-
 .padded {
     padding: 10px;
-}
-
-@keyframes spinner {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.spinner {
-    display: inline-block;
-    width: 10px;
-    color: lightskyblue;
-    height: 10px;
-    margin-left: 5px;
-    border: 4px solid #3c8280;
-    border-left-color: #1cdfd8;
-    border-radius: 50%;
-    animation: spinner 1s linear infinite;
 }
 </style>

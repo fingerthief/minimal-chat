@@ -97,7 +97,7 @@ export async function fetchClaudeConversationTitle(messages) {
             return result.content[0].text;
         } else {
             showToast("Error: Failed to generate conversation title");
-            
+
             return "I'm sorry, I couldn't generate a response.";
         }
     } catch (error) {
@@ -143,9 +143,9 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
                 temperature: 0.5
             }),
         });
-    
+
         const result = await response.json();
-    
+
         if (result.content && result.content.length > 0) {
             claudeVisionRetryCount = 0;
             return result.content[0].text;
