@@ -519,11 +519,6 @@ async function sendVisionPrompt(message) {
     userText.value = "";
 }
 
-function visionImageUploadClick() {
-    // TODO: Implement image upload logic
-    console.log('Image upload clicked');
-}
-
 function swipedLeft(event) {
     isSidebarOpen.value = false;
     showConversationOptions.value = !showConversationOptions.value;
@@ -534,23 +529,32 @@ function swipedRight(event) {
     isSidebarOpen.value = !isSidebarOpen.value;
 }
 
-function handleLoadConversation(conversation) {
-    // Logic to load selected conversation
-}
-
-function handleNewConversation() {
-    // Logic to handle new conversation creation
-}
-
 function handleImportConversations() {
-    // Logic to import conversations
+    openFileSelector();
 }
 
 function handleExportConversations() {
-    // Logic to export conversations
+    const filename = "conversations.json";
+    const text = localStorage.getItem("gpt-conversations")
+
+    let element = document.createElement('a');
+
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
 }
 
 function handlePurgeConversations() {
+    localStorage.setItem("gpt-conversations", "");
+    messages.value = [];
+    conversations.value = [];
+    storedConversations.value = [];
+    showToast("All Conversations Deleted.");
 }
 
 const refs = {
@@ -710,7 +714,7 @@ onMounted(() => {
             <div class="sidebar box" id="conversations-dialog" :class="{ open: showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="loadSelectedConversation"
-                    @new-conversation="handleNewConversation" @import-conversations="handleImportConversations"
+                    @new-conversation="clearMessages" @import-conversations="handleImportConversations"
                     @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations" />
             </div>
             <div class="chat-container">
