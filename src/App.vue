@@ -1,0 +1,61 @@
+<script setup>
+import ChatLayout from './views/ChatLayout.vue';
+</script>
+<template>
+
+    <body>
+        <ChatLayout />
+    </body>
+</template>
+
+<style lang="scss">
+@use "@fortawesome/fontawesome-free/scss/fontawesome.scss";
+@use "@fortawesome/fontawesome-free/scss/solid.scss";
+@use "@fortawesome/fontawesome-free/scss/regular.scss";
+@use "@fortawesome/fontawesome-free/scss/brands.scss";
+
+@font-face {
+    font-family: Helvetica;
+    src: url('/webfonts/Helvetica.ttf');
+    font-weight: 400;
+    font-style: normal;
+}
+
+body {
+    display: flex;
+    font-family: Helvetica, sans-serif;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    display: inline-block;
+    width: 10px;
+    color: lightskyblue;
+    height: 10px;
+    margin-left: 5px;
+    border: 4px solid #3c8280;
+    border-left-color: #1cdfd8;
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
+}
+
+.loading {
+    background-color: #3a3a3c;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -5px;
+    border-width: 5px 5px 0 0;
+    border-style: solid;
+    border-color: transparent #3a3a3c;
+}
+</style>
