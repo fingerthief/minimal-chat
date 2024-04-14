@@ -13,7 +13,7 @@ const emit = defineEmits(['update:userInput', 'send-message']);
 // Local reactive stat
 const localUserInput = ref(props.userInput);
 
-const userInput = ref(null);
+const userInputRef = ref(null);
 
 // Watch for changes in localUserInput and emit an event
 watch(localUserInput, (newVal) => {
@@ -35,12 +35,12 @@ const swipedRight = () => {
 
 const autoResize = () => {
     if (!localUserInput.value || localUserInput.value.trim() === "") {
-        userInput.value.style.height = '30px';
+        userInputRef.value.style.height = '30px';
         return;
     }
 
-    userInput.value.style.height = 'auto';
-    userInput.value.style.height = `${userInput.value.scrollHeight - 15}px`;
+    userInputRef.value.style.height = 'auto';
+    userInputRef.value.style.height = `${userInputRef.value.scrollHeight - 15}px`;
 };
 
 const visionImageUploadClick = () => {
@@ -50,7 +50,7 @@ const visionImageUploadClick = () => {
 <template>
     <form @submit.prevent="sendMessage" id="chat-form" @swipeleft="swipedLeft" @swiperight="swipedRight">
         <textarea class="user-input-text" id="user-input" rows="1" placeholder="" v-model="localUserInput"
-            ref="userInput" @input="autoResize" @focus="autoResize" @blur="autoResize"
+            ref="userInputRef" @input="autoResize" @focus="autoResize" @blur="autoResize"
             @keypress.enter.prevent="sendMessage"></textarea>
         <div class="image-button" @click="visionImageUploadClick">
             <span class="fa-solid fa-image fa-xl"></span>

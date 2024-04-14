@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { Bot } from 'lucide-vue-next';
 
 // Props
 const props = defineProps({
@@ -52,7 +53,9 @@ function formatMessage(content, isImage) {
         <div v-for="(message, index) in props.messages" :key="index">
             <div :class="messageClass(message.role, index)">
                 <div class="label">
-                    <span v-if="message.role !== 'user'" class="fa-solid fa-robot fa-lg icon"></span>
+                    <span v-if="message.role !== 'user'">
+                        <Bot :size="18" :stroke-width="1" />
+                    </span>
                     <span v-if="message.role === 'user'" class="fa-solid fa-circle-user fa-lg icon"></span>
                     <span class="padded">{{ label(message.role, index) }}</span>
                 </div>
@@ -61,13 +64,13 @@ function formatMessage(content, isImage) {
         </div>
     </div>
     <div v-if="props.isLoading">
-        <div class="gpt message padded">
-            <div class="label">
-                <span class="fa-solid fa-robot fa-lg icon"></span>
-                <span v-show="!props.isClaudeEnabled">GPT</span>
-                <span v-show="props.isClaudeEnabled">Claude</span>
-                <span v-show="props.isPalmEnabled">PaLM</span>
-                <span v-show="props.isUsingLocalModel">Local LLM</span>
+        <div class="gpt message">
+            <div class="label padded">
+                <Bot :size="18" :stroke-width="1" />
+                <span class="padded" v-show="!props.isClaudeEnabled">GPT</span>
+                <span class="padded" v-show="props.isClaudeEnabled">Claude</span>
+                <span class="padded" v-show="props.isPalmEnabled">PaLM</span>
+                <span class="padded" v-show="props.isUsingLocalModel">Local LLM</span>
             </div>
             <span v-html="formatMessage(props.streamedMessageText || '', false)"></span>
             <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>
