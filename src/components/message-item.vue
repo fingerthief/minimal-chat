@@ -54,7 +54,7 @@ function formatMessage(content, isImage) {
                 <div class="label">
                     <span v-if="message.role !== 'user'" class="fa-solid fa-robot fa-lg icon"></span>
                     <span v-if="message.role === 'user'" class="fa-solid fa-circle-user fa-lg icon"></span>
-                    <span>{{ label(message.role, index) }}</span>
+                    <span class="padded">{{ label(message.role, index) }}</span>
                 </div>
                 <span class="message-contents" v-html="formatMessage(message.content, false)"></span>
             </div>
@@ -77,6 +77,10 @@ function formatMessage(content, isImage) {
 </template>
 
 <style lang="scss" scoped>
+.padded {
+    padding: 10px;
+}
+
 .message {
     position: relative;
     padding: 12px;

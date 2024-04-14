@@ -16,9 +16,9 @@ import ChatLayout from './views/ChatLayout.vue';
 
 @font-face {
     font-family: Helvetica;
-    src: url('@webfonts/Helvetica.ttf') format('truetype');
-    font-weight: 4000;
-    font-style: bold;
+    src: url('/webfonts/Helvetica.ttf');
+    font-weight: 400;
+    font-style: normal;
 }
 
 body {

@@ -48,6 +48,7 @@ const storedConversations = ref(loadStoredConversations());
 const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversationId")) || 0);
 const selectedConversation = ref(conversations.value[0]);
 const displayConversations = computed(() => conversations);
+const messagesContainer = ref(null);
 //#endregion
 
 //#region watchers
@@ -244,8 +245,31 @@ function addMessage(role, message) {
     });
 }
 
+
+function scrollToBottom() {
+    const tempMessagesContainer = messagesContainer.value;
+
+    if (tempMessagesContainer) {
+        // Smooth scrolling
+        tempMessagesContainer.scrollTo({
+            top: tempMessagesContainer.scrollHeight,
+            behavior: 'smooth',
+        });
+
+        // Fallback to ensure the container is scrolled to the bottom
+        setTimeout(() => {
+            tempMessagesContainer.scrollTo({
+                top: tempMessagesContainer.scrollHeight,
+            });
+        }, 500); // Adjust the timeout duration as needed
+
+        //this.updateScrollButtonVisibility();
+    }
+}
+
+
 async function sendGPTMessage(message) {
-    // self.scrollToBottom();
+    scrollToBottom();
 
     userText.value = "";
     // self.userInput('');
@@ -276,7 +300,7 @@ async function sendGPTMessage(message) {
 
         await saveMessages();
 
-        // self.scrollToBottom();
+        scrollToBottom();
     } catch (error) {
         console.error("Error sending message:", error);
     }
@@ -444,12 +468,12 @@ function updateUI(content, reset) {
 
     if (reset === true) {
         streamedMessageText.value = "";
-        //self.scrollToBottom();
+        scrollToBottom();
         return;
     }
 
     streamedMessageText.value = (streamedMessageText.value || "") + content;
-    //self.scrollToBottom();
+    scrollToBottom();
 }
 
 async function sendPalmMessage(message) {
@@ -463,7 +487,7 @@ async function sendClaudeMessage(messageText) {
 
         //document.getElementById('imageInput').click();
 
-        // this.scrollToBottom();
+        scrollToBottom();
         return;
     }
 
@@ -476,7 +500,7 @@ async function sendClaudeMessage(messageText) {
 
     addMessage("user", messageText);
 
-    //this.scrollToBottom();
+    scrollToBottom();
 
     const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI);
 
@@ -484,7 +508,7 @@ async function sendClaudeMessage(messageText) {
 
     saveMessages();
 
-    //this.scrollToBottom();
+    scrollToBottom();
     isLoading.value = false;
 }
 
@@ -633,7 +657,7 @@ onMounted(() => {
                             @delete-conversation="deleteCurrentConversation" @toggle-conversations="showConversations"
                             @new-conversation="clearMessages" />
                         <!-- Messages -->
-                        <div class="messages" id="messagesContainer">
+                        <div class="messages" id="messagesContainer" ref="messagesContainer">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isPalmEnabled="isPalmEnabled" :streamedMessageText="streamedMessageText" />
@@ -979,9 +1003,5 @@ button {
     width: 50%;
     background-color: #202124;
     justify-content: space-between;
-}
-
-.padded {
-    padding: 10px;
 }
 </style>

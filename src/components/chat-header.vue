@@ -2,6 +2,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { Settings2 } from 'lucide-vue-next';
 const isProcessing = ref(false); // Example processing state
 
 // Define props
@@ -15,7 +16,7 @@ const props = defineProps({
     storedConversations: Array
 });
 
-const emit = defineEmits(['toggle-sidebar','toggle-conversations', 'delete-conversation', 'new-conversation']);
+const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation']);
 
 const faConversationsCountClass = computed(() => {
     const length = props.storedConversations.length;
@@ -43,26 +44,28 @@ function onShowConversationsClick() {
 
 <template>
     <div class="header box">
-        <a v-show="props.selectedModel.includes('bison')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
-            target="_blank" class="no-style-link">
+        <a v-show="props.selectedModel.includes('bison')"
+            href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             MinimalPaLM
         </a>
-        <a v-show="props.selectedModel.includes('claude')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
-            target="_blank" class="no-style-link">
+        <a v-show="props.selectedModel.includes('claude')"
+            href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             MinimalClaude
         </a>
         <a v-show="props.selectedModel.includes('gpt')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
             target="_blank" class="no-style-link">
             MinimalGPT
         </a>
-        <a v-show="props.selectedModel.includes('lmstudio')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
-            target="_blank" class="no-style-link">
+        <a v-show="props.selectedModel.includes('lmstudio')"
+            href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             MinimalLocal
         </a>
         <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             <span class="fa-brands fa-github"></span>
         </a>
-        <div class="hover-increase-size settings-btn fa-solid fa-sliders fa-lg" @click="toggleSidebar"></div>
+        <div class="hover-increase-size settings-btn" @click="toggleSidebar">
+            <Settings2 />
+        </div>
         <div class="hover-increase-size trash-btn fa-solid fa-trash-can fa-lg" @click="deleteCurrentConversation"></div>
         <div class="conversations-count">
             <div class="general-processing" v-show="isProcessing">
@@ -77,8 +80,6 @@ function onShowConversationsClick() {
 </template>
 
 <style lang="scss" scoped>
-
-
 /* Add your component-specific styles here */
 $icon-color: rgb(187, 187, 187);
 $shadow-color: #252629;

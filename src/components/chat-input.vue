@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
+import { SendHorizontal } from 'lucide-vue-next';
 
 
 // Define props and emits
@@ -12,6 +13,8 @@ const emit = defineEmits(['update:userInput', 'send-message']);
 // Local reactive stat
 const localUserInput = ref(props.userInput);
 
+const userInput = ref(null);
+
 // Watch for changes in localUserInput and emit an event
 watch(localUserInput, (newVal) => {
     emit('update:userInput', newVal);
@@ -21,6 +24,7 @@ watch(localUserInput, (newVal) => {
 const sendMessage = () => {
     localUserInput.value = "";
     emit('send-message');
+    autoResize();
 };
 
 const swipedLeft = () => {
@@ -30,6 +34,13 @@ const swipedRight = () => {
 };
 
 const autoResize = () => {
+    if (!localUserInput.value || localUserInput.value.trim() === "") {
+        userInput.value.style.height = '30px';
+        return;
+    }
+
+    userInput.value.style.height = 'auto';
+    userInput.value.style.height = `${userInput.value.scrollHeight - 15}px`;
 };
 
 const visionImageUploadClick = () => {
@@ -39,18 +50,20 @@ const visionImageUploadClick = () => {
 <template>
     <form @submit.prevent="sendMessage" id="chat-form" @swipeleft="swipedLeft" @swiperight="swipedRight">
         <textarea class="user-input-text" id="user-input" rows="1" placeholder="" v-model="localUserInput"
-            @input="autoResize" @focus="autoResize" @blur="autoResize" @keypress.enter.prevent="sendMessage"></textarea>
+            ref="userInput" @input="autoResize" @focus="autoResize" @blur="autoResize"
+            @keypress.enter.prevent="sendMessage"></textarea>
         <div class="image-button" @click="visionImageUploadClick">
             <span class="fa-solid fa-image fa-xl"></span>
         </div>
         <div class="send-button" @click="sendMessage">
             <span v-show="props.isLoading" class="loading input-spinner"></span>
-            <span v-show="!props.isLoading" class="fa-solid fa-circle-arrow-up">
+            <span v-show="!props.isLoading">
+                <SendHorizontal />
             </span>
         </div>
     </form>
 </template>
-
+<SendHorizontal />
 <style lang="scss" scoped>
 $icon-color: rgb(187, 187, 187);
 

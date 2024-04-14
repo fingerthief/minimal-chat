@@ -1,5 +1,7 @@
 <!-- eslint-disable no-unused-vars -->
 <script setup>
+import { RefreshCcw } from 'lucide-vue-next';
+
 const props = defineProps({
     isSidebarOpen: Boolean,
     selectedModel: String,
@@ -51,7 +53,9 @@ function toggleSidebar() {
 <template>
     <div class="settings-header">
         <h2 @click="reloadPage">
-            <span class="fa-solid fa-arrows-rotate"></span>
+            <span>
+                <RefreshCcw />
+            </span>
             Settings | V4.4.2
         </h2>
     </div>
@@ -158,7 +162,6 @@ function toggleSidebar() {
 </template>
 
 <style lang="scss" scoped>
-
 $shadow-color: #252629;
 $shadow-offset-x: 0px;
 $shadow-offset-y: 1px;
@@ -167,8 +170,8 @@ $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
 .sidebar-content-container {
-        overflow: auto;
-        text-overflow: clip;
+    overflow: auto;
+    text-overflow: clip;
 }
 
 .select-dropdown {
