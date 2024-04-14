@@ -2,7 +2,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, fetchLocalModelResponseStream } from '@/libs/gpt-api-access';
+import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, fetchLocalModelResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { fetchPalmConversationTitle } from '@/libs/palm-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
@@ -145,7 +145,6 @@ watch(selectedAutoSaveOption, (newValue) => {
 });
 //#endregion watchers
 
-
 const updateUserText = (newText) => {
     userText.value = newText;
 };
@@ -189,10 +188,6 @@ function deleteCurrentConversation() {
 
     isProcessing.value = false;
     showToast("Conversation Deleted");
-}
-
-function handleClearMessages() {
-    console.log('Messages cleared');
 }
 
 function showConversations() {
@@ -266,7 +261,6 @@ function scrollToBottom() {
         //this.updateScrollButtonVisibility();
     }
 }
-
 
 async function sendGPTMessage(message) {
     scrollToBottom();
@@ -351,7 +345,6 @@ async function clearMessages() {
 
     localStorage.setItem("gpt-conversations", JSON.stringify(tempStoredConversations));
 
-
     conversations.value = loadConversationTitles();
     storedConversations.value = loadStoredConversations();
 
@@ -386,7 +379,8 @@ async function saveNewConversations() {
         });
         localStorage.setItem("lastConversationId", 0);
         lastLoadedConversationId.value = 0;
-    } else {
+    }
+    else {
         newConversationWithTitle.conversationId = tempStoredConversations.length - 1;
 
         if (lastLoadedConversationId.value !== null) {
@@ -424,9 +418,11 @@ async function createNewConversationWithTitle() {
 
     if (isPalmEnabled.value) {
         newConversationWithTitle.title = await fetchPalmConversationTitle(messages.value.slice(0));
-    } else if (isClaudeEnabled.value) {
+    }
+    else if (isClaudeEnabled.value) {
         newConversationWithTitle.title = await fetchClaudeConversationTitle(messages.value.slice(0));
-    } else {
+    }
+    else {
         newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
     }
 
@@ -506,7 +502,21 @@ async function sendClaudeMessage(messageText) {
     isLoading.value = false;
 }
 
-async function sendImagePrompt(message) {
+async function sendImagePrompt(imagePrompt) {
+    isGeneratingImage.value = true;
+    scrollToBottom();
+    userText.value = "";
+
+    const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
+    let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
+    for (const image of response.data) {
+        imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
+    }
+
+    addMessage('assistant', imageURLStrings);
+    saveMessages();
+    scrollToBottom();
+    isGeneratingImage.value = false;
 }
 
 async function sendVisionPrompt(message) {
@@ -729,7 +739,7 @@ onMounted(() => {
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isPalmEnabled="isPalmEnabled" :isAnalyzingImage="isAnalyzingImage"
-                                :streamedMessageText="streamedMessageText" />
+                                :streamedMessageText="streamedMessageText" :isGeneratingImage="isGeneratingImage" />
                         </div>
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
                             @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
@@ -742,7 +752,7 @@ onMounted(() => {
 </template>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
 $icon-color: rgb(187, 187, 187);
 
 .app-body {
@@ -919,12 +929,11 @@ button {
     }
 }
 
-
-
-
-.hljs {
-    background-color: #000000 !important;
-    color: #d5d5d5 !important;
+pre {
+    background-color: #000 !important;
+    background: #000 !important;
+    color: #d8d8d8 !important;
+    padding: 10px;
 }
 
 

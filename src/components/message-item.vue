@@ -1,6 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
-import { Bot } from 'lucide-vue-next';
+import { wrapCodeSnippets } from '@/libs/utils';
 
 // Props
 const props = defineProps({
@@ -9,11 +8,39 @@ const props = defineProps({
     messages: Array,
     isLoading: Boolean,
     isAnalyzingImage: Boolean,
+    isGeneratingImage: Boolean,
     isPalmEnabled: Boolean,
     isClaudeEnabled: Boolean,
     isUsingLocalModel: Boolean,
     streamedMessageText: String
 });
+
+const defaults = {
+    html: true,
+    xhtmlOut: false,
+    breaks: false,
+    langPrefix: 'language-js',
+    linkify: true,
+    typographer: true,
+    _highlight: true,
+    _strict: false,
+    _view: 'src'
+};
+
+defaults.highlight = function (str, lang) {
+    const md = window.markdownit(defaults);
+    var esc = md.utils.escapeHtml;
+    if (lang && hljs.getLanguage(lang)) {
+        try {
+            return '<pre class="hljs"><code>' +
+                hljs.highlight(lang, str, true).value +
+                '</code></pre>';
+        } catch (__) { }
+    } else {
+        return '<pre class="hljs"><code>' + esc(str) + '</code></pre>';
+    }
+};
+
 
 // Computed properties
 function messageClass(role) {
@@ -42,11 +69,11 @@ function label(role, index) {
 
 // Methods
 function formatMessage(content, isImage) {
-    if (isImage) {
-        return `<img src="${content}" alt="Image content" />`;
-    }
-    return content.replace(/(?:\r\n|\r|\n)/g, '<br>');
+    let md = window.markdownit(defaults);
+    let renderedMessage = wrapCodeSnippets(md.render(content));
+    return renderedMessage;
 }
+
 </script>
 
 <template>
@@ -54,11 +81,7 @@ function formatMessage(content, isImage) {
         <div v-for="(message, index) in props.messages" :key="index">
             <div :class="messageClass(message.role, index)">
                 <div class="label">
-                    <span v-if="message.role !== 'user'">
-                        <Bot :size="18" :stroke-width="1" />
-                    </span>
-                    <span v-if="message.role === 'user'" class="fa-solid fa-circle-user fa-lg icon"></span>
-                    <span class="padded">{{ label(message.role, index) }}</span>
+                    <span>{{ label(message.role, index) }}</span>
                 </div>
                 <span class="message-contents" v-html="formatMessage(message.content, false)"></span>
             </div>
@@ -67,27 +90,26 @@ function formatMessage(content, isImage) {
     <div v-if="props.isLoading">
         <div class="gpt message">
             <div class="label padded">
-                <Bot :size="18" :stroke-width="1" />
-                <span class="padded" v-show="!props.isClaudeEnabled && !props.isUsingLocalModel">GPT</span>
-                <span class="padded" v-show="props.isClaudeEnabled">Claude</span>
-                <span class="padded" v-show="props.isPalmEnabled">PaLM</span>
-                <span class="padded" v-show="props.isUsingLocalModel">Local LLM</span>
+                <span v-show="!props.isClaudeEnabled && !props.isUsingLocalModel">GPT</span>
+                <span v-show="props.isClaudeEnabled">Claude</span>
+                <span v-show="props.isPalmEnabled">PaLM</span>
+                <span v-show="props.isUsingLocalModel">Local LLM</span>
             </div>
             <span v-html="formatMessage(props.streamedMessageText || '', false)"></span>
             <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>
             <span v-if="!props.streamedMessageText.trim().length" class="loading spinner"></span>
         </div>
     </div>
-    <div v-if="props.isAnalyzingImage">
+    <div v-if="props.isAnalyzingImage || props.isGeneratingImage">
         <div class="gpt message">
             <div class="label padded">
-                <Bot :size="18" :stroke-width="1" />
-                <span class="padded" v-show="!props.isClaudeEnabled">GPT</span>
-                <span class="padded" v-show="props.isClaudeEnabled">Claude</span>
-                <span class="padded" v-show="props.isPalmEnabled">PaLM</span>
-                <span class="padded" v-show="props.isUsingLocalModel">Local LLM</span>
+                <span v-show="!props.isClaudeEnabled">GPT</span>
+                <span v-show="props.isClaudeEnabled">Claude</span>
+                <span v-show="props.isPalmEnabled">PaLM</span>
+                <span v-show="props.isUsingLocalModel">Local LLM</span>
             </div>
-            <span>Generating Vision Response...</span>
+            <span v-show="props.isAnalyzingImage">Generating Vision Response...</span>
+            <span v-show="props.isGeneratingImage">Generating Image...</span>
             <span class="loading spinner"></span>
         </div>
     </div>
@@ -97,6 +119,7 @@ function formatMessage(content, isImage) {
 .padded {
     padding: 10px;
 }
+
 
 .message {
     position: relative;
