@@ -743,7 +743,7 @@ $icon-color: rgb(187, 187, 187);
 
 .app-body {
     z-index: 0;
-    width: 99vw;
+    width: 100vw;
     height: 90vh;
     position: relative;
     max-height: 90vh;
