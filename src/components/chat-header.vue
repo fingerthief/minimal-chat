@@ -59,17 +59,17 @@ function onShowConversationsClick() {
             <Github :size="20" :stroke-width="2.5" class="header-icon" />
         </a>
         <div class="settings-btn" @click="toggleSidebar">
-            <Settings :size="34" />
+            <Settings :size="30" />
         </div>
         <div class="trash-btn" @click="deleteCurrentConversation">
-            <Trash2 :size="34" />
+            <Trash2 :size="30" />
         </div>
         <div class="conversations-count">
             <span class="save-icon" @click="clearMessages">
-                <Save :size="34" />
+                <Save :size="30" />
             </span>
             <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
-                <MessagesSquare :size="34" />
+                <MessagesSquare :size="30" />
             </div>
         </div>
     </div>
@@ -108,7 +108,7 @@ $shadow-spread-radius: 0px;
     border-radius: 4px;
 
     a {
-        top: 10px;
+        top: 7px;
         position: relative;
     }
 }
