@@ -20,7 +20,6 @@
     "publish-beta": "npm run build && firebase hosting:channel:deploy beta"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.5.1",
     "http-server": "^14.1.1",
     "lucide-vue-next": "^0.368.0",
     "swiped-events": "^1.1.9",

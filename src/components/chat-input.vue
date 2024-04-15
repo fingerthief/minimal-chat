@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
-import { SendHorizontal } from 'lucide-vue-next';
+import { SendHorizontal, ImageUp } from 'lucide-vue-next';
 import "swiped-events";
 
 // Define props and emits
@@ -58,7 +58,9 @@ const visionImageUploadClick = () => {
             ref="userInputRef" @input="autoResize" @focus="autoResize" @blur="autoResize"
             @keypress.enter.prevent="sendMessage"></textarea>
         <div class="image-button" @click="visionImageUploadClick">
-            <span class="fa-solid fa-image fa-xl"></span>
+            <span>
+                <ImageUp />
+            </span>
         </div>
         <div class="send-button" @click="sendMessage">
             <span v-show="props.isLoading" class="loading input-spinner"></span>

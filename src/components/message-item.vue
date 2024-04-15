@@ -81,10 +81,12 @@ function copyText(text) {
         <div v-for="(message, index) in props.messages" :key="index">
             <div :class="messageClass(message.role, index)">
                 <div v-show="message.role === 'user'" @click="copyText(message)" class="label">
-                    <SquareUser />
+                    User
                 </div>
                 <div v-show="message.role !== 'user'" @click="copyText(message)" class="label">
-                    <Atom />
+                    <span>
+                        <Atom />
+                    </span>
                 </div>
                 <span class="message-contents" v-html="formatMessage(message.content)"></span>
             </div>

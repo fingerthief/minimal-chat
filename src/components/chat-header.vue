@@ -2,8 +2,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Settings2 } from 'lucide-vue-next';
-const isProcessing = ref(false); // Example processing state
+import { Settings, Trash2, MessagesSquare, Save, Github } from 'lucide-vue-next';
 
 // Define props
 const props = defineProps({
@@ -57,20 +56,21 @@ function onShowConversationsClick() {
             MinimalLocal
         </a>
         <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
-            <span class="fa-brands fa-github"></span>
+            <Github :size="20" :stroke-width="2.5" class="header-icon" />
         </a>
         <div class="settings-btn" @click="toggleSidebar">
-            <Settings2 />
+            <Settings :size="34" />
         </div>
-        <div class="hover-increase-size trash-btn fa-solid fa-trash-can fa-lg" @click="deleteCurrentConversation"></div>
+        <div class="trash-btn" @click="deleteCurrentConversation">
+            <Trash2 :size="34" />
+        </div>
         <div class="conversations-count">
-            <div class="general-processing" v-show="isProcessing">
-                <span class="loading spinner"></span>
+            <span class="save-icon" @click="clearMessages">
+                <Save :size="34" />
+            </span>
+            <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
+                <MessagesSquare :size="34" />
             </div>
-            <span class="hover-increase-size save-icon fa-solid fa-floppy-disk fa-xl" @click="clearMessages"></span>
-            <span class="count-icon fa-xl fa-solid" :class="faConversationsCountClass"></span>
-            <div class="hover-increase-size saved-conversations-dropdown fa-solid fa-message fa-xl"
-                @click="onShowConversationsClick"></div>
         </div>
     </div>
 </template>
@@ -100,15 +100,23 @@ $shadow-spread-radius: 0px;
 
 .header {
     background-color: #202124;
-    padding: 10px;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     text-align: center;
     border-bottom: 1px solid #2b2c30;
     position: relative; // Add this line
     border-radius: 4px;
+
+    a {
+        top: 10px;
+        position: relative;
+    }
 }
 
+.header-icon {
+    top: 2px;
+    position: relative;
+}
 
 .conversations-count {
     display: contents;
@@ -126,11 +134,16 @@ $shadow-spread-radius: 0px;
 
     .save-icon {
         padding: 2px;
-        right: 69px;
-        top: 8px;
+        right: 50px;
         color: $icon-color;
         float: right;
         position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.15);
+        }
     }
 }
 
@@ -138,21 +151,31 @@ $shadow-spread-radius: 0px;
 .settings-btn {
     position: absolute;
     left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 6%;
     background-color: transparent;
     border: none;
     color: $icon-color;
     cursor: pointer;
     outline: none;
+
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.15);
+    }
 }
 
 .saved-conversations-dropdown {
     position: absolute;
-    top: 50%;
+    top: 6%;
     right: 10px;
+    cursor: pointer;
     color: $icon-color;
-    transform: translateY(-50%);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.15);
+    }
 }
 
 .saved-conversations-dropdown select {
@@ -175,10 +198,14 @@ $shadow-spread-radius: 0px;
 .trash-btn {
     position: absolute;
     left: 50px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 6%;
     color: $icon-color;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.15);
+    }
 }
 
 .clearfix::after {
