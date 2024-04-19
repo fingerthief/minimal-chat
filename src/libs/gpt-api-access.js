@@ -143,7 +143,6 @@ export async function generateDALLEImage(conversation) {
     }
 }
 
-
 let gptStreamRetryCount = 0;
 export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
     const gptMessagesOnly = filterGPTMessages(conversation);
@@ -174,45 +173,6 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
         gptStreamRetryCount++;
 
         return retryFetchGPTResponseStream(conversation, attitude, model, updateUiFunction);
-    }
-}
-
-let localStreamRetryCount = 0;
-export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction) {
-    const gptMessagesOnly = filterGPTMessages(conversation);
-
-    const requestOptions = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer lm-studio`,
-        },
-        body: JSON.stringify({
-            model: model,
-            stream: true,
-            messages: gptMessagesOnly,
-            temperature: attitude * 0.01
-        }),
-    };
-
-    try {
-        const response = await fetch(localModelEndpoint, requestOptions);
-
-        const result = await readResponseStream(response, updateUiFunction);
-
-        localStreamRetryCount = 0;
-        return result;
-    } catch (error) {
-        console.error("Error fetching Local Model response:", error);
-        localStreamRetryCount++
-
-        if (localStreamRetryCount < 3) {
-            await sleep(1500);
-            return fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction);
-        }
-
-        return "Error fetching response from Local LLM Model";
-
     }
 }
 
@@ -259,6 +219,7 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, update
 }
 
 let buffer = "";  // Buffer to hold incomplete JSON data across chunks
+
 function parseResponseChunk(chunk) {
     buffer += chunk;  // Append new chunk to buffer
     const lines = buffer.split("\n");
@@ -279,7 +240,6 @@ function parseResponseChunk(chunk) {
         // Using regex to handle any case variations and extra spaces
         cleanedLine = cleanedLine.replace(/^data:\s*/i, "").trim();
 
-        // Attempt to parse the JSON if the cleaned line is not empty
         if (cleanedLine !== "") {
             try {
                 const parsed = JSON.parse(cleanedLine);

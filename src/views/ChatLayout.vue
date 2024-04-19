@@ -2,10 +2,11 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, fetchLocalModelResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
+import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
+import { fetchLocalModelResponseStream } from '@/libs/local-model-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
