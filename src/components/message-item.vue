@@ -2,7 +2,7 @@
 <!-- eslint-disable no-empty -->
 <script setup>
 import { wrapCodeSnippets, showToast } from '@/libs/utils';
-import { Atom, SquareUser } from 'lucide-vue-next';
+import { Atom } from 'lucide-vue-next';
 
 // Props
 const props = defineProps({
