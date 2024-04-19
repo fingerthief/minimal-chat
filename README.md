@@ -86,7 +86,7 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
     - **Local Model Name**: The name of the model you are hosting locally
     - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
   - **Local URL**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on
-    - **Note**: The endpoint must end with `v1/chat/completions` to function. e,g `http://192.168.0.82:1234/v1/chat/completions`
+    - **Example**: `http://192.168.0.45:1234` 
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
