@@ -44,8 +44,8 @@ const emitUpdate = (event) => {
         width: 70%;
         padding: 5px;
         border: 1px solid #444;
-        border-radius: 5px;
-        background-color: #1c1c1e;
+        border-radius: 1px solid #252534;
+        background-color: #1e1e25;
         color: #f0f0f0;
         outline: none;
         margin-top: 5px;

@@ -77,7 +77,6 @@ $icon-color: rgb(187, 187, 187);
 #chat-form {
     display: flex;
     padding: 6px;
-    height: 50px;
     border-top: 1px solid #444;
     background-color: #252534;
 
