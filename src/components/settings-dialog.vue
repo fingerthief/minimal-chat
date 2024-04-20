@@ -48,11 +48,11 @@ function toggleSidebar() {
 
 <template>
     <div class="settings-header">
-        <h2 @click="reloadPage">
-            <span>
+        <h2>
+            <span @click="reloadPage">
                 <RefreshCcw :size="23" :stroke-width="2" />
             </span>
-            Settings | V5.0.1
+            Settings | V5.0.2
         </h2>
     </div>
     <div class="sidebar-content-container">
@@ -158,8 +158,6 @@ $icon-color: rgb(187, 187, 187);
     text-overflow: clip;
     padding: 6px;
     z-index: 10000;
-
-
 
     /* Media query for screens that are 600px wide or less */
     @media (max-width: 600px) {
