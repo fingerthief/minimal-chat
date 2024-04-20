@@ -80,10 +80,10 @@ function copyText(text) {
     <div>
         <div v-for="(message, index) in props.messages" :key="index">
             <div :class="messageClass(message.role, index)">
-                <div v-show="message.role === 'user'" @click="copyText(message)" class="label">
+                <div v-if="message.role === 'user'" @click="copyText(message)" class="label">
                     User
                 </div>
-                <div v-show="message.role !== 'user'" @click="copyText(message)" class="label">
+                <div v-if="message.role !== 'user'" @click="copyText(message)" class="label">
                     <span>
                         <Atom />
                     </span>
@@ -107,8 +107,8 @@ function copyText(text) {
             <div class="label padded">
                 <Atom />
             </div>
-            <span v-show="props.isAnalyzingImage">Generating Vision Response...</span>
-            <span v-show="props.isGeneratingImage">Generating Image...</span>
+            <span v-if="props.isAnalyzingImage">Generating Vision Response...</span>
+            <span v-if="props.isGeneratingImage">Generating Image...</span>
             <span class="loading spinner"></span>
         </div>
     </div>
