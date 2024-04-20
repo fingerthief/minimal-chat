@@ -22,8 +22,9 @@
 
 To use MinimalGPT with the various language models, you'll need to obtain API keys from their respective providers:
 
-- **OpenAI (GPT-3, GPT-4)**: Sign up for an API key at [OpenAI's website](https://beta.openai.com/signup/).
+- **OpenAI (GPT-3, GPT-4)**: Sign up for an API key at [OpenAI website](https://beta.openai.com/signup/).
 - **Anthropic Claude-3**: Request access to the Claude API by filling out the form on [Anthropic's website](https://www.anthropic.com/product).
+- **Hugging Face**: Sign up for an API key at [Hugging Face website](https://huggingface.co/docs/api-inference/en/quicktour#get-your-api-token).
 
 Once you have your API keys, input them in the app's settings to start using the corresponding language models.
 
@@ -66,7 +67,7 @@ On Android the process is basically the same except the name of the option is **
 A: Yes, MinimalGPT is open-source and free to use. However, you'll need to provide your own API keys for the language models you want to use.
 
 **Q: Can I use MinimalGPT without an internet connection?**
-A: No, MinimalGPT requires an internet connection to communicate with the language model APIs.
+A: Yes! If you use [LM Studio](https://lmstudio.ai/) to locally host a LLM Model you can connect and chat with any model supported within [LM Studio](https://lmstudio.ai/)
 
 **Q: Are my conversations secure and private?**
 A: Yes, all conversations are stored locally on your device and are not sent to any servers other than the necessary API calls to the language models.
@@ -86,11 +87,13 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
   - **Claude 3 Sonnet**
   - **Claude 3 Haiku**
   - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
+  - **Hugging Face Inference Endpoint**
+    - **Max Tokens** - Hugging Face models and their context windows can vary greatky. Use this setting to adjust the maximum number of tokens that can be generated as a response.
   - **Local LLM Model (Via [LM Studio](https://lmstudio.ai/))** users configure the current model name and [LM Studio](https://lmstudio.ai/) api endpoint url in the settings panel.
     - **Local Model Name**: The name of the model you are hosting locally
-    - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
-  - **Local URL**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on
-    - **Example**: `http://192.168.0.45:1234`
+      - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
+    - **Local URL**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on
+      - **Example**: `http://192.168.0.45:1234`
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
@@ -143,6 +146,7 @@ MinimalGPT is made possible thanks to the following libraries, frameworks, and r
 - **[OpenAI API](https://openai.com/)**
 - **[Anthropic Claude API](https://www.anthropic.com/)**
 - **[LM Studio](https://lmstudio.ai/)**
+- **[Hugging Face](https://huggingface.co/)**
 
 ## License
 
