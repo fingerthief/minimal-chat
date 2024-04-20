@@ -41,6 +41,10 @@ On Android the process is basically the same except the name of the option is **
 
 ![android-install-web-app2](https://github.com/fingerthief/minimal-gpt/assets/2380471/cfd51a6a-5a03-4ff0-851a-c20c0565a89d)
 
+## Applcation Demo
+
+![minimal-chat](https://github.com/tannermiddleton/minimal-chat/assets/2380471/216b9268-4ece-487a-89ec-f32d3191fe69)
+
 ## Table of Contents
 
 - [Obtaining API Keys](#obtaining-api-keys)
@@ -162,10 +166,4 @@ Also `npm run build` will output a dist folder with minified files etc...`npm ru
 
 - Running `npm run build` will perform a dist build process that incldues minification and cache busting (sort of) and output to the `dist` folder.
 
-## Applcation Demo (PWA)
 
-[![Application Demo installed as a PWA](https://img.youtube.com/vi/dxMAGbOohN0/0.jpg)](https://www.youtube.com/watch?v=dxMAGbOohN0)
-
-### Settings
-
-![Screenshot 2024-03-16 at 13-42-53 MinimalChat](https://github.com/fingerthief/minimal-chat/assets/2380471/e691b134-d1d7-4ead-9bdb-b20879c3d1fd)
