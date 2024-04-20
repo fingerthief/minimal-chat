@@ -75,7 +75,6 @@ $icon-color: rgb(187, 187, 187);
         border: 1px solid #444;
         border-radius: 0px;
         margin-right: 6px;
-        background-color: #3d3c3e;
         color: white;
         cursor: pointer;
         width: 100%;
@@ -84,8 +83,11 @@ $icon-color: rgb(187, 187, 187);
         outline: none;
         margin-bottom: 6px; // Add some margin at the bottom
 
+        transition: background-color 0.2s ease;
+        background-color: #29293a;
+
         &:hover {
-            background-color: #4a4a4c;
+            background-color: #252534;
         }
     }
 }
@@ -98,10 +100,11 @@ $icon-color: rgb(187, 187, 187);
 .scrollable-list {
     height: 77vh;
     overflow: auto;
+    background-color: #272732ba;
 
     /* Media query for screens that are 600px wide or less */
     @media (max-width: 600px) {
-        height: 75vh;
+        height: 74vh;
     }
 
 
@@ -136,6 +139,7 @@ $icon-color: rgb(187, 187, 187);
     border-bottom: 5px solid gray;
     padding-bottom: 25px;
     padding-top: 25px;
+    background-color: #252534;
 }
 
 .close-btn {
@@ -151,10 +155,11 @@ $icon-color: rgb(187, 187, 187);
     height: 50px;
     outline: none;
     margin-bottom: 10px; // Add some margin at the bottom
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease;
+    background-color: #29293a;
 
     &:hover {
-        background-color: #4a4a4c;
+        background-color: #252534;
     }
 }
 

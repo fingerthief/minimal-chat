@@ -1,6 +1,7 @@
 <!-- eslint-disable no-unused-vars -->
 <script setup>
 import { RefreshCcw } from 'lucide-vue-next';
+import InputField from './InputField.vue';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -60,10 +61,14 @@ function toggleSidebar() {
             <span @click="reloadPage">
                 <RefreshCcw :size="23" :stroke-width="2" />
             </span>
-            Settings | V5.0.3
+            Settings | V5.0.4
         </h2>
     </div>
     <div class="sidebar-content-container">
+        <div class="config-section">
+            <h3>General Config</h3>
+        </div>
+
         <!-- Model Selection -->
         <div class="control select-dropdown">
             <label for="model-selector">Model:</label>
@@ -78,17 +83,24 @@ function toggleSidebar() {
                 <option value="lmstudio">Local Model (LM Studio) </option>
             </select>
         </div>
+        <!-- Auto Save Conversations -->
+        <div class="control select-dropdown">
+            <span>Auto Save Conversations: </span>
+            <select id="auto-save-conversations" :value="selectedAutoSaveOption"
+                @change="update('selectedAutoSaveOption', $event.target.value)">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div class="config-section">
+            <h3>Local LLM Config</h3>
+        </div>
         <!-- Local Model Name -->
-        <div class="api-key">
-            <label for="model-name">Local Model Name:</label>
-            <input id="model-name" :value="localModelName" @blur="update('localModelName', $event.target.value)">
-        </div>
+        <InputField label="Local Model Name:" inputId="model-name" :value="localModelName"
+            @update:value="update('localModelName', $event)" />
         <!-- Local Model Endpoint -->
-        <div class="api-key">
-            <label for="local-model-endpoint">Local URL:</label>
-            <input id="local-model-endpoint" :value="localModelEndpoint"
-                @blur="update('localModelEndpoint', $event.target.value)">
-        </div>
+        <InputField label="Local URL:" inputId="local-model-endpoint" :value="localModelEndpoint"
+            @update:value="update('localModelEndpoint', $event)" />
         <!-- Local Slider Value -->
         <div class="slider-container">
             <span>Serious</span>
@@ -96,11 +108,11 @@ function toggleSidebar() {
                 @blur="update('localSliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
-        <!-- GPT Key -->
-        <div class="api-key">
-            <label for="api-key">GPT Key:</label>
-            <input id="api-key" :value="gptKey" @blur="update('gptKey', $event.target.value)">
+        <div class="config-section">
+            <h3>GPT Config</h3>
         </div>
+        <!-- GPT Key -->
+        <InputField label="GPT Key:" inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
         <!-- Slider Value -->
         <div class="slider-container">
             <span>Serious</span>
@@ -108,11 +120,12 @@ function toggleSidebar() {
                 @blur="update('sliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
-        <!-- Claude Key -->
-        <div class="api-key">
-            <label for="claude-api-key">Claude Key:</label>
-            <input id="claude-api-key" :value="claudeKey" @blur="update('claudeKey', $event.target.value)">
+        <div class="config-section">
+            <h3>Claude Config</h3>
         </div>
+        <!-- Claude Key -->
+        <InputField label="Claude Key:" inputId="claude-api-key" :value="claudeKey"
+            @update:value="update('claudeKey', $event)" />
         <!-- Claude Slider Value -->
         <div class="slider-container">
             <span>Serious</span>
@@ -120,22 +133,18 @@ function toggleSidebar() {
                 @blur="update('claudeSliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
+        <div class="config-section">
+            <h3>Hugging Face Config</h3>
+        </div>
         <!-- Hugging Face Endpoint -->
-        <div class="api-key">
-            <label for="local-model-endpoint">Hugging Face URL:</label>
-            <input id="local-model-endpoint" :value="huggingFaceEndpoint"
-                @blur="update('huggingFaceEndpoint', $event.target.value)">
-        </div>
+        <InputField label="Hugging Face URL:" inputId="hugging-face-endpoint" :value="huggingFaceEndpoint"
+            @update:value="update('huggingFaceEndpoint', $event)" />
         <!-- Hugging Face Key -->
-        <div class="api-key">
-            <label for="api-key">Hugging Face Key:</label>
-            <input id="api-key" :value="hfKey" @blur="update('hfKey', $event.target.value)">
-        </div>
+        <InputField label="Hugging Face Key:" inputId="hf-api-key" :value="hfKey"
+            @update:value="update('hfKey', $event)" />
         <!-- Hugging Face max tokens param -->
-        <div class="api-key">
-            <label for="api-key">Hugging Face max tokens:</label>
-            <input id="api-key" :value="maxTokens" @blur="update('maxTokens', $event.target.value)">
-        </div>
+        <InputField label="Hugging Face max tokens:" inputId="max-tokens" :value="maxTokens"
+            @update:value="update('maxTokens', $event)" />
         <!-- Hugging Face Slider Value -->
         <div class="slider-container">
             <span>Serious</span>
@@ -143,7 +152,9 @@ function toggleSidebar() {
                 @blur="update('hfSliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
-
+        <div class="config-section">
+            <h3>DALL-E Config</h3>
+        </div>
         <!-- DALL-E Image Count -->
         <div class="control select-dropdown">
             <span>DALL-E Image Count: </span>
@@ -160,15 +171,6 @@ function toggleSidebar() {
                 <option value="256x256">256x256</option>
                 <option value="512x512">512x512</option>
                 <option value="1024x1024">1024x1024</option>
-            </select>
-        </div>
-        <!-- Auto Save Conversations -->
-        <div class="control select-dropdown">
-            <span>Auto Save Conversations: </span>
-            <select id="auto-save-conversations" :value="selectedAutoSaveOption"
-                @change="update('selectedAutoSaveOption', $event.target.value)">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
             </select>
         </div>
     </div>
@@ -191,10 +193,11 @@ $icon-color: rgb(187, 187, 187);
     text-overflow: clip;
     padding: 6px;
     z-index: 10000;
+    background-color: #272732ba;
 
     /* Media query for screens that are 600px wide or less */
     @media (max-width: 600px) {
-        height: 82vh;
+        height: 81vh;
     }
 }
 
@@ -203,6 +206,7 @@ $icon-color: rgb(187, 187, 187);
         appearance: none;
         background-color: #333;
         color: #fff;
+        margin-top: 6px;
         padding: 6px;
         border: none;
         border-radius: 4px;
@@ -249,6 +253,17 @@ $icon-color: rgb(187, 187, 187);
     justify-content: center;
 }
 
+.config-section {
+    background-color: #3e3e4e;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    border-bottom: 1px solid rgb(57, 56, 56);
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
 .settings-header {
     font-size: 19px;
     font-weight: bold;
@@ -258,13 +273,14 @@ $icon-color: rgb(187, 187, 187);
     border-bottom: 5px solid gray;
     padding-bottom: 25px;
     padding-top: 25px;
+    background-color: #252534;
 }
 
 .close-btn {
     align-self: flex-end; // Align the button to the right
     padding: 5px 10px;
     border: 1px solid #444;
-    background-color: #3d3c3e;
+
     color: white;
     cursor: pointer;
     width: 98%;
@@ -272,11 +288,11 @@ $icon-color: rgb(187, 187, 187);
     height: 50px;
     outline: none;
     margin-bottom: 10px; // Add some margin at the bottom
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease;
+    background-color: #29293a;
 
     &:hover {
-        background-color: #3e3e3f;
-        transform: scale(1.03);
+        background-color: #252534;
     }
 }
 

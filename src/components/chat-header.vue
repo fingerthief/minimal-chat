@@ -103,13 +103,15 @@ $shadow-spread-radius: 0px;
 }
 
 .header {
-    background-color: #202124;
+    background-color: #252534;
+    height: 50px;
     font-size: 20px;
     font-weight: bold;
     text-align: center;
     border-bottom: 1px solid #2b2c30;
     position: relative; // Add this line
     border-radius: 4px;
+    align-content: center;
 
     a {
         top: 7px;
@@ -118,7 +120,7 @@ $shadow-spread-radius: 0px;
 }
 
 .header-icon {
-    top: 2px;
+    top: 6%;
     position: relative;
 }
 
@@ -129,7 +131,7 @@ $shadow-spread-radius: 0px;
 
     .count-icon {
         padding: 2px;
-        top: 8px;
+        top: 18%;
         right: 11px;
         color: $icon-color;
         float: right;
@@ -138,6 +140,7 @@ $shadow-spread-radius: 0px;
 
     .save-icon {
         padding: 2px;
+        top: 8%;
         right: 50px;
         color: $icon-color;
         float: right;
@@ -155,7 +158,7 @@ $shadow-spread-radius: 0px;
 .settings-btn {
     position: absolute;
     left: 10px;
-    top: 6%;
+    top: 18%;
     background-color: transparent;
     border: none;
     color: $icon-color;
@@ -171,7 +174,7 @@ $shadow-spread-radius: 0px;
 
 .saved-conversations-dropdown {
     position: absolute;
-    top: 6%;
+    top: 24%;
     right: 10px;
     cursor: pointer;
     color: $icon-color;
@@ -202,7 +205,7 @@ $shadow-spread-radius: 0px;
 .trash-btn {
     position: absolute;
     left: 50px;
-    top: 6%;
+    top: 18%;
     color: $icon-color;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;

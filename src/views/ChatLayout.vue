@@ -945,7 +945,7 @@ a {
 .chat {
     // border: 1px solid #444;
     width: 99dvw;
-    background-color: #2c2c2e;
+    background-color: #191923;
     height: 98dvh;
 
     &.header {
@@ -1218,7 +1218,7 @@ pre {
     max-width: 100vw;
     border-top: 1px solid #444;
     width: 50%;
-    background-color: #202124;
+    background-color: #191923ba;
     justify-content: space-between;
 }
 </style>

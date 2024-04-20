@@ -122,7 +122,7 @@ function copyText(text) {
 .message {
     position: relative;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: 3px;
     max-width: 85%;
     min-width: 8%;
     margin-bottom: 8px;
@@ -168,7 +168,7 @@ function copyText(text) {
 
     &.user {
         float: right;
-        background-color: #3d3144;
+        background-color: #29293a;
         color: #dadbde;
 
         border-right: 6px solid #614a63;
@@ -181,7 +181,7 @@ function copyText(text) {
             border-right: 6px solid #614a63;
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
-            background-color: #3d3144;
+            background-color: #29293a;
             margin-top: -23px;
             overflow: hidden;
             right: -6px;
@@ -189,6 +189,7 @@ function copyText(text) {
             padding: 6px;
             font-size: 0.9em;
             font-weight: bolder;
+            cursor: pointer;
             max-height: 35px;
             padding-left: 13px;
             color: #bdbec1;
@@ -197,7 +198,7 @@ function copyText(text) {
 
     &.gpt {
         float: left;
-        background-color: #4a424a;
+        background-color: #3e3e4e;
         color: #dadbde;
 
         border-left: 6px solid #6a576c;
@@ -212,7 +213,7 @@ function copyText(text) {
 
         .label {
             border-left: 6px solid #6a576c;
-            background-color: #4a424a;
+            background-color: #3e3e4e;
             left: 0px;
             color: #bdbec1;
             border-radius: 8px;
