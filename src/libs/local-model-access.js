@@ -40,6 +40,48 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
     }
 }
 
+
+let retryCount = 0;
+export async function getConversationTitleFromLocalModel(messages, model, sliderValue, localModelEndpoint) {
+    try {
+        const apiKey = document.getElementById('api-key');
+        apiKey.value = localStorage.getItem("gptKey");
+
+        let tempMessages = messages.slice(0);
+        tempMessages.push({ role: 'user', content: "Summarize my inital request or greeting in 5 words or less." });
+
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer lm-studio`,
+            },
+            body: JSON.stringify({
+                model: model,
+                stream: true,
+                messages: tempMessages,
+                temperature: sliderValue * 0.01
+            }),
+        };
+
+        const response = await fetch(localModelEndpoint + `/v1/chat/completions`, requestOptions);
+
+        const result = await readResponseStream(response);
+
+        localStreamRetryCount = 0;
+        return result;
+    } catch (error) {
+
+        if (retryCount < 5) {
+            retryCount++;
+            self.getConversationTitleFromLocalModel(messages, model, sliderValue);
+        }
+
+        console.error("Error fetching Local Model response:", error);
+        return "An error occurred while generating conversaton title.";
+    }
+}
+
 async function readResponseStream(response, updateUiFunction) {
     let decodedResult = "";
 
@@ -58,7 +100,10 @@ async function readResponseStream(response, updateUiFunction) {
             const { content } = delta;
             if (content) {
                 decodedResult += content;
-                updateUiFunction(content);
+
+                if (updateUiFunction) {
+                    updateUiFunction(content);
+                }
             }
         }
     }

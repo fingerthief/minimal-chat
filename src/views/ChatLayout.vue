@@ -6,7 +6,7 @@ import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
-import { fetchLocalModelResponseStream } from '@/libs/local-model-access';
+import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/local-model-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -341,6 +341,14 @@ async function createNewConversationWithTitle() {
 
     if (isClaudeEnabled.value) {
         newConversationWithTitle.title = await fetchClaudeConversationTitle(messages.value.slice(0));
+    }
+    if (isUsingLocalModel.value) {
+
+        //Local Models are weird with trying to title conversations...
+        const firstMessage = messages.value[0].content;
+        const titleLength = 100;
+
+        newConversationWithTitle.title = firstMessage.substring(0, Math.min(firstMessage.length, titleLength));
     }
     else {
         newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
