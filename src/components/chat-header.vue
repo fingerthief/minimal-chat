@@ -55,6 +55,10 @@ function onShowConversationsClick() {
             href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             MinimalLocal
         </a>
+        <a v-show="props.selectedModel.includes('tgi')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
+            target="_blank" class="no-style-link">
+            MinimalHugging
+        </a>
         <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             <Github :size="20" :stroke-width="2.5" class="header-icon" />
         </a>

@@ -8,6 +8,7 @@ import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claud
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream } from '@/libs/local-model-access';
+import { fetchHuggingFaceModelResponseStream, getConversationTitleFromHuggingFaceModel } from '@/libs/hugging-face-api-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -42,6 +43,12 @@ const selectedDallEImageCount = ref(parseInt(localStorage.getItem("selectedDallE
 const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImageResolution") || '256x256');
 const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
 
+const hfKey = ref(localStorage.getItem("hfKey") || '');
+const hfSliderValue = ref(parseInt(localStorage.getItem("hf-attitude")) || 50);
+const huggingFaceEndpoint = ref(localStorage.getItem("huggingFaceEndpoint") || '');
+const isUsingHuggingFaceModel = ref(false);
+const maxTokens = ref(parseInt(localStorage.getItem("hf-max-tokens")) || 3000);
+
 const conversations = ref(loadConversationTitles());
 const conversationTitles = ref(loadConversationTitles());
 const storedConversations = ref(loadStoredConversations());
@@ -58,14 +65,16 @@ watch(selectedModel, (newValue) => {
     const MODEL_TYPES = {
         LMSTUDIO: 'lmstudio',
         CLAUDE: 'claude',
-        BISON: 'bison'
+        HUGGING_FACE: 'tgi'
     };
 
     // Default settings
     let useLocalModel = false;
+
     const flags = {
         isUsingLocalModel: false,
-        isClaudeEnabled: false
+        isClaudeEnabled: false,
+        isUsingHuggingFaceModel: false
     };
 
     // Determine settings based on model type
@@ -73,8 +82,12 @@ watch(selectedModel, (newValue) => {
         useLocalModel = true;
         flags.isUsingLocalModel = true;
     }
+    else if (newValue.includes(MODEL_TYPES.HUGGING_FACE)) {
+        useLocalModel = false;
+        flags.isUsingHuggingFaceModel = true;
+    }
     else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
-        useLocalModel = true;
+        useLocalModel = false;
         flags.isClaudeEnabled = true;
     }
 
@@ -85,10 +98,27 @@ watch(selectedModel, (newValue) => {
         localStorage.setItem('selectedModel', newValue);
         isUsingLocalModel.value = flags.isUsingLocalModel;
         isClaudeEnabled.value = flags.isClaudeEnabled;
+        isUsingHuggingFaceModel.value = flags.isUsingHuggingFaceModel;
     }
     catch (error) {
         console.error('Error updating settings:', error);
     }
+});
+
+watch(maxTokens, (newValue) => {
+    localStorage.setItem('maxTokens', newValue);
+});
+
+watch(huggingFaceEndpoint, (newValue) => {
+    localStorage.setItem('huggingFaceEndpoint', newValue);
+});
+
+watch(hfSliderValue, (newValue) => {
+    localStorage.setItem('hf-attitude', newValue);
+});
+
+watch(hfKey, (newValue) => {
+    localStorage.setItem('hfKey', newValue);
 });
 
 watch(localModelName, (newValue) => {
@@ -347,6 +377,7 @@ async function createNewConversationWithTitle() {
     if (isClaudeEnabled.value) {
         newConversationWithTitle.title = await fetchClaudeConversationTitle(messages.value.slice(0));
     }
+
     if (isUsingLocalModel.value) {
 
         //Local Models are weird with trying to title conversations...
@@ -354,6 +385,10 @@ async function createNewConversationWithTitle() {
         const titleLength = 100;
 
         newConversationWithTitle.title = firstMessage.substring(0, Math.min(firstMessage.length, titleLength));
+    }
+
+    if (isUsingHuggingFaceModel.value) {
+        newConversationWithTitle.title = await getConversationTitleFromHuggingFaceModel(messages.value.slice(0), selectedModel.value, hfSliderValue.value, huggingFaceEndpoint.value);
     }
     else {
         newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
@@ -461,6 +496,11 @@ async function sendMessage(event) {
         return;
     }
 
+    if (selectedModel.value.indexOf("tgi") !== -1) {
+        await sendHuggingFaceMessage(messageText);
+        return;
+    }
+
     isClaudeEnabled.value = false;
     addMessage("user", messageText);
 
@@ -521,6 +561,32 @@ async function sendGPTMessage(message) {
 
         scrollToBottom();
     } catch (error) {
+        console.error("Error sending message:", error);
+    }
+}
+
+async function sendHuggingFaceMessage(message) {
+    addMessage("user", message);
+
+    scrollToBottom();
+
+    userText.value = "";
+
+    streamedMessageText.value = "";
+    isLoading.value = true;
+
+    try {
+        let response = await fetchHuggingFaceModelResponseStream(messages.value, hfSliderValue.value, selectedModel.value, huggingFaceEndpoint.value, updateUI, hfKey.value, maxTokens.value);
+
+        isLoading.value = false;
+
+        addMessage('assistant', response);
+
+        await saveMessages();
+
+        scrollToBottom();
+    }
+    catch (error) {
         console.error("Error sending message:", error);
     }
 }
@@ -712,7 +778,11 @@ const refs = {
     claudeSliderValue,
     selectedDallEImageCount,
     selectedDallEImageResolution,
-    selectedAutoSaveOption
+    selectedAutoSaveOption,
+    hfKey,
+    hfSliderValue,
+    huggingFaceEndpoint,
+    maxTokens
 };
 // Event handlers for updating the parent's state when the child emits an update
 const updateSetting = (field, value) => {
@@ -761,15 +831,23 @@ onMounted(() => {
     <div class="app-body">
         <!-- App Container -->
         <div class="app-container" id="app-container">
+            <!-- Overlay for dimming effect -->
+            <div class="overlay" v-show="isSidebarOpen || showConversationOptions"></div>
+
             <!-- Settings Sidebar -->
             <div class="sidebar-common sidebar-left box" id="settings-dialog" :class="{ open: isSidebarOpen }">
                 <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel"
                     :localModelName="localModelName" :localModelEndpoint="localModelEndpoint"
                     :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
+                    :huggingFaceEndpoint="huggingFaceEndpoint" :hfKey="hfKey" :hfSliderValue="hfSliderValue"
                     :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
                     :selectedDallEImageCount="selectedDallEImageCount"
                     :selectedDallEImageResolution="selectedDallEImageResolution"
-                    :selectedAutoSaveOption="selectedAutoSaveOption"
+                    :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens"
+                    @update:maxTokens="updateSetting('maxTokens', $event)"
+                    @update:huggingFaceEndpoint="updateSetting('huggingFaceEndpoint', $event)"
+                    @update:hfKey="updateSetting('hfKey', $event)"
+                    @update:hfSliderValue="updateSetting('hfSliderValue', $event)"
                     @update:model="updateSetting('selectedModel', $event)"
                     @update:localModelName="updateSetting('localModelName', $event)"
                     @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"
@@ -1046,7 +1124,8 @@ pre {
 
 // Common styles for both sidebars
 .sidebar-common {
-    background-color: #262431;
+    background-color: #242426;
+    ;
     width: 50vw; // Adjust the width as needed
     max-width: 100%; // Ensure it doesn't exceed the screen width
     height: 100vh; // Full height
@@ -1082,6 +1161,23 @@ pre {
 
 .sidebar::-webkit-scrollbar {
     /* For Chrome, Safari, and Opera */
+    display: none;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 15, 15, 0.5); // Semi-transparent black
+    z-index: 99999; // Ensure it's below the sidebar but above other content
+    transition: opacity 0.3s ease-in-out;
+    display: block;
+}
+
+// Hide the overlay when not needed
+.overlay:not(:empty) {
     display: none;
 }
 

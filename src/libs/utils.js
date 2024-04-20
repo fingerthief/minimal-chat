@@ -52,7 +52,7 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
 
         if (retryCount < 5) {
             retryCount++;
-            self.getConversationTitleFromGPT(messages, model, sliderValue);
+            getConversationTitleFromGPT(messages, model, sliderValue);
         }
 
         console.error("Error fetching GPT response:", error);

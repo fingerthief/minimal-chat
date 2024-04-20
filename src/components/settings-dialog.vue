@@ -7,25 +7,33 @@ const props = defineProps({
     selectedModel: String,
     localModelName: String,
     localModelEndpoint: String,
+    huggingFaceEndpoint: String,
     localSliderValue: Number,
     gptKey: String,
+    hfKey: String,
     sliderValue: Number,
     claudeKey: String,
     claudeSliderValue: Number,
+    hfSliderValue: Number,
     selectedDallEImageCount: Number,
     selectedDallEImageResolution: String,
-    selectedAutoSaveOption: String
+    selectedAutoSaveOption: String,
+    maxTokens: Number
 });
 
 const emit = defineEmits([
+    'update:maxTokens',
     'update:model',
     'update:localModelName',
     'update:localModelEndpoint',
     'update:localSliderValue',
+    'update:huggingFaceEndpoint',
     'update:gptKey',
+    'update:hfKey',
     'update:sliderValue',
     'update:claudeKey',
     'update:claudeSliderValue',
+    'update:hfSliderValue',
     'update:selectedDallEImageCount',
     'update:selectedDallEImageResolution',
     'update:selectedAutoSaveOption',
@@ -52,7 +60,7 @@ function toggleSidebar() {
             <span @click="reloadPage">
                 <RefreshCcw :size="23" :stroke-width="2" />
             </span>
-            Settings | V5.0.2
+            Settings | V5.0.3
         </h2>
     </div>
     <div class="sidebar-content-container">
@@ -66,6 +74,7 @@ function toggleSidebar() {
                 <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                <option value="tgi">Hugging Face</option>
                 <option value="lmstudio">Local Model (LM Studio) </option>
             </select>
         </div>
@@ -111,6 +120,30 @@ function toggleSidebar() {
                 @blur="update('claudeSliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
+        <!-- Hugging Face Endpoint -->
+        <div class="api-key">
+            <label for="local-model-endpoint">Hugging Face URL:</label>
+            <input id="local-model-endpoint" :value="huggingFaceEndpoint"
+                @blur="update('huggingFaceEndpoint', $event.target.value)">
+        </div>
+        <!-- Hugging Face Key -->
+        <div class="api-key">
+            <label for="api-key">Hugging Face Key:</label>
+            <input id="api-key" :value="hfKey" @blur="update('hfKey', $event.target.value)">
+        </div>
+        <!-- Hugging Face max tokens param -->
+        <div class="api-key">
+            <label for="api-key">Hugging Face max tokens:</label>
+            <input id="api-key" :value="maxTokens" @blur="update('maxTokens', $event.target.value)">
+        </div>
+        <!-- Hugging Face Slider Value -->
+        <div class="slider-container">
+            <span>Serious</span>
+            <input type="range" min="0" max="100" :value="hfSliderValue"
+                @blur="update('hfSliderValue', $event.target.value)">
+            <span>Creative</span>
+        </div>
+
         <!-- DALL-E Image Count -->
         <div class="control select-dropdown">
             <span>DALL-E Image Count: </span>
