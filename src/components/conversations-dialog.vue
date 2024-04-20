@@ -57,8 +57,6 @@ function toggleSidebar() {
 </template>
 
 <style lang="scss" scoped>
-
-
 $shadow-color: #252629;
 $shadow-offset-x: 0px;
 $shadow-offset-y: 1px;
@@ -67,6 +65,7 @@ $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
 .import-export-container {
+    z-index: 10000;
 
     display: flex;
 
@@ -74,7 +73,7 @@ $icon-color: rgb(187, 187, 187);
         align-self: flex-end; // Align the button to the right
         padding: 5px 10px;
         border: 1px solid #444;
-        border-radius: 12px;
+        border-radius: 0px;
         margin-right: 6px;
         background-color: #3d3c3e;
         color: white;
@@ -83,7 +82,7 @@ $icon-color: rgb(187, 187, 187);
         font-size: 18px;
         height: 50px;
         outline: none;
-        margin-bottom: -12px; // Add some margin at the bottom
+        margin-bottom: 6px; // Add some margin at the bottom
         max-width: 152px;
 
         &:hover {
@@ -98,8 +97,13 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .scrollable-list {
-    height: 55vh;
+    height: 77vh;
     overflow: auto;
+
+    /* Media query for screens that are 600px wide or less */
+    @media (max-width: 600px) {
+        height: 75vh;
+    }
 
 
     ul {
@@ -129,29 +133,29 @@ $icon-color: rgb(187, 187, 187);
     font-size: 18px;
     font-weight: bold;
     text-align: center;
-    margin-top: -7px;
     position: relative;
     border-bottom: 5px solid gray;
+    padding-bottom: 25px;
+    padding-top: 25px;
 }
 
 .close-btn {
     align-self: flex-end; // Align the button to the right
     padding: 5px 10px;
     border: 1px solid #444;
-    border-radius: 12px;
     background-color: #3d3c3e;
     color: white;
     cursor: pointer;
-    width: 98%;
+    width: 99%;
     font-size: 18px;
+    margin-right: 6px;
     height: 50px;
     outline: none;
     margin-bottom: 10px; // Add some margin at the bottom
     transition: background-color 0.2s ease, transform 0.2s ease;
 
     &:hover {
-        background-color: #3e3e3f;
-        transform: scale(1.03);
+        background-color: #4a4a4c;
     }
 }
 
