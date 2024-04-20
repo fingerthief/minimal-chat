@@ -7,6 +7,7 @@ import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claud
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/local-model-access';
+import { ChevronDown } from 'lucide-vue-next';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -15,6 +16,7 @@ import settingsDialog from '@/components/settings-dialog.vue';
 import conversationsDialog from '@/components/conversations-dialog.vue';
 
 //#region Refs
+const shouldShowScrollButton = ref(false);
 const isAnalyzingImage = ref(false);
 const userText = ref('');
 const isLoading = ref(false);
@@ -46,7 +48,8 @@ const storedConversations = ref(loadStoredConversations());
 const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversationId")) || 0);
 const selectedConversation = ref(conversations.value[0]);
 const displayConversations = computed(() => conversations);
-const messagesContainer = ref(null);
+
+let messagesContainer = "";
 //#endregion
 
 //#region Watchers
@@ -131,7 +134,7 @@ watch(selectedAutoSaveOption, (newValue) => {
 
 //#region UI Updates
 function scrollToBottom() {
-    const tempMessagesContainer = messagesContainer.value;
+    const tempMessagesContainer = messagesContainer;
 
     if (tempMessagesContainer) {
         // Smooth scrolling
@@ -147,7 +150,7 @@ function scrollToBottom() {
             });
         }, 500); // Adjust the timeout duration as needed
 
-        //this.updateScrollButtonVisibility();
+        updateScrollButtonVisibility();
     }
 }
 
@@ -664,6 +667,38 @@ function swipedRight(event) {
 }
 //#endregion
 
+//#region Floating Scroll Button
+function updateScrollButtonVisibility() {
+    const messagesElement = messagesContainer.querySelectorAll('.message');
+    if (messagesElement.length > 0) {
+        const lastMessage = messagesElement[messagesElement.length - 1];
+        const rect = lastMessage.getBoundingClientRect();
+
+        if (!isScrollable(messagesContainer)) {
+            shouldShowScrollButton.value = false;
+            return;
+        }
+
+        // Calculate the bottom position of the last message relative to the container
+        const lastMessageBottom = lastMessage.offsetTop + lastMessage.offsetHeight;
+        const scrollBottom = messagesContainer.scrollTop + messagesContainer.offsetHeight;
+
+        // Determine if the scroll position is within 20% of the bottom of the container
+        const threshold = messagesContainer.scrollHeight - (messagesContainer.offsetHeight * 0.2);
+
+        if (lastMessageBottom > messagesContainer.offsetHeight && scrollBottom < threshold) {
+            shouldShowScrollButton.value = true;
+        } else {
+            shouldShowScrollButton.value = false;
+        }
+    }
+}
+
+function isScrollable(element) {
+    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+}
+//#endregion
+
 //#region Utils
 const refs = {
     selectedModel,
@@ -688,8 +723,11 @@ const updateSetting = (field, value) => {
 //#endregion
 
 onMounted(() => {
+    messagesContainer = document.querySelector('.messages');
+
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
     selectConversation(lastLoadedConversationId.value); //by index
+    messagesContainer.addEventListener('scroll', updateScrollButtonVisibility);
 });
 </script>
 
@@ -746,6 +784,14 @@ onMounted(() => {
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
                                 :isGeneratingImage="isGeneratingImage" />
+                        </div>
+                        <!-- Floating button to quick scroll to the bottom of the page -->
+                        <div class="floating-button scroll" id="scroll-button" @click="scrollToBottom"
+                            :class="{ show: shouldShowScrollButton }">
+                            <span>
+                                <ChevronDown :strokeWidth="5" />
+                            </span>
+
                         </div>
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
