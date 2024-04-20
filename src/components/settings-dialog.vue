@@ -96,10 +96,10 @@ function toggleSidebar() {
             <h3>Local LLM Config</h3>
         </div>
         <!-- Local Model Name -->
-        <InputField label="Local Model Name:" inputId="model-name" :value="localModelName"
+        <InputField label="Model:" inputId="model-name" :value="localModelName"
             @update:value="update('localModelName', $event)" />
         <!-- Local Model Endpoint -->
-        <InputField label="Local URL:" inputId="local-model-endpoint" :value="localModelEndpoint"
+        <InputField label="API Endpoint:" inputId="local-model-endpoint" :value="localModelEndpoint"
             @update:value="update('localModelEndpoint', $event)" />
         <!-- Local Slider Value -->
         <div class="slider-container">
@@ -112,7 +112,7 @@ function toggleSidebar() {
             <h3>GPT Config</h3>
         </div>
         <!-- GPT Key -->
-        <InputField label="GPT Key:" inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
+        <InputField label="Key:" inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
         <!-- Slider Value -->
         <div class="slider-container">
             <span>Serious</span>
@@ -124,7 +124,7 @@ function toggleSidebar() {
             <h3>Claude Config</h3>
         </div>
         <!-- Claude Key -->
-        <InputField label="Claude Key:" inputId="claude-api-key" :value="claudeKey"
+        <InputField label="Key:" inputId="claude-api-key" :value="claudeKey"
             @update:value="update('claudeKey', $event)" />
         <!-- Claude Slider Value -->
         <div class="slider-container">
@@ -137,13 +137,12 @@ function toggleSidebar() {
             <h3>Hugging Face Config</h3>
         </div>
         <!-- Hugging Face Endpoint -->
-        <InputField label="Hugging Face URL:" inputId="hugging-face-endpoint" :value="huggingFaceEndpoint"
+        <InputField label="API Endpoint:" inputId="hugging-face-endpoint" :value="huggingFaceEndpoint"
             @update:value="update('huggingFaceEndpoint', $event)" />
         <!-- Hugging Face Key -->
-        <InputField label="Hugging Face Key:" inputId="hf-api-key" :value="hfKey"
-            @update:value="update('hfKey', $event)" />
+        <InputField label="Key:" inputId="hf-api-key" :value="hfKey" @update:value="update('hfKey', $event)" />
         <!-- Hugging Face max tokens param -->
-        <InputField label="Hugging Face max tokens:" inputId="max-tokens" :value="maxTokens"
+        <InputField label="Max Tokens:" inputId="max-tokens" :value="maxTokens"
             @update:value="update('maxTokens', $event)" />
         <!-- Hugging Face Slider Value -->
         <div class="slider-container">
