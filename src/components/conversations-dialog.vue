@@ -83,7 +83,6 @@ $icon-color: rgb(187, 187, 187);
         height: 50px;
         outline: none;
         margin-bottom: 6px; // Add some margin at the bottom
-        max-width: 152px;
 
         &:hover {
             background-color: #4a4a4c;
