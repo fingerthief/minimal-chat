@@ -116,7 +116,7 @@ function toggleSidebar() {
         <!-- Slider Value -->
         <div class="slider-container">
             <span>Serious</span>
-            <input type="range" min="0" max="200" :value="sliderValue"
+            <input type="range" min="0" max="100" :value="sliderValue"
                 @blur="update('sliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
