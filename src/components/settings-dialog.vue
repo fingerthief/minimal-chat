@@ -153,8 +153,18 @@ $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
 .sidebar-content-container {
+    height: 84vh;
     overflow: auto;
     text-overflow: clip;
+    padding: 6px;
+    z-index: 10000;
+
+
+
+    /* Media query for screens that are 600px wide or less */
+    @media (max-width: 600px) {
+        height: 82vh;
+    }
 }
 
 .select-dropdown {
@@ -187,7 +197,6 @@ $icon-color: rgb(187, 187, 187);
     align-self: flex-end; // Align the button to the right
     padding: 5px 10px;
     border: 1px solid #444;
-    border-radius: 12px;
     background-color: #3d3c3e;
     color: white;
     cursor: pointer;
@@ -224,7 +233,6 @@ $icon-color: rgb(187, 187, 187);
     align-self: flex-end; // Align the button to the right
     padding: 5px 10px;
     border: 1px solid #444;
-    border-radius: 12px;
     background-color: #3d3c3e;
     color: white;
     cursor: pointer;

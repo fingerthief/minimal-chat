@@ -1,7 +1,7 @@
 <!-- eslint-disable no-unused-vars -->
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
@@ -177,6 +177,7 @@ function updateUI(content, reset) {
 }
 
 function toggleSidebar() {
+    event.stopPropagation();
     isSidebarOpen.value = !isSidebarOpen.value;
 }
 //#endregion
@@ -220,6 +221,7 @@ function deleteCurrentConversation() {
 }
 
 function showConversations() {
+    event.stopPropagation();
     showConversationOptions.value = !showConversationOptions.value;
 }
 
@@ -721,13 +723,31 @@ const updateSetting = (field, value) => {
 
 //#endregion
 
-onMounted(() => {
+//#region Global Click Handling
+function handleGlobalClick(event) {
+    const settingsDialogElement = document.getElementById('settings-dialog');
+    const conversationsDialogElement = document.getElementById('conversations-dialog');
 
+    if (settingsDialogElement && !settingsDialogElement.contains(event.target) && isSidebarOpen.value) {
+        isSidebarOpen.value = false;
+    }
+    if (conversationsDialogElement && !conversationsDialogElement.contains(event.target) && showConversationOptions.value) {
+        showConversationOptions.value = false;
+    }
+}
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleGlobalClick);
+});
+//#endregion
+
+onMounted(() => {
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
-    selectConversation(lastLoadedConversationId.value); //by index
+    selectConversation(lastLoadedConversationId.value);
 
     messagesContainer = document.querySelector('.messages');
     messagesContainer.addEventListener('scroll', updateScrollButtonVisibility);
+    document.addEventListener('click', handleGlobalClick);
 });
 </script>
 
@@ -742,7 +762,7 @@ onMounted(() => {
         <!-- App Container -->
         <div class="app-container" id="app-container">
             <!-- Settings Sidebar -->
-            <div class="sidebar box" id="settings-dialog" :class="{ open: isSidebarOpen }">
+            <div class="sidebar-common sidebar-left box" id="settings-dialog" :class="{ open: isSidebarOpen }">
                 <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel"
                     :localModelName="localModelName" :localModelEndpoint="localModelEndpoint"
                     :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
@@ -764,7 +784,8 @@ onMounted(() => {
                     @toggle-sidebar="toggleSidebar" />
             </div>
             <!-- Conversations Sidebar -->
-            <div class="sidebar box" id="conversations-dialog" :class="{ open: showConversationOptions }">
+            <div class="sidebar-common sidebar-right box" id="conversations-dialog"
+                :class="{ 'open': showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="loadSelectedConversation"
                     @new-conversation="clearMessages" @import-conversations="handleImportConversations"
@@ -1023,71 +1044,40 @@ pre {
     background: #5d455e;
 }
 
-.sidebar {
+// Common styles for both sidebars
+.sidebar-common {
     background-color: #262431;
-    width: 90vw;
-    max-width: 650px;
-    border-radius: 8px;
-    padding: 8px;
-    border: 2px solid #3d3c3e;
-    overflow: auto;
-    max-height: 80vh;
-    min-height: 80vh;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: absolute;
-
-    opacity: 0;
-    z-index: -1;
-    transition: z-index 0.15s step-end, opacity 0.15s linear;
-    justify-content: space-between;
-    align-items: stretch;
-
-    // For Firefox
-    scrollbar-width: thin;
-    scrollbar-color: #665067 #665067;
-
-    .sidebar-content-container {
-        overflow: auto;
-        text-overflow: clip;
-    }
+    width: 50vw; // Adjust the width as needed
+    max-width: 100%; // Ensure it doesn't exceed the screen width
+    height: 100vh; // Full height
+    position: fixed; // Fixed position to stay in place
+    top: 0; // Align to the top
+    transform: translateX(-100%); // Start hidden (default left)
+    transition: transform 0.3s ease-in-out; // Smooth transition for sliding in and out
+    z-index: 100000; // Ensure it's above other content
+    overflow-y: auto; // Allow scrolling if content is too long
+    border-right: 2px solid #3d3c3e; // Optional border for styling
+    padding-left: 6px;
+    padding-right: 6px;
 
     &.open {
-        z-index: 99999999;
-        opacity: 1;
-
-        transition: z-index 0.15s step-start, opacity 0.15s linear;
+        transform: translateX(0); // Move into view when open
     }
 
-    .scrollable-list {
-        height: 55vh;
-        overflow: auto;
-
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        li {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-
-            -webkit-user-select: none;
-            /* Safari */
-            -ms-user-select: none;
-            /* IE 10 and IE 11 */
-            user-select: none;
-            /* Standard syntax */
-
-            &:hover {
-                background-color: #3d3346;
-            }
-        }
+    @media (max-width: 600px) {
+        width: 100vw; // Full width on smaller screens
     }
+}
+
+// Specific styles for left sidebar
+.sidebar-left {
+    left: 0; // Align to the left side
+}
+
+// Specific styles for right sidebar
+.sidebar-right {
+    right: 0; // Align to the right side
+    transform: translateX(100%); // Start hidden to the right
 }
 
 .sidebar::-webkit-scrollbar {
