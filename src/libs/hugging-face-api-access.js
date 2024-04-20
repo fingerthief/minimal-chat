@@ -2,7 +2,7 @@
 import { showToast, sleep } from "./utils";
 
 let hfStreamRetryCount = 0;
-export async function fetchHuggingFaceModelResponseStream(conversation, attitude, model, huggingFaceEndpoint, updateUiFunction, apiKey) {
+export async function fetchHuggingFaceModelResponseStream(conversation, attitude, model, huggingFaceEndpoint, updateUiFunction, apiKey, maxTokens) {
     const gptMessagesOnly = filterMessages(conversation);
 
     const requestOptions = {
@@ -15,12 +15,13 @@ export async function fetchHuggingFaceModelResponseStream(conversation, attitude
             model: model,
             stream: true,
             messages: gptMessagesOnly,
-            temperature: attitude * 0.01
+            temperature: attitude * 0.01,
+            max_tokens: parseInt(maxTokens)
         }),
     };
 
     try {
-        const response = await fetch(`https://corsproxy.io/?${huggingFaceEndpoint + `/v1/chat/completions`}`, requestOptions);
+        const response = await fetch(`${huggingFaceEndpoint + `/v1/chat/completions`}`, requestOptions);
 
         const result = await readResponseStream(response, updateUiFunction);
 
@@ -54,17 +55,18 @@ export async function getConversationTitleFromHuggingFaceModel(messages, model, 
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`,
+                "Authorization": `Bearer ${apiKey.value}`,
             },
             body: JSON.stringify({
                 model: model,
                 stream: true,
                 messages: tempMessages,
-                temperature: sliderValue * 0.01
+                temperature: sliderValue * 0.01,
+                max_tokens: 500
             }),
         };
 
-        const response = await fetch(`https://corsproxy.io/?${HuggingFaceModelEndpoint + `/v1/chat/completions`}`, requestOptions);
+        const response = await fetch(`${HuggingFaceModelEndpoint + `/v1/chat/completions`}`, requestOptions);
 
         const result = await readResponseStream(response);
 

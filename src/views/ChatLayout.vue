@@ -47,6 +47,7 @@ const hfKey = ref(localStorage.getItem("hfKey") || '');
 const hfSliderValue = ref(parseInt(localStorage.getItem("hf-attitude")) || 50);
 const huggingFaceEndpoint = ref(localStorage.getItem("huggingFaceEndpoint") || '');
 const isUsingHuggingFaceModel = ref(false);
+const maxTokens = ref(parseInt(localStorage.getItem("hf-max-tokens")) || 3000);
 
 const conversations = ref(loadConversationTitles());
 const conversationTitles = ref(loadConversationTitles());
@@ -102,6 +103,10 @@ watch(selectedModel, (newValue) => {
     catch (error) {
         console.error('Error updating settings:', error);
     }
+});
+
+watch(maxTokens, (newValue) => {
+    localStorage.setItem('maxTokens', newValue);
 });
 
 watch(huggingFaceEndpoint, (newValue) => {
@@ -383,13 +388,7 @@ async function createNewConversationWithTitle() {
     }
 
     if (isUsingHuggingFaceModel.value) {
-        //newConversationWithTitle.title = await getConversationTitleFromHuggingFaceModel(messages.value.slice(0), selectedModel.value, hfSliderValue.value, huggingFaceEndpoint.value);
-
-        //HF Models are weird with trying to title conversations...
-        const firstMessage = messages.value[0].content;
-        const titleLength = 100;
-
-        newConversationWithTitle.title = firstMessage.substring(0, Math.min(firstMessage.length, titleLength));
+        newConversationWithTitle.title = await getConversationTitleFromHuggingFaceModel(messages.value.slice(0), selectedModel.value, hfSliderValue.value, huggingFaceEndpoint.value);
     }
     else {
         newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
@@ -577,7 +576,7 @@ async function sendHuggingFaceMessage(message) {
     isLoading.value = true;
 
     try {
-        let response = await fetchHuggingFaceModelResponseStream(messages.value, hfSliderValue.value, selectedModel.value, huggingFaceEndpoint.value, updateUI, hfKey.value);
+        let response = await fetchHuggingFaceModelResponseStream(messages.value, hfSliderValue.value, selectedModel.value, huggingFaceEndpoint.value, updateUI, hfKey.value, maxTokens.value);
 
         isLoading.value = false;
 
@@ -782,7 +781,8 @@ const refs = {
     selectedAutoSaveOption,
     hfKey,
     hfSliderValue,
-    huggingFaceEndpoint
+    huggingFaceEndpoint,
+    maxTokens
 };
 // Event handlers for updating the parent's state when the child emits an update
 const updateSetting = (field, value) => {
@@ -831,6 +831,9 @@ onMounted(() => {
     <div class="app-body">
         <!-- App Container -->
         <div class="app-container" id="app-container">
+            <!-- Overlay for dimming effect -->
+            <div class="overlay" v-show="isSidebarOpen || showConversationOptions"></div>
+
             <!-- Settings Sidebar -->
             <div class="sidebar-common sidebar-left box" id="settings-dialog" :class="{ open: isSidebarOpen }">
                 <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel"
@@ -840,7 +843,8 @@ onMounted(() => {
                     :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
                     :selectedDallEImageCount="selectedDallEImageCount"
                     :selectedDallEImageResolution="selectedDallEImageResolution"
-                    :selectedAutoSaveOption="selectedAutoSaveOption"
+                    :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens"
+                    @update:maxTokens="updateSetting('maxTokens', $event)"
                     @update:huggingFaceEndpoint="updateSetting('huggingFaceEndpoint', $event)"
                     @update:hfKey="updateSetting('hfKey', $event)"
                     @update:hfSliderValue="updateSetting('hfSliderValue', $event)"
@@ -1120,7 +1124,8 @@ pre {
 
 // Common styles for both sidebars
 .sidebar-common {
-    background-color: #262431;
+    background-color: #242426;
+    ;
     width: 50vw; // Adjust the width as needed
     max-width: 100%; // Ensure it doesn't exceed the screen width
     height: 100vh; // Full height
@@ -1156,6 +1161,23 @@ pre {
 
 .sidebar::-webkit-scrollbar {
     /* For Chrome, Safari, and Opera */
+    display: none;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 15, 15, 0.5); // Semi-transparent black
+    z-index: 99999; // Ensure it's below the sidebar but above other content
+    transition: opacity 0.3s ease-in-out;
+    display: block;
+}
+
+// Hide the overlay when not needed
+.overlay:not(:empty) {
     display: none;
 }
 

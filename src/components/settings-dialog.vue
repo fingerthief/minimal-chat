@@ -17,10 +17,12 @@ const props = defineProps({
     hfSliderValue: Number,
     selectedDallEImageCount: Number,
     selectedDallEImageResolution: String,
-    selectedAutoSaveOption: String
+    selectedAutoSaveOption: String,
+    maxTokens: Number
 });
 
 const emit = defineEmits([
+    'update:maxTokens',
     'update:model',
     'update:localModelName',
     'update:localModelEndpoint',
@@ -72,8 +74,8 @@ function toggleSidebar() {
                 <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                <option value="lmstudio">Local Model (LM Studio) </option>
                 <option value="tgi">Hugging Face</option>
+                <option value="lmstudio">Local Model (LM Studio) </option>
             </select>
         </div>
         <!-- Local Model Name -->
@@ -128,6 +130,11 @@ function toggleSidebar() {
         <div class="api-key">
             <label for="api-key">Hugging Face Key:</label>
             <input id="api-key" :value="hfKey" @blur="update('hfKey', $event.target.value)">
+        </div>
+        <!-- Hugging Face max tokens param -->
+        <div class="api-key">
+            <label for="api-key">Hugging Face max tokens:</label>
+            <input id="api-key" :value="maxTokens" @blur="update('maxTokens', $event.target.value)">
         </div>
         <!-- Hugging Face Slider Value -->
         <div class="slider-container">
