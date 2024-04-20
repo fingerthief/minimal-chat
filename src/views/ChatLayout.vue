@@ -1053,7 +1053,7 @@ pre {
     position: fixed; // Fixed position to stay in place
     top: 0; // Align to the top
     transform: translateX(-100%); // Start hidden (default left)
-    transition: transform 0.3s ease-in-out; // Smooth transition for sliding in and out
+    transition: transform 0.1s ease-in-out; // Smooth transition for sliding in and out
     z-index: 100000; // Ensure it's above other content
     overflow-y: auto; // Allow scrolling if content is too long
     border-right: 2px solid #3d3c3e; // Optional border for styling
