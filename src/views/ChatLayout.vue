@@ -2,12 +2,12 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { ChevronDown } from 'lucide-vue-next';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
-import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/local-model-access';
-import { ChevronDown } from 'lucide-vue-next';
+import { fetchLocalModelResponseStream } from '@/libs/local-model-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -49,7 +49,7 @@ const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversa
 const selectedConversation = ref(conversations.value[0]);
 const displayConversations = computed(() => conversations);
 
-let messagesContainer = "";
+let messagesContainer;
 //#endregion
 
 //#region Watchers
@@ -672,7 +672,6 @@ function updateScrollButtonVisibility() {
     const messagesElement = messagesContainer.querySelectorAll('.message');
     if (messagesElement.length > 0) {
         const lastMessage = messagesElement[messagesElement.length - 1];
-        const rect = lastMessage.getBoundingClientRect();
 
         if (!isScrollable(messagesContainer)) {
             shouldShowScrollButton.value = false;
@@ -723,10 +722,11 @@ const updateSetting = (field, value) => {
 //#endregion
 
 onMounted(() => {
-    messagesContainer = document.querySelector('.messages');
 
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
     selectConversation(lastLoadedConversationId.value); //by index
+
+    messagesContainer = document.querySelector('.messages');
     messagesContainer.addEventListener('scroll', updateScrollButtonVisibility);
 });
 </script>
@@ -779,7 +779,7 @@ onMounted(() => {
                             @delete-conversation="deleteCurrentConversation" @toggle-conversations="showConversations"
                             @new-conversation="clearMessages" />
                         <!-- Messages -->
-                        <div class="messages" id="messagesContainer" ref="messagesContainer">
+                        <div class="messages">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"

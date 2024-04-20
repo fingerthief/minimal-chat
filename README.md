@@ -1,7 +1,7 @@
 ## [Try MinimalGPT/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-5.0.0-blue)
+![Version](https://img.shields.io/badge/version-5.0.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
@@ -86,7 +86,7 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
     - **Local Model Name**: The name of the model you are hosting locally
     - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
   - **Local URL**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on
-    - **Example**: `http://192.168.0.45:1234` 
+    - **Example**: `http://192.168.0.45:1234`
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support

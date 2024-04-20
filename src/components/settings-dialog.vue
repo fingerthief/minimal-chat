@@ -52,7 +52,7 @@ function toggleSidebar() {
             <span>
                 <RefreshCcw :size="23" :stroke-width="2" />
             </span>
-            Settings | V5.0.0
+            Settings | V5.0.1
         </h2>
     </div>
     <div class="sidebar-content-container">
