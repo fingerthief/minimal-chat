@@ -64,7 +64,7 @@ let messagesContainer;
 // Watchers that update local storage when values change
 watch(selectedModel, (newValue) => {
     const MODEL_TYPES = {
-        LMSTUDIO: 'lmstudio',
+        OPEN_AI_FORMAT: 'open-ai-format',
         CLAUDE: 'claude',
         HUGGING_FACE: 'tgi'
     };
@@ -79,7 +79,7 @@ watch(selectedModel, (newValue) => {
     };
 
     // Determine settings based on model type
-    if (newValue.includes(MODEL_TYPES.LMSTUDIO)) {
+    if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
         useLocalModel = true;
         flags.isUsingLocalModel = true;
     }
@@ -383,7 +383,7 @@ async function createNewConversationWithTitle() {
         newConversationWithTitle.title = await fetchClaudeConversationTitle(messages.value.slice(0));
     }
 
-    if (selectedModel.value.indexOf("lmstudio") !== -1) {
+    if (selectedModel.value.indexOf("open-ai-format") !== -1) {
 
         //Local Models are weird with trying to title conversations...
         const firstMessage = messages.value[0].content;
@@ -547,7 +547,7 @@ async function sendGPTMessage(message) {
     try {
         let response;
 
-        if (selectedModel.value.indexOf("lmstudio") !== -1) {
+        if (selectedModel.value.indexOf("open-ai-format") !== -1) {
 
             localModelName.value = localStorage.getItem('localModelName') || '';
             localSliderValue.value = localStorage.getItem('local-attitude') || 50;

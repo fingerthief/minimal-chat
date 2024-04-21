@@ -82,7 +82,7 @@ function toggleSidebar() {
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
                 <option value="tgi">Hugging Face</option>
-                <option value="lmstudio">Local Model (LM Studio) </option>
+                <option value="open-ai-format">Open AI Format Model </option>
             </select>
         </div>
         <!-- Auto Save Conversations -->

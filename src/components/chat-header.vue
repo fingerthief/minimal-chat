@@ -51,7 +51,7 @@ function onShowConversationsClick() {
             target="_blank" class="no-style-link">
             MinimalGPT
         </a>
-        <a v-show="props.selectedModel.includes('lmstudio')"
+        <a v-show="props.selectedModel.includes('open-ai-format')"
             href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
             MinimalLocal
         </a>

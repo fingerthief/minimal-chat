@@ -93,7 +93,7 @@ async function readResponseStream(response, updateUiFunction) {
             return decodedResult
         };
         const chunk = decoder.decode(value);
-        const parsedLines = parseLmStudioResponseChunk(chunk);
+        const parsedLines = parseOpenAiFormatResponseChunk(chunk);
         for (const parsedLine of parsedLines) {
             const { choices } = parsedLine;
             const { delta } = choices[0];
@@ -110,7 +110,7 @@ async function readResponseStream(response, updateUiFunction) {
 }
 
 let buffer = "";  // Buffer to hold incomplete JSON data across chunks
-function parseLmStudioResponseChunk(chunk) {
+function parseOpenAiFormatResponseChunk(chunk) {
     buffer += chunk;  // Append new chunk to buffer
 
     // Handle the [DONE] tag
