@@ -42,9 +42,9 @@ On Android the process is basically the same except the name of the option is **
 
 ![android-install-web-app2](https://github.com/fingerthief/minimal-gpt/assets/2380471/cfd51a6a-5a03-4ff0-851a-c20c0565a89d)
 
-## Application Demo
+## Application Demo!
 
-![minimal-chat](https://github.com/tannermiddleton/minimal-chat/assets/2380471/216b9268-4ece-487a-89ec-f32d3191fe69)
+![minimal-chat-demo-2](https://github.com/fingerthief/minimal-chat/assets/2380471/872e7aa3-db14-4001-93fb-5ea1829896d9)
 
 ## Table of Contents
 
