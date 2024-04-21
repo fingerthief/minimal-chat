@@ -87,7 +87,7 @@ function toggleSidebar() {
                 <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                <option value="open-ai-format">Open AI Format Model </option>
+                <option value="open-ai-format">Open AI Response Formatted API</option>
             </select>
         </div>
         <!-- Auto Save Conversations -->
@@ -109,7 +109,7 @@ function toggleSidebar() {
         <InputField v-show="showLocalConfig" label="API Endpoint:" inputId="local-model-endpoint"
             :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
         <!-- API key -->
-        <InputField v-show="showLocalConfig" label="API Key:" inputId="local-model-key" :value="localModelKey"
+        <InputField v-show="showLocalConfig" label="Key:" inputId="local-model-key" :value="localModelKey"
             @update:value="update('localModelKey', $event)" />
         <!-- Max Tokens -->
         <InputField v-show="showLocalConfig" label="Max Tokens:" inputId="max-tokens" :value="maxTokens"
