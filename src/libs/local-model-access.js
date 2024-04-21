@@ -15,7 +15,8 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
             model: model,
             stream: true,
             messages: gptMessagesOnly,
-            temperature: attitude * 0.01
+            temperature: attitude * 0.01,
+            max_tokens: parseInt(localStorage.getItem("maxTokens"))
         }),
     };
 

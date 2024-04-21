@@ -8,7 +8,6 @@ import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claud
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream } from '@/libs/local-model-access';
-import { fetchHuggingFaceModelResponseStream, getConversationTitleFromHuggingFaceModel } from '@/libs/hugging-face-api-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -44,10 +43,6 @@ const selectedDallEImageCount = ref(parseInt(localStorage.getItem("selectedDallE
 const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImageResolution") || '256x256');
 const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
 
-const hfKey = ref(localStorage.getItem("hfKey") || '');
-const hfSliderValue = ref(parseInt(localStorage.getItem("hf-attitude")) || 50);
-const huggingFaceEndpoint = ref(localStorage.getItem("huggingFaceEndpoint") || '');
-const isUsingHuggingFaceModel = ref(false);
 const maxTokens = ref(parseInt(localStorage.getItem("hf-max-tokens")) || 3000);
 
 const conversations = ref(loadConversationTitles());
@@ -68,8 +63,7 @@ let messagesContainer;
 watch(selectedModel, (newValue) => {
     const MODEL_TYPES = {
         OPEN_AI_FORMAT: 'open-ai-format',
-        CLAUDE: 'claude',
-        HUGGING_FACE: 'tgi'
+        CLAUDE: 'claude'
     };
 
     // Default settings
@@ -78,7 +72,6 @@ watch(selectedModel, (newValue) => {
     const flags = {
         isUsingLocalModel: false,
         isClaudeEnabled: false,
-        isUsingHuggingFaceModel: false
     };
 
     showImageButton.value = false;
@@ -87,10 +80,6 @@ watch(selectedModel, (newValue) => {
     if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
         useLocalModel = true;
         flags.isUsingLocalModel = true;
-    }
-    else if (newValue.includes(MODEL_TYPES.HUGGING_FACE)) {
-        useLocalModel = false;
-        flags.isUsingHuggingFaceModel = true;
     }
     else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
         useLocalModel = false;
@@ -108,7 +97,6 @@ watch(selectedModel, (newValue) => {
         localStorage.setItem('selectedModel', newValue);
         isUsingLocalModel.value = flags.isUsingLocalModel;
         isClaudeEnabled.value = flags.isClaudeEnabled;
-        isUsingHuggingFaceModel.value = flags.isUsingHuggingFaceModel;
     }
     catch (error) {
         console.error('Error updating settings:', error);
@@ -121,18 +109,6 @@ watch(localModelKey, (newValue) => {
 
 watch(maxTokens, (newValue) => {
     localStorage.setItem('maxTokens', newValue);
-});
-
-watch(huggingFaceEndpoint, (newValue) => {
-    localStorage.setItem('huggingFaceEndpoint', newValue);
-});
-
-watch(hfSliderValue, (newValue) => {
-    localStorage.setItem('hf-attitude', newValue);
-});
-
-watch(hfKey, (newValue) => {
-    localStorage.setItem('hfKey', newValue);
 });
 
 watch(localModelName, (newValue) => {
@@ -401,10 +377,6 @@ async function createNewConversationWithTitle() {
         newConversationWithTitle.title = firstMessage.substring(0, Math.min(firstMessage.length, titleLength));
     }
 
-    if (isUsingHuggingFaceModel.value) {
-        newConversationWithTitle.title = await getConversationTitleFromHuggingFaceModel(messages.value.slice(0), selectedModel.value, hfSliderValue.value, huggingFaceEndpoint.value);
-    }
-
     if (selectedModel.value.indexOf("gpt") !== -1) {
         newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
     }
@@ -511,11 +483,6 @@ async function sendMessage(event) {
         return;
     }
 
-    if (selectedModel.value.indexOf("tgi") !== -1) {
-        await sendHuggingFaceMessage(messageText);
-        return;
-    }
-
     isClaudeEnabled.value = false;
     addMessage("user", messageText);
 
@@ -576,32 +543,6 @@ async function sendGPTMessage(message) {
 
         scrollToBottom();
     } catch (error) {
-        console.error("Error sending message:", error);
-    }
-}
-
-async function sendHuggingFaceMessage(message) {
-    addMessage("user", message);
-
-    scrollToBottom();
-
-    userText.value = "";
-
-    streamedMessageText.value = "";
-    isLoading.value = true;
-
-    try {
-        let response = await fetchHuggingFaceModelResponseStream(messages.value, hfSliderValue.value, selectedModel.value, huggingFaceEndpoint.value, updateUI, hfKey.value, maxTokens.value);
-
-        isLoading.value = false;
-
-        addMessage('assistant', response);
-
-        await saveMessages();
-
-        scrollToBottom();
-    }
-    catch (error) {
         console.error("Error sending message:", error);
     }
 }
@@ -794,9 +735,6 @@ const refs = {
     selectedDallEImageCount,
     selectedDallEImageResolution,
     selectedAutoSaveOption,
-    hfKey,
-    hfSliderValue,
-    huggingFaceEndpoint,
     maxTokens,
     localModelKey
 };
@@ -855,15 +793,11 @@ onMounted(() => {
                 <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel"
                     :localModelName="localModelName" :localModelEndpoint="localModelEndpoint"
                     :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
-                    :huggingFaceEndpoint="huggingFaceEndpoint" :hfKey="hfKey" :hfSliderValue="hfSliderValue"
                     :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
                     :selectedDallEImageCount="selectedDallEImageCount"
                     :selectedDallEImageResolution="selectedDallEImageResolution"
                     :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens"
                     :localModelKey="localModelKey" @update:maxTokens="updateSetting('maxTokens', $event)"
-                    @update:huggingFaceEndpoint="updateSetting('huggingFaceEndpoint', $event)"
-                    @update:hfKey="updateSetting('hfKey', $event)"
-                    @update:hfSliderValue="updateSetting('hfSliderValue', $event)"
                     @update:model="updateSetting('selectedModel', $event)"
                     @update:localModelName="updateSetting('localModelName', $event)"
                     @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"

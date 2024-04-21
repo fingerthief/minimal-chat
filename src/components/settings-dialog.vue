@@ -12,11 +12,9 @@ const props = defineProps({
     huggingFaceEndpoint: String,
     localSliderValue: Number,
     gptKey: String,
-    hfKey: String,
     sliderValue: Number,
     claudeKey: String,
     claudeSliderValue: Number,
-    hfSliderValue: Number,
     selectedDallEImageCount: Number,
     selectedDallEImageResolution: String,
     selectedAutoSaveOption: String,
@@ -30,13 +28,10 @@ const emit = defineEmits([
     'update:localModelKey',
     'update:localModelEndpoint',
     'update:localSliderValue',
-    'update:huggingFaceEndpoint',
     'update:gptKey',
-    'update:hfKey',
     'update:sliderValue',
     'update:claudeKey',
     'update:claudeSliderValue',
-    'update:hfSliderValue',
     'update:selectedDallEImageCount',
     'update:selectedDallEImageResolution',
     'update:selectedAutoSaveOption',
@@ -81,7 +76,6 @@ function toggleSidebar() {
                 <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                <option value="tgi">Hugging Face</option>
                 <option value="open-ai-format">Open AI Format Model </option>
             </select>
         </div>
@@ -106,6 +100,9 @@ function toggleSidebar() {
         <!-- API key -->
         <InputField label="API Key:" inputId="local-model-key" :value="localModelKey"
             @update:value="update('localModelKey', $event)" />
+        <!-- Max Tokens -->
+        <InputField label="Max Tokens:" inputId="max-tokens" :value="maxTokens"
+            @update:value="update('maxTokens', $event)" />
 
         <!-- Slider Value -->
         <div class="slider-container">
@@ -137,24 +134,6 @@ function toggleSidebar() {
             <span>Serious</span>
             <input type="range" min="0" max="100" :value="claudeSliderValue"
                 @blur="update('claudeSliderValue', $event.target.value)">
-            <span>Creative</span>
-        </div>
-        <div class="config-section">
-            <h3>Hugging Face Config</h3>
-        </div>
-        <!-- Hugging Face Endpoint -->
-        <InputField label="API Endpoint:" inputId="hugging-face-endpoint" :value="huggingFaceEndpoint"
-            @update:value="update('huggingFaceEndpoint', $event)" />
-        <!-- Hugging Face Key -->
-        <InputField label="Key:" inputId="hf-api-key" :value="hfKey" @update:value="update('hfKey', $event)" />
-        <!-- Hugging Face max tokens param -->
-        <InputField label="Max Tokens:" inputId="max-tokens" :value="maxTokens"
-            @update:value="update('maxTokens', $event)" />
-        <!-- Hugging Face Slider Value -->
-        <div class="slider-container">
-            <span>Serious</span>
-            <input type="range" min="0" max="100" :value="hfSliderValue"
-                @blur="update('hfSliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
         <div class="config-section">
