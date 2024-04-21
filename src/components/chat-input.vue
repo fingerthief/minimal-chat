@@ -45,6 +45,22 @@ const autoResize = () => {
     userInputRef.value.style.height = `${userInputRef.value.scrollHeight - 15}px`;
 };
 
+const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        if (event.ctrlKey) {
+            event.preventDefault();
+            const cursorPosition = event.target.selectionStart;
+            const text = localUserInput.value;
+            localUserInput.value = text.slice(0, cursorPosition) + "\n" + text.slice(cursorPosition);
+            userInputRef.value.selectionStart = userInputRef.value.selectionEnd = cursorPosition + 1;
+            autoResize();
+        } else {
+            event.preventDefault(); // Prevent the default Enter behavior
+            sendMessage();
+        }
+    }
+};
+
 const visionImageUploadClick = () => {
     emit("vision-prompt");
     localUserInput.value = "";
@@ -56,7 +72,7 @@ const visionImageUploadClick = () => {
         data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
         <textarea class="user-input-text" id="user-input" rows="1" placeholder="" v-model="localUserInput"
             ref="userInputRef" @input="autoResize" @focus="autoResize" @blur="autoResize"
-            @keypress.enter.prevent="sendMessage"></textarea>
+            @keydown="handleKeyDown"></textarea>
         <div class="image-button" @click="visionImageUploadClick">
             <span>
                 <ImageUp />
