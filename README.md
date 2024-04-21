@@ -1,4 +1,4 @@
-![minimal-chat-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/7ac4d578-2cac-43dc-8b37-32854d64e7a8)## [Try MinimalGPT/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
+## [Try MinimalGPT/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Version](https://img.shields.io/badge/version-5.0.4-blue)
