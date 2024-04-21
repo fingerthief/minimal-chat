@@ -8,6 +8,7 @@ const props = defineProps({
     selectedModel: String,
     localModelName: String,
     localModelEndpoint: String,
+    localModelKey: String,
     huggingFaceEndpoint: String,
     localSliderValue: Number,
     gptKey: String,
@@ -26,6 +27,7 @@ const emit = defineEmits([
     'update:maxTokens',
     'update:model',
     'update:localModelName',
+    'update:localModelKey',
     'update:localModelEndpoint',
     'update:localSliderValue',
     'update:huggingFaceEndpoint',
@@ -93,15 +95,19 @@ function toggleSidebar() {
             </select>
         </div>
         <div class="config-section">
-            <h3>Local LLM Config</h3>
+            <h3>OpenAI Format Model Config</h3>
         </div>
-        <!-- Local Model Name -->
+        <!-- Model Name -->
         <InputField label="Model:" inputId="model-name" :value="localModelName"
             @update:value="update('localModelName', $event)" />
-        <!-- Local Model Endpoint -->
+        <!-- Model Endpoint -->
         <InputField label="API Endpoint:" inputId="local-model-endpoint" :value="localModelEndpoint"
             @update:value="update('localModelEndpoint', $event)" />
-        <!-- Local Slider Value -->
+        <!-- API key -->
+        <InputField label="API Key:" inputId="local-model-key" :value="localModelKey"
+            @update:value="update('localModelKey', $event)" />
+
+        <!-- Slider Value -->
         <div class="slider-container">
             <span>Serious</span>
             <input type="range" min="0" max="100" :value="localSliderValue"

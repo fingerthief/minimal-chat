@@ -9,7 +9,7 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer lm-studio`,
+            "Authorization": `Bearer ${localStorage.getItem("localModelKey") || "No Key Provided"}`,
         },
         body: JSON.stringify({
             model: model,
@@ -54,7 +54,7 @@ export async function getConversationTitleFromLocalModel(messages, model, slider
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer lm-studio`,
+                "Authorization": `Bearer ${localStorage.getItem("localModelKey") || "No Key Provided"}`,
             },
             body: JSON.stringify({
                 model: model,

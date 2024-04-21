@@ -32,6 +32,7 @@ const showConversationOptions = ref(false);
 const messages = ref([]);
 const streamedMessageText = ref("");
 
+const localModelKey = ref(localStorage.getItem("localModelKey") || '')
 const localModelName = ref(localStorage.getItem("localModelName") || '');
 const localModelEndpoint = ref(localStorage.getItem("localModelEndpoint") || '');
 const localSliderValue = ref(parseInt(localStorage.getItem("local-attitude")) || 50);
@@ -103,6 +104,10 @@ watch(selectedModel, (newValue) => {
     catch (error) {
         console.error('Error updating settings:', error);
     }
+});
+
+watch(localModelKey, (newValue) => {
+    localStorage.setItem('localModelKey', newValue);
 });
 
 watch(maxTokens, (newValue) => {
@@ -783,7 +788,8 @@ const refs = {
     hfKey,
     hfSliderValue,
     huggingFaceEndpoint,
-    maxTokens
+    maxTokens,
+    localModelKey
 };
 // Event handlers for updating the parent's state when the child emits an update
 const updateSetting = (field, value) => {
@@ -845,13 +851,14 @@ onMounted(() => {
                     :selectedDallEImageCount="selectedDallEImageCount"
                     :selectedDallEImageResolution="selectedDallEImageResolution"
                     :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens"
-                    @update:maxTokens="updateSetting('maxTokens', $event)"
+                    :localModelKey="localModelKey" @update:maxTokens="updateSetting('maxTokens', $event)"
                     @update:huggingFaceEndpoint="updateSetting('huggingFaceEndpoint', $event)"
                     @update:hfKey="updateSetting('hfKey', $event)"
                     @update:hfSliderValue="updateSetting('hfSliderValue', $event)"
                     @update:model="updateSetting('selectedModel', $event)"
                     @update:localModelName="updateSetting('localModelName', $event)"
                     @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"
+                    @update:localModelKey="updateSetting('localModelKey', $event)"
                     @update:localSliderValue="updateSetting('localSliderValue', $event)"
                     @update:gptKey="updateSetting('gptKey', $event)"
                     @update:sliderValue="updateSetting('sliderValue', $event)"
