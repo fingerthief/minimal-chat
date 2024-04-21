@@ -86,13 +86,13 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
   - **Claude 3 Sonnet**
   - **Claude 3 Haiku**
   - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
-  - **Hugging Face Inference Endpoint**
-    - **Max Tokens** - Hugging Face models and their context windows can vary greatky. Use this setting to adjust the maximum number of tokens that can be generated as a response.
-  - **Local LLM Model (Via [LM Studio](https://lmstudio.ai/))** users configure the current model name and [LM Studio](https://lmstudio.ai/) api endpoint url in the settings panel.
-    - **Local Model Name**: The name of the model you are hosting locally
-      - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
-    - **Local URL**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on
-      - **Example**: `http://192.168.0.45:1234`
+  - **Open AI Response Formatted APIs** - Supports any API Endpoint that returns Open AI formatted responses.
+    - **([LM Studio Example](https://lmstudio.ai/))** users can configure the current model name and [LM Studio](https://lmstudio.ai/) api endpoint url in the settings panel.
+      - **Model Name**: The name or relevent value for the model field.
+        - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field if using **[LM Studio](https://lmstudio.ai/)**. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
+      - **API Endpoint**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on, for example `http://192.168.0.45:1234`
+      - **API Key**: The API Key needed, **[LM Studio](https://lmstudio.ai/)** for example uses the value `lm-studio` for the api key.
+      - **Max Tokens** - Some models and their context windows can vary greatly. Use this setting to adjust the maximum number of tokens that can be generated as a response. Typically this is roughly half of the maximum input token limit by default, though some models may default to much shorter responses.
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
