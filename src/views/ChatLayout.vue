@@ -57,6 +57,9 @@ const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversa
 const selectedConversation = ref(conversations.value[0]);
 const displayConversations = computed(() => conversations);
 
+const showImageButton = ref((selectedModel.value.indexOf('gpt') !== -1 || selectedModel.value.indexOf('claude') !== -1));
+
+
 let messagesContainer;
 //#endregion
 
@@ -78,6 +81,8 @@ watch(selectedModel, (newValue) => {
         isUsingHuggingFaceModel: false
     };
 
+    showImageButton.value = false;
+
     // Determine settings based on model type
     if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
         useLocalModel = true;
@@ -90,6 +95,10 @@ watch(selectedModel, (newValue) => {
     else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
         useLocalModel = false;
         flags.isClaudeEnabled = true;
+        showImageButton.value = true;
+    }
+    else {
+        showImageButton.value = true;
     }
 
 
@@ -903,7 +912,7 @@ onMounted(() => {
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
                             @vision-prompt="visionimageUploadClick" @update:userInput="updateUserText"
-                            @swipe-left="swipedLeft" @swipe-right="swipedRight" />
+                            @swipe-left="swipedLeft" @swipe-right="swipedRight" :showImageButton="showImageButton" />
                     </div>
                 </div>
             </div>

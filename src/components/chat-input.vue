@@ -6,7 +6,8 @@ import "swiped-events";
 // Define props and emits
 const props = defineProps({
     userInput: String,
-    isLoading: Boolean
+    isLoading: Boolean,
+    showImageButton: Boolean
 });
 
 const emit = defineEmits(['update:userInput', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt']);
@@ -73,7 +74,7 @@ const visionImageUploadClick = () => {
         <textarea class="user-input-text" id="user-input" rows="1" placeholder="" v-model="localUserInput"
             ref="userInputRef" @input="autoResize" @focus="autoResize" @blur="autoResize"
             @keydown="handleKeyDown"></textarea>
-        <div class="image-button" @click="visionImageUploadClick">
+        <div class="image-button" v-show="props.showImageButton" @click="visionImageUploadClick">
             <span>
                 <ImageUp />
             </span>
