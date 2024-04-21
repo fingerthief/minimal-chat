@@ -74,7 +74,7 @@ export async function getConversationTitleFromLocalModel(messages, model, slider
 
         if (retryCount < 5) {
             retryCount++;
-            self.getConversationTitleFromLocalModel(messages, model, sliderValue);
+            getConversationTitleFromLocalModel(messages, model, sliderValue);
         }
 
         console.error("Error fetching Local Model response:", error);

@@ -26,7 +26,7 @@ const isUsingLocalModel = ref(false);
 const isGeneratingImage = ref(false);
 const isProcessing = ref(false);
 const hasFilterText = ref(false);
-const selectedModel = ref("");
+const selectedModel = ref(localStorage.getItem("selectedModel") || "");
 const isSidebarOpen = ref(false);
 const showConversationOptions = ref(false);
 const messages = ref([]);
@@ -378,7 +378,7 @@ async function createNewConversationWithTitle() {
         newConversationWithTitle.title = await fetchClaudeConversationTitle(messages.value.slice(0));
     }
 
-    if (isUsingLocalModel.value) {
+    if (selectedModel.value.indexOf("lmstudio") !== -1) {
 
         //Local Models are weird with trying to title conversations...
         const firstMessage = messages.value[0].content;
@@ -390,7 +390,8 @@ async function createNewConversationWithTitle() {
     if (isUsingHuggingFaceModel.value) {
         newConversationWithTitle.title = await getConversationTitleFromHuggingFaceModel(messages.value.slice(0), selectedModel.value, hfSliderValue.value, huggingFaceEndpoint.value);
     }
-    else {
+
+    if (selectedModel.value.indexOf("gpt") !== -1) {
         newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
     }
 
@@ -541,7 +542,7 @@ async function sendGPTMessage(message) {
     try {
         let response;
 
-        if (isUsingLocalModel.value) {
+        if (selectedModel.value.indexOf("lmstudio") !== -1) {
 
             localModelName.value = localStorage.getItem('localModelName') || '';
             localSliderValue.value = localStorage.getItem('local-attitude') || 50;
