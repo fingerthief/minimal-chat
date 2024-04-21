@@ -30,27 +30,26 @@ Once you have your API keys, input them in the app's settings to start using the
 
 ---
 
-### Tip for mobile users
+## Mobile Installation
 
 On iOS/Android devices in your browser, you can install supported web applications (called PWA or Progressive Web Applications) like native mobile apps to your devices homescreen. This means even though it is a website it is nearly indistinguishable from a normal iOS/Android application.
 
 On iOS press the **Share** button in the browser and find the option that says **Add to Home Screen**. Pressing that will install the web application to your home screen.
 
-![ios-add-to-home-small](https://user-images.githubusercontent.com/2380471/235267080-d69a2a46-50fa-4acf-b36b-da10b5d439d1.jpg)
+Install MinimalChat on your mobile device for a seamless app-like experience:
 
-On Android the process is basically the same except the name of the option is **Install App**
+- **iOS**: Tap the **Share** button in Safari and select **Add to Home Screen**.
+- **Android**: Tap **Install App** in your browser menu.
 
-![android-install-web-app2](https://github.com/fingerthief/minimal-gpt/assets/2380471/cfd51a6a-5a03-4ff0-851a-c20c0565a89d)
-
-## Application Demo!
-
-![minimal-chat-demo-2](https://github.com/fingerthief/minimal-chat/assets/2380471/872e7aa3-db14-4001-93fb-5ea1829896d9)
+![iOS Installation](https://user-images.githubusercontent.com/2380471/235267080-d69a2a46-50fa-4acf-b36b-da10b5d439d1.jpg)
+![Android Installation](https://github.com/fingerthief/minimal-gpt/assets/2380471/cfd51a6a-5a03-4ff0-851a-c20c0565a89d)
 
 ## Table of Contents
 
 - [Obtaining API Keys](#obtaining-api-keys)
 - [Features](#features)
 - [FAQ](#faq)
+- [Integration with Open AI Response Formatted APIs](#integration-with-open-ai-response-formatted-apis)
 - [Mobile Swipe Gestures](#mobile-swipe-gestures)
 - [Application Demo](#application-demo)
 - [Run Web App Locally](#run-web-app-locally)
@@ -86,13 +85,7 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
   - **Claude 3 Sonnet**
   - **Claude 3 Haiku**
   - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
-  - **Open AI Response Formatted APIs** - Supports any API Endpoint that returns Open AI formatted responses.
-    - **([LM Studio Example](https://lmstudio.ai/))** users can configure the current model name and [LM Studio](https://lmstudio.ai/) api endpoint url in the settings panel.
-      - **Model Name**: The name or relevent value for the model field.
-        - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field if using **[LM Studio](https://lmstudio.ai/)**. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
-      - **API Endpoint**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on, for example `http://192.168.0.45:1234`
-      - **API Key**: The API Key needed, **[LM Studio](https://lmstudio.ai/)** for example uses the value `lm-studio` for the api key.
-      - **Max Tokens** - Some models and their context windows can vary greatly. Use this setting to adjust the maximum number of tokens that can be generated as a response. Typically this is roughly half of the maximum input token limit by default, though some models may default to much shorter responses.
+  - **Open AI Response Formatted APIs** - Supports any API Endpoint that returns Open AI formatted responses
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
@@ -104,10 +97,45 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
 - Auto Save New Conversations Option
 - PWA Support
 
-### Mobile Swipe Gestures
+## Application Demo
+
+![minimal-chat-demo-2](https://github.com/fingerthief/minimal-chat/assets/2380471/872e7aa3-db14-4001-93fb-5ea1829896d9)
+
+## Mobile Swipe Gestures
 
 - Swipe to the **Left** on the bottom input box and your **Conversations** dialog will appear.
 - Swipe to the **Right** on the bottom input box and your **Settings** dialog will appear.
+
+## Integration with Open AI Response Formatted APIs
+
+MinimalChat supports integration with any API endpoint that returns responses formatted according to OpenAI's specifications. This feature allows users to connect with a variety of language models hosted externally, providing flexibility and extending the capabilities of the app.
+
+## Configuring API Endpoints in MinimalChat
+
+To integrate an external API, follow these steps in the settings panel of MinimalChat:
+
+1. **Model Name**: Enter the identifier for the language model you wish to use. This is typically a specific name or value that uniquely identifies the model on the hosting service.
+
+   - **Example**: If using [LM Studio](https://lmstudio.ai/), configuring the DeepSeek Coder Model hosted on Hugging Face, with the model name `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. This name should be entered into the **Model** field. Details for this model can be found [here](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF).
+
+2. **API Endpoint**: Specify the URL where the API is hosted. This URL is the endpoint to which MinimalChat will send requests to generate responses from the model.
+
+   - **Example**: If using [LM Studio](https://lmstudio.ai/), the API endpoint might be something like `http://192.168.0.45:1234`.
+
+3. **API Key**: Some APIs require an authentication key to access. Enter the API key provided by the service hosting the model.
+
+   - **Example**: For [LM Studio](https://lmstudio.ai/), the required API key would be `lm-studio`.
+
+4. **Max Tokens**: Define the maximum number of tokens that can be generated in a response. This setting helps manage the length of responses based on the model’s capabilities and the context window size.
+   - **Note**: The default setting typically allows for about half of the model's maximum token limit, though this can be adjusted based on specific needs or model restrictions.
+
+## Benefits of Using Open AI Formatted APIs
+
+- **Flexibility**: Connect with a wide range of models from different providers that adhere to OpenAI's response format.
+- **Customization**: Tailor the chat experience by selecting models that best fit the needs of your conversations or application.
+- **Scalability**: Easily switch between different models or update API settings to enhance capabilities as new models become available.
+
+This integration feature empowers users to expand the functionality of MinimalChat beyond the built-in models, leveraging the vast landscape of AI language models available in the market.
 
 ## Contributing
 
