@@ -2,6 +2,7 @@
 <script setup>
 import { RefreshCcw } from 'lucide-vue-next';
 import InputField from './InputField.vue';
+import { ref } from 'vue';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -21,6 +22,10 @@ const props = defineProps({
     maxTokens: Number
 });
 
+const showGPTConfig = ref((props.selectedModel.indexOf("gpt") !== -1));
+const showLocalConfig = ref((props.selectedModel.indexOf("open-ai-format") !== -1));
+const showClaudeConfig = ref((props.selectedModel.indexOf("claude") !== -1));
+
 const emit = defineEmits([
     'update:maxTokens',
     'update:model',
@@ -39,6 +44,12 @@ const emit = defineEmits([
 ]);
 
 const update = (field, value) => {
+    if (field === "model") {
+        showGPTConfig.value = (value.indexOf("gpt") !== -1);
+        showLocalConfig.value = (value.indexOf("open-ai-format") !== -1);
+        showClaudeConfig.value = (value.indexOf("claude") !== -1);
+    }
+
     emit(`update:${field}`, value);
 };
 
@@ -88,59 +99,60 @@ function toggleSidebar() {
                 <option value="false">No</option>
             </select>
         </div>
-        <div class="config-section">
+        <div class="config-section" v-show="showLocalConfig">
             <h3>OpenAI Format Model Config</h3>
         </div>
         <!-- Model Name -->
-        <InputField label="Model:" inputId="model-name" :value="localModelName"
+        <InputField v-show="showLocalConfig" label="Model:" inputId="model-name" :value="localModelName"
             @update:value="update('localModelName', $event)" />
         <!-- Model Endpoint -->
-        <InputField label="API Endpoint:" inputId="local-model-endpoint" :value="localModelEndpoint"
-            @update:value="update('localModelEndpoint', $event)" />
+        <InputField v-show="showLocalConfig" label="API Endpoint:" inputId="local-model-endpoint"
+            :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
         <!-- API key -->
-        <InputField label="API Key:" inputId="local-model-key" :value="localModelKey"
+        <InputField v-show="showLocalConfig" label="API Key:" inputId="local-model-key" :value="localModelKey"
             @update:value="update('localModelKey', $event)" />
         <!-- Max Tokens -->
-        <InputField label="Max Tokens:" inputId="max-tokens" :value="maxTokens"
+        <InputField v-show="showLocalConfig" label="Max Tokens:" inputId="max-tokens" :value="maxTokens"
             @update:value="update('maxTokens', $event)" />
 
         <!-- Slider Value -->
-        <div class="slider-container">
+        <div class="slider-container" v-show="showLocalConfig">
             <span>Serious</span>
             <input type="range" min="0" max="100" :value="localSliderValue"
                 @blur="update('localSliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
-        <div class="config-section">
+        <div class="config-section" v-show="showGPTConfig">
             <h3>GPT Config</h3>
         </div>
         <!-- GPT Key -->
-        <InputField label="Key:" inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
+        <InputField v-show="showGPTConfig" label="Key:" inputId="api-key" :value="gptKey"
+            @update:value="update('gptKey', $event)" />
         <!-- Slider Value -->
-        <div class="slider-container">
+        <div class="slider-container" v-show="showGPTConfig">
             <span>Serious</span>
             <input type="range" min="0" max="100" :value="sliderValue"
                 @blur="update('sliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
-        <div class="config-section">
+        <div class="config-section" v-show="showClaudeConfig">
             <h3>Claude Config</h3>
         </div>
         <!-- Claude Key -->
-        <InputField label="Key:" inputId="claude-api-key" :value="claudeKey"
+        <InputField v-show="showClaudeConfig" label="Key:" inputId="claude-api-key" :value="claudeKey"
             @update:value="update('claudeKey', $event)" />
         <!-- Claude Slider Value -->
-        <div class="slider-container">
+        <div class="slider-container" v-show="showClaudeConfig">
             <span>Serious</span>
             <input type="range" min="0" max="100" :value="claudeSliderValue"
                 @blur="update('claudeSliderValue', $event.target.value)">
             <span>Creative</span>
         </div>
-        <div class="config-section">
+        <div class="config-section" v-show="showGPTConfig">
             <h3>DALL-E Config</h3>
         </div>
         <!-- DALL-E Image Count -->
-        <div class="control select-dropdown">
+        <div class="control select-dropdown" v-show="showGPTConfig">
             <span>DALL-E Image Count: </span>
             <select id="dalle-image-count" :value="selectedDallEImageCount"
                 @change="update('selectedDallEImageCount', $event.target.value)">
@@ -148,7 +160,7 @@ function toggleSidebar() {
             </select>
         </div>
         <!-- DALL-E Image Resolution -->
-        <div class="control select-dropdown">
+        <div class="control select-dropdown" v-show="showGPTConfig">
             <span>Image Resolution: </span>
             <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
                 @change="update('selectedDallEImageResolution', $event.target.value)">
