@@ -66,7 +66,7 @@ $icon-color: rgb(187, 187, 187);
 
 .import-export-container {
     z-index: 10000;
-
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
 
     .import-export-btn {

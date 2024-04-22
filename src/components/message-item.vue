@@ -175,6 +175,7 @@ function copyText(text) {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
         margin-top: 40px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
         .label {
             border-radius: 8px;
@@ -193,6 +194,7 @@ function copyText(text) {
             max-height: 35px;
             padding-left: 13px;
             color: #bdbec1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
     }
 
@@ -205,6 +207,7 @@ function copyText(text) {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         margin-top: 40px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
         p {
             overflow: auto;
@@ -228,6 +231,7 @@ function copyText(text) {
             cursor: pointer;
             transition: opacity 0.2s ease-in-out;
             max-height: 35px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
             &:hover::before {
                 content: 'Click to copy';
