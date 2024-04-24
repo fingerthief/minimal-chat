@@ -270,37 +270,10 @@ function copyText(text) {
     }
 }
 
-.user,
-.gpt {
-    color: #00ccff;
-
-    &.label {
-        font-size: 1em;
-        font-weight: bolder;
-        display: block;
-        min-width: 45px;
-        margin-bottom: 2px;
-        color: rgba(255, 255, 255, 0.7);
-        text-align: right;
-    }
-}
 
 .icon {
     color: #9d81a0;
 }
-
-.gpt {
-    color: #ff9900;
-
-    &.label {
-        text-align: left;
-        border-bottom: 2px solid slategray;
-        font-size: 0.9em;
-        font-weight: bolder;
-        min-width: 45px;
-    }
-}
-
 
 $shadow-color: #252629;
 $shadow-offset-x: 0px;

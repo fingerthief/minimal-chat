@@ -115,7 +115,7 @@ $shadow-spread-radius: 0px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     a {
-        top: 7px;
+        top: 27%;
         position: relative;
     }
 }
@@ -141,7 +141,7 @@ $shadow-spread-radius: 0px;
 
     .save-icon {
         padding: 2px;
-        top: 8%;
+        top: 15%;
         right: 50px;
         color: $icon-color;
         float: right;
@@ -175,7 +175,7 @@ $shadow-spread-radius: 0px;
 
 .saved-conversations-dropdown {
     position: absolute;
-    top: 24%;
+    top: 21%;
     right: 10px;
     cursor: pointer;
     color: $icon-color;
