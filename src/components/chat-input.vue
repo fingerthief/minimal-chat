@@ -92,9 +92,6 @@ $icon-color: rgb(187, 187, 187);
 
 #chat-form {
     display: flex;
-    padding: 6px;
-    border-top: 1px solid #444;
-    background-color: rgb(40 40 40);
 
     .image-button {
         background-color: transparent;
@@ -152,8 +149,7 @@ $icon-color: rgb(187, 187, 187);
         white-space: pre-wrap;
         min-height: 50px;
         transition: 0.2s height ease-in-out;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
+        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
     }
 
     textarea {

@@ -68,13 +68,11 @@ function onShowConversationsClick() {
         <div class="trash-btn" @click="deleteCurrentConversation">
             <Trash2 :size="30" />
         </div>
-        <div class="conversations-count">
-            <span class="save-icon" @click="clearMessages">
-                <Save :size="30" />
-            </span>
-            <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
-                <MessagesSquare :size="30" />
-            </div>
+        <span class="save-icon" @click="clearMessages">
+            <Save :size="30" />
+        </span>
+        <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
+            <MessagesSquare :size="30" />
         </div>
     </div>
 </template>
@@ -115,8 +113,12 @@ $shadow-spread-radius: 0px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     a {
-        top: 27%;
+        top: 15%;
         position: relative;
+
+        @media (max-width: 600px) {
+            left: 5%;
+        }
     }
 }
 
@@ -138,20 +140,20 @@ $shadow-spread-radius: 0px;
         float: right;
         position: relative;
     }
+}
 
-    .save-icon {
-        padding: 2px;
-        top: 15%;
-        right: 50px;
-        color: $icon-color;
-        float: right;
-        position: relative;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+.save-icon {
+    padding: 2px;
+    top: 10%;
+    right: 50px;
+    color: $icon-color;
+    float: right;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 
-        &:hover {
-            transform: scale(1.15);
-        }
+    &:hover {
+        transform: scale(1.15);
     }
 }
 

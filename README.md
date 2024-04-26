@@ -1,7 +1,7 @@
-## [Try MinimalGPT/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
+## [Try MinimalGPT/MinimalClaude/MinimalCustom (Public Site)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-5.0.6-blue)
+![Version](https://img.shields.io/badge/version-5.0.7-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
@@ -77,15 +77,15 @@ A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. Y
 
 - Minimal layout
 - Models Supported
-  - **GPT 3.5**
+
+  - **GPT 3.5-Turbo**
   - **GPT 4**
   - **GPT-4-Turbo**
-  - **GPT-Vision** activated by having the **GPT-4 or GPT-Turbo** model selected and starting a message with **vision::** and then your prompt
-  - **Claude 3 Opus**
-  - **Claude 3 Sonnet**
-  - **Claude 3 Haiku**
-  - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
+  - **GPT-Vision**
+  - **Claude 3 Models**
   - **Open AI Response Formatted APIs** - Supports any API Endpoint that returns Open AI formatted responses
+    - **Vision** requests supported so long as the model you're using has **vision** support
+
 - Switch models mid conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support

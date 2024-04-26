@@ -23,6 +23,10 @@ function exportConversations() {
 }
 
 function purgeConversations() {
+    if (!confirm('Delete All Conversations?')) {
+        return;
+    }
+
     emit('purge-conversations');
 }
 
@@ -45,12 +49,12 @@ function toggleSidebar() {
             </ul>
         </div>
     </div>
-    <div class="bottom-panel import-export-container">
+    <!-- <div class="bottom-panel import-export-container">
         <button class="import-export-btn" @click="newConversation">New</button>
         <button class="import-export-btn" @click="importConversations">Import</button>
         <button class="import-export-btn" @click="exportConversations">Export</button>
         <button class="import-export-btn" @click="purgeConversations">Purge</button>
-    </div>
+    </div> -->
     <div class="bottom-panel">
         <button class="close-btn" @click="toggleSidebar">Close</button>
     </div>
@@ -73,7 +77,7 @@ $icon-color: rgb(187, 187, 187);
         /* Remove this line: align-self: flex-end; */
         padding: 5px 10px;
         border: 1px solid #444;
-        border-radius: 0px;
+        border-radius: 6px;
         margin-right: 6px;
         color: white;
         cursor: pointer;
@@ -106,7 +110,6 @@ $icon-color: rgb(187, 187, 187);
     height: calc(97vh - 97px);
     min-height: 0vh;
     overflow: auto;
-    background-color: #282727;
 
     ul {
         list-style-type: none;
