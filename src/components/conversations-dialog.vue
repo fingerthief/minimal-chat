@@ -103,10 +103,10 @@ $icon-color: rgb(187, 187, 187);
         height: calc(87vh - 100px);
     }
 
-    height: calc(94vh - 100px);
+    height: calc(97vh - 97px);
     min-height: 0vh;
     overflow: auto;
-    background-color: rgb(37, 37, 52);
+    background-color: #282727;
 
     ul {
         list-style-type: none;
@@ -133,10 +133,18 @@ $icon-color: rgb(187, 187, 187);
     font-weight: bold;
     text-align: center;
     position: relative;
-    border-bottom: 5px solid gray;
-    padding-bottom: 25px;
-    padding-top: 25px;
-    background-color: #252534;
+    border-bottom: 1px solid #3d3d3d;
+    padding-bottom: 11px;
+    padding-top: 10px;
+    background-color: #212121;
+
+    @media (max-width: 600px) {
+        border-bottom: 5px solid #3d3d3d;
+        padding-bottom: 25px;
+        padding-top: 25px;
+        background-color: #212121;
+    }
+
 }
 
 .close-btn {

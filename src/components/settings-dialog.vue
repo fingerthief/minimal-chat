@@ -189,7 +189,7 @@ $icon-color: rgb(187, 187, 187);
     text-overflow: clip;
     padding: 6px;
     z-index: 10000;
-    background-color: #272732ba;
+    background-color: #282727;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     /* Media query for screens that are 600px wide or less */
@@ -270,7 +270,7 @@ $icon-color: rgb(187, 187, 187);
     border-bottom: 5px solid gray;
     padding-bottom: 25px;
     padding-top: 25px;
-    background-color: #252534;
+    background-color: #212121;
 }
 
 .close-btn {

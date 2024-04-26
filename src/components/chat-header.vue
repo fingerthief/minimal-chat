@@ -103,12 +103,12 @@ $shadow-spread-radius: 0px;
 }
 
 .header {
-    background-color: #252534;
+    background-color: #212121;
     height: 50px;
     font-size: 20px;
     font-weight: bold;
     text-align: center;
-    border-bottom: 1px solid #2b2c30;
+    border-bottom: 1px solid #3d3d3d;
     position: relative; // Add this line
     border-radius: 4px;
     align-content: center;

@@ -1203,7 +1203,7 @@ pre {
     max-width: 100vw;
     border-top: 1px solid #444;
     width: 50%;
-    background-color: #191923ba;
+    background-color: #282828;
     justify-content: space-between;
 }
 </style>

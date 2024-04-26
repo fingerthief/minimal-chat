@@ -95,7 +95,7 @@ $icon-color: rgb(187, 187, 187);
     display: flex;
     padding: 6px;
     border-top: 1px solid #444;
-    background-color: #252534;
+    background-color: rgb(40 40 40);
 
     .image-button {
         background-color: transparent;
