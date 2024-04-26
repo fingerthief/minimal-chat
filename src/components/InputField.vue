@@ -21,34 +21,41 @@ const emitUpdate = (event) => {
 </script>
 
 <template>
-    <div class="api-key">
-        <label :for="props.inputId">{{ props.label }}</label>
-        <input :id="props.inputId" :value="props.value" @blur="emitUpdate" :type="type">
+    <div class="input-field">
+        <input :id="props.inputId" :value="props.value" @blur="emitUpdate" :type="type"
+            placeholder="Enter your API key if applicable">
     </div>
 </template>
 
 <style scoped>
-.api-key {
+.input-field {
     display: flex;
-    flex-direction: row;
-    width: 100%;
-    margin-bottom: 10px;
-    flex-wrap: nowrap;
-    align-items: center;
+    flex-direction: column;
     margin-bottom: 15px;
-    padding-top: 15px;
     padding-bottom: 15px;
-    border-bottom: 2px solid gray;
+    padding-top: 10px;
+    border-bottom: 1px solid #e0e0e0;
+
+    label {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
     input {
-        width: 70%;
-        padding: 5px;
-        border: 1px solid #444;
-        border-radius: 1px solid #252534;
-        background-color: #1e1e25;
-        color: #f0f0f0;
-        outline: none;
-        margin-top: 5px;
+        width: 100%;
+        padding: 10px;
+        color: #e0e0e0;
+        border-radius: 5px;
+        border-color: rgb(70, 68, 68);
+        background-color: rgb(70, 68, 68);
+        font-size: 16px;
+        font-family: 'Roboto', sans-serif;
+
+        &:focus {
+            outline: none;
+            border-color: rgb(70, 68, 68);
+        }
     }
 }
 </style>

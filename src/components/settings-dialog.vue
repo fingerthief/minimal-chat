@@ -183,6 +183,8 @@ $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
+
+
 .sidebar-content-container {
     height: 84vh;
     overflow: auto;
