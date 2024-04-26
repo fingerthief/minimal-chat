@@ -813,7 +813,7 @@ onMounted(() => {
                     @toggle-sidebar="toggleSidebar" />
             </div>
             <!-- Conversations Sidebar -->
-            <div class="sidebar-common sidebar-right box" id="conversations-dialog"
+            <div class="sidebar-conversations sidebar-right box" id="conversations-dialog"
                 :class="{ 'open': showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="loadSelectedConversation"
@@ -1073,18 +1073,50 @@ pre {
     background: #5d455e;
 }
 
+.sidebar-conversations {
+    background-color: #242426;
+    min-width: 300px;
+    max-width: 100%;
+    position: inherit;
+    top: 0;
+    left: 0;
+    transform: translateX(0);
+    transition: transform 0.1s ease-in-out;
+    z-index: 100000;
+    overflow: hidden;
+    padding-left: 6px;
+    padding-right: 6px;
+
+    /* Add these lines */
+    height: calc(100vh - 2 * 6px);
+    /* Subtract double padding */
+    box-sizing: border-box;
+
+    @media (max-width: 600px) {
+        position: fixed;
+        transform: translateX(-100%);
+        border-right: 2px solid #3d3c3e;
+
+        width: 100vw;
+
+        &.open {
+            transform: translateX(0);
+        }
+    }
+}
+
 // Common styles for both sidebars
 .sidebar-common {
     background-color: #242426;
-    ;
     width: 50vw; // Adjust the width as needed
+    min-width: 25vw;
     max-width: 100%; // Ensure it doesn't exceed the screen width
     height: 100vh; // Full height
     position: fixed; // Fixed position to stay in place
     top: 0; // Align to the top
     transform: translateX(-100%); // Start hidden (default left)
     transition: transform 0.1s ease-in-out; // Smooth transition for sliding in and out
-    z-index: 100000; // Ensure it's above other content
+    z-index: 100001; // Ensure it's above other content
     overflow-y: auto; // Allow scrolling if content is too long
     border-right: 2px solid #3d3c3e; // Optional border for styling
     padding-left: 6px;
@@ -1097,6 +1129,12 @@ pre {
     @media (max-width: 600px) {
         width: 100vw; // Full width on smaller screens
     }
+
+    // Specific styles for right sidebar
+    .sidebar-right {
+        right: 0; // Align to the right side
+        transform: translateX(100%); // Start hidden to the right
+    }
 }
 
 // Specific styles for left sidebar
@@ -1104,11 +1142,7 @@ pre {
     left: 0; // Align to the left side
 }
 
-// Specific styles for right sidebar
-.sidebar-right {
-    right: 0; // Align to the right side
-    transform: translateX(100%); // Start hidden to the right
-}
+
 
 .sidebar::-webkit-scrollbar {
     /* For Chrome, Safari, and Opera */

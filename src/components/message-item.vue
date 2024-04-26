@@ -130,6 +130,8 @@ function copyText(text) {
     margin-top: 18px;
     font-size: 1em;
     line-height: 1.5;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    /* Enhanced shadow for 3D effect */
 
     .copy-text {
         position: relative;
@@ -164,6 +166,8 @@ function copyText(text) {
         font-weight: bolder;
         padding: 2px 5px;
         border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        /* Subtle shadow for label */
     }
 
     &.user {
@@ -175,7 +179,8 @@ function copyText(text) {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
         margin-top: 40px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        /* Enhanced shadow for 3D effect */
 
         .label {
             border-radius: 8px;
@@ -194,7 +199,8 @@ function copyText(text) {
             max-height: 35px;
             padding-left: 13px;
             color: #bdbec1;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            /* Enhanced shadow for label */
         }
     }
 
@@ -207,7 +213,8 @@ function copyText(text) {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         margin-top: 40px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        /* Enhanced shadow for 3D effect */
 
         p {
             overflow: auto;
@@ -231,45 +238,11 @@ function copyText(text) {
             cursor: pointer;
             transition: opacity 0.2s ease-in-out;
             max-height: 35px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-            &:hover::before {
-                content: 'Click to copy';
-                position: absolute;
-                top: -30px;
-                left: 50%;
-                transform: translateX(-50%);
-                background-color: #000;
-                color: #fff;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 12px;
-                white-space: nowrap;
-                opacity: 0;
-                transition: opacity 0.2s ease-in-out;
-            }
-
-            &:hover::after {
-                content: "";
-                position: absolute;
-                top: -10px;
-                left: 50%;
-                transform: translateX(-50%);
-                border-width: 5px;
-                border-style: solid;
-                border-color: #000 transparent transparent transparent;
-                opacity: 0;
-                transition: opacity 0.2s ease-in-out;
-            }
-
-            &:hover::before,
-            &:hover::after {
-                opacity: 1;
-            }
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            /* Enhanced shadow for label */
         }
     }
 }
-
 
 .icon {
     color: #9d81a0;
@@ -298,6 +271,12 @@ $shadow-spread-radius: 0px;
 .message-container {
     display: flex;
     align-items: flex-end;
+    justify-content: flex-end;
+
+    @media (max-width: 600px) {
+        justify-content: flex-start;
+        /* Align to the left side on smaller screens */
+    }
 }
 
 .message-container.user .message-tag {

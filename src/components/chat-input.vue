@@ -152,7 +152,6 @@ $icon-color: rgb(187, 187, 187);
         overflow: hidden;
         white-space: pre-wrap;
         min-height: 50px;
-        border-radius: 30px;
         transition: 0.2s height ease-in-out;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 

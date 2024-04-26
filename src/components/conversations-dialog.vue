@@ -64,13 +64,13 @@ $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
+
 .import-export-container {
     z-index: 10000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
 
     .import-export-btn {
-        align-self: flex-end; // Align the button to the right
+        /* Remove this line: align-self: flex-end; */
         padding: 5px 10px;
         border: 1px solid #444;
         border-radius: 0px;
@@ -81,8 +81,7 @@ $icon-color: rgb(187, 187, 187);
         font-size: 18px;
         height: 50px;
         outline: none;
-        margin-bottom: 6px; // Add some margin at the bottom
-
+        margin-bottom: 6px;
         transition: background-color 0.2s ease;
         background-color: #29293a;
 
@@ -95,18 +94,19 @@ $icon-color: rgb(187, 187, 187);
 .bottom-panel {
     display: flex;
     justify-content: center;
+    align-items: flex-end;
+    /* Add this line to align items at the bottom */
 }
 
 .scrollable-list {
-    height: 77vh;
-    overflow: auto;
-    background-color: #272732ba;
-
-    /* Media query for screens that are 600px wide or less */
     @media (max-width: 600px) {
-        height: 74vh;
+        height: calc(87vh - 100px);
     }
 
+    height: calc(94vh - 100px);
+    min-height: 0vh;
+    overflow: auto;
+    background-color: rgb(37, 37, 52);
 
     ul {
         list-style-type: none;
@@ -119,11 +119,8 @@ $icon-color: rgb(187, 187, 187);
         border-bottom: 1px solid #ddd;
 
         -webkit-user-select: none;
-        /* Safari */
         -ms-user-select: none;
-        /* IE 10 and IE 11 */
         user-select: none;
-        /* Standard syntax */
 
         &:hover {
             background-color: #3d3346;
@@ -143,6 +140,11 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .close-btn {
+    @media (max-width: 600px) {
+        display: block;
+    }
+
+    display: none;
     align-self: flex-end; // Align the button to the right
     padding: 5px 10px;
     border: 1px solid #444;
