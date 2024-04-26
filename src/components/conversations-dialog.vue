@@ -107,6 +107,7 @@ $icon-color: rgb(187, 187, 187);
         height: calc(87vh - 100px);
     }
 
+
     height: calc(97vh - 97px);
     min-height: 0vh;
     overflow: auto;
@@ -139,7 +140,7 @@ $icon-color: rgb(187, 187, 187);
     border-bottom: 1px solid #3d3d3d;
     padding-bottom: 11px;
     padding-top: 10px;
-    background-color: #212121;
+    background-color: #151517;
 
     @media (max-width: 600px) {
         border-bottom: 5px solid #3d3d3d;

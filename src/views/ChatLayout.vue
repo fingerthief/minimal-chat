@@ -1067,7 +1067,7 @@ pre {
 }
 
 .sidebar-conversations {
-    background-color: #242426;
+    background-color: #151517;
     min-width: 300px;
     max-width: 100%;
     position: inherit;
@@ -1100,7 +1100,7 @@ pre {
 
 // Common styles for both sidebars
 .sidebar-common {
-    background-color: #242426;
+    background-color: #151517;
     width: 50vw; // Adjust the width as needed
     min-width: 25vw;
     max-width: 100%; // Ensure it doesn't exceed the screen width

@@ -191,7 +191,7 @@ $icon-color: rgb(187, 187, 187);
     text-overflow: clip;
     padding: 6px;
     z-index: 10000;
-    background-color: #282727;
+    background-color: #151517;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     /* Media query for screens that are 600px wide or less */
