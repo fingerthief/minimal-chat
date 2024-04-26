@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { showToast, sleep } from "./utils";
+import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
 
 let localStreamRetryCount = 0;
 export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction) {
@@ -108,36 +108,6 @@ async function readResponseStream(response, updateUiFunction) {
             }
         }
     }
-}
-
-let buffer = "";  // Buffer to hold incomplete JSON data across chunks
-function parseOpenAiFormatResponseChunk(chunk) {
-    buffer += chunk;  // Append new chunk to buffer
-
-    // Handle the [DONE] tag
-    buffer = buffer.replace(/\[DONE\]/g, '');
-
-    const lines = buffer.split("\n");
-    const completeLines = lines.slice(0, -1);  // All lines except the last one
-    buffer = lines[lines.length - 1];  // Last line might be incomplete, keep it in buffer
-
-    const results = [];
-    for (const line of completeLines) {
-        let cleanedLine = line.trim();
-
-        const firstBraceIndex = cleanedLine.indexOf('{');
-        cleanedLine = firstBraceIndex !== -1 ? cleanedLine.substring(firstBraceIndex) : cleanedLine;
-
-        if (cleanedLine !== "") {
-            try {
-                const parsed = JSON.parse(cleanedLine);
-                results.push(parsed);
-            } catch (error) {
-                console.error("Failed to parse JSON:", cleanedLine, error);
-            }
-        }
-    }
-    return results;
 }
 
 function filterLocalMessages(conversation) {

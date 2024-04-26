@@ -61,6 +61,42 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
     }
 }
 
+let buffer = "";
+export function parseOpenAiFormatResponseChunk(chunk) {
+    if (typeof chunk !== 'string') {
+        throw new Error('Input chunk must be a string');
+    }
+
+    buffer += chunk;
+    const lines = buffer.split('\n');
+
+    const completeLines = lines.slice(0, -1);
+    buffer = lines[lines.length - 1];
+
+    const results = [];
+    for (const line of completeLines) {
+        let cleanedLine = line.trim();
+
+        if (cleanedLine.includes('[DONE]')) {
+            cleanedLine = cleanedLine.replace('[DONE]', '').trim();
+        }
+
+        // Remove any "data: " prefix that might be present after cleaning
+        // Using regex to handle any case variations and extra spaces
+        cleanedLine = cleanedLine.replace(/^data:\s*/i, '').trim();
+
+        if (cleanedLine !== '') {
+            try {
+                const parsed = JSON.parse(cleanedLine);
+                results.push(parsed);
+            } catch (error) {
+                // console.error(`Data: ${cleanedLine}`);
+            }
+        }
+    }
+    return results;
+}
+
 export function showToast(message) {
     Toastify({
         text: message,

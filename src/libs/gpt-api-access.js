@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { showToast, sleep } from "./utils";
+import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
 
 const numberOfRetryAttemptsAllowed = 5;
 
@@ -187,7 +187,7 @@ async function readResponseStream(response, updateUiFunction) {
             return decodedResult
         };
         const chunk = decoder.decode(value);
-        const parsedLines = parseResponseChunk(chunk);
+        const parsedLines = parseOpenAiFormatResponseChunk(chunk);
         for (const parsedLine of parsedLines) {
             const { choices } = parsedLine;
             const { delta } = choices[0];
@@ -216,40 +216,6 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, update
     showToast(`Retry Attempts Failed for fetchGPTResponseStream Request.`);
 
     return "An error occurred while fetching GPT response stream.";
-}
-
-let buffer = "";  // Buffer to hold incomplete JSON data across chunks
-
-function parseResponseChunk(chunk) {
-    buffer += chunk;  // Append new chunk to buffer
-    const lines = buffer.split("\n");
-
-    const completeLines = lines.slice(0, -1);  // All lines except the last one
-    buffer = lines[lines.length - 1];  // Last line might be incomplete, keep it in buffer
-
-    const results = [];
-    for (const line of completeLines) {
-        let cleanedLine = line.trim();
-
-        // Check if the line contains the control message [DONE] and remove it
-        if (cleanedLine.includes("[DONE]")) {
-            cleanedLine = cleanedLine.replace("[DONE]", "").trim();
-        }
-
-        // Remove any "data: " prefix that might be present after cleaning
-        // Using regex to handle any case variations and extra spaces
-        cleanedLine = cleanedLine.replace(/^data:\s*/i, "").trim();
-
-        if (cleanedLine !== "") {
-            try {
-                const parsed = JSON.parse(cleanedLine);
-                results.push(parsed);
-            } catch (error) {
-                console.error("Failed to parse JSON:", cleanedLine, error);
-            }
-        }
-    }
-    return results;
 }
 
 function filterGPTMessages(conversation) {
