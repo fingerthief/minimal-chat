@@ -53,7 +53,7 @@ function onShowConversationsClick() {
         </a>
         <a v-show="props.selectedModel.includes('open-ai-format')"
             href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
-            MinimalLocal
+            MinimalCustom
         </a>
         <a v-show="props.selectedModel.includes('tgi')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
             target="_blank" class="no-style-link">

@@ -52,9 +52,6 @@ const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversa
 const selectedConversation = ref(conversations.value[0]);
 const displayConversations = computed(() => conversations);
 
-const showImageButton = ref((selectedModel.value.indexOf('gpt') !== -1 || selectedModel.value.indexOf('claude') !== -1));
-
-
 let messagesContainer;
 //#endregion
 
@@ -74,8 +71,6 @@ watch(selectedModel, (newValue) => {
         isClaudeEnabled: false,
     };
 
-    showImageButton.value = false;
-
     // Determine settings based on model type
     if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
         useLocalModel = true;
@@ -84,10 +79,6 @@ watch(selectedModel, (newValue) => {
     else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
         useLocalModel = false;
         flags.isClaudeEnabled = true;
-        showImageButton.value = true;
-    }
-    else {
-        showImageButton.value = true;
     }
 
 
@@ -626,7 +617,7 @@ async function imageInputChanged(event) {
 async function processImage(file, fileType) {
     userText.value = "";
 
-    return await analyzeImage(file, fileType, messages.value.slice(0), selectedModel.value);
+    return await analyzeImage(file, fileType, messages.value.slice(0), selectedModel.value, localModelName.value, localModelEndpoint.value);
 }
 
 async function visionimageUploadClick() {
@@ -638,6 +629,8 @@ async function visionimageUploadClick() {
     userText.value = 'vision:: ' + userText.value;
     await sendMessage();
 };
+
+
 //#endregion
 
 //#region File/Upload Handling
@@ -846,7 +839,7 @@ onMounted(() => {
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
                             @vision-prompt="visionimageUploadClick" @update:userInput="updateUserText"
-                            @swipe-left="swipedLeft" @swipe-right="swipedRight" :showImageButton="showImageButton" />
+                            @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
             </div>

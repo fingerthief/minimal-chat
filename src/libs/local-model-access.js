@@ -41,6 +41,51 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
     }
 }
 
+let localVisionRetryCount = 0;
+export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint) {
+    const payload = {
+        model: model,
+        messages: [
+            {
+                role: "user",
+                content: visionMessages
+            }
+        ],
+        max_tokens: 4096
+    };
+
+    try {
+        const response = await fetch(localModelEndpoint + `/v1/chat/completions`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        localVisionRetryCount = 0;
+
+        return data.choices[0].message.content;
+    }
+    catch (error) {
+
+        if (localVisionRetryCount < 3) {
+            localVisionRetryCount++;
+
+            showToast(`Failed fetchOpenAiLikeVisionResponse Request. Retrying...Attempt #${localVisionRetryCount}`);
+
+            await sleep(1000);
+
+            return fetchOpenAiLikeVisionResponse(visionMessages, apiKey);
+        }
+
+    }
+
+}
+
 
 let retryCount = 0;
 export async function getConversationTitleFromLocalModel(messages, model, sliderValue, localModelEndpoint) {
@@ -119,3 +164,4 @@ function filterLocalMessages(conversation) {
         return isGPT;
     });
 }
+

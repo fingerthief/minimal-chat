@@ -1,5 +1,6 @@
 import { fetchGPTVisionResponse } from './gpt-api-access.js';
 import { fetchClaudeVisionResponse } from './claude-api-access.js';
+import { fetchOpenAiLikeVisionResponse } from './local-model-access.js';
 
 // Encode image as base64
 async function encodeImage(file) {
@@ -37,7 +38,7 @@ function formatMessagesForVision(messages) {
 }
 
 // Analyze image
-export async function analyzeImage(file, fileType, messages, model) {
+export async function analyzeImage(file, fileType, messages, model, localModelName, localModelEndpoint) {
     const base64Image = await encodeImage(file);
     const gptMessagesOnly = filterGPTMessages(messages);
     const visionFormattedMessages = formatMessagesForVision(gptMessagesOnly);
@@ -62,6 +63,16 @@ export async function analyzeImage(file, fileType, messages, model) {
         });
 
         return await fetchClaudeVisionResponse(visionFormattedMessages, localStorage.getItem("claudeKey"), model);
+    }
+
+
+    if (model.indexOf("open-ai-format") !== -1) {
+        visionFormattedMessages.push({
+            type: "image_url",
+            image_url: { url: base64Image }
+        });
+
+        return await fetchOpenAiLikeVisionResponse(visionFormattedMessages, localStorage.getItem("localModelKey"), localModelName, localModelEndpoint);
     }
 
     return "not implemented for selected model";
