@@ -141,7 +141,7 @@ $icon-color: rgb(187, 187, 187);
         z-index: 9999;
         border: 1px solid #444;
         outline: none;
-        background-color: #1c1c1e;
+        background-color: #1e1e20;
         font-size: 18px;
         color: #f0f0f0;
         resize: vertical;
