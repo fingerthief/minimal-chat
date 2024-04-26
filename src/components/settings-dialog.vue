@@ -269,7 +269,7 @@ $icon-color: rgb(187, 187, 187);
     text-align: center;
     margin-top: -7px;
     position: relative;
-    border-bottom: 5px solid gray;
+    border-bottom: 5px solid #3f4151;
     padding-bottom: 25px;
     padding-top: 25px;
     background-color: #212121;
@@ -317,7 +317,7 @@ $icon-color: rgb(187, 187, 187);
     margin-bottom: 10px;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 2px solid gray;
+    border-bottom: 2px solid #3f4151;
 
     input[type="range"] {
         -webkit-appearance: none;
@@ -350,7 +350,7 @@ $icon-color: rgb(187, 187, 187);
 .control {
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 2px solid gray;
+    border-bottom: 2px solid #3f4151;
 }
 
 .api-key {
@@ -362,7 +362,7 @@ $icon-color: rgb(187, 187, 187);
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 2px solid gray;
+    border-bottom: 2px solid #3f4151;
 
     input {
         width: 70%;
@@ -377,7 +377,7 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .settings-section {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #3f4151;
     padding: 1rem 0;
 }
 

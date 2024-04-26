@@ -34,7 +34,7 @@ const emitUpdate = (event) => {
     margin-bottom: 15px;
     padding-bottom: 15px;
     padding-top: 10px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #3f4151;
 
     label {
         font-size: 14px;

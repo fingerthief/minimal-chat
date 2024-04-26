@@ -119,7 +119,7 @@ $icon-color: rgb(187, 187, 187);
 
     li {
         padding: 10px;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid #3f4151;
 
         -webkit-user-select: none;
         -ms-user-select: none;
