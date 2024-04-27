@@ -100,15 +100,16 @@ export function parseOpenAiFormatResponseChunk(chunk) {
 export function showToast(message) {
     Toastify({
         text: message,
-        duration: 2000,
+        duration: 1250,
         newWindow: true,
-        close: true,
+        close: false,
         gravity: "bottom", // `top` or `bottom`
         position: "center", // `left`, `center` or `right`
         stopOnFocus: true, // Prevents dismissing of toast on hover
         style: {
-            background: "linear-gradient(to right, #473253, #4d3f4f)",
+            background: "linear-gradient(to right, #0f3b39, #0f3b39)",
         },
         onClick: function () { } // Callback after click
     }).showToast();
+
 }
