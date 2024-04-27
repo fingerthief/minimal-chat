@@ -1068,7 +1068,6 @@ pre {
 
 .sidebar-conversations {
     background-color: #151517;
-    widows: 400px;
     min-width: 0px;
     max-width: 100%;
     position: inherit;

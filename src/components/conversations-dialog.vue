@@ -33,7 +33,7 @@ function stopResize() {
 function handleDoubleClick() {
     const currentWidth = sidebarContentContainer.value.offsetWidth;
     if (currentWidth === 0) {
-        sidebarContentContainer.value.style.width = '400px';
+        sidebarContentContainer.value.style.width = '420px';
     } else {
         sidebarContentContainer.value.style.width = '0px';
     }
@@ -41,6 +41,7 @@ function handleDoubleClick() {
 
 onMounted(() => {
     sidebarContentContainer.value = document.querySelector(".reize-container");
+    sidebarContentContainer.value.style.width = '420px';
 });
 
 
