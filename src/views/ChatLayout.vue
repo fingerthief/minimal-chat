@@ -43,7 +43,7 @@ const selectedDallEImageCount = ref(parseInt(localStorage.getItem("selectedDallE
 const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImageResolution") || '256x256');
 const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
 
-const maxTokens = ref(parseInt(localStorage.getItem("hf-max-tokens")) || 3000);
+const maxTokens = ref(parseInt(localStorage.getItem("maxTokens")) || 3000);
 
 const conversations = ref(loadConversationTitles());
 const conversationTitles = ref(loadConversationTitles());
