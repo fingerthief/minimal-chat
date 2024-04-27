@@ -1,7 +1,7 @@
 ## [Try MinimalGPT/MinimalClaude/MinimalCustom (Public Site)](https://minimalgpt.app/)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-5.0.7-blue)
+![Version](https://img.shields.io/badge/version-5.0.8-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
@@ -13,6 +13,14 @@
 - `docker pull tannermiddleton/minimal-chat:latest`
 
 ---
+
+## Check Out the Wiki! (WIP)
+
+### [Take me to the Wiki](https://github.com/fingerthief/minimal-chat/wiki)
+
+---
+
+<br>
 
 > ⚠️ **Note**: You must input your **OpenAI API** Key for GPT3 or GPT4 in order for **GPT** models to function.
 
