@@ -122,7 +122,7 @@ $icon-color: rgb(187, 187, 187);
     width: 8px;
     height: 100%;
     cursor: col-resize;
-    background-color: #3d3c3e;
+    background-color: #1e1e1f;
     z-index: 1000;
 }
 
