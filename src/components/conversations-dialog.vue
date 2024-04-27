@@ -207,15 +207,17 @@ $icon-color: rgb(187, 187, 187);
     }
 
     li {
-        padding: 10px;
-        border-bottom: 1px solid #3f4151;
+        padding: 15px;
+        border-bottom: 1px solid #100d0d;
+        background-color: #2c2424;
+        transition: background-color 0.2s ease;
 
         -webkit-user-select: none;
         -ms-user-select: none;
         user-select: none;
 
         &:hover {
-            background-color: #3d3346;
+            background-color: #251e1e;
         }
     }
 }
