@@ -35,7 +35,7 @@ export async function fetchGPTResponse(conversation, attitude, model) {
             return "Error parsing fetchGPTResponse response object.";
         }
     } catch (error) {
-        if (gptResponseRetryCount < numberOfRetryAttemptsAllowed) {
+        if (gptResponseRetryCount < 3) {
             gptResponseRetryCount++;
 
             showToast(`Failed fetchGPTResponse Request. Retrying...Attempt #${gptResponseRetryCount}`);
@@ -51,10 +51,12 @@ export async function fetchGPTResponse(conversation, attitude, model) {
     }
 }
 
+
 let gptVisionRetryCount = 0;
 export async function fetchGPTVisionResponse(visionMessages, apiKey) {
+
     const payload = {
-        model: "gpt-4-vision-preview",
+        model: "gpt-4-turbo",
         messages: [
             {
                 role: "user",
@@ -82,10 +84,10 @@ export async function fetchGPTVisionResponse(visionMessages, apiKey) {
     }
     catch (error) {
 
-        if (gptVisionRetryCount < numberOfRetryAttemptsAllowed) {
+        if (gptVisionRetryCount < 3) {
             gptVisionRetryCount++;
 
-            showToast(`Failed fetchGPTVisionResponse Request. Retrying...Attempt #${dalleRetryCount}`);
+            showToast(`Failed fetchGPTVisionResponse Request. Retrying...Attempt #${gptVisionRetryCount}`);
 
             await sleep(1000);
 
@@ -127,7 +129,7 @@ export async function generateDALLEImage(conversation) {
             return "I'm sorry, I couldn't generate an image. The prompt may not be allowed by the API.";
         }
     } catch (error) {
-        if (dalleRetryCount < numberOfRetryAttemptsAllowed) {
+        if (dalleRetryCount < 3) {
             dalleRetryCount++;
 
             showToast(`Failed generateDALLEImage Request. Retrying...Attempt #${dalleRetryCount}`);

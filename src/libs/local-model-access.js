@@ -81,9 +81,52 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
 
             return fetchOpenAiLikeVisionResponse(visionMessages, apiKey);
         }
-
     }
+}
 
+let imageGenerationRetryCount = 0;
+export async function customModelImageGeneration(conversation, localModelEndpoint, model) {
+    let storedApiKey = localStorage.getItem("localModelKey");
+
+    try {
+        const response = await fetch(`${localModelEndpoint}/v1/images/generations`, {
+            method: "POST",
+            model: model,
+            quality: "hd",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+            },
+            body: JSON.stringify({
+                prompt: conversation,
+                n: (parseInt(localStorage.getItem("selectedDallEImageCount")) || 2),
+                size: localStorage.getItem("selectedDallEImageResolution") || "256x256",
+            }),
+        });
+
+        const result = await response.json();
+
+        if (result.data && result.data.length > 0) {
+            imageGenerationRetryCount = 0;
+            return result;
+        } else {
+            return "I'm sorry, I couldn't generate an image. The prompt may not be allowed by the API.";
+        }
+    } catch (error) {
+        if (imageGenerationRetryCount < 3) {
+            imageGenerationRetryCount++;
+
+            showToast(`Failed customModelImageGeneration Request. Retrying...Attempt #${imageGenerationRetryCount}`);
+
+            await sleep(1000);
+
+            return await customModelImageGeneration(conversation);
+        }
+
+        showToast(`Retry Attempts Failed for customModelImageGeneration Request.`);
+        console.error("Error fetching image generation response:", error);
+        return "An error generating Custom Model Image.";
+    }
 }
 
 
