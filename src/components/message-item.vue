@@ -207,7 +207,7 @@ function copyText(text) {
             cursor: pointer;
             max-height: 35px;
             padding-left: 13px;
-            color: #bdbec1;
+            color: #ece9ef;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             /* Enhanced shadow for label */
         }
@@ -234,7 +234,7 @@ function copyText(text) {
             border-left: 6px solid #6a576c;
             background-color: #0f3b39;
             left: 0px;
-            color: #bdbec1;
+            color: #ece9ef;
             border-radius: 8px;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
