@@ -112,11 +112,12 @@ $shadow-spread-radius: 0px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     a {
-        top: 15%;
+        top: 0%;
         position: relative;
 
         @media (max-width: 600px) {
             left: 5%;
+            top: 14%;
         }
     }
 }

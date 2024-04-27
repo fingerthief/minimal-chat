@@ -55,9 +55,6 @@ function formatMessage(content) {
 
     // Check if the message content contains more than one line
     if (content.split('\n').length > 1) {
-        // Replace double newlines with paragraph tags
-        renderedMessage = renderedMessage.replace(/\n\n/g, '<p></p>');
-
         // Replace single newlines with line breaks
         renderedMessage = renderedMessage.replace(/\n/g, '<br>');
     }

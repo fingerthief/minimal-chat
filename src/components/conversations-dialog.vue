@@ -134,9 +134,6 @@ function toggleSidebar() {
             <button class="close-btn" @click="toggleSidebar">Close</button>
         </div>
         <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick"></div>
-        <!-- <ToolTip targetId="resize-handle">
-            Drag to resize. Double click to collapse/open.
-        </ToolTip> -->
     </div>
 
 
@@ -268,7 +265,7 @@ $icon-color: rgb(187, 187, 187);
     li {
         padding: 15px;
         border-bottom: 1px solid #100d0d;
-        background-color: #2c2424;
+        background-color: #2a2121;
         transition: background-color 0.2s ease;
 
         -webkit-user-select: none;
@@ -281,7 +278,6 @@ $icon-color: rgb(187, 187, 187);
 
         &.selected {
             background-color: #36303b;
-            color: #d1cbca; // Lighter text color for better contrast
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
             animation: pulse 0.250s ease-out forwards;
@@ -298,7 +294,7 @@ $icon-color: rgb(187, 187, 187);
 
         @keyframes pulse {
             0% {
-                background-color: #0f3b39;
+                background-color: #07302e;
                 transform: scale(1);
             }
 
@@ -308,7 +304,7 @@ $icon-color: rgb(187, 187, 187);
             }
 
             100% {
-                background-color: #0f3b39;
+                background-color: #07302e;
                 transform: scale(1);
             }
         }
