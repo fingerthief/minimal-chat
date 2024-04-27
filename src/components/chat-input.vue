@@ -152,13 +152,21 @@ $icon-color: rgb(187, 187, 187);
         box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
     }
 
+
+    @font-face {
+        font-family: Roboto-Regular;
+        src: url('/src/assets/webfonts/Roboto-Regular.ttf');
+        font-weight: 400;
+        font-style: normal;
+    }
+
     textarea {
         padding-top: 14px;
         padding-left: 20px;
         padding-right: 100px;
         transition: 0.2s height ease-in-out;
 
-        font-family: 'Roboto', sans-serif;
+        font-family: Roboto-Regular, sans-serif;
     }
 
     .input-spinner {

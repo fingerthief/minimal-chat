@@ -196,7 +196,7 @@ function copyText(text) {
             border-right: 6px solid #614a63;
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
-            background-color: #23234e;
+            background-color: #301c3e;
             margin-top: -23px;
             overflow: hidden;
             right: -6px;

@@ -859,8 +859,15 @@ $icon-color: rgb(187, 187, 187);
     max-height: 90vh;
 }
 
+@font-face {
+    font-family: Roboto-Regular;
+    src: url('/src/assets/webfonts/Roboto-Regular.ttf');
+    font-weight: 400;
+    font-style: normal;
+}
+
 body {
-    font-family: 'Helvetica';
+    font-family: Roboto-Regular, sans-serif;
     margin: 0;
     padding: 0;
     position: relative;

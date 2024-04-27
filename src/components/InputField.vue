@@ -42,6 +42,13 @@ const emitUpdate = (event) => {
         margin-bottom: 5px;
     }
 
+    @font-face {
+        font-family: Roboto-Regular;
+        src: url('/src/assets/webfonts/Roboto-Regular.ttf');
+        font-weight: 400;
+        font-style: normal;
+    }
+
     input {
         width: 100%;
         padding: 10px;
@@ -50,7 +57,8 @@ const emitUpdate = (event) => {
         border-color: rgb(70, 68, 68);
         background-color: rgb(70, 68, 68);
         font-size: 16px;
-        font-family: 'Roboto', sans-serif;
+        font-family: Roboto-Regular, sans-serif;
+
 
         &:focus {
             outline: none;

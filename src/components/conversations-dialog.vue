@@ -121,7 +121,7 @@ $icon-color: rgb(187, 187, 187);
     position: absolute;
     top: 0;
     right: 0px;
-    width: 8px;
+    width: 6px;
     height: 100%;
     cursor: col-resize;
     background-color: #1e1e1f;

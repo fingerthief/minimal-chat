@@ -10,15 +10,15 @@ import ChatLayout from './views/ChatLayout.vue';
 
 <style lang="scss">
 @font-face {
-    font-family: Helvetica;
-    src: url('/webfonts/Helvetica.ttf');
+    font-family: Roboto-Regular;
+    src: url('/webfonts/Roboto-Regular.ttf');
     font-weight: 400;
     font-style: normal;
 }
 
 body {
     display: flex;
-    font-family: Helvetica, sans-serif;
+    font-family: Roboto-Regular, sans-serif;
 }
 
 @keyframes spinner {
