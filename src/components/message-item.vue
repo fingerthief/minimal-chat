@@ -135,7 +135,6 @@ function copyText(text) {
     max-width: 85%;
     min-width: 8%;
     margin-bottom: 8px;
-    overflow: hidden;
     clear: both;
     margin-top: 18px;
     font-size: 1em;
@@ -143,8 +142,31 @@ function copyText(text) {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     /* Enhanced shadow for 3D effect */
 
+    span {
+        overflow: hidden !important;
+        text-overflow: clip;
+    }
+
+    .label {
+        position: absolute;
+        top: -15px;
+        color: #dadbde;
+        min-width: 62px;
+        font-size: 1.05em;
+        font-weight: bold;
+        padding: 2px 5px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        /* Subtle shadow for label */
+    }
+
+    .message-contents {
+        display: block;
+    }
+
     .copy-text {
         position: relative;
+        /* Add this */
         display: inline-block;
 
         button {
@@ -160,19 +182,6 @@ function copyText(text) {
                 z-index: 9999;
             }
         }
-    }
-
-    .label {
-        position: absolute;
-        top: -15px;
-        color: #dadbde;
-        min-width: 62px;
-        font-size: 1.05em;
-        font-weight: bold;
-        padding: 2px 5px;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-        /* Subtle shadow for label */
     }
 
     &.user {
@@ -194,7 +203,6 @@ function copyText(text) {
             border-bottom-right-radius: 0;
             background-color: #301c3e;
             margin-top: -23px;
-            overflow: hidden;
             right: -6px;
             min-width: 50px;
             padding: 6px;
