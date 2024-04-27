@@ -78,9 +78,11 @@ function toggleSidebar() {
 
         <div class="settings-header">
             <h2>
-                <Eraser @click="purgeConversations" /> Conversations
-                <Download @click="exportConversations" />&nbsp;
-                <Upload @click="importConversations" />
+                Conversations
+                &nbsp;
+                <Eraser @click="purgeConversations" :size="25" :stroke-width="0.5" />&nbsp;
+                <Download @click="exportConversations" :size="25" :stroke-width="0.5" />&nbsp;
+                <Upload @click="importConversations" :size="25" :stroke-width="0.5" />
             </h2>
         </div>
         <div class="sidebar-content-container">
@@ -127,9 +129,8 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .settings-header {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: bold;
-    text-align: center;
     position: relative;
     border-bottom: 1px solid #3d3d3d;
     padding-bottom: 11px;
