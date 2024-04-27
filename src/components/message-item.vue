@@ -191,19 +191,16 @@ function copyText(text) {
         margin-top: 40px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         border-radius: 15px;
-        margin-right: 2px;
         /* Enhanced shadow for 3D effect */
 
         .label {
             border-radius: 8px;
             border-right: 6px solid #614a63;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
             background-color: #301c3e;
             margin-top: -25px;
-            right: -6px;
             min-width: 50px;
             padding: 6px;
+            right: 0;
             font-size: 1.05em;
             font-weight: bold;
             cursor: pointer;
@@ -220,7 +217,6 @@ function copyText(text) {
         background-color: #282a2e;
         color: #dadbde;
         border-radius: 15px;
-        margin-left: 2px;
         margin-top: 40px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         /* Enhanced shadow for 3D effect */
@@ -236,10 +232,7 @@ function copyText(text) {
             left: 0px;
             color: #ece9ef;
             border-radius: 8px;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
             margin-top: -25px;
-            left: -6px;
             font-size: 1.05em;
             font-weight: bold;
             padding: 6px;

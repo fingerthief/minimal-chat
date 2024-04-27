@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { Eraser, Download, Upload } from 'lucide-vue-next';
 // import ToolTip from './ToolTip.vue';
 
@@ -8,10 +8,16 @@ const props = defineProps({
     conversations: Array
 });
 
-
+const loadedConversation = ref({});
 const sidebarContentContainer = ref(null);
 const initialWidth = ref(0);
 const initialMouseX = ref(0);
+
+const selectedConversation = computed(() => {
+    return props.conversations.find(conversation =>
+        conversation.id === loadedConversation.value.id
+    );
+});
 
 function startResize(event) {
     initialWidth.value = sidebarContentContainer.value.offsetWidth;
@@ -42,12 +48,29 @@ function handleDoubleClick() {
 onMounted(() => {
     sidebarContentContainer.value = document.querySelector(".reize-container");
     sidebarContentContainer.value.style.width = '420px';
+    const lastConversationId = parseInt(localStorage.getItem("lastConversationId")) || 0;
+    const lastConversation = props.conversations.find(conversation => conversation.id === lastConversationId);
+
+    // Only set loadedConversation if the conversation exists
+    if (lastConversation) {
+        loadedConversation.value = lastConversation;
+    } else {
+        // Fallback if no matching conversation is found
+        loadedConversation.value = {
+            conversation: {
+                title: '',
+                messageHistory: [{}]
+            },
+            id: 0
+        };
+    }
 });
 
 
 const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations']);
 
-function loadSelectedConversation(conversation) {
+async function loadSelectedConversation(conversation) {
+    loadedConversation.value = conversation;
     emit('load-conversation', conversation);
 }
 
@@ -89,7 +112,8 @@ function toggleSidebar() {
             <div class="scrollable-list">
                 <ul>
                     <li v-for="(conversation, index) in props.conversations" :key="index"
-                        @click="loadSelectedConversation(conversation)">
+                        @click="loadSelectedConversation(conversation)"
+                        :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
                         <span>{{ conversation.conversation.title }}</span>
                     </li>
                 </ul>
@@ -218,6 +242,40 @@ $icon-color: rgb(187, 187, 187);
 
         &:hover {
             background-color: #251e1e;
+        }
+
+        &.selected {
+            background-color: #36303b;
+            color: #d1cbca; // Lighter text color for better contrast
+            font-weight: bold;
+            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: pulse 0.250s ease-out forwards;
+        }
+
+        &.selected:before {
+            content: '\2713'; // Unicode for checkmark
+            font-family: 'Arial Unicode MS';
+            display: inline-block;
+            margin-right: 10px;
+            color: #4cae4c; // Green color for the checkmark
+
+        }
+
+        @keyframes pulse {
+            0% {
+                background-color: #36303b;
+                transform: scale(1);
+            }
+
+            50% {
+                background-color: #403742; // Slightly lighter color for the pulse effect
+                transform: scale(1.02);
+            }
+
+            100% {
+                background-color: #36303b;
+                transform: scale(1);
+            }
         }
     }
 }
