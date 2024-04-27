@@ -104,16 +104,20 @@ function toggleSidebar() {
         </div>
         <!-- Model Name -->
         <InputField v-show="showLocalConfig" label="Model:" inputId="model-name" :value="localModelName"
-            @update:value="update('localModelName', $event)" />
+            @update:value="update('localModelName', $event)" :isSecret="false"
+            :placeholderText="'Enter the model name'" />
         <!-- Model Endpoint -->
-        <InputField v-show="showLocalConfig" label="API Endpoint:" inputId="local-model-endpoint"
+        <InputField v-show="showLocalConfig" :isSecret="false" label="API Endpoint:"
+            :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
             :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
         <!-- API key -->
-        <InputField v-show="showLocalConfig" label="Key:" inputId="local-model-key" :value="localModelKey"
+        <InputField v-show="showLocalConfig" :isSecret="true" label="Key:"
+            :placeholderText="'Enter the API key if applicable'" inputId="local-model-key" :value="localModelKey"
             @update:value="update('localModelKey', $event)" />
         <!-- Max Tokens -->
-        <InputField v-show="showLocalConfig" label="Max Tokens:" inputId="max-tokens" :value="maxTokens"
-            @update:value="update('maxTokens', $event)" />
+        <InputField v-show="showLocalConfig" :isSecret="false"
+            :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
+            :value="maxTokens" @update:value="update('maxTokens', $event)" />
 
         <!-- Slider Value -->
         <div class="slider-container" v-show="showLocalConfig">
@@ -126,8 +130,8 @@ function toggleSidebar() {
             <h3>GPT Config</h3>
         </div>
         <!-- GPT Key -->
-        <InputField v-show="showGPTConfig" label="Key:" inputId="api-key" :value="gptKey"
-            @update:value="update('gptKey', $event)" />
+        <InputField v-show="showGPTConfig" :isSecret="true" label="Key:" :placeholderText="'Enter the API Key'"
+            inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
         <!-- Slider Value -->
         <div class="slider-container" v-show="showGPTConfig">
             <span>Serious</span>
@@ -139,8 +143,8 @@ function toggleSidebar() {
             <h3>Claude Config</h3>
         </div>
         <!-- Claude Key -->
-        <InputField v-show="showClaudeConfig" label="Key:" inputId="claude-api-key" :value="claudeKey"
-            @update:value="update('claudeKey', $event)" />
+        <InputField v-show="showClaudeConfig" :isSecret="true" label="Key:" :placeholderText="'Enter the API Key'"
+            inputId="claude-api-key" :value="claudeKey" @update:value="update('claudeKey', $event)" />
         <!-- Claude Slider Value -->
         <div class="slider-container" v-show="showClaudeConfig">
             <span>Serious</span>

@@ -7,6 +7,8 @@ const props = defineProps({
     label: String,
     value: String,
     inputId: String,
+    placeholderText: String,
+    isSecret: Boolean,
     type: {
         type: String,
         default: 'text'
@@ -22,8 +24,8 @@ const emitUpdate = (event) => {
 
 <template>
     <div class="input-field">
-        <input :id="props.inputId" :value="props.value" @blur="emitUpdate" :type="type"
-            placeholder="Enter your API key if applicable">
+        <input :id="props.inputId" :value="props.value" @blur="emitUpdate" :type="props.isSecret ? 'password' : 'text'"
+            :placeholder="props.placeholderText">
     </div>
 </template>
 
