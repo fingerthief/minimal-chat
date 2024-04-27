@@ -1,6 +1,6 @@
 import { fetchGPTVisionResponse } from './gpt-api-access.js';
 import { fetchClaudeVisionResponse } from './claude-api-access.js';
-import { fetchOpenAiLikeVisionResponse } from './local-model-access.js';
+import { fetchOpenAiLikeVisionResponse } from './open-ai-api-standard-access.js';
 
 // Encode image as base64
 async function encodeImage(file) {

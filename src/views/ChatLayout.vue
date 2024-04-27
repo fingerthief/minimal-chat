@@ -7,7 +7,7 @@ import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
-import { fetchLocalModelResponseStream } from '@/libs/local-model-access';
+import { fetchLocalModelResponseStream } from '@/libs/open-ai-api-standard-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -1131,7 +1131,7 @@ pre {
 // Common styles for both sidebars
 .sidebar-common {
     background-color: #151517;
-    width: 50vw; // Adjust the width as needed
+    width: 28vw; // Adjust the width as needed
     min-width: 25vw;
     max-width: 100%; // Ensure it doesn't exceed the screen width
     height: 100vh; // Full height

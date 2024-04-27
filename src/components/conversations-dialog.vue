@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { Eraser, Download, Upload } from 'lucide-vue-next';
+import { Eraser, Download, Upload, MessageSquarePlus } from 'lucide-vue-next';
 // import ToolTip from './ToolTip.vue';
 
 const props = defineProps({
@@ -47,7 +47,7 @@ function handleDoubleClick() {
 }
 
 onMounted(() => {
-    sidebarContentContainer.value = document.querySelector(".reize-container");
+    sidebarContentContainer.value = document.querySelector(".resize-container");
     sidebarContentContainer.value.style.width = '420px';
     const lastConversationId = parseInt(localStorage.getItem("lastConversationId")) || 0;
     const lastConversation = props.conversations.find(conversation => conversation.id === lastConversationId);
@@ -75,6 +75,9 @@ async function loadSelectedConversation(conversation) {
     emit('load-conversation', conversation);
 }
 
+function startNewConversation() {
+    emit('new-conversation');
+}
 
 function importConversations() {
     emit('import-conversations');
@@ -98,7 +101,7 @@ function toggleSidebar() {
 </script>
 
 <template>
-    <div class="reize-container">
+    <div class="resize-container">
 
         <div class="settings-header">
             <h2>
@@ -116,6 +119,12 @@ function toggleSidebar() {
                         @click="loadSelectedConversation(conversation)"
                         :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
                         <span>{{ conversation.conversation.title }}</span>
+                    </li>
+                    <li class="new-conversation-option" @click="startNewConversation">
+                        <span class="new-icon">
+                            <MessageSquarePlus :stroke-width="1.0" /> &nbsp;&nbsp;
+                        </span>
+                        Start New Conversation
                     </li>
                 </ul>
             </div>
@@ -140,7 +149,6 @@ $shadow-offset-y: 1px;
 $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
-
 
 .resize-handle {
     position: absolute;
@@ -220,10 +228,36 @@ $icon-color: rgb(187, 187, 187);
         height: calc(87vh - 100px);
     }
 
+    max-width: 100%;
+    overflow-x: hidden;
     width: 100%;
     height: calc(97vh - 97px);
     min-height: 0vh;
     overflow: auto;
+    box-sizing: border-box;
+
+    .new-conversation-option {
+        text-align: left;
+        background-color: #0B302E;
+        color: #FFFFFF;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 15px;
+        padding-top: 24px;
+        display: flex;
+        cursor: pointer;
+        position: relative;
+
+        &:hover {
+            background-color: #082625;
+        }
+
+        .new-icon {
+            text-align: left;
+            margin-top: -3px;
+        }
+    }
+
 
     ul {
         list-style-type: none;
