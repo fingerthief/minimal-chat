@@ -25,7 +25,7 @@ const emitUpdate = (event) => {
 <template>
     <div class="input-field">
         <input :id="props.inputId" :value="props.value" @blur="emitUpdate" :type="props.isSecret ? 'password' : 'text'"
-            :placeholder="props.placeholderText">
+            :placeholder="props.placeholderText" :autocomplete="props.isSecret ? 'new-password' : 'off'">
     </div>
 </template>
 
