@@ -1,9 +1,7 @@
-Here is the rewritten README.md:
-
 # [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-5.0.8-blue)
+![Version](https://img.shields.io/badge/version-5.0.9-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Self Host with Docker
@@ -55,12 +53,9 @@ To integrate an external API, follow these steps in the settings panel of Minima
 
 - Minimal layout
 - Supports multiple language models, including:
-  - GPT 3.5-Turbo
-  - GPT 4
-  - GPT-4-Turbo
-  - GPT-Vision
+  - GPT Model
   - Claude 3 Models
-  - Open AI Response Formatted APIs
+  - Open AI Response Formatted APIs (custom/local) models
 - Switch models mid-conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
@@ -120,7 +115,8 @@ If you encounter any issues while using MinimalChat, try the following:
 
 - Make sure you have a stable internet connection.
 - Verify that your API keys are correct and have the necessary permissions.
-- Clear your browser cache and reload the app.
+- As a **LAST STEP** Clear your browser cache and reload the app.
+  - This also clears all of your saved configured settings. You should never really need to do this, but weirder things have happened. 
 - If the issue persists, please report it using the [issue tracker](https://github.com/fingerthief/minimal-chat/issues).
 
 ## **Future Plans**
@@ -141,4 +137,9 @@ If you have any questions, feedback, or suggestions, feel free to reach out to u
 
 - [GitHub Issues](https://github.com/fingerthief/minimal-chat/issues)
 
-Thank you for using MinimalChat!
+---
+
+**Thank you for using MinimalChat!**
+
+_Buy me a coffee for some reason: ☕️ [![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow-btn.png)](https://buymeacoffee.com/fingerthief) ☕️_
+
