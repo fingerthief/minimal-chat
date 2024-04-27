@@ -21,7 +21,6 @@ export async function fetchClaudeResponse(conversation, attitude, model) {
     }
 
     try {
-
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
             method: "POST",
             headers: {
@@ -110,7 +109,7 @@ export async function fetchClaudeConversationTitle(messages) {
 
             await sleep(1000);
 
-            return await fetchClaudeConversationTitle(conversation, attitude, model);
+            return await fetchClaudeConversationTitle(messages);
         }
         else {
             showToast(`Retry Attempts Failed for fetchClaudeConversationTitle Request.`);
@@ -173,8 +172,7 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
     }
 }
 
-let claudeStreamRetryCount = 0;
-export async function streamClaudeResponse(messages, model, attitude, updateUIFunction) {
+export async function streamClaudeResponse(messages, model, attitude, updateUIFunction, abortController, streamedMessageText) {
     try {
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
             method: 'POST',
@@ -190,6 +188,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
                 model: model,
                 stream: true
             }),
+            signal: abortController.signal
         });
 
         if (!response.ok) {
@@ -224,7 +223,6 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
                         const token = JSON.parse(data);
 
                         if (token?.delta?.text) {
-                            claudeStreamRetryCount = 0;
                             decodedResult += token.delta.text;
                             updateUIFunction(token.delta.text, false);
                         }
@@ -240,20 +238,14 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
             }
         }
     } catch (error) {
-        handleStreamError(error, updateUIFunction, messages, model, attitude);
-    }
-}
+        if (error.name === 'AbortError') {
+            showToast(`Stream Request Aborted.`);
+            return streamedMessageText.value;
+        }
 
-function handleStreamError(error, updateUIFunction, messages, model, attitude) {
-    if (claudeStreamRetryCount < numberOfRetryAttemptsAllowed) {
-        claudeStreamRetryCount++;
-        showToast(`Error: An error occurred during the stream response. Retrying... Attempt #${claudeStreamRetryCount}`);
-        updateUIFunction("", true);
-        setTimeout(() => streamClaudeResponse(messages, model, attitude, updateUIFunction), 1000);
-    } else {
-        showToast("Retry Attempts Failed for streamClaudeResponse Request.");
-        console.error("Error fetching Claude response:", error);
-        return "An error occurred while fetching Claude conversation title.";
+        console.error("Error fetching Claude Model response:", error);
+        showToast(`Stream Request Failed.`);
+        return streamedMessageText.value;
     }
 }
 

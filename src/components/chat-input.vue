@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
-import { SendHorizontal, ImageUp } from 'lucide-vue-next';
+import { SendHorizontal, ImageUp, CircleStop } from 'lucide-vue-next';
 import "swiped-events";
 
 // Define props and emits
@@ -9,7 +9,7 @@ const props = defineProps({
     isLoading: Boolean
 });
 
-const emit = defineEmits(['update:userInput', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt']);
+const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt']);
 // Local reactive stat
 const localUserInput = ref(props.userInput);
 
@@ -65,6 +65,10 @@ const visionImageUploadClick = () => {
     emit("vision-prompt");
     localUserInput.value = "";
 };
+
+async function abortStream() {
+    emit("abort-stream");
+}
 </script>
 
 <template>
@@ -78,8 +82,13 @@ const visionImageUploadClick = () => {
                 <ImageUp />
             </span>
         </div>
-        <div class="send-button" @click="sendMessage">
-            <span v-show="props.isLoading" class="loading input-spinner"></span>
+        <div class="send-button" @click="props.isLoading ? abortStream() : sendMessage">
+            <span v-show="props.isLoading" class="loading input-spinner">
+
+            </span>
+            <span class="stop-button" v-show="props.isLoading">
+                <CircleStop />
+            </span>
             <span v-show="!props.isLoading">
                 <SendHorizontal />
             </span>
@@ -135,6 +144,27 @@ $icon-color: rgb(187, 187, 187);
         }
     }
 
+    .stop-button {
+        background-color: transparent;
+        cursor: pointer;
+        outline: none;
+        color: $icon-color;
+        position: absolute;
+        min-height: 55px;
+        display: grid;
+        align-content: center;
+        right: -2px;
+        z-index: 99999;
+        border-radius: 30px;
+        min-width: 50px;
+        justify-content: space-around;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.30);
+        }
+    }
+
 
     #user-input {
         flex-grow: 1;
@@ -171,9 +201,9 @@ $icon-color: rgb(187, 187, 187);
 
     .input-spinner {
         display: inline-block;
-        width: 25px;
+        width: 34px;
         color: lightskyblue;
-        height: 25px;
+        height: 34px;
         margin-left: 5px;
         border: 4px solid #3c8280;
         border-left-color: #1cdfd8;

@@ -2,7 +2,7 @@
 import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
 
 let localStreamRetryCount = 0;
-export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction) {
+export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction, abortController, streamedMessageText) {
     const gptMessagesOnly = filterLocalMessages(conversation);
 
     const requestOptions = {
@@ -18,6 +18,7 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
             temperature: attitude * 0.01,
             max_tokens: parseInt(localStorage.getItem("maxTokens"))
         }),
+        signal: abortController.signal
     };
 
     try {
@@ -28,16 +29,14 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
         localStreamRetryCount = 0;
         return result;
     } catch (error) {
-        console.error("Error fetching Local Model response:", error);
-        localStreamRetryCount++
-
-        if (localStreamRetryCount < 3) {
-            await sleep(1500);
-            return fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction);
+        if (error.name === 'AbortError') {
+            showToast(`Stream Request Aborted.`);
+            return streamedMessageText.value;
         }
 
-        return "Error fetching response from Local LLM Model";
-
+        console.error("Error fetching Custom Model response:", error);
+        showToast(`Stream Request Failed.`);
+        return streamedMessageText.value;
     }
 }
 

@@ -122,7 +122,7 @@ export async function generateDALLEImage(conversation) {
     }
 }
 
-export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
+export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction, abortController, streamedMessageText) {
     const gptMessagesOnly = filterGPTMessages(conversation);
 
     const requestOptions = {
@@ -137,20 +137,27 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
             messages: gptMessagesOnly,
             temperature: attitude * 0.01,
         }),
+        signal: abortController.signal
     };
+    let result
 
     try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
 
-        const result = await readResponseStream(response, updateUiFunction);
+        result = await readResponseStream(response, updateUiFunction);
 
         gptStreamRetryCount = 0;
         return result;
-    } catch (error) {
-        console.error("Error fetching GPT response:", error);
-        gptStreamRetryCount++;
+    }
+    catch (error) {
+        if (error.name === 'AbortError') {
+            showToast(`Stream Request Aborted.`);
+            return streamedMessageText.value;
+        }
 
-        return retryFetchGPTResponseStream(conversation, attitude, model, updateUiFunction);
+        console.error("Error fetching GPT response:", error);
+        showToast(`Stream Request Failed.`);
+        return streamedMessageText.value;
     }
 }
 
@@ -179,23 +186,6 @@ async function readResponseStream(response, updateUiFunction) {
     }
 }
 
-async function retryFetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
-    if (gptStreamRetryCount < MAX_RETRY_ATTEMPTS) {
-        console.log("Retry Number: " + (gptStreamRetryCount + 1));
-
-        updateUiFunction("", true);
-
-        showToast(`Failed fetchGPTResponseStream Request. Retrying...Attempt #${gptStreamRetryCount}`);
-
-        await sleep(1500);
-
-        return await fetchGPTResponseStream(conversation, attitude, model, updateUiFunction);
-    } else {
-        showToast(`Retry Attempts Failed for fetchGPTResponseStream Request.`);
-        return "An error occurred while fetching GPT response stream.";
-    }
-}
-
 function filterGPTMessages(conversation) {
     let lastMessageContent = "";
     return conversation.filter((message) => {
@@ -203,17 +193,6 @@ function filterGPTMessages(conversation) {
         lastMessageContent = message.content.trim().toLowerCase();
         return isGPT;
     });
-}
-
-function containsUrl(str) {
-    const urlPattern = /https?:\/\/(?:www\.)?[^\s]+\.[^\s]+/i;
-    return urlPattern.test(str);
-}
-
-function extractHttpsUrls(str) {
-    const urlPattern = /https:\/\/(?:www\.)?[^\s]+\.[^\s]+/ig;
-    const matches = [...str.matchAll(urlPattern)];
-    return matches.map((match) => match[0]);
 }
 
 export async function loadMessagesFromLocalStorage() {

@@ -50,9 +50,11 @@ const conversationTitles = ref(loadConversationTitles());
 const storedConversations = ref(loadStoredConversations());
 const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversationId")) || 0);
 const selectedConversation = ref(conversations.value[0]);
-const displayConversations = computed(() => conversations);
+const abortController = ref(null);
 
+const displayConversations = computed(() => conversations);
 let messagesContainer;
+
 //#endregion
 
 //#region Watchers
@@ -512,6 +514,7 @@ async function sendGPTMessage(message) {
     isLoading.value = true;
 
     try {
+        abortController.value = new AbortController();
         let response;
 
         if (selectedModel.value.indexOf("open-ai-format") !== -1) {
@@ -520,10 +523,10 @@ async function sendGPTMessage(message) {
             localSliderValue.value = localStorage.getItem('local-attitude') || 50;
             localModelEndpoint.value = localStorage.getItem('localModelEndpoint') || '';
 
-            response = await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI);
+            response = await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText);
         }
         else {
-            response = await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI);
+            response = await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText);
         }
 
         isLoading.value = false;
@@ -554,11 +557,13 @@ async function sendClaudeMessage(messageText) {
     isClaudeEnabled.value = true;
     isLoading.value = true;
 
+    abortController.value = new AbortController();
+
     addMessage("user", messageText);
 
     scrollToBottom();
 
-    const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI);
+    const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
 
     addMessage("assistant", response);
 
@@ -738,6 +743,14 @@ const updateSetting = (field, value) => {
     }
 };
 
+function abortStream() {
+    if (abortController.value) {
+        abortController.value.abort();
+        abortController.value = null;
+        isLoading.value = false;
+    }
+}
+
 //#endregion
 
 //#region Global Click Handling
@@ -837,9 +850,9 @@ onMounted(() => {
 
                         </div>
                         <!-- User Input -->
-                        <chatInput :userInput="userText" :isLoading="isLoading" @send-message="sendMessage"
-                            @vision-prompt="visionimageUploadClick" @update:userInput="updateUserText"
-                            @swipe-left="swipedLeft" @swipe-right="swipedRight" />
+                        <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
+                            @send-message="sendMessage" @vision-prompt="visionimageUploadClick"
+                            @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
             </div>
