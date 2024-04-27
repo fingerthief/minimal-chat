@@ -1,69 +1,57 @@
-/* eslint-disable no-unused-vars */
 import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
 
-const numberOfRetryAttemptsAllowed = 5;
-
+const MAX_RETRY_ATTEMPTS = 5;
 let gptResponseRetryCount = 0;
+let gptVisionRetryCount = 0;
+let dalleRetryCount = 0;
+let gptStreamRetryCount = 0;
 export async function fetchGPTResponse(conversation, attitude, model) {
-    const prompt = `Me: ${conversation}\nAI:`;
-    let storedApiKey = localStorage.getItem("gptKey");
-
-    if (!localStorage.getItem("gpt-attitude") || localStorage.getItem("gpt-attitude") !== attitude) {
-        localStorage.setItem("gpt-attitude", attitude);
-    }
-
+    const apiKey = localStorage.getItem("gptKey");
     try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+                "Authorization": `Bearer ${apiKey || 'Missing API Key'}`,
             },
             body: JSON.stringify({
-                model: model,
+                model,
                 messages: conversation,
-                temperature: attitude * 0.01
+                temperature: attitude * 0.01,
             }),
         });
 
         const result = await response.json();
+        gptResponseRetryCount = 0;
 
         if (result.choices && result.choices.length > 0) {
-            gptResponseRetryCount = 0;
             return result.choices[0].message.content;
         } else {
             return "Error parsing fetchGPTResponse response object.";
         }
     } catch (error) {
-        if (gptResponseRetryCount < 3) {
+        if (gptResponseRetryCount < MAX_RETRY_ATTEMPTS) {
             gptResponseRetryCount++;
-
             showToast(`Failed fetchGPTResponse Request. Retrying...Attempt #${gptResponseRetryCount}`);
-
             await sleep(1000);
-
             return await fetchGPTResponse(conversation, attitude, model);
+        } else {
+            showToast(`Retry Attempts Failed for fetchGPTResponse Request.`);
+            return "An error occurred while fetching GPT response.";
         }
-
-        showToast(`Retry Attempts Failed for fetchGPTResponse Request.`);
-
-        return "An error occurred while fetching GPT response.";
     }
 }
 
-
-let gptVisionRetryCount = 0;
 export async function fetchGPTVisionResponse(visionMessages, apiKey) {
-
     const payload = {
         model: "gpt-4-turbo",
         messages: [
             {
                 role: "user",
-                content: visionMessages
-            }
+                content: visionMessages,
+            },
         ],
-        max_tokens: 4096
+        max_tokens: 4096,
     };
 
     try {
@@ -71,38 +59,30 @@ export async function fetchGPTVisionResponse(visionMessages, apiKey) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
+                "Authorization": `Bearer ${apiKey}`,
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
         });
 
         const data = await response.json();
-
         gptVisionRetryCount = 0;
 
         return data.choices[0].message.content;
-    }
-    catch (error) {
-
-        if (gptVisionRetryCount < 3) {
+    } catch (error) {
+        if (gptVisionRetryCount < MAX_RETRY_ATTEMPTS) {
             gptVisionRetryCount++;
-
             showToast(`Failed fetchGPTVisionResponse Request. Retrying...Attempt #${gptVisionRetryCount}`);
-
             await sleep(1000);
-
             return fetchGPTVisionResponse(visionMessages, apiKey);
+        } else {
+            showToast(`Retry Attempts Failed for fetchGPTVisionResponse Request.`);
+            return "Error generating GPT Vision response.";
         }
-
-        showToast(`Retry Attempts Failed for fetchGPTVisionResponse Request.`);
-        return "Error generating GPT Vision response."
     }
-
 }
 
-let dalleRetryCount = 0;
 export async function generateDALLEImage(conversation) {
-    let storedApiKey = localStorage.getItem("gptKey");
+    const apiKey = localStorage.getItem("gptKey");
 
     try {
         const response = await fetch("https://api.openai.com/v1/images/generations", {
@@ -111,11 +91,11 @@ export async function generateDALLEImage(conversation) {
             quality: "hd",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+                "Authorization": `Bearer ${apiKey || 'Missing API Key'}`,
             },
             body: JSON.stringify({
                 prompt: conversation,
-                n: (parseInt(localStorage.getItem("selectedDallEImageCount")) || 2),
+                n: parseInt(localStorage.getItem("selectedDallEImageCount")) || 2,
                 size: localStorage.getItem("selectedDallEImageResolution") || "256x256",
             }),
         });
@@ -129,23 +109,19 @@ export async function generateDALLEImage(conversation) {
             return "I'm sorry, I couldn't generate an image. The prompt may not be allowed by the API.";
         }
     } catch (error) {
-        if (dalleRetryCount < 3) {
+        if (dalleRetryCount < MAX_RETRY_ATTEMPTS) {
             dalleRetryCount++;
-
             showToast(`Failed generateDALLEImage Request. Retrying...Attempt #${dalleRetryCount}`);
-
             await sleep(1000);
-
             return await generateDALLEImage(conversation);
+        } else {
+            showToast(`Retry Attempts Failed for generateDALLEImage Request.`);
+            console.error("Error fetching DALL-E response:", error);
+            return "An error generating DALL-E image.";
         }
-
-        showToast(`Retry Attempts Failed for generateDALLEImage Request.`);
-        console.error("Error fetching DALL-E response:", error);
-        return "An error generating DALL-E image.";
     }
 }
 
-let gptStreamRetryCount = 0;
 export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
     const gptMessagesOnly = filterGPTMessages(conversation);
 
@@ -156,10 +132,10 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
             "Authorization": `Bearer ${localStorage.getItem("gptKey")}`,
         },
         body: JSON.stringify({
-            model: model,
+            model,
             stream: true,
             messages: gptMessagesOnly,
-            temperature: attitude * 0.01
+            temperature: attitude * 0.01,
         }),
     };
 
@@ -179,15 +155,16 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
 }
 
 async function readResponseStream(response, updateUiFunction) {
-    let decodedResult = "";
-
     const reader = await response.body.getReader();
     const decoder = new TextDecoder("utf-8");
+    let decodedResult = "";
+
     while (true) {
         const { done, value } = await reader.read();
+
         if (done) {
-            return decodedResult
-        };
+            return decodedResult;
+        }
         const chunk = decoder.decode(value);
         const parsedLines = parseOpenAiFormatResponseChunk(chunk);
         for (const parsedLine of parsedLines) {
@@ -203,7 +180,7 @@ async function readResponseStream(response, updateUiFunction) {
 }
 
 async function retryFetchGPTResponseStream(conversation, attitude, model, updateUiFunction) {
-    if (gptStreamRetryCount < numberOfRetryAttemptsAllowed) {
+    if (gptStreamRetryCount < MAX_RETRY_ATTEMPTS) {
         console.log("Retry Number: " + (gptStreamRetryCount + 1));
 
         updateUiFunction("", true);
@@ -212,19 +189,17 @@ async function retryFetchGPTResponseStream(conversation, attitude, model, update
 
         await sleep(1500);
 
-        return await fetchGPTResponseStream(conversation, attitude, model);
+        return await fetchGPTResponseStream(conversation, attitude, model, updateUiFunction);
+    } else {
+        showToast(`Retry Attempts Failed for fetchGPTResponseStream Request.`);
+        return "An error occurred while fetching GPT response stream.";
     }
-
-    showToast(`Retry Attempts Failed for fetchGPTResponseStream Request.`);
-
-    return "An error occurred while fetching GPT response stream.";
 }
 
 function filterGPTMessages(conversation) {
     let lastMessageContent = "";
-    return conversation.filter(message => {
-        const isGPT = !message.content.trim().toLowerCase().startsWith("image::") &&
-            !lastMessageContent.startsWith("image::");
+    return conversation.filter((message) => {
+        const isGPT = !message.content.trim().toLowerCase().startsWith("image::") && !lastMessageContent.startsWith("image::");
         lastMessageContent = message.content.trim().toLowerCase();
         return isGPT;
     });
@@ -238,18 +213,17 @@ function containsUrl(str) {
 function extractHttpsUrls(str) {
     const urlPattern = /https:\/\/(?:www\.)?[^\s]+\.[^\s]+/ig;
     const matches = [...str.matchAll(urlPattern)];
-    return matches.map(match => match[0]);
+    return matches.map((match) => match[0]);
 }
 
 export async function loadMessagesFromLocalStorage() {
     const storedMessages = localStorage.getItem("gpt-conversations");
     let parsedConversations = storedMessages ? JSON.parse(storedMessages) : [];
     return parsedConversations.length ? parsedConversations[parsedConversations.length - 1].messageHistory : [];
-
 }
 
 export function loadConversationTitles() {
-    const storedConversations = localStorage.getItem('gpt-conversations');
+    const storedConversations = localStorage.getItem("gpt-conversations");
     let parsedConversations = storedConversations ? JSON.parse(storedConversations) : [];
     return parsedConversations;
 }
