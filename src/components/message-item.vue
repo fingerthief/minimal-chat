@@ -121,10 +121,6 @@ function copyText(text) {
 </template>
 
 <style lang="scss" scoped>
-.padded {
-    padding: 10px;
-}
-
 .message {
     position: relative;
     padding: 12px;
@@ -137,75 +133,40 @@ function copyText(text) {
     font-size: 1em;
     line-height: 1.5;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    /* Enhanced shadow for 3D effect */
+}
 
-    span {
-        overflow: hidden !important;
-        text-overflow: clip;
-    }
+.label {
+    position: absolute;
+    top: -33px;
+    color: #dadbde;
+    min-width: 62px;
+    font-size: 1.05em;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
 
-    .label {
-        position: absolute;
-        top: -15px;
-        color: #dadbde;
-        min-width: 62px;
-        font-size: 1.05em;
-        font-weight: bold;
-        padding: 2px 5px;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-        /* Subtle shadow for label */
-    }
+.message-contents {
+    display: block;
+}
 
-    .message-contents {
-        display: block;
-    }
-
-    .copy-text {
-        position: relative;
-        /* Add this */
-        display: inline-block;
-
-        button {
-            display: block;
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-        }
-
-        &:hover {
-            button {
-                display: block;
-                z-index: 9999;
-            }
-        }
-    }
-
+.message {
     &.user {
         float: right;
         background-color: #29293a;
         color: #dadbde;
         margin-top: 40px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         border-radius: 15px;
-        /* Enhanced shadow for 3D effect */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
         .label {
-            border-radius: 8px;
-            border-right: 6px solid #614a63;
             background-color: #301c3e;
-            margin-top: -25px;
-            min-width: 50px;
-            padding: 6px;
-            right: 0;
-            font-size: 1.05em;
-            font-weight: bold;
-            cursor: pointer;
-            max-height: 35px;
+            border-right: 6px solid #614a63;
+            border-left: 6px solid #614a63;
+            right: 2px;
             padding-left: 13px;
             color: #ece9ef;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            /* Enhanced shadow for label */
         }
     }
 
@@ -216,29 +177,13 @@ function copyText(text) {
         border-radius: 15px;
         margin-top: 40px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        /* Enhanced shadow for 3D effect */
-
-        p {
-            overflow: auto;
-            text-overflow: clip;
-        }
 
         .label {
-            border-left: 6px solid #6a576c;
             background-color: #0f3b39;
-            left: 0px;
+            border-left: 6px solid #6a576c;
+            border-right: 6px solid #6a576c;
+            left: 2px;
             color: #ece9ef;
-            border-radius: 8px;
-            margin-top: -25px;
-            font-size: 1.05em;
-            font-weight: bold;
-            padding: 6px;
-            min-width: 54px;
-            cursor: pointer;
-            transition: opacity 0.2s ease-in-out;
-            max-height: 35px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            /* Enhanced shadow for label */
         }
     }
 }
@@ -247,44 +192,24 @@ function copyText(text) {
     color: #9d81a0;
 }
 
-$shadow-color: #252629;
-$shadow-offset-x: 0px;
-$shadow-offset-y: 1px;
-$shadow-blur-radius: 2px;
-$shadow-spread-radius: 0px;
-
-.message-tag {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-right: 5px;
+.loading.spinner {
+    display: inline-block;
     margin-left: 5px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 1em;
-    font-weight: 900;
+    border-top-color: #0077ff;
+    width: 10px;
+    height: 10px;
+    animation: spin 1s infinite linear;
 }
 
-.message-container {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-
-    @media (max-width: 600px) {
-        justify-content: flex-start;
-        /* Align to the left side on smaller screens */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
-}
 
-.message-container.user .message-tag {
-    background-color: #0077ff;
-    color: #fff;
-}
-
-.message-container.gpt .message-tag {
-    background-color: #234b4a;
-    color: #f0f0f0;
+    100% {
+        transform: rotate(360deg);
+    }
 }
 </style>

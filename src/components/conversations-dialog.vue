@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { Eraser, Download, Upload, MessageSquarePlus } from 'lucide-vue-next';
-// import ToolTip from './ToolTip.vue';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -107,9 +106,9 @@ function toggleSidebar() {
             <h2>
                 Conversations
                 &nbsp;
-                <Eraser @click="purgeConversations" :size="25" :stroke-width="0.5" />&nbsp;
-                <Download @click="exportConversations" :size="25" :stroke-width="0.5" />&nbsp;
-                <Upload @click="importConversations" :size="25" :stroke-width="0.5" />
+                <Eraser @click="purgeConversations" :size="25" :stroke-width="0.75" />&nbsp;
+                <Download @click="exportConversations" :size="25" :stroke-width="0.75" />&nbsp;
+                <Upload @click="importConversations" :size="25" :stroke-width="0.75" />
             </h2>
         </div>
         <div class="sidebar-content-container">
