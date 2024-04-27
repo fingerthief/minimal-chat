@@ -130,7 +130,7 @@ export async function customModelImageGeneration(conversation, localModelEndpoin
 
 
 let retryCount = 0;
-export async function getConversationTitleFromLocalModel(messages, model, sliderValue, localModelEndpoint) {
+export async function getConversationTitleFromLocalModel(messages, model, localModelEndpoint) {
     try {
         const apiKey = document.getElementById('api-key');
         apiKey.value = localStorage.getItem("gptKey");
@@ -148,7 +148,7 @@ export async function getConversationTitleFromLocalModel(messages, model, slider
                 model: model,
                 stream: true,
                 messages: tempMessages,
-                temperature: sliderValue * 0.01
+                temperature: 0.1
             }),
         };
 
@@ -160,9 +160,9 @@ export async function getConversationTitleFromLocalModel(messages, model, slider
         return result;
     } catch (error) {
 
-        if (retryCount < 5) {
+        if (retryCount < 3) {
             retryCount++;
-            getConversationTitleFromLocalModel(messages, model, sliderValue);
+            await getConversationTitleFromLocalModel(messages, model, sliderValue);
         }
 
         console.error("Error fetching Local Model response:", error);

@@ -7,7 +7,7 @@ import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
-import { fetchLocalModelResponseStream } from '@/libs/open-ai-api-standard-access';
+import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -364,12 +364,7 @@ async function createNewConversationWithTitle() {
     }
 
     if (selectedModel.value.indexOf("open-ai-format") !== -1) {
-
-        //Local Models are weird with trying to title conversations...
-        const firstMessage = messages.value[0].content;
-        const titleLength = 100;
-
-        newConversationWithTitle.title = firstMessage.substring(0, Math.min(firstMessage.length, titleLength));
+        newConversationWithTitle.title = await getConversationTitleFromLocalModel(messages.value.slice(0), localModelName.value, localModelEndpoint.value);
     }
 
     if (selectedModel.value.indexOf("gpt") !== -1) {
