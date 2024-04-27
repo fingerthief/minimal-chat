@@ -1,8 +1,48 @@
 <script setup>
+import { onMounted, ref } from 'vue';
+import { Eraser, Download, Upload } from 'lucide-vue-next';
+// import ToolTip from './ToolTip.vue';
+
 const props = defineProps({
     isSidebarOpen: Boolean,
     conversations: Array
 });
+
+
+const sidebarContentContainer = ref(null);
+const initialWidth = ref(0);
+const initialMouseX = ref(0);
+
+function startResize(event) {
+    initialWidth.value = sidebarContentContainer.value.offsetWidth;
+    initialMouseX.value = event.clientX;
+    document.addEventListener("mousemove", resize);
+    document.addEventListener("mouseup", stopResize);
+}
+
+function resize(event) {
+    const deltaX = event.clientX - initialMouseX.value;
+    sidebarContentContainer.value.style.width = `${initialWidth.value + deltaX}px`;
+}
+
+function stopResize() {
+    document.removeEventListener("mousemove", resize);
+    document.removeEventListener("mouseup", stopResize);
+}
+
+function handleDoubleClick() {
+    const currentWidth = sidebarContentContainer.value.offsetWidth;
+    if (currentWidth === 0) {
+        sidebarContentContainer.value.style.width = '400px';
+    } else {
+        sidebarContentContainer.value.style.width = '0px';
+    }
+}
+
+onMounted(() => {
+    sidebarContentContainer.value = document.querySelector(".reize-container");
+});
+
 
 const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations']);
 
@@ -10,9 +50,6 @@ function loadSelectedConversation(conversation) {
     emit('load-conversation', conversation);
 }
 
-function newConversation() {
-    emit('new-conversation');
-}
 
 function importConversations() {
     emit('import-conversations');
@@ -36,28 +73,36 @@ function toggleSidebar() {
 </script>
 
 <template>
-    <div class="settings-header">
-        <h2>Conversations</h2>
-    </div>
-    <div class="sidebar-content-container">
-        <div class="scrollable-list">
-            <ul>
-                <li v-for="(conversation, index) in props.conversations" :key="index"
-                    @click="loadSelectedConversation(conversation)">
-                    <span>{{ conversation.conversation.title }}</span>
-                </li>
-            </ul>
+    <div class="reize-container">
+
+        <div class="settings-header">
+            <h2>
+                <Eraser @click="purgeConversations" /> Conversations
+                <Download @click="exportConversations" />&nbsp;
+                <Upload @click="importConversations" />
+            </h2>
         </div>
+        <div class="sidebar-content-container">
+            <div class="scrollable-list">
+                <ul>
+                    <li v-for="(conversation, index) in props.conversations" :key="index"
+                        @click="loadSelectedConversation(conversation)">
+                        <span>{{ conversation.conversation.title }}</span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="bottom-panel">
+            <button class="close-btn" @click="toggleSidebar">Close</button>
+        </div>
+        <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick"></div>
+        <!-- <ToolTip targetId="resize-handle">
+            Drag to resize. Double click to collapse/open.
+        </ToolTip> -->
     </div>
-    <!-- <div class="bottom-panel import-export-container">
-        <button class="import-export-btn" @click="newConversation">New</button>
-        <button class="import-export-btn" @click="importConversations">Import</button>
-        <button class="import-export-btn" @click="exportConversations">Export</button>
-        <button class="import-export-btn" @click="purgeConversations">Purge</button>
-    </div> -->
-    <div class="bottom-panel">
-        <button class="close-btn" @click="toggleSidebar">Close</button>
-    </div>
+
+
 </template>
 
 <style lang="scss" scoped>
@@ -69,37 +114,78 @@ $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
 
+.resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: #3d3c3e;
+    z-index: 1000;
+}
+
+.settings-header {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    border-bottom: 1px solid #3d3d3d;
+    padding-bottom: 11px;
+    padding-top: 10px;
+    background-color: #151517;
+    text-align: left;
+    white-space: nowrap;
+
+    @media (max-width: 600px) {
+        border-bottom: 5px solid #3d3d3d;
+        padding-bottom: 25px;
+        padding-top: 25px;
+        background-color: #212121;
+        text-align: center;
+    }
+
+}
+
+
 .import-export-container {
     z-index: 10000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    .import-export-btn {
-        /* Remove this line: align-self: flex-end; */
-        padding: 5px 10px;
-        border: 1px solid #444;
-        border-radius: 6px;
-        margin-right: 6px;
-        color: white;
-        cursor: pointer;
-        width: 100%;
-        font-size: 18px;
-        height: 50px;
-        outline: none;
-        margin-bottom: 6px;
-        transition: background-color 0.2s ease;
-        background-color: #29293a;
+.import-export-btn {
+    /* Remove this line: align-self: flex-end; */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    margin-right: 10px;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+    height: 56px;
+    outline: none;
+    margin-bottom: 10px;
+    transition: background-color 0.2s ease;
+    background-color: #29293a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-        &:hover {
-            background-color: #252534;
-        }
+    &:hover {
+        background-color: #252534;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 }
 
 .bottom-panel {
     display: flex;
-    justify-content: center;
     align-items: flex-end;
-    /* Add this line to align items at the bottom */
+    width: fit-content;
+    width: 77%;
+
+
+    @media (max-width: 600px) {
+        width: 100%;
+    }
 }
 
 .scrollable-list {
@@ -107,7 +193,7 @@ $icon-color: rgb(187, 187, 187);
         height: calc(87vh - 100px);
     }
 
-
+    width: 100%;
     height: calc(97vh - 97px);
     min-height: 0vh;
     overflow: auto;
@@ -132,24 +218,6 @@ $icon-color: rgb(187, 187, 187);
     }
 }
 
-.settings-header {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    position: relative;
-    border-bottom: 1px solid #3d3d3d;
-    padding-bottom: 11px;
-    padding-top: 10px;
-    background-color: #151517;
-
-    @media (max-width: 600px) {
-        border-bottom: 5px solid #3d3d3d;
-        padding-bottom: 25px;
-        padding-top: 25px;
-        background-color: #212121;
-    }
-
-}
 
 .close-btn {
     @media (max-width: 600px) {

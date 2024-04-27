@@ -70,9 +70,9 @@ const visionImageUploadClick = () => {
 <template>
     <form @submit.prevent="sendMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
         data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
-        <textarea class="user-input-text" id="user-input" rows="1" placeholder="" v-model="localUserInput"
-            ref="userInputRef" @input="autoResize" @focus="autoResize" @blur="autoResize"
-            @keydown="handleKeyDown"></textarea>
+        <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
+            @input="autoResize" @focus="autoResize" @blur="autoResize" @keydown="handleKeyDown"
+            placeholder="Enter your prompt"></textarea>
         <div class="image-button" @click="visionImageUploadClick">
             <span>
                 <ImageUp />
@@ -139,7 +139,7 @@ $icon-color: rgb(187, 187, 187);
     #user-input {
         flex-grow: 1;
         z-index: 9999;
-        border: 1px solid #444;
+        border: 1px solid #262628;
         outline: none;
         background-color: #1e1e20;
         font-size: 18px;
@@ -157,6 +157,8 @@ $icon-color: rgb(187, 187, 187);
         padding-left: 20px;
         padding-right: 100px;
         transition: 0.2s height ease-in-out;
+
+        font-family: 'Roboto', sans-serif;
     }
 
     .input-spinner {

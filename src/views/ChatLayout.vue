@@ -889,7 +889,7 @@ a {
 .chat {
     // border: 1px solid #444;
     width: 99dvw;
-    background-color: #191923;
+    background-color: #181818;
     height: 98dvh;
 
     &.header {
@@ -1068,7 +1068,8 @@ pre {
 
 .sidebar-conversations {
     background-color: #151517;
-    min-width: 300px;
+    widows: 400px;
+    min-width: 0px;
     max-width: 100%;
     position: inherit;
     top: 0;
@@ -1194,9 +1195,8 @@ pre {
     min-height: 90vh;
     min-width: 350px;
     max-width: 100vw;
-    border-top: 1px solid #444;
     width: 50%;
-    background-color: #282828;
+    background-color: #181818;
     justify-content: space-between;
 }
 </style>

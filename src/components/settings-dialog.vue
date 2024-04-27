@@ -194,6 +194,7 @@ $icon-color: rgb(187, 187, 187);
     background-color: #151517;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
+
     /* Media query for screens that are 600px wide or less */
     @media (max-width: 600px) {
         height: 81vh;

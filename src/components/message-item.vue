@@ -2,7 +2,6 @@
 <!-- eslint-disable no-empty -->
 <script setup>
 import { wrapCodeSnippets, showToast } from '@/libs/utils';
-import { Atom } from 'lucide-vue-next';
 
 // Props
 const props = defineProps({
@@ -85,7 +84,7 @@ function copyText(text) {
                 </div>
                 <div v-if="message.role !== 'user'" @click="copyText(message)" class="label">
                     <span>
-                        <Atom />
+                        AI Model
                     </span>
                 </div>
                 <span class="message-contents" v-html="formatMessage(message.content)"></span>
@@ -95,7 +94,7 @@ function copyText(text) {
     <div v-if="props.isLoading">
         <div class="gpt message">
             <div class="label padded">
-                <Atom />
+                AI Model
             </div>
             <span v-html="formatMessage(props.streamedMessageText || '')"></span>
             <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>
@@ -105,7 +104,7 @@ function copyText(text) {
     <div v-if="props.isAnalyzingImage || props.isGeneratingImage">
         <div class="gpt message">
             <div class="label padded">
-                <Atom />
+                AI Model
             </div>
             <span v-if="props.isAnalyzingImage">Generating Vision Response...</span>
             <span v-if="props.isGeneratingImage">Generating Image...</span>
@@ -206,7 +205,7 @@ function copyText(text) {
 
     &.gpt {
         float: left;
-        background-color: #3e3e4e;
+        background-color: #282a2e;
         color: #dadbde;
 
         border-left: 6px solid #6a576c;
@@ -223,7 +222,7 @@ function copyText(text) {
 
         .label {
             border-left: 6px solid #6a576c;
-            background-color: #3e3e4e;
+            background-color: #282a2e;
             left: 0px;
             color: #bdbec1;
             border-radius: 8px;

@@ -68,12 +68,12 @@ function onShowConversationsClick() {
         <div class="trash-btn" @click="deleteCurrentConversation">
             <Trash2 :size="30" />
         </div>
-        <span class="save-icon" @click="clearMessages">
-            <Save :size="30" />
-        </span>
         <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
             <MessagesSquare :size="30" />
         </div>
+        <span class="save-icon" @click="clearMessages">
+            <Save :size="30" />
+        </span>
     </div>
 </template>
 
@@ -106,7 +106,6 @@ $shadow-spread-radius: 0px;
     font-size: 20px;
     font-weight: bold;
     text-align: center;
-    border-bottom: 1px solid #3d3d3d;
     position: relative; // Add this line
     border-radius: 4px;
     align-content: center;
@@ -145,7 +144,7 @@ $shadow-spread-radius: 0px;
 .save-icon {
     padding: 2px;
     top: 10%;
-    right: 50px;
+    right: 10px;
     color: $icon-color;
     float: right;
     position: relative;
@@ -177,14 +176,19 @@ $shadow-spread-radius: 0px;
 
 .saved-conversations-dropdown {
     position: absolute;
-    top: 21%;
-    right: 10px;
+    top: 18%;
+    right: 50px;
     cursor: pointer;
     color: $icon-color;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    display: none;
 
     &:hover {
         transform: scale(1.15);
+    }
+
+    @media (max-width: 600px) {
+        display: inline;
     }
 }
 
