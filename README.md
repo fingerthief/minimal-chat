@@ -1,9 +1,7 @@
-Here is the rewritten README.md:
-
 # [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-5.0.8-blue)
+![Version](https://img.shields.io/badge/version-5.0.9-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Self Host with Docker
@@ -15,6 +13,18 @@ Here is the rewritten README.md:
 ## **What is MinimalChat?**
 
 MinimalChat is a lightweight, open-source chat app that allows you to interact with various language models, including GPT-3.5-Turbo, GPT-4, and more. With its minimalistic design and customizable settings, MinimalChat provides a seamless and intuitive chat experience.
+
+### General Demo
+[
+![minimal-chat-demo-3](https://github.com/fingerthief/minimal-chat/assets/2380471/dd4ecd26-e1fa-4e4f-91c8-1aa54db73305)](https://github.com/fingerthief/minimal-chat/wiki/General-Demo)
+
+### Demo Vision Support (Claude, GPT, and Custom Models)
+
+[![minimal-chat-vision-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/eb02141d-752d-48b4-9aab-24f227eb197a)](https://github.com/fingerthief/minimal-chat/wiki/Demo-Vision-Support)
+
+### Demo DAll-E Image Generation (gpt-4-turbo only currently)
+
+![minimal-chat-image-generation-demo](https://private-user-images.githubusercontent.com/2380471/326187674-28e2f894-f92f-4e4e-a6f8-a87939020fa1.gif?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTQyMzE2MTMsIm5iZiI6MTcxNDIzMTMxMywicGF0aCI6Ii8yMzgwNDcxLzMyNjE4NzY3NC0yOGUyZjg5NC1mOTJmLTRlNGUtYTZmOC1hODc5MzkwMjBmYTEuZ2lmP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDQyNyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDA0MjdUMTUyMTUzWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9OTg4NjVjNzYxNzJlOGQzNDk2N2FiNTFhZmJkYmQxMjZjZmQ0MWQ4YmY0NzNkMTVjZmYyMTFlMDRhODc3ZWYxNCZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.2209dbj3MrYmnm7Rt8DvuSwpyrCLdYf47DLJriaDPUI)
 
 ## **Getting Started**
 
@@ -43,12 +53,9 @@ To integrate an external API, follow these steps in the settings panel of Minima
 
 - Minimal layout
 - Supports multiple language models, including:
-  - GPT 3.5-Turbo
-  - GPT 4
-  - GPT-4-Turbo
-  - GPT-Vision
+  - GPT Model
   - Claude 3 Models
-  - Open AI Response Formatted APIs
+  - Open AI Response Formatted APIs (custom/local) models
 - Switch models mid-conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Markdown Support
@@ -108,7 +115,8 @@ If you encounter any issues while using MinimalChat, try the following:
 
 - Make sure you have a stable internet connection.
 - Verify that your API keys are correct and have the necessary permissions.
-- Clear your browser cache and reload the app.
+- As a **LAST STEP** Clear your browser cache and reload the app.
+  - This also clears all of your saved configured settings. You should never really need to do this, but weirder things have happened. 
 - If the issue persists, please report it using the [issue tracker](https://github.com/fingerthief/minimal-chat/issues).
 
 ## **Future Plans**
@@ -129,4 +137,9 @@ If you have any questions, feedback, or suggestions, feel free to reach out to u
 
 - [GitHub Issues](https://github.com/fingerthief/minimal-chat/issues)
 
-Thank you for using MinimalChat!
+---
+
+**Thank you for using MinimalChat!**
+
+_Buy me a coffee for some reason: ☕️ [![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow-btn.png)](https://buymeacoffee.com/fingerthief) ☕️_
+
