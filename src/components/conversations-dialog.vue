@@ -263,17 +263,17 @@ $icon-color: rgb(187, 187, 187);
 
         @keyframes pulse {
             0% {
-                background-color: #36303b;
+                background-color: #0f3b39;
                 transform: scale(1);
             }
 
             50% {
-                background-color: #403742; // Slightly lighter color for the pulse effect
+                background-color: #0e3634; // Slightly lighter color for the pulse effect
                 transform: scale(1.02);
             }
 
             100% {
-                background-color: #36303b;
+                background-color: #0f3b39;
                 transform: scale(1);
             }
         }
