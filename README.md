@@ -16,7 +16,17 @@ Here is the rewritten README.md:
 
 MinimalChat is a lightweight, open-source chat app that allows you to interact with various language models, including GPT-3.5-Turbo, GPT-4, and more. With its minimalistic design and customizable settings, MinimalChat provides a seamless and intuitive chat experience.
 
-![minimal-chat-demo-3](https://github.com/fingerthief/minimal-chat/assets/2380471/dd4ecd26-e1fa-4e4f-91c8-1aa54db73305)
+### General Demo
+[
+![minimal-chat-demo-3](https://github.com/fingerthief/minimal-chat/assets/2380471/dd4ecd26-e1fa-4e4f-91c8-1aa54db73305)](https://github.com/fingerthief/minimal-chat/wiki/General-Demo)
+
+### Demo Vision Support (Claude, GPT, and Custom Models)
+
+[![minimal-chat-vision-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/eb02141d-752d-48b4-9aab-24f227eb197a)](https://github.com/fingerthief/minimal-chat/wiki/Demo-Vision-Support)
+
+### Demo DAll-E Image Generation (gpt-4-turbo only currently)
+
+![minimal-chat-image-generation-demo](https://private-user-images.githubusercontent.com/2380471/326187674-28e2f894-f92f-4e4e-a6f8-a87939020fa1.gif?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTQyMzE2MTMsIm5iZiI6MTcxNDIzMTMxMywicGF0aCI6Ii8yMzgwNDcxLzMyNjE4NzY3NC0yOGUyZjg5NC1mOTJmLTRlNGUtYTZmOC1hODc5MzkwMjBmYTEuZ2lmP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDQyNyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDA0MjdUMTUyMTUzWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9OTg4NjVjNzYxNzJlOGQzNDk2N2FiNTFhZmJkYmQxMjZjZmQ0MWQ4YmY0NzNkMTVjZmYyMTFlMDRhODc3ZWYxNCZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.2209dbj3MrYmnm7Rt8DvuSwpyrCLdYf47DLJriaDPUI)
 
 ## **Getting Started**
 
