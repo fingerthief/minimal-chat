@@ -16,6 +16,8 @@ Here is the rewritten README.md:
 
 MinimalChat is a lightweight, open-source chat app that allows you to interact with various language models, including GPT-3.5-Turbo, GPT-4, and more. With its minimalistic design and customizable settings, MinimalChat provides a seamless and intuitive chat experience.
 
+![minimal-chat-demo-3](https://github.com/fingerthief/minimal-chat/assets/2380471/dd4ecd26-e1fa-4e4f-91c8-1aa54db73305)
+
 ## **Getting Started**
 
 ### Check Out the Wiki! (WIP)
