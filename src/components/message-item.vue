@@ -52,6 +52,16 @@ function messageClass(role) {
 function formatMessage(content) {
     let md = window.markdownit(defaults);
     let renderedMessage = wrapCodeSnippets(md.render(content));
+
+    // Check if the message content contains more than one line
+    if (content.split('\n').length > 1) {
+        // Replace double newlines with paragraph tags
+        renderedMessage = renderedMessage.replace(/\n\n/g, '<p></p>');
+
+        // Replace single newlines with line breaks
+        renderedMessage = renderedMessage.replace(/\n/g, '<br>');
+    }
+
     return renderedMessage;
 }
 
@@ -161,8 +171,8 @@ function copyText(text) {
         top: -15px;
         color: #dadbde;
         min-width: 62px;
-        font-size: 0.9em;
-        font-weight: bolder;
+        font-size: 1.05em;
+        font-weight: bold;
         padding: 2px 5px;
         border-radius: 5px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
@@ -186,14 +196,14 @@ function copyText(text) {
             border-right: 6px solid #614a63;
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
-            background-color: #29293a;
+            background-color: #23234e;
             margin-top: -23px;
             overflow: hidden;
             right: -6px;
             min-width: 50px;
             padding: 6px;
-            font-size: 0.9em;
-            font-weight: bolder;
+            font-size: 1.05em;
+            font-weight: bold;
             cursor: pointer;
             max-height: 35px;
             padding-left: 13px;
@@ -222,7 +232,7 @@ function copyText(text) {
 
         .label {
             border-left: 6px solid #6a576c;
-            background-color: #282a2e;
+            background-color: #0f3b39;
             left: 0px;
             color: #bdbec1;
             border-radius: 8px;
@@ -230,8 +240,8 @@ function copyText(text) {
             border-bottom-left-radius: 0;
             margin-top: -23px;
             left: -6px;
-            font-size: 0.9em;
-            font-weight: bolder;
+            font-size: 1.05em;
+            font-weight: bold;
             padding: 6px;
             min-width: 54px;
             cursor: pointer;
