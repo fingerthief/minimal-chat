@@ -5,7 +5,8 @@ import { Eraser, Download, Upload } from 'lucide-vue-next';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
-    conversations: Array
+    conversations: Array,
+    selectedConversationItem: Object
 });
 
 const loadedConversation = ref({});
@@ -15,7 +16,7 @@ const initialMouseX = ref(0);
 
 const selectedConversation = computed(() => {
     return props.conversations.find(conversation =>
-        conversation.id === loadedConversation.value.id
+        conversation.id === props.selectedConversationItem.id
     );
 });
 

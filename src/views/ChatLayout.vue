@@ -257,6 +257,9 @@ async function saveMessages() {
         storedConversations.value[conversationIndex].conversation.messageHistory = savedMessages;
     } else if (JSON.parse(selectedAutoSaveOption.value)) {
         await saveNewConversations();
+
+        localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations.value));
+        selectConversation(lastLoadedConversationId.value);
     }
 
     localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations.value));
@@ -348,7 +351,6 @@ async function saveNewConversations() {
     storedConversations.value = loadStoredConversations();
 
     selectedConversation.value = conversations.value[conversations.value.length - 1];
-    loadSelectedConversation();
 }
 
 async function createNewConversationWithTitle() {
@@ -823,8 +825,9 @@ onMounted(() => {
                 :class="{ 'open': showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="loadSelectedConversation"
-                    @new-conversation="clearMessages" @import-conversations="handleImportConversations"
-                    @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations" />
+                    :selectedConversationItem="selectedConversation" @new-conversation="clearMessages"
+                    @import-conversations="handleImportConversations" @export-conversations="handleExportConversations"
+                    @purge-conversations="handlePurgeConversations" />
             </div>
             <div class="chat-container">
                 <div class="container">
