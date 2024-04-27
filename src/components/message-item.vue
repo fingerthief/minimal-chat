@@ -135,6 +135,7 @@ function copyText(text) {
     max-width: 85%;
     min-width: 8%;
     margin-bottom: 8px;
+    overflow: hidden;
     clear: both;
     margin-top: 18px;
     font-size: 1em;
@@ -159,11 +160,6 @@ function copyText(text) {
                 z-index: 9999;
             }
         }
-    }
-
-    pre {
-        overflow: hidden;
-        text-overflow: clip;
     }
 
     .label {
