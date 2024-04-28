@@ -149,9 +149,11 @@ const stopLoading = () => {
 
 .message-contents {
     display: block;
+    overflow: clip;
 }
 
 .message {
+
     &.user {
         float: right;
         background-color: #2d253d;
