@@ -106,9 +106,9 @@ function toggleSidebar() {
             <h2>
                 Conversations
                 &nbsp;
-                <Eraser @click="purgeConversations" :size="25" :stroke-width="0.75" />&nbsp;
-                <Download @click="exportConversations" :size="25" :stroke-width="0.75" />&nbsp;
-                <Upload @click="importConversations" :size="25" :stroke-width="0.75" />
+                <Eraser @click="purgeConversations" :size="25" :stroke-width="1.00" />&nbsp;
+                <Download @click="exportConversations" :size="25" :stroke-width="1.00" />&nbsp;
+                <Upload @click="importConversations" :size="25" :stroke-width="1.00" />
             </h2>
         </div>
         <div class="sidebar-content-container">

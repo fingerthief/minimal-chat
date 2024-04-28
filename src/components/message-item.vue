@@ -1,35 +1,33 @@
 <!-- eslint-disable no-undef -->
 <!-- eslint-disable no-empty -->
 <script setup>
-import { wrapCodeSnippets, showToast } from '@/libs/utils';
 import hljs from 'highlight.js/lib/common';
-import 'highlight.js/styles/github-dark.css';
 import MarkdownIt from 'markdown-it';
-// Props
-const props = defineProps({
-    content: String,
-    hasFilterText: Boolean,
+import { RefreshCcw } from 'lucide-vue-next';
+import { defineEmits } from 'vue';
+import "/node_modules/highlight.js/scss/github-dark-dimmed.scss";
+
+defineProps({
     messages: Array,
     isLoading: Boolean,
     isAnalyzingImage: Boolean,
     isGeneratingImage: Boolean,
-    isClaudeEnabled: Boolean,
-    isUsingLocalModel: Boolean,
-    streamedMessageText: String
+    streamedMessageText: String,
 });
 
-const md = MarkdownIt({
-    highlight: function (str) {
-        try {
-            return hljs.highlightAuto(str).value;
-        }
-        catch (__) { }
+defineEmits(['regenerate-response']);
 
-        return '';
-    }
-});
+const formatMessage = (content) => {
+    const md = new MarkdownIt({
+        highlight: (str) => {
+            try {
+                return hljs.highlightAuto(str).value;
+            } catch (__) {
+                return '';
+            }
+        },
+    });
 
-function formatMessage(content) {
     let renderedMessage = md.render(content);
 
     // Replace newlines inside <ul> and <li> tags with spaces
@@ -43,16 +41,15 @@ function formatMessage(content) {
     renderedMessage = renderedMessage.replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
 
     return renderedMessage;
-}
+};
 
-// Computed properties
-function messageClass(role) {
+const messageClass = (role) => {
     return role === 'user' ? 'user message' : 'gpt message';
 };
 
-function copyText(text) {
+const copyText = (message) => {
     const textarea = document.createElement('textarea');
-    textarea.value = text.content;
+    textarea.value = message.content;
     document.body.appendChild(textarea);
     textarea.select();
     try {
@@ -61,55 +58,35 @@ function copyText(text) {
     } catch (error) {
         console.error('Failed to copy content: ', error);
     }
-
     document.body.removeChild(textarea);
-
-    showToast("Copied message text");
-}
-
+};
 </script>
 
 <template>
     <div>
-        <div v-for="(message, index) in props.messages" :key="index">
-            <div :class="messageClass(message.role, index)">
-                <div v-if="message.role === 'user'" @click="copyText(message)" class="label">
-                    User
-                </div>
-                <div v-if="message.role !== 'user'" @click="copyText(message)" class="label">
-                    <span>
-                        AI Model
-                    </span>
-                </div>
-                <span class="message-contents" v-html="formatMessage(message.content)"></span>
+        <div v-for="(message, index) in messages" :key="index" :class="messageClass(message.role)">
+            <div class="label" @click="copyText(message)">
+                <RefreshCcw v-if="message.role === 'user'" class="icon"
+                    @click="$emit('regenerate-response', message.content)" />
+                {{ message.role === 'user' ? 'User' : 'AI Model' }}
             </div>
+            <span class="message-contents" v-html="formatMessage(message.content)"></span>
         </div>
-    </div>
-    <div v-if="props.isLoading">
-        <div class="gpt message">
+        <div v-if="isLoading" class="gpt message">
             <div class="label padded">
                 AI Model
             </div>
-            <span v-html="formatMessage(props.streamedMessageText || '')"></span>
-            <span v-if="!props.streamedMessageText.trim().length">Waiting For Stream Response...</span>
-            <span v-if="!props.streamedMessageText.trim().length" class="loading spinner"></span>
-        </div>
-    </div>
-    <div v-if="props.isAnalyzingImage || props.isGeneratingImage">
-        <div class="gpt message">
-            <div class="label padded">
-                AI Model
-            </div>
-            <span v-if="props.isAnalyzingImage">Generating Vision Response...</span>
-            <span v-if="props.isGeneratingImage">Generating Image...</span>
-            <span class="loading spinner"></span>
+            <span v-html="formatMessage(streamedMessageText || '')"></span>
+            <span v-if="!streamedMessageText.trim().length">
+                {{ isAnalyzingImage || isGeneratingImage ? 'Generating...' : 'Waiting For Stream Response...' }}
+            </span>
+            <span v-if="!streamedMessageText.trim().length" class="loading spinner">
+            </span>
         </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
-@use "/node_modules/highlight.js/scss/vs.scss";
-
 .message {
     position: relative;
     padding: 12px;
@@ -136,6 +113,19 @@ function copyText(text) {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
+.icon {
+    position: absolute;
+    top: 3px;
+    left: -34px;
+    color: #9d81a0;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+        transform: scale(1.15);
+        transform: rotate(-45deg);
+    }
+}
+
 .message-contents {
     display: block;
 }
@@ -143,14 +133,14 @@ function copyText(text) {
 .message {
     &.user {
         float: right;
-        background-color: #29293a;
+        background-color: #2d253d;
         color: #dadbde;
         margin-top: 40px;
         border-radius: 15px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
         .label {
-            background-color: #301c3e;
+            background-color: #2d253d;
             border-right: 6px solid #614a63;
             border-left: 6px solid #614a63;
             right: 2px;
@@ -161,14 +151,14 @@ function copyText(text) {
 
     &.gpt {
         float: left;
-        background-color: #282a2e;
+        background-color: #1c302e;
         color: #dadbde;
         border-radius: 15px;
         margin-top: 40px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
         .label {
-            background-color: #0f3b39;
+            background-color: #1c302e;
             border-left: 6px solid #6a576c;
             border-right: 6px solid #6a576c;
             left: 2px;

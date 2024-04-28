@@ -570,6 +570,44 @@ async function sendClaudeMessage(messageText) {
     isLoading.value = false;
 }
 
+async function regenerateMessageReponse(content) {
+    isLoading.value = true;
+    const messageIndex = messages.value.findIndex(message => message.content === content && message.role === 'user');
+
+    if (messageIndex !== -1) {
+        streamedMessageText.value = "";
+
+        const regenMessages = messages.value.slice(0, messageIndex + 1);
+        const messagesAfter = messages.value.slice(messageIndex + 2); // This line remains the same
+        abortController.value = new AbortController();
+
+        // Assign messages.value to regenMessages before regenerating the response
+        messages.value = regenMessages;
+
+        let response = "";
+
+        if (selectedModel.value.indexOf("gpt") !== -1) {
+            response = await fetchGPTResponseStream(regenMessages, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText);
+        }
+        else if (isClaudeEnabled.value) {
+            response = await streamClaudeResponse(regenMessages, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
+        }
+        else {
+            response = await fetchLocalModelResponseStream(regenMessages, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText);
+        }
+
+        addMessage("assistant", response);
+
+        messages.value[messageIndex + 1].content = response;
+
+        // Append messagesAfter to the current messages value
+        messages.value = [...messages.value, ...messagesAfter];
+
+        saveMessages();
+    }
+    isLoading.value = false;
+}
+
 async function sendImagePrompt(imagePrompt) {
     isGeneratingImage.value = true;
     scrollToBottom();
@@ -837,7 +875,8 @@ onMounted(() => {
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
-                                :isGeneratingImage="isGeneratingImage" />
+                                :isGeneratingImage="isGeneratingImage"
+                                @regenerate-response="regenerateMessageReponse" />
                         </div>
                         <!-- Floating button to quick scroll to the bottom of the page -->
                         <div class="floating-button scroll" id="scroll-button" @click="scrollToBottom"
