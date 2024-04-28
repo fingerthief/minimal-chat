@@ -258,7 +258,7 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .config-section {
-    background-color: #3e3e4e;
+    background-color: #0d2f2d;
     font-size: 16px;
     font-weight: bold;
     text-align: center;
