@@ -234,7 +234,7 @@ $icon-color: rgb(187, 187, 187);
 
     .new-conversation-option {
         text-align: left;
-        background-color: #0B302E;
+        background-color: #0d3937;
         color: #FFFFFF;
         font-weight: bold;
         border-radius: 5px;
@@ -245,7 +245,7 @@ $icon-color: rgb(187, 187, 187);
         position: relative;
 
         &:hover {
-            background-color: #082625;
+            background-color: #104745;
         }
 
         .new-icon {
@@ -272,7 +272,7 @@ $icon-color: rgb(187, 187, 187);
         user-select: none;
 
         &:hover {
-            background-color: #251e1e;
+            background-color: #114335;
         }
 
         &.selected {
@@ -288,7 +288,6 @@ $icon-color: rgb(187, 187, 187);
             display: inline-block;
             margin-right: 10px;
             color: #4cae4c; // Green color for the checkmark
-
         }
 
         @keyframes pulse {
@@ -303,7 +302,7 @@ $icon-color: rgb(187, 187, 187);
             }
 
             100% {
-                background-color: #07302e;
+                background-color: #324343;
                 transform: scale(1);
             }
         }

@@ -30,9 +30,17 @@ const md = MarkdownIt({
 });
 
 function formatMessage(content) {
-    let renderedMessage = wrapCodeSnippets(content);
+    let renderedMessage = md.render(content);
 
-    renderedMessage = md.render(content);
+    // Replace newlines inside <ul> and <li> tags with spaces
+    renderedMessage = renderedMessage.replace(/<(ul|li)>\s*\n/g, '<$1> ');
+    renderedMessage = renderedMessage.replace(/\n\s*<\/(ul|li)>/g, ' </$1>');
+
+    // Replace newlines with <br>
+    renderedMessage = renderedMessage.replace(/\n/g, '<br>');
+
+    // Remove first and last <br>
+    renderedMessage = renderedMessage.replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
 
     return renderedMessage;
 }
@@ -41,8 +49,6 @@ function formatMessage(content) {
 function messageClass(role) {
     return role === 'user' ? 'user message' : 'gpt message';
 };
-
-
 
 function copyText(text) {
     const textarea = document.createElement('textarea');
