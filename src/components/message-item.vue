@@ -127,9 +127,11 @@ const stopLoading = () => {
     left: -34px;
     color: #9d81a0;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: transparent;
 
     &.loading {
         animation: spin 1s infinite linear;
+        background-color: transparent;
     }
 
     &:hover {
