@@ -85,7 +85,7 @@ const stopLoading = () => {
         </div>
         <div v-if="isLoading || isGeneratingImage || isAnalyzingImage" class="gpt message">
             <div class="label padded">AI Model</div>
-            <span v-html="formatMessage(streamedMessageText || '')"></span>
+            <span class="message-contents" v-html="formatMessage(streamedMessageText || '')"></span>
             <span v-if="!streamedMessageText.trim().length">
                 {{ isAnalyzingImage || isGeneratingImage ? 'Generating...' : 'Waiting For Stream Response...' }}
             </span>
