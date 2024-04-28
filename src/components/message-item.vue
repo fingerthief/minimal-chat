@@ -4,7 +4,7 @@
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
 import { RefreshCcw } from 'lucide-vue-next';
-import { defineEmits } from 'vue';
+import { defineEmits, ref } from 'vue';
 import "/node_modules/highlight.js/scss/github-dark-dimmed.scss";
 
 defineProps({
@@ -16,6 +16,8 @@ defineProps({
 });
 
 defineEmits(['regenerate-response']);
+
+const loadingIcon = ref(-1);
 
 const formatMessage = (content) => {
     const md = new MarkdownIt({
@@ -60,6 +62,14 @@ const copyText = (message) => {
     }
     document.body.removeChild(textarea);
 };
+
+const startLoading = (index) => {
+    loadingIcon.value = index;
+};
+
+const stopLoading = () => {
+    loadingIcon.value = -1;
+};
 </script>
 
 <template>
@@ -67,12 +77,13 @@ const copyText = (message) => {
         <div v-for="(message, index) in messages" :key="index" :class="messageClass(message.role)">
             <div class="label" @click="copyText(message)">
                 <RefreshCcw v-if="message.role === 'user'" class="icon"
-                    @click="$emit('regenerate-response', message.content)" />
+                    :class="{ 'loading': isLoading && loadingIcon === index }"
+                    @click="$emit('regenerate-response', message.content), startLoading(index)" />
                 {{ message.role === 'user' ? 'User' : 'AI Model' }}
             </div>
             <span class="message-contents" v-html="formatMessage(message.content)"></span>
         </div>
-        <div v-if="isLoading" class="gpt message">
+        <div v-if="isLoading || isGeneratingImage" class="gpt message">
             <div class="label padded">
                 AI Model
             </div>
@@ -120,9 +131,22 @@ const copyText = (message) => {
     color: #9d81a0;
     transition: background-color 0.3s ease, transform 0.2s ease;
 
+    &.loading {
+        animation: spin 1s infinite linear;
+    }
+
     &:hover {
-        transform: scale(1.15);
-        transform: rotate(-45deg);
+        transform: scale(1.15) rotate(-45deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }
 

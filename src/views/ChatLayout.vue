@@ -606,11 +606,14 @@ async function regenerateMessageReponse(content) {
 
 async function sendImagePrompt(imagePrompt) {
     isGeneratingImage.value = true;
+    streamedMessageText.value = "";
     scrollToBottom();
     userText.value = "";
 
     const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
+
     let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
+
     for (const image of response.data) {
         imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
     }
