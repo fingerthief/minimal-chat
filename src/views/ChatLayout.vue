@@ -930,7 +930,7 @@ a {
     overflow-x: hidden;
     padding: 3px;
     position: relative;
-    max-height: 96dvh;
+    max-height: 88dvh;
     min-height: 80vh;
     scrollbar-width: none;
     /* For Firefox */
