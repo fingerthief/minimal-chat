@@ -172,7 +172,7 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
     }
 }
 
-export async function streamClaudeResponse(messages, model, attitude, updateUIFunction, abortController, streamedMessageText) {
+export async function streamClaudeResponse(messages, model, attitude, updateUIFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     try {
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
             method: 'POST',
@@ -224,7 +224,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
 
                         if (token?.delta?.text) {
                             decodedResult += token.delta.text;
-                            updateUIFunction(token.delta.text, false);
+                            updateUIFunction(token.delta.text, autoScrollToBottom);
                         }
 
                         if (token?.type === "message_stop") {
