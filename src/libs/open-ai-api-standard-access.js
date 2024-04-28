@@ -2,7 +2,7 @@
 import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
 
 let localStreamRetryCount = 0;
-export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction, abortController, streamedMessageText) {
+export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     const gptMessagesOnly = filterLocalMessages(conversation);
 
     const requestOptions = {
@@ -24,7 +24,7 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
     try {
         const response = await fetch(localModelEndpoint + `/v1/chat/completions`, requestOptions);
 
-        const result = await readResponseStream(response, updateUiFunction);
+        const result = await readResponseStream(response, updateUiFunction, autoScrollToBottom);
 
         localStreamRetryCount = 0;
         return result;
@@ -170,7 +170,7 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
     }
 }
 
-async function readResponseStream(response, updateUiFunction) {
+async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
     let decodedResult = "";
 
     const reader = await response.body.getReader();
@@ -190,7 +190,7 @@ async function readResponseStream(response, updateUiFunction) {
                 decodedResult += content;
 
                 if (updateUiFunction) {
-                    updateUiFunction(content);
+                    updateUiFunction(content, autoScrollToBottom);
                 }
             }
         }

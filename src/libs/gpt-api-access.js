@@ -122,7 +122,7 @@ export async function generateDALLEImage(conversation) {
     }
 }
 
-export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction, abortController, streamedMessageText) {
+export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     const gptMessagesOnly = filterGPTMessages(conversation);
 
     const requestOptions = {
@@ -144,7 +144,7 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
     try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
 
-        result = await readResponseStream(response, updateUiFunction);
+        result = await readResponseStream(response, updateUiFunction, autoScrollToBottom);
 
         gptStreamRetryCount = 0;
         return result;
@@ -161,7 +161,7 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
     }
 }
 
-async function readResponseStream(response, updateUiFunction) {
+async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
     const reader = await response.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let decodedResult = "";
@@ -180,7 +180,7 @@ async function readResponseStream(response, updateUiFunction) {
             const { content } = delta;
             if (content) {
                 decodedResult += content;
-                updateUiFunction(content);
+                updateUiFunction(content, autoScrollToBottom);
             }
         }
     }
