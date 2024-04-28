@@ -1,7 +1,7 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-5.1.1-blue)
+![Version](https://img.shields.io/badge/version-5.1.2-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Self Host with Docker

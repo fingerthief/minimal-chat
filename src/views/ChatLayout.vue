@@ -626,6 +626,7 @@ async function sendImagePrompt(imagePrompt) {
 
 async function sendVisionPrompt(message) {
     isAnalyzingImage.value = true;
+    streamedMessageText.value = "";
 
     document.getElementById('imageInput').click();
 

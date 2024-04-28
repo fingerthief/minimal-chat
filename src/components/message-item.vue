@@ -83,16 +83,13 @@ const stopLoading = () => {
             </div>
             <span class="message-contents" v-html="formatMessage(message.content)"></span>
         </div>
-        <div v-if="isLoading || isGeneratingImage" class="gpt message">
-            <div class="label padded">
-                AI Model
-            </div>
+        <div v-if="isLoading || isGeneratingImage || isAnalyzingImage" class="gpt message">
+            <div class="label padded">AI Model</div>
             <span v-html="formatMessage(streamedMessageText || '')"></span>
             <span v-if="!streamedMessageText.trim().length">
                 {{ isAnalyzingImage || isGeneratingImage ? 'Generating...' : 'Waiting For Stream Response...' }}
             </span>
-            <span v-if="!streamedMessageText.trim().length" class="loading spinner">
-            </span>
+            <span v-if="!streamedMessageText.trim().length" class="loading spinner"></span>
         </div>
     </div>
 </template>
