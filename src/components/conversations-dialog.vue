@@ -276,7 +276,7 @@ $icon-color: rgb(187, 187, 187);
         }
 
         &.selected {
-            background-color: #36303b;
+            background-color: #3e3347;
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
             animation: pulse 0.250s ease-out forwards;
@@ -292,17 +292,17 @@ $icon-color: rgb(187, 187, 187);
 
         @keyframes pulse {
             0% {
-                background-color: #07302e;
+                background-color: #2d253d;
                 transform: scale(1);
             }
 
             50% {
-                background-color: #0e3634; // Slightly lighter color for the pulse effect
+                background-color: #413558; // Slightly lighter color for the pulse effect
                 transform: scale(1.02);
             }
 
             100% {
-                background-color: #324343;
+                background-color: #2d253d;
                 transform: scale(1);
             }
         }

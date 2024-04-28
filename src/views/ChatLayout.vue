@@ -177,16 +177,12 @@ function resetMessages() {
     lastLoadedConversationId.value = null;
 }
 
-function updateUI(content, reset) {
-
-    if (reset === true) {
-        streamedMessageText.value = "";
-        scrollToBottom();
-        return;
-    }
-
+function updateUI(content, autoScrollBottom = true) {
     streamedMessageText.value = (streamedMessageText.value || "") + content;
-    scrollToBottom();
+
+    if (autoScrollBottom) {
+        scrollToBottom();
+    }
 }
 
 function toggleSidebar() {
@@ -587,13 +583,13 @@ async function regenerateMessageReponse(content) {
         let response = "";
 
         if (selectedModel.value.indexOf("gpt") !== -1) {
-            response = await fetchGPTResponseStream(regenMessages, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText);
+            response = await fetchGPTResponseStream(regenMessages, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText, false);
         }
         else if (isClaudeEnabled.value) {
-            response = await streamClaudeResponse(regenMessages, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
+            response = await streamClaudeResponse(regenMessages, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText, false);
         }
         else {
-            response = await fetchLocalModelResponseStream(regenMessages, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText);
+            response = await fetchLocalModelResponseStream(regenMessages, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText, false);
         }
 
         addMessage("assistant", response);
