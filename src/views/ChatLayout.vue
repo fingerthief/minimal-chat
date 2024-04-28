@@ -871,12 +871,6 @@ $icon-color: rgb(187, 187, 187);
 }
 
 
-code {
-    overflow: hidden;
-    text-overflow: clip;
-}
-
-
 @font-face {
     font-family: Roboto-Regular;
     src: url('/src/assets/webfonts/Roboto-Regular.ttf');

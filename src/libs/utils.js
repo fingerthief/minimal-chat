@@ -7,14 +7,8 @@ export function wrapCodeSnippets(input) {
     const codeSnippetRegex = /`([^`]+)`/g;
 
     const wrapped = input.replace(codeSnippetRegex, (match, code) => {
-        const escapedCode = code
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
 
-        return `<pre class="hljs"><code>${escapedCode}</code></pre>`;
+        return `<pre><code>${code}</code></pre>`;
     });
 
     return wrapped;

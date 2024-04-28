@@ -2,7 +2,9 @@
 <!-- eslint-disable no-empty -->
 <script setup>
 import { wrapCodeSnippets, showToast } from '@/libs/utils';
-
+import hljs from 'highlight.js/lib/common';
+import 'highlight.js/styles/github-dark.css';
+import MarkdownIt from 'markdown-it';
 // Props
 const props = defineProps({
     content: String,
@@ -16,51 +18,33 @@ const props = defineProps({
     streamedMessageText: String
 });
 
-const defaults = {
-    html: true,
-    xhtmlOut: false,
-    breaks: false,
-    langPrefix: 'language-js',
-    linkify: true,
-    typographer: true,
-    _highlight: true,
-    _strict: false,
-    _view: 'src'
-};
+// Actual default values
+// Actual default values
+const md = MarkdownIt({
+    highlight: function (str, lang) {
 
-defaults.highlight = function (str, lang) {
-    const md = window.markdownit(defaults);
-    var esc = md.utils.escapeHtml;
-    if (lang && hljs.getLanguage(lang)) {
         try {
-            return '<pre class="hljs"><code>' +
-                hljs.highlight(lang, str, true).value +
-                '</code></pre>';
+            return hljs.highlightAuto(str).value;
         } catch (__) { }
-    } else {
-        return '<pre class="hljs"><code>' + esc(str) + '</code></pre>';
-    }
-};
 
+
+        return ''; // use external default escaping
+    }
+});
+
+// Methods
+function formatMessage(content) {
+    let renderedMessage = wrapCodeSnippets(content);
+    // Auto-format code snippets
+    renderedMessage = md.render(content);
+    return renderedMessage;
+}
 
 // Computed properties
 function messageClass(role) {
     return role === 'user' ? 'user message' : 'gpt message';
 };
 
-// Methods
-function formatMessage(content) {
-    let md = window.markdownit(defaults);
-    let renderedMessage = wrapCodeSnippets(md.render(content));
-
-    // Check if the message content contains more than one line
-    if (content.split('\n').length > 1) {
-        // Replace single newlines with line breaks
-        renderedMessage = renderedMessage.replace(/\n/g, '<br>');
-    }
-
-    return renderedMessage;
-}
 
 
 function copyText(text) {
@@ -121,6 +105,8 @@ function copyText(text) {
 </template>
 
 <style lang="scss" scoped>
+@use "/node_modules/highlight.js/scss/vs.scss";
+
 .message {
     position: relative;
     padding: 12px;

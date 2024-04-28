@@ -20,8 +20,10 @@
     "publish-beta": "npm run build && firebase hosting:channel:deploy beta"
   },
   "dependencies": {
+    "highlight.js": "^11.9.0",
     "http-server": "^14.1.1",
     "lucide-vue-next": "^0.368.0",
+    "markdown-it": "^14.1.0",
     "swiped-events": "^1.1.9",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"

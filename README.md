@@ -1,7 +1,7 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-5.0.9-blue)
+![Version](https://img.shields.io/badge/version-5.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Self Host with Docker
@@ -15,6 +15,7 @@
 MinimalChat is a lightweight, open-source chat app that allows you to interact with various language models, including GPT-3.5-Turbo, GPT-4, and more. With its minimalistic design and customizable settings, MinimalChat provides a seamless and intuitive chat experience.
 
 ### General Demo
+
 [
 ![minimal-chat-demo-3](https://github.com/fingerthief/minimal-chat/assets/2380471/dd4ecd26-e1fa-4e4f-91c8-1aa54db73305)](https://github.com/fingerthief/minimal-chat/wiki/General-Demo)
 
@@ -116,7 +117,7 @@ If you encounter any issues while using MinimalChat, try the following:
 - Make sure you have a stable internet connection.
 - Verify that your API keys are correct and have the necessary permissions.
 - As a **LAST STEP** Clear your browser cache and reload the app.
-  - This also clears all of your saved configured settings. You should never really need to do this, but weirder things have happened. 
+  - This also clears all of your saved configured settings. You should never really need to do this, but weirder things have happened.
 - If the issue persists, please report it using the [issue tracker](https://github.com/fingerthief/minimal-chat/issues).
 
 ## **Future Plans**
@@ -142,4 +143,3 @@ If you have any questions, feedback, or suggestions, feel free to reach out to u
 **Thank you for using MinimalChat!**
 
 _Buy me a coffee for some reason: ☕️ [![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow-btn.png)](https://buymeacoffee.com/fingerthief) ☕️_
-
