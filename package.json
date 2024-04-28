@@ -24,7 +24,9 @@
     "http-server": "^14.1.1",
     "lucide-vue-next": "^0.368.0",
     "markdown-it": "^14.1.0",
+    "pwacompat": "^2.0.17",
     "swiped-events": "^1.1.9",
+    "toastify-js": "^1.12.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

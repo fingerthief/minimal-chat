@@ -18,25 +18,22 @@ const props = defineProps({
     streamedMessageText: String
 });
 
-// Actual default values
-// Actual default values
 const md = MarkdownIt({
-    highlight: function (str, lang) {
-
+    highlight: function (str) {
         try {
             return hljs.highlightAuto(str).value;
-        } catch (__) { }
+        }
+        catch (__) { }
 
-
-        return ''; // use external default escaping
+        return '';
     }
 });
 
-// Methods
 function formatMessage(content) {
     let renderedMessage = wrapCodeSnippets(content);
-    // Auto-format code snippets
+
     renderedMessage = md.render(content);
+
     return renderedMessage;
 }
 
