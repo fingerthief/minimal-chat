@@ -16,16 +16,15 @@ MinimalChat is a lightweight, open-source chat app that allows you to interact w
 
 ### General Demo
 
-[
-![minimal-chat-demo-3](https://github.com/fingerthief/minimal-chat/assets/2380471/dd4ecd26-e1fa-4e4f-91c8-1aa54db73305)](https://github.com/fingerthief/minimal-chat/wiki/General-Demo)
+![326288101-4ece60a2-fa31-45f9-8c0a-7c7a5b84c864](https://github.com/fingerthief/minimal-chat/assets/2380471/11eb3d52-b3e9-41f2-b7c3-967e43560da7)
 
 ### Demo Vision Support (Claude, GPT, and Custom Models)
 
-[![minimal-chat-vision-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/eb02141d-752d-48b4-9aab-24f227eb197a)](https://github.com/fingerthief/minimal-chat/wiki/Demo-Vision-Support)
+![326293416-a6f75498-4590-4782-af49-22935d0464b8](https://github.com/fingerthief/minimal-chat/assets/2380471/980a3b5b-2ce2-44be-a8cc-232f5915dc57)
 
-### Demo DAll-E Image Generation (gpt-4-turbo only currently)
+### Mobile Version and Regenerating Responses Demo
 
-![minimal-chat-image-generation-demo](https://private-user-images.githubusercontent.com/2380471/326187674-28e2f894-f92f-4e4e-a6f8-a87939020fa1.gif?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTQyMzE2MTMsIm5iZiI6MTcxNDIzMTMxMywicGF0aCI6Ii8yMzgwNDcxLzMyNjE4NzY3NC0yOGUyZjg5NC1mOTJmLTRlNGUtYTZmOC1hODc5MzkwMjBmYTEuZ2lmP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI0MDQyNyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDA0MjdUMTUyMTUzWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9OTg4NjVjNzYxNzJlOGQzNDk2N2FiNTFhZmJkYmQxMjZjZmQ0MWQ4YmY0NzNkMTVjZmYyMTFlMDRhODc3ZWYxNCZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmYWN0b3JfaWQ9MCZrZXlfaWQ9MCZyZXBvX2lkPTAifQ.2209dbj3MrYmnm7Rt8DvuSwpyrCLdYf47DLJriaDPUI)
+![326301714-31c12768-403a-4cf7-a558-ca1be305c485](https://github.com/fingerthief/minimal-chat/assets/2380471/34adbe33-0a6a-4b68-b653-376d23ed708e)
 
 ## **Getting Started**
 
