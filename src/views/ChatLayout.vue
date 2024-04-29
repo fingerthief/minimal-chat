@@ -30,6 +30,7 @@ const isSidebarOpen = ref(false);
 const showConversationOptions = ref(false);
 const messages = ref([]);
 const streamedMessageText = ref("");
+const modelDisplayName = ref("Unknown");
 
 const localModelKey = ref(localStorage.getItem("localModelKey") || '')
 const localModelName = ref(localStorage.getItem("localModelName") || '');
@@ -62,7 +63,8 @@ let messagesContainer;
 watch(selectedModel, (newValue) => {
     const MODEL_TYPES = {
         OPEN_AI_FORMAT: 'open-ai-format',
-        CLAUDE: 'claude'
+        CLAUDE: 'claude',
+        GPT: 'gpt'
     };
 
     // Default settings
@@ -77,10 +79,15 @@ watch(selectedModel, (newValue) => {
     if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
         useLocalModel = true;
         flags.isUsingLocalModel = true;
+        modelDisplayName.value = "Custom Model"
     }
     else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
         useLocalModel = false;
         flags.isClaudeEnabled = true;
+        modelDisplayName.value = "Claude"
+    }
+    else if (newValue.includes(MODEL_TYPES.GPT)) {
+        modelDisplayName.value = "GPT"
     }
 
 
@@ -146,6 +153,26 @@ watch(selectedAutoSaveOption, (newValue) => {
 //#endregion watchers
 
 //#region UI Updates
+function determineModelDisplayName(newValue) {
+    const MODEL_TYPES = {
+        OPEN_AI_FORMAT: 'open-ai-format',
+        CLAUDE: 'claude',
+        GPT: 'gpt'
+    };
+
+    // Determine settings based on model type
+    if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
+        modelDisplayName.value = "Custom Model"
+    }
+    else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
+        modelDisplayName.value = "Claude"
+    }
+    else if (newValue.includes(MODEL_TYPES.GPT)) {
+        modelDisplayName.value = "GPT"
+    }
+
+}
+
 function scrollToBottom() {
     const tempMessagesContainer = messagesContainer;
 
@@ -808,6 +835,7 @@ onUnmounted(() => {
 
 onMounted(() => {
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
+    determineModelDisplayName(selectedModel.value);
     selectConversation(lastLoadedConversationId.value);
 
     messagesContainer = document.querySelector('.messages');
@@ -877,7 +905,7 @@ onMounted(() => {
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
-                                :isGeneratingImage="isGeneratingImage"
+                                :isGeneratingImage="isGeneratingImage" :modelDisplayName="modelDisplayName"
                                 @regenerate-response="regenerateMessageReponse" />
                         </div>
                         <!-- Floating button to quick scroll to the bottom of the page -->

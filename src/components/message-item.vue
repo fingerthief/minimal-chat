@@ -13,6 +13,7 @@ defineProps({
     isAnalyzingImage: Boolean,
     isGeneratingImage: Boolean,
     streamedMessageText: String,
+    modelDisplayName: String
 });
 
 defineEmits(['regenerate-response']);
@@ -76,12 +77,12 @@ const startLoading = (index) => {
                 <RefreshCcw v-if="message.role === 'user'" class="icon"
                     :class="{ 'loading': isLoading && loadingIcon === index }"
                     @click="$emit('regenerate-response', message.content), startLoading(index)" />
-                {{ message.role === 'user' ? 'User' : 'AI Model' }}
+                {{ message.role === 'user' ? 'User' : modelDisplayName }}
             </div>
             <span class="message-contents" v-html="formatMessage(message.content)"></span>
         </div>
         <div v-if="isLoading || isGeneratingImage || isAnalyzingImage" class="gpt message">
-            <div class="label padded">AI Model</div>
+            <div class="label padded">{{ modelDisplayName }}</div>
             <span class="message-contents" v-html="formatMessage(streamedMessageText || '')"></span>
             <span v-if="!streamedMessageText.trim().length">
                 {{ isAnalyzingImage || isGeneratingImage ? 'Generating...' : 'Waiting For Stream Response...' }}
