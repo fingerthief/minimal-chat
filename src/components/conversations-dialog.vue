@@ -5,7 +5,8 @@ import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings }
 const props = defineProps({
     isSidebarOpen: Boolean,
     conversations: Array,
-    selectedConversationItem: Object
+    selectedConversationItem: Object,
+    showConversationOptions: Boolean
 });
 
 const loadedConversation = ref({});
@@ -93,15 +94,10 @@ function purgeConversations() {
 
     emit('purge-conversations');
 }
-
-function toggleSidebar() {
-    emit('toggle-sidebar');
-}
 </script>
 
 <template>
     <div class="resize-container">
-
         <div class="settings-header">
             <h2>
                 Conversations
@@ -119,6 +115,13 @@ function toggleSidebar() {
                         :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
                         <span>{{ conversation.conversation.title }}</span>
                     </li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="bottom-panel">
+            <div class="scrollable-list">
+                <ul>
                     <li class="new-conversation-option" @click="startNewConversation">
                         <span class="new-icon">
                             <MessageSquarePlus :stroke-width="1.5" />
@@ -131,18 +134,18 @@ function toggleSidebar() {
                             <span class="delete-text">Delete Current Conversation</span>
                         </span>
                     </li>
-                </ul>
-            </div>
-
-        </div>
-        <div class="bottom-panel">
-            <button class="close-btn" @click="toggleSidebar">Close</button>
-            <div class="scrollable-list">
-                <ul>
-                    <li class="new-conversation-option--settings" @click="$emit('open-settings')">
+                    <li v-if="!props.showConversationOptions" class="new-conversation-option--settings"
+                        @click="$emit('open-settings')">
                         <span class="settings-icon">
                             <Settings :stroke-width="1.5" />
                             <span class="settings-text">Settings</span>
+                        </span>
+                    </li>
+                    <li v-if="props.showConversationOptions" class="new-conversation-option--settings"
+                        @click="$emit('toggle-sidebar')">
+                        <span class="settings-icon">
+                            <Settings :stroke-width="1.5" />
+                            <span class="settings-text">Close</span>
                         </span>
                     </li>
                 </ul>
@@ -226,8 +229,10 @@ $icon-color: rgb(187, 187, 187);
 .bottom-panel {
     display: flex;
     align-items: flex-end;
+    flex-direction: column;
     width: fit-content;
     width: 100%;
+    margin-top: -13vh;
 
     .settings-cog {
         text-align: center;
@@ -241,7 +246,7 @@ $icon-color: rgb(187, 187, 187);
 
 .scrollable-list {
     @media (max-width: 600px) {
-        height: calc(87vh - 100px);
+        height: calc(92vh - 100px);
     }
 
     max-width: 100%;
@@ -285,6 +290,7 @@ $icon-color: rgb(187, 187, 187);
         }
 
         &--settings {
+
             background-color: #292530;
 
             &:hover {
@@ -395,7 +401,6 @@ $icon-color: rgb(187, 187, 187);
     margin-right: 6px;
     height: 50px;
     outline: none;
-    margin-bottom: 10px; // Add some margin at the bottom
     transition: background-color 0.2s ease;
     background-color: #29293a;
 
