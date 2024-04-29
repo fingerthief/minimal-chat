@@ -258,14 +258,14 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .config-section {
-    background-color: #0d2f2d;
+    background-color: #1c302e;
     font-size: 16px;
     font-weight: bold;
     text-align: center;
     position: relative;
     border-bottom: 1px solid rgb(57, 56, 56);
-    padding-bottom: 10px;
-    padding-top: 10px;
+    padding-bottom: 8px;
+    padding-top: 8px;
 }
 
 .settings-header {
@@ -329,7 +329,7 @@ $icon-color: rgb(187, 187, 187);
         flex-grow: 1;
         height: 15px;
         border-radius: 5px;
-        background: #828282;
+        background: #1c302e;
         outline: none;
         margin-left: 10px;
 
@@ -338,7 +338,7 @@ $icon-color: rgb(187, 187, 187);
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #5b525c;
+            background: #1a5951;
             cursor: pointer;
         }
 
@@ -346,7 +346,7 @@ $icon-color: rgb(187, 187, 187);
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #5b525c;
+            background: #1a5951;
             cursor: pointer;
         }
     }

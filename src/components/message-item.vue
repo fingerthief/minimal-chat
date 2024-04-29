@@ -160,6 +160,8 @@ const startLoading = (index) => {
         color: #dadbde;
         margin-top: 40px;
         border-radius: 15px;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
         .label {
@@ -177,6 +179,8 @@ const startLoading = (index) => {
         background-color: #1c302e;
         color: #dadbde;
         border-radius: 15px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
         margin-top: 40px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
