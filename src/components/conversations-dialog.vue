@@ -246,13 +246,13 @@ $icon-color: rgb(187, 187, 187);
 
 .scrollable-list {
     @media (max-width: 600px) {
-        height: calc(92vh - 100px);
+        height: calc(91vh - 100px);
     }
 
     max-width: 100%;
     overflow-x: hidden;
     width: 100%;
-    height: calc(97vh - 97px);
+    height: calc(98vh - 100px);
     min-height: 0vh;
     overflow: auto;
     box-sizing: border-box;
