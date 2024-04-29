@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { Eraser, Download, Upload, MessageSquarePlus } from 'lucide-vue-next';
+import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX } from 'lucide-vue-next';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -67,7 +67,7 @@ onMounted(() => {
 });
 
 
-const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations']);
+const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations', 'delete-current-conversation']);
 
 async function loadSelectedConversation(conversation) {
     loadedConversation.value = conversation;
@@ -121,9 +121,15 @@ function toggleSidebar() {
                     </li>
                     <li class="new-conversation-option" @click="startNewConversation">
                         <span class="new-icon">
-                            <MessageSquarePlus :stroke-width="1.0" /> &nbsp;&nbsp;
+                            <MessageSquarePlus :stroke-width="1.5" />
+                            <span class="new-text">Start New Conversation</span>
                         </span>
-                        Start New Conversation
+                    </li>
+                    <li class="new-conversation-option--delete" @click="$emit('delete-current-conversation')">
+                        <span class="delete-icon">
+                            <MessageSquareX :stroke-width="1.5" />
+                            <span class="delete-text">Delete Current Conversation</span>
+                        </span>
                     </li>
                 </ul>
             </div>
@@ -244,13 +250,40 @@ $icon-color: rgb(187, 187, 187);
         cursor: pointer;
         position: relative;
 
+        &--delete {
+            background-color: #52352c;
+
+            &:hover {
+                background-color: #6b4438;
+            }
+
+            .delete-icon {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 5px;
+
+                .delete-text {
+                    line-height: 1;
+                }
+
+            }
+
+        }
+
         &:hover {
             background-color: #104745;
         }
 
         .new-icon {
-            text-align: left;
-            margin-top: -3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+
+            .new-text {
+                line-height: 1;
+            }
         }
     }
 

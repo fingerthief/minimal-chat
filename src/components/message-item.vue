@@ -67,9 +67,6 @@ const startLoading = (index) => {
     loadingIcon.value = index;
 };
 
-const stopLoading = () => {
-    loadingIcon.value = -1;
-};
 </script>
 
 <template>

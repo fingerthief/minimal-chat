@@ -220,11 +220,16 @@ $shadow-spread-radius: 0px;
     left: 50px;
     top: 18%;
     color: $icon-color;
+    display: none;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
 
     &:hover {
         transform: scale(1.15);
+    }
+
+    @media (max-width: 600px) {
+        display: inline;
     }
 }
 
