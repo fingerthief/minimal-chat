@@ -354,6 +354,7 @@ $icon-color: rgb(187, 187, 187);
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
             animation: pulse 0.250s ease-out forwards;
+            border: 1px solid #513f77;
         }
 
         &.selected:before {

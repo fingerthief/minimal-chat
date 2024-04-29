@@ -165,11 +165,10 @@ $icon-color: rgb(187, 187, 187);
         }
     }
 
-
     #user-input {
         flex-grow: 1;
         z-index: 9999;
-        border: 1px solid #262628;
+        border: 1px solid #0d3937;
         outline: none;
         background-color: #1e1e20;
         font-size: 18px;
@@ -181,7 +180,6 @@ $icon-color: rgb(187, 187, 187);
         transition: 0.2s height ease-in-out;
         box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
     }
-
 
     @font-face {
         font-family: Roboto-Regular;
