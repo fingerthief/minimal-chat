@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX } from 'lucide-vue-next';
+import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings } from 'lucide-vue-next';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -67,7 +67,7 @@ onMounted(() => {
 });
 
 
-const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations', 'delete-current-conversation']);
+const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations', 'delete-current-conversation', 'open-settings']);
 
 async function loadSelectedConversation(conversation) {
     loadedConversation.value = conversation;
@@ -137,6 +137,16 @@ function toggleSidebar() {
         </div>
         <div class="bottom-panel">
             <button class="close-btn" @click="toggleSidebar">Close</button>
+            <div class="scrollable-list">
+                <ul>
+                    <li class="new-conversation-option--settings" @click="$emit('open-settings')">
+                        <span class="settings-icon">
+                            <Settings :stroke-width="1.5" />
+                            <span class="settings-text">Settings</span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
         </div>
         <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick"></div>
     </div>
@@ -217,7 +227,11 @@ $icon-color: rgb(187, 187, 187);
     display: flex;
     align-items: flex-end;
     width: fit-content;
-    width: 77%;
+    width: 100%;
+
+    .settings-cog {
+        text-align: center;
+    }
 
 
     @media (max-width: 600px) {
@@ -245,7 +259,6 @@ $icon-color: rgb(187, 187, 187);
         font-weight: bold;
         border-radius: 5px;
         padding: 15px;
-        padding-top: 24px;
         display: flex;
         cursor: pointer;
         position: relative;
@@ -264,6 +277,28 @@ $icon-color: rgb(187, 187, 187);
                 margin-top: 5px;
 
                 .delete-text {
+                    line-height: 1;
+                }
+
+            }
+
+        }
+
+        &--settings {
+            background-color: #292530;
+
+            &:hover {
+                background-color: #332e3c;
+            }
+
+            .settings-icon {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 5px;
+                font-size: 20px;
+
+                .settings-text {
                     line-height: 1;
                 }
 

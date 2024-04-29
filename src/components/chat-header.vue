@@ -172,11 +172,16 @@ $shadow-spread-radius: 0px;
     color: $icon-color;
     cursor: pointer;
     outline: none;
+    display: none;
 
     transition: background-color 0.3s ease, transform 0.2s ease;
 
     &:hover {
         transform: scale(1.15);
+    }
+
+    @media (max-width: 600px) {
+        display: inline;
     }
 }
 

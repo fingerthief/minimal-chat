@@ -861,7 +861,7 @@ onMounted(() => {
                     :selectedConversationItem="selectedConversation" @new-conversation="clearMessages"
                     @import-conversations="handleImportConversations" @export-conversations="handleExportConversations"
                     @purge-conversations="handlePurgeConversations"
-                    @delete-current-conversation="deleteCurrentConversation" />
+                    @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar" />
             </div>
             <div class="chat-container">
                 <div class="container">
