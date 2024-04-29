@@ -82,7 +82,7 @@ async function abortStream() {
                 <ImageUp />
             </span>
         </div>
-        <div class="send-button" @click="props.isLoading ? abortStream() : sendMessage">
+        <div class="send-button" @click="props.isLoading ? abortStream() : sendMessage()">
             <span v-show="props.isLoading" class="loading input-spinner">
 
             </span>
