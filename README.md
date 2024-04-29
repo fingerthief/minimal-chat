@@ -1,13 +1,12 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Version](https://img.shields.io/badge/version-5.1.3-blue)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalgpt.app)
 ![GitHub repo size](https://img.shields.io/github/repo-size/fingerthief/minimal-chat)
 ![Docker Image Size](https://img.shields.io/docker/image-size/tannermiddleton/minimal-chat)
 ![GitHub top language](https://img.shields.io/github/languages/top/fingerthief/minimal-chat)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![GitHub Repo stars](https://img.shields.io/github/stars/fingerthief/minimal-chat)
 
 ## Self Host with Docker
