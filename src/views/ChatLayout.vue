@@ -328,6 +328,10 @@ async function clearMessages() {
         }
     };
 
+    if (showConversationOptions.value) {
+        showConversations();
+    }
+
     isProcessing.value = false;
 
     showToast("Conversation Saved");
