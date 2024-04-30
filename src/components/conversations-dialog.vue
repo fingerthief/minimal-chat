@@ -120,7 +120,7 @@ function purgeConversations() {
 
         </div>
         <div class="bottom-panel">
-            <div class="scrollable-list">
+            <div class="scrollable-list--bottom">
                 <ul>
                     <li class="new-conversation-option" @click="startNewConversation">
                         <span class="new-icon">
@@ -230,9 +230,7 @@ $icon-color: rgb(187, 187, 187);
     display: flex;
     align-items: flex-end;
     flex-direction: column;
-    width: fit-content;
     width: 100%;
-    margin-top: -13vh;
 
     .settings-cog {
         text-align: center;
@@ -246,13 +244,155 @@ $icon-color: rgb(187, 187, 187);
 
 .scrollable-list {
     @media (max-width: 600px) {
-        height: calc(91vh - 100px);
+        height: 66dvh;
     }
 
     max-width: 100%;
     overflow-x: hidden;
     width: 100%;
-    height: calc(98vh - 100px);
+    height: 74dvh;
+    min-height: 0vh;
+    overflow: auto;
+    box-sizing: border-box;
+
+    &--bottom-options {
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .new-conversation-option {
+        text-align: left;
+        background-color: #0d3937;
+        color: #FFFFFF;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 15px;
+        display: flex;
+        cursor: pointer;
+        position: relative;
+
+        &--delete {
+            background-color: #52352c;
+
+            &:hover {
+                background-color: #6b4438;
+            }
+
+            .delete-icon {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 5px;
+
+                .delete-text {
+                    line-height: 1;
+                }
+
+            }
+
+        }
+
+        &--settings {
+
+            background-color: #292530;
+
+            &:hover {
+                background-color: #332e3c;
+            }
+
+            .settings-icon {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 5px;
+                font-size: 20px;
+
+                .settings-text {
+                    line-height: 1;
+                }
+
+            }
+
+        }
+
+        &:hover {
+            background-color: #104745;
+        }
+
+        .new-icon {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+
+            .new-text {
+                line-height: 1;
+            }
+        }
+    }
+
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        padding: 15px;
+        border-bottom: 1px solid #100d0d;
+        background-color: #2a2121;
+        transition: background-color 0.2s ease;
+
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+
+        &:hover {
+            background-color: #114335;
+        }
+
+        &.selected {
+            background-color: #3e3347;
+            font-weight: bold;
+            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: pulse 0.250s ease-out forwards;
+            border: 1px solid #513f77;
+        }
+
+        &.selected:before {
+            content: '\2713'; // Unicode for checkmark
+            font-family: 'Arial Unicode MS';
+            display: inline-block;
+            margin-right: 10px;
+            color: #4cae4c; // Green color for the checkmark
+        }
+
+        @keyframes pulse {
+            0% {
+                background-color: #2d253d;
+                transform: scale(1);
+            }
+
+            50% {
+                background-color: #413558; // Slightly lighter color for the pulse effect
+                transform: scale(1.02);
+            }
+
+            100% {
+                background-color: #2d253d;
+                transform: scale(1);
+            }
+        }
+    }
+}
+
+.scrollable-list--bottom {
+    max-width: 100%;
+    overflow-x: hidden;
+    width: 100%;
+    height: 22dvh;
+    max-height: 22dvh;
     min-height: 0vh;
     overflow: auto;
     box-sizing: border-box;
@@ -383,7 +523,6 @@ $icon-color: rgb(187, 187, 187);
         }
     }
 }
-
 
 .close-btn {
     @media (max-width: 600px) {

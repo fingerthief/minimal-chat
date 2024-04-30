@@ -108,11 +108,10 @@ $shadow-spread-radius: 0px;
     text-align: center;
     position: relative; // Add this line
     border-radius: 4px;
-    align-content: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     a {
-        top: 0%;
+        top: 22%;
         position: relative;
 
         @media (max-width: 600px) {
