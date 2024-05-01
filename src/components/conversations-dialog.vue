@@ -250,7 +250,7 @@ $icon-color: rgb(187, 187, 187);
     max-width: 100%;
     overflow-x: hidden;
     width: 100%;
-    height: 74dvh;
+    height: 77dvh;
     min-height: 0vh;
     overflow: auto;
     box-sizing: border-box;
@@ -403,7 +403,6 @@ $icon-color: rgb(187, 187, 187);
         color: #FFFFFF;
         font-weight: bold;
         border-radius: 5px;
-        padding: 15px;
         display: flex;
         cursor: pointer;
         position: relative;
@@ -476,7 +475,7 @@ $icon-color: rgb(187, 187, 187);
     }
 
     li {
-        padding: 15px;
+        padding: 10px;
         border-bottom: 1px solid #100d0d;
         background-color: #2a2121;
         transition: background-color 0.2s ease;

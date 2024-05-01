@@ -112,8 +112,7 @@ const startLoading = (index) => {
     top: -33px;
     color: #dadbde;
     min-width: 62px;
-    font-size: 1.05em;
-    font-weight: bold;
+    font-weight: 500;
     padding: 2px 5px;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
