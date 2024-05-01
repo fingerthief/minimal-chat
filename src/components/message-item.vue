@@ -3,7 +3,7 @@
 <script setup>
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
-import { RefreshCcw } from 'lucide-vue-next';
+import { RefreshCcw, Trash } from 'lucide-vue-next';
 import { defineEmits, ref } from 'vue';
 import "/node_modules/highlight.js/scss/github-dark-dimmed.scss";
 
@@ -16,7 +16,7 @@ defineProps({
     modelDisplayName: String
 });
 
-defineEmits(['regenerate-response']);
+defineEmits(['regenerate-response', 'delete-response']);
 
 const loadingIcon = ref(-1);
 
@@ -77,6 +77,9 @@ const startLoading = (index) => {
                 <RefreshCcw v-if="message.role === 'user'" class="icon"
                     :class="{ 'loading': isLoading && loadingIcon === index }"
                     @click="$emit('regenerate-response', message.content), startLoading(index)" />
+                <Trash v-if="message.role === 'user'" class="delete-icon"
+                    :class="{ 'loading': isLoading && loadingIcon === index }"
+                    @click="$emit('delete-response', message.content), startLoading(index)" />
                 {{ message.role === 'user' ? 'User' : modelDisplayName }}
             </div>
             <span class="message-contents" v-html="formatMessage(message.content)"></span>
@@ -135,6 +138,21 @@ const startLoading = (index) => {
         transform: scale(1.15) rotate(-45deg);
     }
 }
+
+
+.delete-icon {
+    position: absolute;
+    top: 3px;
+    left: -65px;
+    color: #9d81a0;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: transparent;
+
+    &:hover {
+        transform: scale(1.15);
+    }
+}
+
 
 @keyframes spin {
     0% {

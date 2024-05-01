@@ -635,6 +635,21 @@ async function regenerateMessageReponse(content) {
     isLoading.value = false;
 }
 
+async function deleteMessageFromHistory(content) {
+    const messageIndex = messages.value.findIndex(message => message.content === content && message.role === 'user');
+
+    if (messageIndex !== -1) {
+        streamedMessageText.value = "";
+
+        const beforeMessages = messages.value.slice(0, messageIndex);
+        const messagesAfter = messages.value.slice(messageIndex + 2); // This line remains the same
+
+        messages.value = [...beforeMessages, ...messagesAfter];
+
+        saveMessages();
+    }
+}
+
 async function sendImagePrompt(imagePrompt) {
     isGeneratingImage.value = true;
     streamedMessageText.value = "";
@@ -910,7 +925,8 @@ onMounted(() => {
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
                                 :isGeneratingImage="isGeneratingImage" :modelDisplayName="modelDisplayName"
-                                @regenerate-response="regenerateMessageReponse" />
+                                @regenerate-response="regenerateMessageReponse"
+                                @delete-response="deleteMessageFromHistory" />
                         </div>
                         <!-- Floating button to quick scroll to the bottom of the page -->
                         <div class="floating-button scroll" id="scroll-button" @click="scrollToBottom"
