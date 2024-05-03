@@ -19,7 +19,9 @@ const props = defineProps({
     selectedDallEImageCount: Number,
     selectedDallEImageResolution: String,
     selectedAutoSaveOption: String,
-    maxTokens: Number
+    maxTokens: Number,
+    top_P: Number,
+    repetitionPenalty: Number
 });
 
 const showGPTConfig = ref((props.selectedModel.indexOf("gpt") !== -1));
@@ -27,7 +29,9 @@ const showLocalConfig = ref((props.selectedModel.indexOf("open-ai-format") !== -
 const showClaudeConfig = ref((props.selectedModel.indexOf("claude") !== -1));
 
 const emit = defineEmits([
+    'update:repetitionPenalty',
     'update:maxTokens',
+    'update:top_P',
     'update:model',
     'update:localModelName',
     'update:localModelKey',
@@ -69,7 +73,7 @@ function toggleSidebar() {
             <span @click="reloadPage">
                 <RefreshCcw :size="23" :stroke-width="2" />
             </span>
-            Settings | V5.1.6
+            Settings | V5.1.7
         </h2>
     </div>
     <div class="sidebar-content-container">
@@ -118,6 +122,15 @@ function toggleSidebar() {
         <InputField v-show="showLocalConfig" :labelText="'Max Tokens'" :isSecret="false"
             :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
             :value="maxTokens" @update:value="update('maxTokens', $event)" />
+
+        <InputField v-show="showLocalConfig" :labelText="'Top_P Value'" :isSecret="false"
+            :placeholderText="'Enter the top_P value if applicable'" label="Top_P:" inputId="top_P" :value="top_P"
+            @update:value="update('top_P', $event)" />
+
+        <InputField v-show="showLocalConfig" :labelText="'Repetition Penalty'" :isSecret="false"
+            :placeholderText="'Enter the repetition penalty value if applicable'" label="repetitionPenalty:"
+            inputId="repetitionPenalty" :value="repetitionPenalty"
+            @update:value="update('repetitionPenalty', $event)" />
 
         <!-- Slider Value -->
         <div class="slider-container" v-show="showLocalConfig">

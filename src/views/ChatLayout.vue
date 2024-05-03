@@ -45,6 +45,8 @@ const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImag
 const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
 
 const maxTokens = ref(parseInt(localStorage.getItem("maxTokens")) || -1);
+const top_P = ref(parseFloat(localStorage.getItem("top_P")) || 1.0);
+const repetitionPenalty = ref(parseFloat(localStorage.getItem("repetitionPenalty")) || 1.0);
 
 const conversations = ref(loadConversationTitles());
 const conversationTitles = ref(loadConversationTitles());
@@ -109,6 +111,14 @@ watch(localModelKey, (newValue) => {
 
 watch(maxTokens, (newValue) => {
     localStorage.setItem('maxTokens', newValue);
+});
+
+watch(top_P, (newValue) => {
+    localStorage.setItem('top_P', newValue);
+});
+
+watch(repetitionPenalty, (newValue) => {
+    localStorage.setItem('repetitionPenalty', newValue);
 });
 
 watch(localModelName, (newValue) => {
@@ -857,6 +867,8 @@ const refs = {
     selectedDallEImageResolution,
     selectedAutoSaveOption,
     maxTokens,
+    top_P,
+    repetitionPenalty,
     localModelKey
 };
 // Event handlers for updating the parent's state when the child emits an update
@@ -926,8 +938,11 @@ onMounted(() => {
                     :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
                     :selectedDallEImageCount="selectedDallEImageCount"
                     :selectedDallEImageResolution="selectedDallEImageResolution"
-                    :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens"
-                    :localModelKey="localModelKey" @update:maxTokens="updateSetting('maxTokens', $event)"
+                    :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens" :top_P="top_P"
+                    :repetitionPenalty="repetitionPenalty" :localModelKey="localModelKey"
+                    @update:maxTokens="updateSetting('maxTokens', $event)"
+                    @update:repetitionPenalty="updateSetting('repetitionPenalty', $event)"
+                    @update:top_P="updateSetting('top_P', $event)"
                     @update:model="updateSetting('selectedModel', $event)"
                     @update:localModelName="updateSetting('localModelName', $event)"
                     @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"

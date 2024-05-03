@@ -16,7 +16,9 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
             stream: true,
             messages: gptMessagesOnly,
             temperature: attitude * 0.01,
-            max_tokens: parseInt(localStorage.getItem("maxTokens"))
+            max_tokens: parseInt(localStorage.getItem("maxTokens")),
+            top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
+            repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
         }),
         signal: abortController.signal
     };
@@ -50,7 +52,9 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
                 content: visionMessages
             }
         ],
-        max_tokens: 4096
+        max_tokens: 4096,
+        top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
+        repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
     };
 
     try {
@@ -148,7 +152,9 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
                 model: model,
                 stream: true,
                 messages: tempMessages,
-                temperature: 0.1
+                temperature: 0.25,
+                top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
+                repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
             }),
         };
 
