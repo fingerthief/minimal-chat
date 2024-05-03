@@ -15,7 +15,7 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
             model: model,
             stream: true,
             messages: gptMessagesOnly,
-            temperature: attitude * 0.01,
+            temperature: parseFloat(attitude),
             max_tokens: parseInt(localStorage.getItem("maxTokens")),
             top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
             repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
@@ -168,7 +168,7 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
 
         if (retryCount < 3) {
             retryCount++;
-            await getConversationTitleFromLocalModel(messages, model, sliderValue);
+            await getConversationTitleFromLocalModel(messages, model, localModelEndpoint);
         }
 
         console.error("Error fetching Local Model response:", error);

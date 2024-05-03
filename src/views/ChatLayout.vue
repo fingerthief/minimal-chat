@@ -35,7 +35,7 @@ const modelDisplayName = ref("Unknown");
 const localModelKey = ref(localStorage.getItem("localModelKey") || '')
 const localModelName = ref(localStorage.getItem("localModelName") || '');
 const localModelEndpoint = ref(localStorage.getItem("localModelEndpoint") || '');
-const localSliderValue = ref(parseInt(localStorage.getItem("local-attitude")) || 50);
+const localSliderValue = ref(parseFloat(localStorage.getItem("local-attitude")) || 0.6);
 const gptKey = ref(localStorage.getItem("gptKey") || '');
 const sliderValue = ref(parseInt(localStorage.getItem("gpt-attitude")) || 50);
 const claudeKey = ref(localStorage.getItem("claudeKey") || '');
@@ -554,7 +554,7 @@ async function sendGPTMessage(message) {
         if (selectedModel.value.indexOf("open-ai-format") !== -1) {
 
             localModelName.value = localStorage.getItem('localModelName') || '';
-            localSliderValue.value = localStorage.getItem('local-attitude') || 50;
+            localSliderValue.value = localStorage.getItem('local-attitude') || 0.6;
             localModelEndpoint.value = localStorage.getItem('localModelEndpoint') || '';
 
             response = await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText);

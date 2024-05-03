@@ -118,30 +118,23 @@ function toggleSidebar() {
         <InputField v-show="showLocalConfig" :isSecret="true" label="Key:" :labelText="'API Key'"
             :placeholderText="'Enter the API key if applicable'" inputId="local-model-key" :value="localModelKey"
             @update:value="update('localModelKey', $event)" />
+        <!-- Temp -->
+        <InputField v-show="showLocalConfig" :labelText="'Temperature (0.0-2.0) Default: (0.6)'" :isSecret="false"
+            :placeholderText="'Enter the temperature value for the model.'" label="localSliderValue"
+            inputId="localSliderValue" :value="localSliderValue" @update:value="update('localSliderValue', $event)" />
         <!-- Max Tokens -->
         <InputField v-show="showLocalConfig" :labelText="'Max Tokens'" :isSecret="false"
             :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
             :value="maxTokens" @update:value="update('maxTokens', $event)" />
-
-        <InputField v-show="showLocalConfig" :labelText="'Top_P Value'" :isSecret="false"
+        <!-- Top_P -->
+        <InputField v-show="showLocalConfig" :labelText="'Top_P Value (0.0-1.0) Default: (1.0)'" :isSecret="false"
             :placeholderText="'Enter the top_P value if applicable'" label="Top_P:" inputId="top_P" :value="top_P"
             @update:value="update('top_P', $event)" />
-
-        <InputField v-show="showLocalConfig" :labelText="'Repetition Penalty'" :isSecret="false"
-            :placeholderText="'Enter the repetition penalty value if applicable'" label="repetitionPenalty:"
-            inputId="repetitionPenalty" :value="repetitionPenalty"
+        <!-- Repetition Penalty -->
+        <InputField v-show="showLocalConfig" :labelText="'Repetition Penalty  (0.0-2.0) Default: (1.0)'"
+            :isSecret="false" :placeholderText="'Enter the repetition penalty value if applicable'"
+            label="repetitionPenalty:" inputId="repetitionPenalty" :value="repetitionPenalty"
             @update:value="update('repetitionPenalty', $event)" />
-
-        <!-- Slider Value -->
-        <div class="slider-container" v-show="showLocalConfig">
-            <span>Serious</span>
-            <input type="range" min="0" max="100" :value="localSliderValue"
-                @blur="update('localSliderValue', $event.target.value)">
-            <span>Creative</span>
-        </div>
-        <div class="config-section" v-show="showGPTConfig">
-            <h3>GPT Config</h3>
-        </div>
         <!-- GPT Key -->
         <InputField v-show="showGPTConfig" :labelText="'API Key'" :isSecret="true" label="Key:"
             :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey"
