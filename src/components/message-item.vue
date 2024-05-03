@@ -4,10 +4,11 @@
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
 import { RefreshCcw, Trash } from 'lucide-vue-next';
-import { defineEmits, ref } from 'vue';
+import { defineEmits, ref, nextTick } from 'vue';
 import "/node_modules/highlight.js/scss/github-dark-dimmed.scss";
+import ToolTip from './ToolTip.vue';
 
-defineProps({
+const props = defineProps({
     messages: Array,
     isLoading: Boolean,
     isAnalyzingImage: Boolean,
@@ -16,7 +17,7 @@ defineProps({
     modelDisplayName: String
 });
 
-defineEmits(['regenerate-response', 'delete-response']);
+const emit = defineEmits(['regenerate-response', 'delete-response', 'edit-message']);
 
 const loadingIcon = ref(-1);
 
@@ -68,6 +69,33 @@ const startLoading = (index) => {
     loadingIcon.value = index;
 };
 
+
+let initalMessage = "";
+
+const editMessage = (message) => {
+    message.isEditing = !message.isEditing;
+
+    if (message.isEditing) {
+        initalMessage = message;
+
+        nextTick(() => {
+            const messageContent = document.getElementById(`message-${props.messages.indexOf(message)}`);
+            if (messageContent) {
+                messageContent.focus();
+            }
+        });
+    }
+};
+
+const saveEditedMessage = (message, event) => {
+    message.isEditing = false;
+    const updatedContent = event.target.innerText.trim();
+
+    if (updatedContent !== initalMessage.content.trim()) {
+        emit('edit-message', initalMessage, updatedContent);
+    }
+};
+
 </script>
 
 <template>
@@ -82,7 +110,12 @@ const startLoading = (index) => {
                     @click="$emit('delete-response', message.content), startLoading(index)" />
                 {{ message.role === 'user' ? 'User' : modelDisplayName }}
             </div>
-            <span class="message-contents" v-html="formatMessage(message.content)"></span>
+            <div class="message-contents" :id="'message-' + index" :contenteditable="message.isEditing"
+                @dblclick="editMessage(message)" @blur="saveEditedMessage(message, $event)"
+                v-html="formatMessage(message.content)"></div>
+            <ToolTip v-if="message.role === 'user'" :alignment="'left'" :targetId="'message-' + index">
+                Double click to
+                edit message</ToolTip>
         </div>
         <div v-if="isLoading || isGeneratingImage || isAnalyzingImage" class="gpt message">
             <div class="label padded">{{ modelDisplayName }}</div>
@@ -154,6 +187,19 @@ const startLoading = (index) => {
 }
 
 
+.edit-icon {
+    position: absolute;
+    top: 3px;
+    left: -95px;
+    color: #9d81a0;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: transparent;
+
+    &:hover {
+        transform: scale(1.15);
+    }
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -167,6 +213,13 @@ const startLoading = (index) => {
 .message-contents {
     display: block;
     overflow: clip;
+
+    &[contenteditable="true"] {
+        outline: none;
+        border: 1px solid #614a63;
+        padding: 5px;
+        border-radius: 5px;
+    }
 }
 
 .message {

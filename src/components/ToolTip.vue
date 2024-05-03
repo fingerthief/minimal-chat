@@ -1,84 +1,83 @@
 <script setup>
-import { ref, onMounted, onUnmounted, reactive } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
-    targetId: String
+    targetId: String,
+    alignment: {
+        type: String,
+        default: 'center',
+        validator: (value) => ['left', 'center', 'right'].includes(value)
+    }
 });
 
 const visible = ref(false);
-const position = reactive({ x: 0, y: 0 });
+const tooltipElement = ref(null);
 
-const updatePosition = (event) => {
-    const tooltipElement = event.target.nextElementSibling;
-    const tooltipWidth = tooltipElement.offsetWidth;
-    const tooltipHeight = tooltipElement.offsetHeight;
-    const padding = 10; // Padding from cursor
-
-    let x = event.clientX + padding;
-    let y = event.clientY - tooltipHeight; // Center vertically relative to the cursor
-
-    // Adjust if tooltip goes beyond the right edge of the viewport
-    if (x + tooltipWidth > window.innerWidth) {
-        x = event.clientX - tooltipWidth - padding;
-    }
-
-    // Adjust if tooltip goes beyond the top edge of the viewport
-    if (y < 0) {
-        y = padding; // Reset to top padding if it goes above the viewport
-    }
-
-    // Adjust if tooltip goes beyond the bottom edge of the viewport
-    if (y + tooltipHeight > window.innerHeight) {
-        y = window.innerHeight - tooltipHeight - padding;
-    }
-
-    position.x = x;
-    position.y = y;
-
-    console.log(`Tooltip position: x=${x}, y=${y}`); //
-};
-
-const showTooltip = (event) => {
-    updatePosition(event);
+const showTooltip = () => {
     visible.value = true;
+    updatePosition();
 };
 
 const hideTooltip = () => {
     visible.value = false;
 };
 
+const updatePosition = () => {
+    const target = document.getElementById(props.targetId);
+    const targetRect = target.getBoundingClientRect();
+    const tooltipRect = tooltipElement.value.getBoundingClientRect();
+
+    let x = 0;
+    if (props.alignment === 'left') {
+        x = targetRect.left;
+    } else if (props.alignment === 'center') {
+        x = targetRect.left + (targetRect.width - tooltipRect.width) / 2;
+    } else if (props.alignment === 'right') {
+        x = targetRect.right - tooltipRect.width;
+    }
+
+    const y = targetRect.bottom + 10; // Adjust the offset as needed
+
+    tooltipElement.value.style.left = `${x}px`;
+    tooltipElement.value.style.top = `${y}px`;
+};
+
 onMounted(() => {
     const target = document.getElementById(props.targetId);
-    target.addEventListener('mouseenter', showTooltip);
-    target.addEventListener('mousemove', updatePosition);
-    target.addEventListener('mouseleave', hideTooltip);
+
+    if (target) {
+        target.addEventListener('mouseenter', showTooltip);
+        target.addEventListener('mouseleave', hideTooltip);
+        window.addEventListener('resize', updatePosition);
+    }
 });
 
 onUnmounted(() => {
     const target = document.getElementById(props.targetId);
-    target.removeEventListener('mouseenter', showTooltip);
-    target.removeEventListener('mousemove', updatePosition);
-    target.removeEventListener('mouseleave', hideTooltip);
+
+    if (target) {
+        target.removeEventListener('mouseenter', showTooltip);
+        target.removeEventListener('mouseleave', hideTooltip);
+        window.removeEventListener('resize', updatePosition);
+    }
+
 });
 </script>
 
 <template>
-    <div class="tooltip-container" v-show="visible" :style="{ top: position.y + 'px', left: position.x + 'px' }">
+    <div ref="tooltipElement" class="tooltip-container" v-show="visible">
         <slot></slot>
     </div>
 </template>
 
 <style>
 .tooltip-container {
-    position: inherit;
+    position: fixed;
     padding: 8px;
     background-color: #333;
     color: white;
     border-radius: 4px;
     font-size: 14px;
-    display: flex;
-    left: 0%;
-    top: 0%;
     z-index: 1000001;
     /* Ensure it's on top */
     pointer-events: none;

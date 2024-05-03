@@ -635,6 +635,48 @@ async function regenerateMessageReponse(content) {
     isLoading.value = false;
 }
 
+async function EditPreviousMessage(oldContent, newContent) {
+    isLoading.value = true;
+    const messageIndex = messages.value.findIndex(message => message.content === oldContent.content && message.role === 'user');
+
+    if (messageIndex !== -1) {
+        streamedMessageText.value = "";
+
+        const regenMessages = messages.value.slice(0, messageIndex + 1);
+        const messagesAfter = messages.value.slice(messageIndex + 2); // This line remains the same
+        abortController.value = new AbortController();
+
+        // Replace the last message content property in regenMessages with the value of userText
+        regenMessages[regenMessages.length - 1].content = newContent;
+
+        // Assign messages.value to regenMessages before regenerating the response
+        messages.value = regenMessages;
+
+        let response = "";
+
+        if (selectedModel.value.indexOf("gpt") !== -1) {
+            response = await fetchGPTResponseStream(regenMessages, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText, false);
+        }
+        else if (isClaudeEnabled.value) {
+            response = await streamClaudeResponse(regenMessages, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText, false);
+        }
+        else {
+            response = await fetchLocalModelResponseStream(regenMessages, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText, false);
+        }
+
+        addMessage("assistant", response);
+
+        messages.value[messageIndex + 1].content = response;
+
+        // Append messagesAfter to the current messages value
+        messages.value = [...messages.value, ...messagesAfter];
+
+        saveMessages();
+    }
+    isLoading.value = false;
+}
+
+
 async function deleteMessageFromHistory(content) {
     const messageIndex = messages.value.findIndex(message => message.content === content && message.role === 'user');
 
@@ -926,7 +968,7 @@ onMounted(() => {
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
                                 :isGeneratingImage="isGeneratingImage" :modelDisplayName="modelDisplayName"
                                 @regenerate-response="regenerateMessageReponse"
-                                @delete-response="deleteMessageFromHistory" />
+                                @delete-response="deleteMessageFromHistory" @edit-message="EditPreviousMessage" />
                         </div>
                         <!-- Floating button to quick scroll to the bottom of the page -->
                         <div class="floating-button scroll" id="scroll-button" @click="scrollToBottom"

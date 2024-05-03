@@ -19,6 +19,10 @@ import ChatLayout from './views/ChatLayout.vue';
 body {
     display: flex;
     font-family: Roboto-Regular, sans-serif;
+
+    @media (max-width: 600px) {
+        font-size: 13px;
+    }
 }
 
 @keyframes spinner {
