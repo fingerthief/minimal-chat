@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
 
-![Version](https://img.shields.io/badge/version-5.1.6-blue)
+![Version](https://img.shields.io/badge/version-5.1.7-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalgpt.app)
@@ -27,15 +27,13 @@ MinimalChat is a minimal and lightweight open-source chat application with full 
 
 [https://github.com/fingerthief/minimal-chat/wiki/Demo-Vision-Support](https://github.com/fingerthief/minimal-chat/wiki/Vision-Support-Demo) (View in Wiki)
 
-### Mobile Version and Regenerating Responses Demo
+### Mobile Demo
 
 https://github.com/fingerthief/minimal-chat/wiki/Mobile-Demo (View in Wiki)
 
 ## **Getting Started**
 
-### Check Out the Wiki! (WIP)
-
-#### [Take me to the Wiki](https://github.com/fingerthief/minimal-chat/wiki)
+### [Check Out the Wiki!](https://github.com/fingerthief/minimal-chat/wiki) for more detailed information
 
 ### Installation
 
