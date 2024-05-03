@@ -25,7 +25,7 @@ MinimalChat is a minimal and lightweight open-source chat application with full 
 
 ### Demo Vision Support (Claude, GPT, and Custom Models)
 
-https://github.com/fingerthief/minimal-chat/wiki/Demo-Vision-Support (View in Wiki)
+[https://github.com/fingerthief/minimal-chat/wiki/Demo-Vision-Support](https://github.com/fingerthief/minimal-chat/wiki/Vision-Support-Demo) (View in Wiki)
 
 ### Mobile Version and Regenerating Responses Demo
 
