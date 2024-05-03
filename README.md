@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
 
-![Version](https://img.shields.io/badge/version-5.1.4-blue)
+![Version](https://img.shields.io/badge/version-5.1.6-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalgpt.app)
@@ -11,13 +11,13 @@
 
 ## Self Host with Docker
 
-- `docker pull tannermiddleton/minimal-chat:latest`
+- `docker pull tannermiddleton/minimal-chat:latest` - Enter the port number to run on and that is it!
 
 ---
 
 ## **What is MinimalChat?**
 
-MinimalChat is a lightweight, open-source chat app that allows you to interact with various language models, including GPT-3.5-Turbo, GPT-4, and more. With its minimalistic design and customizable settings, MinimalChat provides a seamless and intuitive chat experience.
+MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-3.5-Turbo, GPT-4, Local Models and more. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
 
 ### General Demo
 
@@ -63,6 +63,7 @@ To integrate an external API, follow these steps in the settings panel of Minima
   - Open AI Response Formatted APIs (custom/local) models
 - Switch models mid-conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
+- Edit, Regenerate or Delete past message responses
 - Markdown Support
 - Code Syntax Highlighting
 - Basic DALL-E 3 Integration (Prefix GPT model messages with **image::** and then your description to generate images)
