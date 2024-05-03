@@ -133,8 +133,8 @@ const saveEditedMessage = (message, event) => {
     position: relative;
     padding: 12px;
     border-radius: 2px;
-    max-width: 85%;
-    min-width: 8%;
+    max-width: 97%;
+    min-width: 10%;
     margin-bottom: 8px;
     clear: both;
     margin-top: 18px;
