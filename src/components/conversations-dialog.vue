@@ -244,7 +244,7 @@ $icon-color: rgb(187, 187, 187);
 
 .scrollable-list {
     @media (max-width: 600px) {
-        height: 66dvh;
+        height: 69vh;
     }
 
     max-width: 100%;
@@ -341,48 +341,23 @@ $icon-color: rgb(187, 187, 187);
     li {
         padding: 15px;
         border-bottom: 1px solid #100d0d;
-        background-color: #2a2121;
+        background-color: #1c292ea8;
         transition: background-color 0.2s ease;
+        border-left: 6px solid #353434;
 
         -webkit-user-select: none;
         -ms-user-select: none;
         user-select: none;
 
         &:hover {
-            background-color: #114335;
+            background-color: #1143359f;
         }
 
         &.selected {
-            background-color: #3e3347;
+            background-color: #2d2235b8;
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-            animation: pulse 0.250s ease-out forwards;
-            border: 1px solid #513f77;
-        }
-
-        &.selected:before {
-            content: '\2713'; // Unicode for checkmark
-            font-family: 'Arial Unicode MS';
-            display: inline-block;
-            margin-right: 10px;
-            color: #4cae4c; // Green color for the checkmark
-        }
-
-        @keyframes pulse {
-            0% {
-                background-color: #352d458c;
-                transform: scale(1);
-            }
-
-            50% {
-                background-color: #352d458c; // Slightly lighter color for the pulse effect
-                transform: scale(1.02);
-            }
-
-            100% {
-                background-color: #352d458c;
-                transform: scale(1);
-            }
+            border-left: 6px solid #208261bd;
         }
     }
 }
@@ -441,7 +416,6 @@ $icon-color: rgb(187, 187, 187);
                 align-items: center;
                 gap: 10px;
                 margin-top: 5px;
-                font-size: 20px;
 
                 .settings-text {
                     line-height: 1;

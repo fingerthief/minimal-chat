@@ -1258,7 +1258,7 @@ pre {
         width: 100vw;
 
         &.open {
-            transform: translateX(0);
+            transform: translateX(-3px);
         }
     }
 }
