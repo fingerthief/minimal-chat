@@ -1,4 +1,4 @@
-# [**MinimalChat: A Simple and Customizable LLM Chat App**](https://minimalgpt.app)
+# [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalgpt.app)
 
 ![Version](https://img.shields.io/badge/version-5.1.7-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
@@ -17,7 +17,7 @@
 
 ## **What is MinimalChat?**
 
-MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-3.5-Turbo, GPT-4, Local Models and more. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
+MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
 
 ### General Demo
 
@@ -40,8 +40,9 @@ https://github.com/fingerthief/minimal-chat/wiki/Mobile-Demo (View in Wiki)
 To run the web app locally, you'll need NodeJS installed. Then, navigate to the project directory and run the following commands:
 
 1. Install needed packages: `npm install`
-2. Start local server: `npm run dev` (terminal will output the IP and port the server is running on)
-3. That's it! The app is now running locally.
+2. Build the app `npm run build`
+3. Start local server: `npm run preview` (terminal will output the IP and port the server is running on). Optionally you can run `npm run dev` to run the application in development mode.
+4. That's it! The app is now running locally.
 
 ### Configuration
 
