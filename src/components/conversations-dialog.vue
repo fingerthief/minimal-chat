@@ -294,7 +294,7 @@ $icon-color: rgb(187, 187, 187);
 
         &--settings {
 
-            background-color: #292530;
+            background-color: #292530c9;
 
             &:hover {
                 background-color: #332e3c;
@@ -370,17 +370,17 @@ $icon-color: rgb(187, 187, 187);
 
         @keyframes pulse {
             0% {
-                background-color: #2d253d;
+                background-color: #352d458c;
                 transform: scale(1);
             }
 
             50% {
-                background-color: #413558; // Slightly lighter color for the pulse effect
+                background-color: #352d458c; // Slightly lighter color for the pulse effect
                 transform: scale(1.02);
             }
 
             100% {
-                background-color: #2d253d;
+                background-color: #352d458c;
                 transform: scale(1);
             }
         }
@@ -399,7 +399,7 @@ $icon-color: rgb(187, 187, 187);
 
     .new-conversation-option {
         text-align: left;
-        background-color: #0d3937;
+        background-color: #1047456f;
         color: #FFFFFF;
         font-weight: bold;
         border-radius: 5px;
@@ -408,7 +408,7 @@ $icon-color: rgb(187, 187, 187);
         position: relative;
 
         &--delete {
-            background-color: #52352c;
+            background-color: #6b44385f;
 
             &:hover {
                 background-color: #6b4438;
@@ -430,7 +430,7 @@ $icon-color: rgb(187, 187, 187);
 
         &--settings {
 
-            background-color: #292530;
+            background-color: #292530ae;
 
             &:hover {
                 background-color: #332e3c;
@@ -506,7 +506,7 @@ $icon-color: rgb(187, 187, 187);
 
         @keyframes pulse {
             0% {
-                background-color: #2d253d;
+                background-color: #352d458c;
                 transform: scale(1);
             }
 
@@ -516,7 +516,7 @@ $icon-color: rgb(187, 187, 187);
             }
 
             100% {
-                background-color: #2d253d;
+                background-color: #352d458c;
                 transform: scale(1);
             }
         }
