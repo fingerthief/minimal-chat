@@ -1,10 +1,8 @@
-<!-- InputField.vue -->
-
 <script setup>
 import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
-    label: String,
+    labelText: String, // Added labelText prop
     value: String,
     inputId: String,
     placeholderText: String,
@@ -24,12 +22,14 @@ const emitUpdate = (event) => {
 
 <template>
     <div class="input-field">
+        <!-- Render the label if labelText is provided -->
+        <label :for="props.inputId" v-if="props.labelText">{{ props.labelText }}</label>
         <input :id="props.inputId" :value="props.value" @blur="emitUpdate" :type="props.isSecret ? 'password' : 'text'"
             :placeholder="props.placeholderText" :autocomplete="props.isSecret ? 'new-password' : 'off'">
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .input-field {
     display: flex;
     flex-direction: column;
@@ -42,13 +42,7 @@ const emitUpdate = (event) => {
         font-size: 14px;
         font-weight: bold;
         margin-bottom: 5px;
-    }
-
-    @font-face {
-        font-family: Roboto-Regular;
-        src: url('/src/assets/webfonts/Roboto-Regular.ttf');
-        font-weight: 400;
-        font-style: normal;
+        display: block;
     }
 
     input {
@@ -60,7 +54,6 @@ const emitUpdate = (event) => {
         background-color: rgb(70, 68, 68);
         font-size: 16px;
         font-family: Roboto-Regular, sans-serif;
-
 
         &:focus {
             outline: none;

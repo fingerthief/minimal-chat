@@ -103,19 +103,19 @@ function toggleSidebar() {
             <h3>OpenAI Format Model Config</h3>
         </div>
         <!-- Model Name -->
-        <InputField v-show="showLocalConfig" label="Model:" inputId="model-name" :value="localModelName"
-            @update:value="update('localModelName', $event)" :isSecret="false"
+        <InputField v-show="showLocalConfig" label="Model:" :labelText="'Model Name'" inputId="model-name"
+            :value="localModelName" @update:value="update('localModelName', $event)" :isSecret="false"
             :placeholderText="'Enter the model name'" />
         <!-- Model Endpoint -->
-        <InputField v-show="showLocalConfig" :isSecret="false" label="API Endpoint:"
+        <InputField v-show="showLocalConfig" :isSecret="false" :labelText="'API Endpoint'" label="API Endpoint:"
             :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
             :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
         <!-- API key -->
-        <InputField v-show="showLocalConfig" :isSecret="true" label="Key:"
+        <InputField v-show="showLocalConfig" :isSecret="true" label="Key:" :labelText="'API Key'"
             :placeholderText="'Enter the API key if applicable'" inputId="local-model-key" :value="localModelKey"
             @update:value="update('localModelKey', $event)" />
         <!-- Max Tokens -->
-        <InputField v-show="showLocalConfig" :isSecret="false"
+        <InputField v-show="showLocalConfig" :labelText="'Max Tokens'" :isSecret="false"
             :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
             :value="maxTokens" @update:value="update('maxTokens', $event)" />
 
@@ -130,8 +130,9 @@ function toggleSidebar() {
             <h3>GPT Config</h3>
         </div>
         <!-- GPT Key -->
-        <InputField v-show="showGPTConfig" :isSecret="true" label="Key:" :placeholderText="'Enter the API Key'"
-            inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
+        <InputField v-show="showGPTConfig" :labelText="'API Key'" :isSecret="true" label="Key:"
+            :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey"
+            @update:value="update('gptKey', $event)" />
         <!-- Slider Value -->
         <div class="slider-container" v-show="showGPTConfig">
             <span>Serious</span>
@@ -143,8 +144,9 @@ function toggleSidebar() {
             <h3>Claude Config</h3>
         </div>
         <!-- Claude Key -->
-        <InputField v-show="showClaudeConfig" :isSecret="true" label="Key:" :placeholderText="'Enter the API Key'"
-            inputId="claude-api-key" :value="claudeKey" @update:value="update('claudeKey', $event)" />
+        <InputField v-show="showClaudeConfig" :labelText="'API Key'" :isSecret="true" label="Key:"
+            :placeholderText="'Enter the API Key'" inputId="claude-api-key" :value="claudeKey"
+            @update:value="update('claudeKey', $event)" />
         <!-- Claude Slider Value -->
         <div class="slider-container" v-show="showClaudeConfig">
             <span>Serious</span>
@@ -179,7 +181,7 @@ function toggleSidebar() {
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 $shadow-color: #252629;
 $shadow-offset-x: 0px;
 $shadow-offset-y: 1px;
@@ -190,7 +192,6 @@ $icon-color: rgb(187, 187, 187);
 
 
 .sidebar-content-container {
-    height: 84vh;
     overflow: auto;
     text-overflow: clip;
     padding: 6px;
