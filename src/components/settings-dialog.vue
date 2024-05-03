@@ -3,6 +3,7 @@
 import { RefreshCcw } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref } from 'vue';
+import ToolTip from './ToolTip.vue';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -123,7 +124,7 @@ function toggleSidebar() {
             :placeholderText="'Enter the temperature value for the model.'" label="localSliderValue"
             inputId="localSliderValue" :value="localSliderValue" @update:value="update('localSliderValue', $event)" />
         <!-- Max Tokens -->
-        <InputField v-show="showLocalConfig" :labelText="'Max Tokens'" :isSecret="false"
+        <InputField v-show="showLocalConfig" :labelText="'Max Tokens (Default: -1 disabled)'" :isSecret="false"
             :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
             :value="maxTokens" @update:value="update('maxTokens', $event)" />
         <!-- Top_P -->
