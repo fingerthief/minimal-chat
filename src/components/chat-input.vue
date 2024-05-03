@@ -183,7 +183,7 @@ $icon-color: rgb(187, 187, 187);
 
         @media (max-width: 600px) {
             max-width: 98vw;
-            margin-left: 1vw;
+            margin-left: 2vw;
         }
     }
 
@@ -199,6 +199,7 @@ $icon-color: rgb(187, 187, 187);
         padding-left: 20px;
         padding-right: 100px;
         transition: 0.2s height ease-in-out;
+        margin-right: 6px;
 
         font-family: Roboto-Regular, sans-serif;
     }

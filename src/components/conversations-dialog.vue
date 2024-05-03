@@ -172,7 +172,7 @@ $icon-color: rgb(187, 187, 187);
     width: 6px;
     height: 100%;
     cursor: col-resize;
-    background-color: #1e1e1f;
+    background-color: #191b1b;
     z-index: 1000;
 }
 
@@ -271,52 +271,8 @@ $icon-color: rgb(187, 187, 187);
         cursor: pointer;
         position: relative;
 
-        &--delete {
-            background-color: #52352c;
-
-            &:hover {
-                background-color: #6b4438;
-            }
-
-            .delete-icon {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-top: 5px;
-
-                .delete-text {
-                    line-height: 1;
-                }
-
-            }
-
-        }
-
-        &--settings {
-
-            background-color: #292530c9;
-
-            &:hover {
-                background-color: #332e3c;
-            }
-
-            .settings-icon {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-top: 5px;
-                font-size: 20px;
-
-                .settings-text {
-                    line-height: 1;
-                }
-
-            }
-
-        }
-
         &:hover {
-            background-color: #104745;
+            background-color: #104745aa;
         }
 
         .new-icon {
@@ -350,7 +306,7 @@ $icon-color: rgb(187, 187, 187);
         user-select: none;
 
         &:hover {
-            background-color: #1143359f;
+            background-color: #0d3837aa;
         }
 
         &.selected {

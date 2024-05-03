@@ -1238,7 +1238,7 @@ pre {
     position: inherit;
     top: 0;
     left: 0;
-    transform: translateX(0);
+    transform: translateX(-3px);
     transition: transform 0.1s ease-in-out;
     z-index: 100000;
     overflow: hidden;
