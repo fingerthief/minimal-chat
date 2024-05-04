@@ -284,8 +284,6 @@ $icon-color: rgb(187, 187, 187);
         transition: background-color 0.2s ease;
         border-left: 6px solid #353434;
         border-bottom: 1px solid #3e4f5b82;
-        border-top-right-radius: 20px;
-        border-bottom-right-radius: 20px;
 
         -webkit-user-select: none;
         -ms-user-select: none;
