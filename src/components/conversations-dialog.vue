@@ -12,8 +12,6 @@ const props = defineProps({
 
 const loadedConversation = ref({});
 
-
-
 const selectedConversation = computed(() => {
     return props.conversations.find(conversation =>
         conversation.id === props.selectedConversationItem.id
@@ -163,8 +161,6 @@ function purgeConversations() {
             </div>
         </div>
     </div>
-
-
 </template>
 
 <style lang="scss" scoped>
