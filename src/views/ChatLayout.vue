@@ -487,10 +487,22 @@ function loadSelectedConversation(conversation) {
         return;
     }
 
-    const selectedMessages = selectedConversation.value.conversation.messageHistory;
-    messages.value = selectedMessages;
+    // Initialize the maximum ID found in the current messages
+    let maxId = messages.value.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
+
+    // Process each message to ensure it has a unique ID
+    const processedMessages = selectedConversation.value.conversation.messageHistory.map(message => {
+        if (!message.id) {
+            maxId++; // Increment maxId to ensure a unique ID
+            return { ...message, id: maxId }; // Assign the new ID
+        }
+        return message;
+    });
+
+    messages.value = processedMessages; // Update the messages reactive variable
     showConversationOptions.value = false;
 }
+
 //#endregion
 
 //#region Messages Handling
@@ -533,11 +545,20 @@ async function sendMessage(event) {
 }
 
 function addMessage(role, message) {
+    // Find the highest existing message ID in the messages array
+    const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
+
+    // Increment the maximum found ID for the new message
+    const newMessageId = maxId + 1;
+
+    // Push the new message with the incremented ID
     messages.value.push({
+        id: newMessageId,
         role: role,
         content: message
     });
 }
+
 
 async function sendGPTMessage(message) {
     scrollToBottom();
@@ -931,6 +952,30 @@ function stopResize() {
     document.removeEventListener("mouseup", stopResize);
 }
 
+async function editConversationTitle(oldConversation, newConversationTitle) {
+    const conversationIndex = conversations.value.findIndex(
+        (conversation) => conversation.id === oldConversation.id
+    );
+
+    if (conversationIndex !== -1) {
+        conversations.value[conversationIndex].conversation.title = newConversationTitle;
+
+        const storedConversationIndex = storedConversations.value.findIndex(
+            (conversation) => conversation.id === oldConversation.id
+        );
+
+        if (storedConversationIndex !== -1) {
+            storedConversations.value[storedConversationIndex].conversation.title = newConversationTitle;
+            localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations.value));
+        }
+
+        showToast("Title Updated");
+        return;
+    }
+
+    showToast("Failed to update title");
+}
+
 onUnmounted(() => {
     document.removeEventListener('click', handleGlobalClick);
 });
@@ -995,8 +1040,8 @@ onMounted(() => {
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="loadSelectedConversation"
                     :selectedConversationItem="selectedConversation" @new-conversation="clearMessages"
-                    @import-conversations="handleImportConversations" @export-conversations="handleExportConversations"
-                    @purge-conversations="handlePurgeConversations"
+                    @edit-conversation-title="editConversationTitle" @import-conversations="handleImportConversations"
+                    @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
                     @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
                     :showConversationOptions="showConversationOptions" />
                 <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick">
@@ -1394,7 +1439,7 @@ pre {
     border-radius: 4px;
     width: 100vw;
     max-width: 100vw;
-    background-color: #2c2c2e;
+    background-color: #1d1d1d;
     justify-content: space-between;
 }
 
@@ -1407,7 +1452,7 @@ pre {
     min-width: 350px;
     max-width: 100vw;
     width: 50%;
-    background-color: #181818;
+    background-color: #1d1d1d;
     justify-content: space-between;
 }
 </style>
