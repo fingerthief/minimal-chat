@@ -145,7 +145,7 @@ const saveEditedMessage = (message, event) => {
     position: relative;
     padding: 12px;
     min-width: 10%;
-    width: 100%;
+    width: 88%;
     margin-bottom: 8px;
     clear: both;
     margin-top: 18px;
@@ -242,8 +242,9 @@ const saveEditedMessage = (message, event) => {
         color: #dadbde;
         margin-top: 40px;
         text-align: end;
+        border-top: 2px solid #583e72d9;
         width: fit-content;
-        padding-bottom: 0px;
+        min-width: 35%;
 
         .label {
             right: 0;
@@ -259,9 +260,11 @@ const saveEditedMessage = (message, event) => {
 
     &.gpt {
         float: left;
-        background-color: #162b2ba6;
         color: #dadbde;
         margin-top: 40px;
+        border-top: 2px solid #0b6363e5;
+        width: fit-content;
+        min-width: 35%;
 
         .label {
             color: #ece9ef;
