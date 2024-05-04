@@ -1394,7 +1394,7 @@ pre {
     border-radius: 4px;
     width: 100vw;
     max-width: 100vw;
-    background-color: #2c2c2e;
+    background-color: #1d1d1d;
     justify-content: space-between;
 }
 
@@ -1407,7 +1407,7 @@ pre {
     min-width: 350px;
     max-width: 100vw;
     width: 50%;
-    background-color: #181818;
+    background-color: #1d1d1d;
     justify-content: space-between;
 }
 </style>

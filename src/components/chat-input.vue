@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
-import { SendHorizontal, ImageUp, CircleStop } from 'lucide-vue-next';
+import { SquareArrowUp, ImageUp, CircleStop } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import "swiped-events";
 
@@ -93,7 +93,7 @@ async function abortStream() {
                 <CircleStop />
             </span>
             <span v-show="!props.isLoading">
-                <SendHorizontal />
+                <SquareArrowUp />
             </span>
         </div>
     </form>
@@ -173,7 +173,7 @@ $icon-color: rgb(187, 187, 187);
         z-index: 9999;
         border: 1px solid #0d3937;
         outline: none;
-        background-color: #1e1e20;
+        background-color: #1d1d1d;
         font-size: 18px;
         color: #f0f0f0;
         resize: vertical;
@@ -182,7 +182,6 @@ $icon-color: rgb(187, 187, 187);
         min-height: 50px;
         transition: 0.2s height ease-in-out;
         box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
-        border-radius: 30px;
 
         @media (max-width: 600px) {
             max-width: 98vw;

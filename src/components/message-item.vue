@@ -78,6 +78,10 @@ const editMessage = (message) => {
         return;
     }
 
+    if (message.isEditing) {
+        return;
+    }
+
     message.isEditing = !message.isEditing;
 
     if (message.isEditing) {
@@ -140,38 +144,33 @@ const saveEditedMessage = (message, event) => {
 .message {
     position: relative;
     padding: 12px;
-    border-radius: 2px;
-    max-width: 97%;
     min-width: 10%;
+    width: 100%;
     margin-bottom: 8px;
     clear: both;
     margin-top: 18px;
     font-size: 1em;
     line-height: 1.5;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .label {
 
     @media (max-width: 600px) {
         top: -27px;
+        font-size: 16px;
     }
-
 
     position: absolute;
     top: -33px;
     color: #dadbde;
     min-width: 62px;
     font-weight: 500;
-    padding: 2px 5px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    font-size: 18px;
 }
 
 .icon {
     position: absolute;
-    top: 3px;
-    left: -34px;
+    left: -7px;
     color: #9d81a0;
     transition: background-color 0.3s ease, transform 0.2s ease;
     background-color: transparent;
@@ -189,8 +188,7 @@ const saveEditedMessage = (message, event) => {
 
 .delete-icon {
     position: absolute;
-    top: 3px;
-    left: -65px;
+    left: -40px;
     color: #827b83;
     transition: background-color 0.3s ease, transform 0.2s ease;
     background-color: transparent;
@@ -230,9 +228,10 @@ const saveEditedMessage = (message, event) => {
 
     &[contenteditable="true"] {
         outline: none;
-        border: 2px solid #614a63;
+        border: 2px solid #423d42;
         padding: 15px;
         border-radius: 5px;
+        text-align: center;
     }
 }
 
@@ -240,40 +239,32 @@ const saveEditedMessage = (message, event) => {
 
     &.user {
         float: right;
-        background-color: #2d253d;
         color: #dadbde;
         margin-top: 40px;
-        border-radius: 15px;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        text-align: end;
+        width: fit-content;
 
         .label {
-            background-color: #2d253d;
-            border-right: 6px solid #6c577c;
-            border-left: 6px solid #6c577c;
-            right: 2px;
+            right: 0;
             padding-left: 13px;
             color: #ece9ef;
+            font-size: 18px;
+
+            @media (max-width: 600px) {
+                font-size: 16px;
+            }
         }
     }
 
     &.gpt {
         float: left;
-        background-color: #1c302e;
+        background-color: #2c262e;
         color: #dadbde;
-        border-radius: 15px;
-        border-top-left-radius: 3px;
-        border-bottom-left-radius: 3px;
         margin-top: 40px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
         .label {
-            background-color: #1c302e;
-            border-left: 6px solid #4b817b;
-            border-right: 6px solid #4b817b;
-            left: 2px;
             color: #ece9ef;
+            left: 0;
         }
     }
 }
