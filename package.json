@@ -20,6 +20,7 @@
     "publish-beta": "npm run build && firebase hosting:channel:deploy beta"
   },
   "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.35",
     "highlight.js": "^11.9.0",
     "http-server": "^14.1.1",
     "lucide-vue-next": "^0.368.0",

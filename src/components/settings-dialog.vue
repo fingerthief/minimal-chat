@@ -19,6 +19,7 @@ const props = defineProps({
     selectedDallEImageCount: Number,
     selectedDallEImageResolution: String,
     selectedAutoSaveOption: String,
+    browserModelSelection: String,
     maxTokens: Number,
     top_P: Number,
     repetitionPenalty: Number
@@ -27,6 +28,7 @@ const props = defineProps({
 const showGPTConfig = ref((props.selectedModel.indexOf("gpt") !== -1));
 const showLocalConfig = ref((props.selectedModel.indexOf("open-ai-format") !== -1));
 const showClaudeConfig = ref((props.selectedModel.indexOf("claude") !== -1));
+const showBrowserModelConfig = ref((props.selectedModel.indexOf("web-llm") !== -1));
 
 const emit = defineEmits([
     'update:repetitionPenalty',
@@ -44,6 +46,7 @@ const emit = defineEmits([
     'update:selectedDallEImageCount',
     'update:selectedDallEImageResolution',
     'update:selectedAutoSaveOption',
+    'update:browserModelSelection',
     'toggle-sidebar'
 ]);
 
@@ -52,6 +55,7 @@ const update = (field, value) => {
         showGPTConfig.value = (value.indexOf("gpt") !== -1);
         showLocalConfig.value = (value.indexOf("open-ai-format") !== -1);
         showClaudeConfig.value = (value.indexOf("claude") !== -1);
+        showBrowserModelConfig.value = (value.indexOf("web-llm") !== -1);
     }
 
     emit(`update:${field}`, value);
@@ -73,7 +77,7 @@ function toggleSidebar() {
             <span @click="reloadPage">
                 <RefreshCcw :size="23" :stroke-width="2" />
             </span>
-            Settings | V5.2.0
+            Settings | V6.0.0
         </h2>
     </div>
     <div class="sidebar-content-container">
@@ -92,6 +96,7 @@ function toggleSidebar() {
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
                 <option value="open-ai-format">Open AI Response Formatted API</option>
+                <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
             </select>
         </div>
         <!-- Auto Save Conversations -->
@@ -101,6 +106,22 @@ function toggleSidebar() {
                 @change="update('selectedAutoSaveOption', $event.target.value)">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
+            </select>
+        </div>
+        <div class="config-section" v-show="showBrowserModelConfig">
+            <h3>Local Browser Model</h3>
+        </div>
+        <br>
+        <div class="control select-dropdown" v-show="showBrowserModelConfig">
+            <span>Model To Load In Browser: </span>
+            <select id="localModelsSelection" :value="browserModelSelection"
+                @change="update('browserModelSelection', $event.target.value)">
+                <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32_1 (~6.1gb VRAM)</option>
+                <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16_1-1k (~4.6gb VRAM)</option>
+                <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32_1-1k (~5.2gb VRAM)</option>
+                <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2-q4f16_1 (~6.1gb VRAM)</option>
+                <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B-q4f16_1 (~6.1gb VRAM)
+                </option>
             </select>
         </div>
         <div class="config-section" v-show="showLocalConfig">
@@ -200,6 +221,7 @@ $icon-color: rgb(187, 187, 187);
 .sidebar-content-container {
     overflow: auto;
     text-overflow: clip;
+    overflow: hidden;
     padding: 6px;
     z-index: 10000;
     background-color: #151517;
