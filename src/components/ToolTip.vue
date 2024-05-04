@@ -1,78 +1,53 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import tippy from 'tippy.js';
+import 'tippy.js/animations/shift-away-subtle.css';
 
 const props = defineProps({
-    targetId: String,
-    alignment: {
-        type: String,
-        default: 'center',
-        validator: (value) => ['left', 'center', 'right'].includes(value)
-    }
+    targetId: String
 });
 
-const visible = ref(false);
 const tooltipElement = ref(null);
+let tippyInstance = null;
 
-const showTooltip = () => {
-    visible.value = true;
-    updatePosition();
-};
-
-const hideTooltip = () => {
-    visible.value = false;
-};
-
-const updatePosition = () => {
+const createTooltip = () => {
     const target = document.getElementById(props.targetId);
-    const targetRect = target.getBoundingClientRect();
-    const tooltipRect = tooltipElement.value.getBoundingClientRect();
 
-    let x = 0;
-    if (props.alignment === 'left') {
-        x = targetRect.left;
-    } else if (props.alignment === 'center') {
-        x = targetRect.left + (targetRect.width - tooltipRect.width) / 2;
-    } else if (props.alignment === 'right') {
-        x = targetRect.right - tooltipRect.width;
+    if (target && tooltipElement.value) {
+        tippyInstance = tippy(target, {
+            content: tooltipElement.value,
+            placement: 'top',
+            trigger: 'mouseenter focus',
+            appendTo: document.body,
+            arrow: true,
+            animation: 'shift-away-subtle',
+            interactive: true,
+            onHidden: (instance) => {
+                instance.destroy();
+            }
+        });
     }
-
-    const y = targetRect.bottom + 10; // Adjust the offset as needed
-
-    tooltipElement.value.style.left = `${x}px`;
-    tooltipElement.value.style.top = `${y}px`;
 };
 
 onMounted(() => {
-    const target = document.getElementById(props.targetId);
-
-    if (target) {
-        target.addEventListener('mouseenter', showTooltip);
-        target.addEventListener('mouseleave', hideTooltip);
-        window.addEventListener('resize', updatePosition);
-    }
+    createTooltip();
 });
 
 onUnmounted(() => {
-    const target = document.getElementById(props.targetId);
-
-    if (target) {
-        target.removeEventListener('mouseenter', showTooltip);
-        target.removeEventListener('mouseleave', hideTooltip);
-        window.removeEventListener('resize', updatePosition);
+    if (tippyInstance) {
+        tippyInstance.destroy();
     }
-
 });
 </script>
 
 <template>
-    <div ref="tooltipElement" class="tooltip-container" v-show="visible">
+    <div ref="tooltipElement" class="tooltip-container">
         <slot></slot>
     </div>
 </template>
 
 <style>
 .tooltip-container {
-    position: fixed;
     padding: 8px;
     background-color: #333;
     color: white;

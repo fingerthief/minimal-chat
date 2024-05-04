@@ -2,7 +2,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { Settings, Trash2, MessagesSquare, MessageSquareDiff, Github } from 'lucide-vue-next';
+import { Settings, Trash2, MessagesSquare, Github, SquarePlus } from 'lucide-vue-next';
 
 // Define props
 const props = defineProps({
@@ -72,7 +72,7 @@ function onShowConversationsClick() {
             <MessagesSquare :stroke-width="1.00" :size="30" />
         </div>
         <span class="save-icon" @click="clearMessages">
-            <MessageSquareDiff :stroke-width="1.00" :size="30" />
+            <SquarePlus :stroke-width="1.00" :size="30" />
         </span>
     </div>
 </template>

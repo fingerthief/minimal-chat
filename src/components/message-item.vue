@@ -8,6 +8,7 @@ import { defineEmits, ref, nextTick } from 'vue';
 import "/node_modules/highlight.js/scss/github-dark-dimmed.scss";
 import ToolTip from './ToolTip.vue';
 
+
 const props = defineProps({
     messages: Array,
     isLoading: Boolean,
@@ -105,7 +106,9 @@ const saveEditedMessage = (message, event) => {
 <template>
     <div>
         <div v-for="(message, index) in messages" :key="index" :class="messageClass(message.role)">
-            <div class="label" @click="copyText(message)">
+            <ToolTip :targetId="'message-label-' + index">
+                Copy Text</ToolTip>
+            <div class="label" @click="copyText(message)" :id="'message-label-' + index">
                 <RefreshCcw v-if="message.role === 'user'" class="icon"
                     :class="{ 'loading': isLoading && loadingIcon === index }"
                     @click="$emit('regenerate-response', message.content), startLoading(index)" />
@@ -114,10 +117,11 @@ const saveEditedMessage = (message, event) => {
                     @click="$emit('delete-response', message.content), startLoading(index)" />
                 {{ message.role === 'user' ? 'User' : modelDisplayName }}
             </div>
+
             <div class="message-contents" :id="'message-' + index" :contenteditable="message.isEditing"
                 @dblclick="editMessage(message)" @blur="saveEditedMessage(message, $event)"
                 v-html="formatMessage(message.content)"></div>
-            <ToolTip v-if="message.role === 'user'" :alignment="'left'" :targetId="'message-' + index">
+            <ToolTip v-if="message.role === 'user'" :targetId="'message-' + index">
                 Double click to
                 edit message</ToolTip>
         </div>

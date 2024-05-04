@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
 import { SendHorizontal, ImageUp, CircleStop } from 'lucide-vue-next';
+import ToolTip from './ToolTip.vue';
 import "swiped-events";
 
 // Define props and emits
@@ -77,7 +78,9 @@ async function abortStream() {
         <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
             @input="autoResize" @focus="autoResize" @blur="autoResize" @keydown="handleKeyDown"
             placeholder="Enter your prompt"></textarea>
-        <div class="image-button" @click="visionImageUploadClick">
+        <ToolTip :targetId="'imageButton'">
+            Upload image for vision processing</ToolTip>
+        <div class="image-button" id="imageButton" @click="visionImageUploadClick">
             <span>
                 <ImageUp />
             </span>

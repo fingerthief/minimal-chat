@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings } from 'lucide-vue-next';
+import ToolTip from './ToolTip.vue';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -102,9 +103,15 @@ function purgeConversations() {
             <h2>
                 Conversations
                 &nbsp;
-                <Eraser @click="purgeConversations" :size="25" :stroke-width="1.00" />&nbsp;
-                <Download @click="exportConversations" :size="25" :stroke-width="1.00" />&nbsp;
-                <Upload @click="importConversations" :size="25" :stroke-width="1.00" />
+                <ToolTip :targetId="'purgeConversations'">
+                    Purge all conversations</ToolTip>
+                <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.00" />&nbsp;
+                <ToolTip :targetId="'exportConversations'">
+                    Export conversations</ToolTip>
+                <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.00" />&nbsp;
+                <ToolTip :targetId="'importConversations'">
+                    Ixport conversations</ToolTip>
+                <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.00" />
             </h2>
         </div>
         <div class="sidebar-content-container">

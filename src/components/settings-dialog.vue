@@ -3,7 +3,6 @@
 import { RefreshCcw } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref } from 'vue';
-import ToolTip from './ToolTip.vue';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -74,7 +73,7 @@ function toggleSidebar() {
             <span @click="reloadPage">
                 <RefreshCcw :size="23" :stroke-width="2" />
             </span>
-            Settings | V5.1.7
+            Settings | V5.1.8
         </h2>
     </div>
     <div class="sidebar-content-container">
