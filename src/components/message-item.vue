@@ -243,6 +243,7 @@ const saveEditedMessage = (message, event) => {
         margin-top: 40px;
         text-align: end;
         width: fit-content;
+        padding-bottom: 0px;
 
         .label {
             right: 0;
@@ -258,7 +259,7 @@ const saveEditedMessage = (message, event) => {
 
     &.gpt {
         float: left;
-        background-color: #202c29;
+        background-color: #252326;
         color: #dadbde;
         margin-top: 40px;
 
