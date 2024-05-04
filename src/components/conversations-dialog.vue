@@ -11,9 +11,8 @@ const props = defineProps({
 });
 
 const loadedConversation = ref({});
-const sidebarContentContainer = ref(null);
-const initialWidth = ref(0);
-const initialMouseX = ref(0);
+
+
 
 const selectedConversation = computed(() => {
     return props.conversations.find(conversation =>
@@ -21,35 +20,9 @@ const selectedConversation = computed(() => {
     );
 });
 
-function startResize(event) {
-    initialWidth.value = sidebarContentContainer.value.offsetWidth;
-    initialMouseX.value = event.clientX;
-    document.addEventListener("mousemove", resize);
-    document.addEventListener("mouseup", stopResize);
-}
 
-function resize(event) {
-    const deltaX = event.clientX - initialMouseX.value;
-    sidebarContentContainer.value.style.width = `${initialWidth.value + deltaX}px`;
-}
-
-function stopResize() {
-    document.removeEventListener("mousemove", resize);
-    document.removeEventListener("mouseup", stopResize);
-}
-
-function handleDoubleClick() {
-    const currentWidth = sidebarContentContainer.value.offsetWidth;
-    if (currentWidth === 0) {
-        sidebarContentContainer.value.style.width = '420px';
-    } else {
-        sidebarContentContainer.value.style.width = '0px';
-    }
-}
 
 onMounted(() => {
-    sidebarContentContainer.value = document.querySelector(".resize-container");
-    sidebarContentContainer.value.style.width = '420px';
     const lastConversationId = parseInt(localStorage.getItem("lastConversationId")) || 0;
     const lastConversation = props.conversations.find(conversation => conversation.id === lastConversationId);
 
@@ -158,7 +131,6 @@ function purgeConversations() {
                 </ul>
             </div>
         </div>
-        <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick"></div>
     </div>
 
 
@@ -172,6 +144,7 @@ $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
+
 .resize-handle {
     position: absolute;
     top: 0;
@@ -181,6 +154,7 @@ $icon-color: rgb(187, 187, 187);
     cursor: col-resize;
     background-color: #191b1b;
     z-index: 1000;
+    max-width: 100%;
 }
 
 .settings-header {
@@ -310,6 +284,8 @@ $icon-color: rgb(187, 187, 187);
         transition: background-color 0.2s ease;
         border-left: 6px solid #353434;
         border-bottom: 1px solid #3e4f5b82;
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
 
         -webkit-user-select: none;
         -ms-user-select: none;

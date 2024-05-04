@@ -191,7 +191,7 @@ const saveEditedMessage = (message, event) => {
     position: absolute;
     top: 3px;
     left: -65px;
-    color: #9d81a0;
+    color: #827b83;
     transition: background-color 0.3s ease, transform 0.2s ease;
     background-color: transparent;
 
@@ -250,8 +250,8 @@ const saveEditedMessage = (message, event) => {
 
         .label {
             background-color: #2d253d;
-            border-right: 6px solid #614a63;
-            border-left: 6px solid #614a63;
+            border-right: 6px solid #6c577c;
+            border-left: 6px solid #6c577c;
             right: 2px;
             padding-left: 13px;
             color: #ece9ef;
@@ -270,8 +270,8 @@ const saveEditedMessage = (message, event) => {
 
         .label {
             background-color: #1c302e;
-            border-left: 6px solid #6a576c;
-            border-right: 6px solid #6a576c;
+            border-left: 6px solid #4b817b;
+            border-right: 6px solid #4b817b;
             left: 2px;
             color: #ece9ef;
         }
@@ -279,7 +279,7 @@ const saveEditedMessage = (message, event) => {
 }
 
 .icon {
-    color: #9d81a0;
+    color: #827b83;
 }
 
 .loading.spinner {

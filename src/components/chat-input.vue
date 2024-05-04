@@ -182,7 +182,7 @@ $icon-color: rgb(187, 187, 187);
         min-height: 50px;
         transition: 0.2s height ease-in-out;
         box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
-
+        border-radius: 30px;
 
         @media (max-width: 600px) {
             max-width: 98vw;

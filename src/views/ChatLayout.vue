@@ -901,12 +901,44 @@ function handleGlobalClick(event) {
     }
 }
 
+const sidebarContentContainer = ref(null);
+const initialWidth = ref(0);
+const initialMouseX = ref(0);
+
+function handleDoubleClick() {
+    const currentWidth = sidebarContentContainer.value.offsetWidth;
+    if (currentWidth === 0) {
+        sidebarContentContainer.value.style.width = '420px';
+    } else {
+        sidebarContentContainer.value.style.width = '0px';
+    }
+}
+
+function startResize(event) {
+    initialWidth.value = sidebarContentContainer.value.offsetWidth;
+    initialMouseX.value = event.clientX;
+    document.addEventListener("mousemove", resize);
+    document.addEventListener("mouseup", stopResize);
+}
+
+function resize(event) {
+    const deltaX = event.clientX - initialMouseX.value;
+    sidebarContentContainer.value.style.width = `${initialWidth.value + deltaX}px`;
+}
+
+function stopResize() {
+    document.removeEventListener("mousemove", resize);
+    document.removeEventListener("mouseup", stopResize);
+}
+
 onUnmounted(() => {
     document.removeEventListener('click', handleGlobalClick);
 });
 //#endregion
 
 onMounted(() => {
+    sidebarContentContainer.value = document.querySelector(".sidebar-conversations");
+    sidebarContentContainer.value.style.width = '420px';
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
     determineModelDisplayName(selectedModel.value);
     selectConversation(lastLoadedConversationId.value);
@@ -967,6 +999,8 @@ onMounted(() => {
                     @purge-conversations="handlePurgeConversations"
                     @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
                     :showConversationOptions="showConversationOptions" />
+                <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick">
+                </div>
             </div>
             <div class="chat-container">
                 <div class="container">
@@ -1231,11 +1265,24 @@ pre {
     background: #5d455e;
 }
 
+.resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: #191b1b;
+    z-index: 1000;
+    max-width: 100%;
+}
+
 .sidebar-conversations {
     background-color: #151517;
     min-width: 0px;
     max-width: 100%;
     position: inherit;
+    width: 100%;
     top: 0;
     left: 0;
     transform: translateX(-3px);
@@ -1252,7 +1299,7 @@ pre {
 
     @media (max-width: 600px) {
         position: fixed;
-        transform: translateX(-100%);
+        transform: translateX(100%);
         border-right: 2px solid #3d3c3e;
 
         width: 100vw;
