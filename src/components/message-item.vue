@@ -259,7 +259,7 @@ const saveEditedMessage = (message, event) => {
 
     &.gpt {
         float: left;
-        background-color: #252326;
+        background-color: #162b2ba6;
         color: #dadbde;
         margin-top: 40px;
 

@@ -1,7 +1,7 @@
 <!-- eslint-disable no-unused-vars -->
 
 <script setup>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { Settings, Trash2, MessagesSquare, Github, SquarePlus } from 'lucide-vue-next';
 
 // Define props
@@ -43,23 +43,23 @@ function onShowConversationsClick() {
 
 <template>
     <div class="header box">
-        <a v-show="props.selectedModel.includes('claude')"
-            href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
+        <a v-show="props.selectedModel.includes('claude')" href="https://github.com/fingerthief/minimal-chat"
+            target="_blank" class="no-style-link">
             MinimalClaude
         </a>
-        <a v-show="props.selectedModel.includes('gpt')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
+        <a v-show="props.selectedModel.includes('gpt')" href="https://github.com/fingerthief/minimal-chat"
             target="_blank" class="no-style-link">
             MinimalGPT
         </a>
-        <a v-show="props.selectedModel.includes('open-ai-format')"
-            href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
+        <a v-show="props.selectedModel.includes('open-ai-format')" href="https://github.com/fingerthief/minimal-chat"
+            target="_blank" class="no-style-link">
             MinimalCustom
         </a>
-        <a v-show="props.selectedModel.includes('tgi')" href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt"
+        <a v-show="props.selectedModel.includes('web-llm')" href="https://github.com/fingerthief/minimal-chat"
             target="_blank" class="no-style-link">
-            MinimalHugging
+            MinimalLocal
         </a>
-        <a href="https://github.com/fingerthief/minimal-gpt#try-minimalgpt" target="_blank" class="no-style-link">
+        <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
             <Github :size="20" :stroke-width="2.5" class="header-icon" />
         </a>
         <div class="settings-btn" @click="toggleSidebar">

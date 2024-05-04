@@ -2,12 +2,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
-import { ChevronDown } from 'lucide-vue-next';
+import { ChevronDown, Underline } from 'lucide-vue-next';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
+import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
 
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -44,6 +45,8 @@ const selectedDallEImageCount = ref(parseInt(localStorage.getItem("selectedDallE
 const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImageResolution") || '256x256');
 const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
 
+const browserModelSelection = ref(localStorage.getItem("browserModelSelection") || "Llama-3-8B-Instruct-q4f16_1-1k");
+
 const maxTokens = ref(parseInt(localStorage.getItem("maxTokens")) || -1);
 const top_P = ref(parseFloat(localStorage.getItem("top_P")) || 1.0);
 const repetitionPenalty = ref(parseFloat(localStorage.getItem("repetitionPenalty")) || 1.0);
@@ -66,7 +69,8 @@ watch(selectedModel, (newValue) => {
     const MODEL_TYPES = {
         OPEN_AI_FORMAT: 'open-ai-format',
         CLAUDE: 'claude',
-        GPT: 'gpt'
+        GPT: 'gpt',
+        WEB_LLM: 'web-llm'
     };
 
     // Default settings
@@ -82,14 +86,23 @@ watch(selectedModel, (newValue) => {
         useLocalModel = true;
         flags.isUsingLocalModel = true;
         modelDisplayName.value = "Custom Model"
+
+        unloadModel();
     }
     else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
         useLocalModel = false;
         flags.isClaudeEnabled = true;
         modelDisplayName.value = "Claude"
+
+        unloadModel();
     }
     else if (newValue.includes(MODEL_TYPES.GPT)) {
         modelDisplayName.value = "GPT"
+
+        unloadModel();
+    }
+    else if (newValue.includes(MODEL_TYPES.WEB_LLM)) {
+        modelDisplayName.value = browserModelSelection.value;
     }
 
 
@@ -105,12 +118,29 @@ watch(selectedModel, (newValue) => {
     }
 });
 
+function unloadModel() {
+    if (engine !== undefined) {
+        engine.unload();
+    }
+}
+
 watch(localModelKey, (newValue) => {
     localStorage.setItem('localModelKey', newValue);
 });
 
 watch(maxTokens, (newValue) => {
     localStorage.setItem('maxTokens', newValue);
+});
+
+watch(browserModelSelection, async (newValue) => {
+    localStorage.setItem('browserModelSelection', newValue);
+    modelDisplayName.value = browserModelSelection.value;
+
+    isLoading.value = true;
+
+    await loadNewModel(newValue, updateUI);
+
+    isLoading.value = false;
 });
 
 watch(top_P, (newValue) => {
@@ -167,7 +197,8 @@ function determineModelDisplayName(newValue) {
     const MODEL_TYPES = {
         OPEN_AI_FORMAT: 'open-ai-format',
         CLAUDE: 'claude',
-        GPT: 'gpt'
+        GPT: 'gpt',
+        WEB_LLM: 'web-llm'
     };
 
     // Determine settings based on model type
@@ -179,6 +210,9 @@ function determineModelDisplayName(newValue) {
     }
     else if (newValue.includes(MODEL_TYPES.GPT)) {
         modelDisplayName.value = "GPT"
+    }
+    else if (newValue.includes(MODEL_TYPES.WEB_LLM)) {
+        modelDisplayName.value = browserModelSelection.value;
     }
 
 }
@@ -214,7 +248,12 @@ function resetMessages() {
     lastLoadedConversationId.value = null;
 }
 
-function updateUI(content, autoScrollBottom = true) {
+function updateUI(content, autoScrollBottom = true, appendTextValue = true) {
+    if (!appendTextValue) {
+        streamedMessageText.value = content;
+        return;
+    }
+
     streamedMessageText.value = (streamedMessageText.value || "") + content;
 
     if (autoScrollBottom) {
@@ -408,6 +447,10 @@ async function createNewConversationWithTitle() {
         newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
     }
 
+    if (selectedModel.value.indexOf("web-llm") !== -1) {
+        newConversationWithTitle.title = await getBrowserLoadedModelConversationTitle(messages.value.slice(0));
+    }
+
     return newConversationWithTitle;
 }
 
@@ -541,7 +584,32 @@ async function sendMessage(event) {
         return;
     }
 
+
+    if (selectedModel.value.indexOf('web-llm') !== -1) {
+        await sendBrowserModelMessage(messageText);
+        return;
+    }
+
     await sendGPTMessage(messageText);
+}
+
+async function sendBrowserModelMessage(message) {
+    scrollToBottom();
+
+    userText.value = "";
+
+    streamedMessageText.value = "";
+    isLoading.value = true;
+
+    let response = await sendBrowserLoadedModelMessage(messages.value, updateUI);
+
+    isLoading.value = false;
+
+    addMessage('assistant', response);
+
+    await saveMessages();
+
+    scrollToBottom();
 }
 
 function addMessage(role, message) {
@@ -646,6 +714,9 @@ async function regenerateMessageReponse(content) {
 
         if (selectedModel.value.indexOf("gpt") !== -1) {
             response = await fetchGPTResponseStream(regenMessages, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText, false);
+        }
+        else if (selectedModel.value.indexOf("web-llm") !== -1) {
+            response = await sendBrowserLoadedModelMessage(regenMessages, updateUI);
         }
         else if (isClaudeEnabled.value) {
             response = await streamClaudeResponse(regenMessages, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText, false);
@@ -890,6 +961,7 @@ const refs = {
     maxTokens,
     top_P,
     repetitionPenalty,
+    browserModelSelection,
     localModelKey
 };
 // Event handlers for updating the parent's state when the child emits an update
@@ -900,6 +972,13 @@ const updateSetting = (field, value) => {
 };
 
 function abortStream() {
+
+    if (engine !== undefined && selectedModel.value.indexOf("web-llm") !== -1) {
+        engine.interruptGenerate();
+        showToast("Aborted response stream");
+        return;
+    }
+
     if (abortController.value) {
         abortController.value.abort();
         abortController.value = null;
@@ -1013,11 +1092,12 @@ onMounted(() => {
                     :localModelName="localModelName" :localModelEndpoint="localModelEndpoint"
                     :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
                     :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
-                    :selectedDallEImageCount="selectedDallEImageCount"
+                    :browserModelSelection="browserModelSelection" :selectedDallEImageCount="selectedDallEImageCount"
                     :selectedDallEImageResolution="selectedDallEImageResolution"
                     :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens" :top_P="top_P"
                     :repetitionPenalty="repetitionPenalty" :localModelKey="localModelKey"
                     @update:maxTokens="updateSetting('maxTokens', $event)"
+                    @update:browserModelSelection="updateSetting('browserModelSelection', $event)"
                     @update:repetitionPenalty="updateSetting('repetitionPenalty', $event)"
                     @update:top_P="updateSetting('top_P', $event)"
                     @update:model="updateSetting('selectedModel', $event)"

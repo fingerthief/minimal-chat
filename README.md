@@ -1,6 +1,6 @@
-# [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalgpt.app)
+# [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-5.2.0-blue)
+![Version](https://img.shields.io/badge/version-6.0.0-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalgpt.app)
@@ -18,6 +18,12 @@
 ## **What is MinimalChat?**
 
 MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
+
+## **Experience the Power of Web Local LLM Models**
+
+A huge thank you to the innovative folks at [Web LLM](https://github.com/mlc-ai/web-llm) for making it possible to bring the magic of large language models (LLMs) directly to your browser!
+
+With this integration, you can now seamlessly download and cache popular LLM models like `llama-3-8b-instruct` locally and run them entirely within your browser, without any hassle or reliance on external servers. This means you can enjoy greater control and unparalleled flexibility in how you choose to interact with models.
 
 ### General Demo
 
