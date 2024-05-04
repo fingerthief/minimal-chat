@@ -253,7 +253,7 @@ $icon-color: rgb(187, 187, 187);
 
 .scrollable-list {
     @media (max-width: 600px) {
-        height: 69vh;
+        height: 68vh;
     }
 
     max-width: 100%;
@@ -309,6 +309,7 @@ $icon-color: rgb(187, 187, 187);
         background-color: #1c292ea8;
         transition: background-color 0.2s ease;
         border-left: 6px solid #353434;
+        border-bottom: 1px solid #3e4f5b82;
 
         -webkit-user-select: none;
         -ms-user-select: none;
@@ -319,10 +320,10 @@ $icon-color: rgb(187, 187, 187);
         }
 
         &.selected {
-            background-color: #2d2235b8;
+            background-color: #222a23eb;
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-left: 6px solid #208261bd;
+            border-left: 6px solid #009463d5;
         }
     }
 }
