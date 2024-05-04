@@ -73,6 +73,10 @@ const startLoading = (index) => {
 let initalMessage = "";
 
 const editMessage = (message) => {
+    if (message.role !== 'user') {
+        return;
+    }
+
     message.isEditing = !message.isEditing;
 
     if (message.isEditing) {
@@ -144,6 +148,12 @@ const saveEditedMessage = (message, event) => {
 }
 
 .label {
+
+    @media (max-width: 600px) {
+        top: -27px;
+    }
+
+
     position: absolute;
     top: -33px;
     color: #dadbde;
@@ -216,8 +226,8 @@ const saveEditedMessage = (message, event) => {
 
     &[contenteditable="true"] {
         outline: none;
-        border: 1px solid #614a63;
-        padding: 5px;
+        border: 2px solid #614a63;
+        padding: 15px;
         border-radius: 5px;
     }
 }

@@ -186,11 +186,13 @@ $icon-color: rgb(187, 187, 187);
     background-color: #151517;
     text-align: left;
     white-space: nowrap;
+    padding-left: 22px;
 
     @media (max-width: 600px) {
         border-bottom: 5px solid #3d3d3d;
         padding-bottom: 25px;
         padding-top: 25px;
+        padding-left: 0px;
         background-color: #212121;
         text-align: center;
     }
