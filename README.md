@@ -21,7 +21,7 @@ MinimalChat is a minimal and lightweight open-source chat application with full 
 
 ### General Demo
 
-![minimal-chat-general-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/a7e8ac7f-da77-4696-be12-a4619a0b8f68)
+![minimal-chat-general-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/ad8a1427-0777-4a49-9ead-cec7676d4d89)
 
 ### Demo Vision Support (Claude, GPT, and Custom Models)
 
@@ -30,6 +30,10 @@ MinimalChat is a minimal and lightweight open-source chat application with full 
 ### Mobile Demo
 
 https://github.com/fingerthief/minimal-chat/wiki/Mobile-Demo (View in Wiki)
+
+### Fast and Lightweight
+
+![minimalchat-memory](https://github.com/fingerthief/minimal-chat/assets/2380471/432d77dc-78dd-469f-9844-71c770b59f06)
 
 ## **Getting Started**
 
