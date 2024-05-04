@@ -83,7 +83,7 @@ function purgeConversations() {
                     Export conversations</ToolTip>
                 <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.00" />&nbsp;
                 <ToolTip :targetId="'importConversations'">
-                    Ixport conversations</ToolTip>
+                    Import conversations</ToolTip>
                 <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.00" />
             </h2>
         </div>
