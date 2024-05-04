@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue';
-import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings } from 'lucide-vue-next';
+import { onMounted, ref, computed, nextTick } from 'vue';
+import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 
 const props = defineProps({
@@ -19,8 +19,6 @@ const selectedConversation = computed(() => {
         conversation.id === props.selectedConversationItem.id
     );
 });
-
-
 
 onMounted(() => {
     const lastConversationId = parseInt(localStorage.getItem("lastConversationId")) || 0;
@@ -41,8 +39,37 @@ onMounted(() => {
     }
 });
 
+const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations', 'delete-current-conversation', 'open-settings', 'edit-conversation-title']);
 
-const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations', 'delete-current-conversation', 'open-settings']);
+let initialConversation = "";
+
+const editConversationTitle = (conversation) => {
+    if (conversation.isEditing) {
+        return;
+    }
+
+    conversation.isEditing = !conversation.isEditing;
+
+    if (conversation.isEditing) {
+        initialConversation = conversation;
+
+        nextTick(() => {
+            const messageContent = document.getElementById(`conversation-${props.conversations.indexOf(conversation)}`);
+            if (messageContent) {
+                messageContent.focus();
+            }
+        });
+    }
+};
+
+const saveEditedConversationTitle = (conversation, event) => {
+    conversation.isEditing = false;
+    const updatedContent = event.target.innerText.trim();
+
+    if (updatedContent !== initialConversation.conversation.title.trim()) {
+        emit('edit-conversation-title', initialConversation, updatedContent);
+    }
+};
 
 async function loadSelectedConversation(conversation) {
     loadedConversation.value = conversation;
@@ -90,10 +117,14 @@ function purgeConversations() {
         <div class="sidebar-content-container">
             <div class="scrollable-list">
                 <ul>
-                    <li v-for="(conversation, index) in props.conversations" :key="index"
-                        @click="loadSelectedConversation(conversation)"
+                    <li v-for="(conversation, index) in props.conversations" :key="index" :id="'conversation-' + index"
+                        :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
+                        @dblclick="editConversationTitle(conversation)"
+                        @blur="saveEditedConversationTitle(conversation, $event)"
                         :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
-                        <span>{{ conversation.conversation.title }}</span>
+                        <Pencil :id="'pencil-' + index" :size="15" @click="editConversationTitle(conversation)" />
+                        <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
+                        <span>&nbsp;&nbsp;{{ conversation.conversation.title }}</span>
                     </li>
                 </ul>
             </div>
@@ -287,6 +318,14 @@ $icon-color: rgb(187, 187, 187);
         -webkit-user-select: none;
         -ms-user-select: none;
         user-select: none;
+
+        &[contenteditable="true"] {
+            outline: none;
+            border: 2px solid #423d42;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
 
         &:hover {
             background-color: #0d3837aa;

@@ -931,6 +931,30 @@ function stopResize() {
     document.removeEventListener("mouseup", stopResize);
 }
 
+async function editConversationTitle(oldConversation, newConversationTitle) {
+    const conversationIndex = conversations.value.findIndex(
+        (conversation) => conversation.id === oldConversation.id
+    );
+
+    if (conversationIndex !== -1) {
+        conversations.value[conversationIndex].conversation.title = newConversationTitle;
+
+        const storedConversationIndex = storedConversations.value.findIndex(
+            (conversation) => conversation.id === oldConversation.id
+        );
+
+        if (storedConversationIndex !== -1) {
+            storedConversations.value[storedConversationIndex].conversation.title = newConversationTitle;
+            localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations.value));
+        }
+
+        showToast("Title Updated");
+        return;
+    }
+
+    showToast("Failed to update title");
+}
+
 onUnmounted(() => {
     document.removeEventListener('click', handleGlobalClick);
 });
@@ -995,8 +1019,8 @@ onMounted(() => {
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="loadSelectedConversation"
                     :selectedConversationItem="selectedConversation" @new-conversation="clearMessages"
-                    @import-conversations="handleImportConversations" @export-conversations="handleExportConversations"
-                    @purge-conversations="handlePurgeConversations"
+                    @edit-conversation-title="editConversationTitle" @import-conversations="handleImportConversations"
+                    @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
                     @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
                     :showConversationOptions="showConversationOptions" />
                 <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick">
