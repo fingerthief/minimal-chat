@@ -74,16 +74,16 @@ function onShowConversationsClick() {
             </div>
         </div>
         <div class="settings-btn" @click="toggleSidebar">
-            <Settings :stroke-width="1.00" :size="30" />
+            <Settings :stroke-width="0.5" :size="30" />
         </div>
         <div class="trash-btn" @click="deleteCurrentConversation">
-            <Trash2 :stroke-width="1.00" :size="30" />
+            <Trash2 :stroke-width="0.5" :size="30" />
         </div>
         <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
-            <MessagesSquare :stroke-width="1.00" :size="30" />
+            <MessagesSquare :stroke-width="0.5" :size="30" />
         </div>
         <span class="save-icon" @click="clearMessages">
-            <SquarePlus :stroke-width="1.00" :size="30" />
+            <SquarePlus :stroke-width="0.5" :size="30" />
         </span>
     </div>
 </template>
