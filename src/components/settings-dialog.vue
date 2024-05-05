@@ -147,22 +147,23 @@ function toggleSidebar() {
         <InputField v-show="showLocalConfig || showBrowserModelConfig"
             :labelText="'Temperature (0.0-2.0) Default: (0.6)'" :isSecret="false"
             :placeholderText="'Enter the temperature value for the model.'" label="localSliderValue"
-            inputId="localSliderValue" :value="localSliderValue" @update:value="update('localSliderValue', $event)" />
+            inputId="localSliderValue" :value="localSliderValue.toString()"
+            @update:value="update('localSliderValue', $event)" />
         <!-- Top_P -->
         <InputField v-show="showLocalConfig || showBrowserModelConfig"
             :labelText="'Top_P Value (0.0-1.0) Default: (1.0)'" :isSecret="false"
-            :placeholderText="'Enter the top_P value if applicable'" label="Top_P:" inputId="top_P" :value="top_P"
-            @update:value="update('top_P', $event)" />
+            :placeholderText="'Enter the top_P value if applicable'" label="Top_P:" inputId="top_P"
+            :value="top_P.toString()" @update:value="update('top_P', $event)" />
         <!-- Repetition Penalty -->
         <InputField v-show="showLocalConfig || showBrowserModelConfig"
             :labelText="'Repetition Penalty  (0.0-2.0) Default: (1.0)'" :isSecret="false"
             :placeholderText="'Enter the repetition penalty value if applicable'" label="repetitionPenalty:"
-            inputId="repetitionPenalty" :value="repetitionPenalty"
+            inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
             @update:value="update('repetitionPenalty', $event)" />
         <!-- Max Tokens -->
         <InputField v-show="showLocalConfig" :labelText="'Max Tokens (Default: -1 disabled)'" :isSecret="false"
             :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
-            :value="maxTokens" @update:value="update('maxTokens', $event)" />
+            :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
         <!-- GPT Key -->
         <InputField v-show="showGPTConfig" :labelText="'API Key'" :isSecret="true" label="Key:"
             :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey"

@@ -7,6 +7,12 @@ let dalleRetryCount = 0;
 
 export async function fetchGPTResponse(conversation, attitude, model) {
     const apiKey = localStorage.getItem("gptKey");
+
+    let tempMessages = conversation.map(message => ({
+        role: message.role,
+        content: message.content
+    }));
+
     try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
@@ -16,7 +22,7 @@ export async function fetchGPTResponse(conversation, attitude, model) {
             },
             body: JSON.stringify({
                 model,
-                messages: conversation,
+                messages: tempMessages,
                 temperature: attitude * 0.01,
             }),
         });
@@ -43,12 +49,18 @@ export async function fetchGPTResponse(conversation, attitude, model) {
 }
 
 export async function fetchGPTVisionResponse(visionMessages, apiKey) {
+
+    let tempMessages = visionMessages.map(message => ({
+        role: message.role,
+        content: message.content
+    }));
+
     const payload = {
         model: "gpt-4-turbo",
         messages: [
             {
                 role: "user",
-                content: visionMessages,
+                content: tempMessages,
             },
         ],
         max_tokens: 4096,
@@ -84,6 +96,11 @@ export async function fetchGPTVisionResponse(visionMessages, apiKey) {
 export async function generateDALLEImage(conversation) {
     const apiKey = localStorage.getItem("gptKey");
 
+    let tempMessages = conversation.map(message => ({
+        role: message.role,
+        content: message.content
+    }));
+
     try {
         const response = await fetch("https://api.openai.com/v1/images/generations", {
             method: "POST",
@@ -94,7 +111,7 @@ export async function generateDALLEImage(conversation) {
                 "Authorization": `Bearer ${apiKey || 'Missing API Key'}`,
             },
             body: JSON.stringify({
-                prompt: conversation,
+                prompt: tempMessages,
                 n: parseInt(localStorage.getItem("selectedDallEImageCount")) || 2,
                 size: localStorage.getItem("selectedDallEImageResolution") || "256x256",
             }),
@@ -125,6 +142,11 @@ export async function generateDALLEImage(conversation) {
 export async function fetchGPTResponseStream(conversation, attitude, model, updateUiFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     const gptMessagesOnly = filterGPTMessages(conversation);
 
+    let tempMessages = gptMessagesOnly.map(message => ({
+        role: message.role,
+        content: message.content
+    }));
+
     const requestOptions = {
         method: "POST",
         headers: {
@@ -134,7 +156,7 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
         body: JSON.stringify({
             model,
             stream: true,
-            messages: gptMessagesOnly,
+            messages: tempMessages,
             temperature: attitude * 0.01,
         }),
         signal: abortController.signal

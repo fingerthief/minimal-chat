@@ -22,7 +22,10 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
         const apiKey = document.getElementById('api-key');
         apiKey.value = localStorage.getItem("gptKey");
 
-        let tempMessages = messages.slice(0);
+        let tempMessages = messages.map(message => ({
+            role: message.role,
+            content: message.content
+        }));
         tempMessages.push({ role: 'user', content: "Summarize our conversation in 5 words or less." });
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
@@ -49,7 +52,7 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
 
         if (retryCount < 5) {
             retryCount++;
-            getConversationTitleFromGPT(messages, model, sliderValue);
+            return getConversationTitleFromGPT(messages, model, sliderValue);
         }
 
         console.error("Error fetching GPT response:", error);

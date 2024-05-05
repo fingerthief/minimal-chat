@@ -69,7 +69,11 @@ export async function fetchClaudeConversationTitle(messages) {
     try {
         let storedApiKey = localStorage.getItem("claudeKey");
 
-        let tempMessages = [...messages];
+        let tempMessages = messages.map(message => ({
+            role: message.role,
+            content: message.content
+        }));
+
         tempMessages.push({ role: 'user', content: "Summarize our conversation in 5 words or less." });
 
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
@@ -122,6 +126,13 @@ export async function fetchClaudeConversationTitle(messages) {
 let claudeVisionRetryCount = 0;
 export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) {
     try {
+
+        let filteredMessages = filterGPTMessages(visionMessages);
+        let tempMessages = filteredMessages.map(message => ({
+            role: message.role,
+            content: message.content
+        }));
+
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
             method: "POST",
             headers: {
@@ -136,7 +147,7 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
                 messages: [
                     {
                         role: "user",
-                        content: visionMessages
+                        content: tempMessages
                     }
                 ],
                 temperature: 0.5
@@ -174,6 +185,12 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
 
 export async function streamClaudeResponse(messages, model, attitude, updateUIFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     try {
+        let filteredMessages = filterGPTMessages(messages);
+        let tempMessages = filteredMessages.map(message => ({
+            role: message.role,
+            content: message.content
+        }));
+
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
             method: 'POST',
             headers: {
@@ -182,7 +199,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
                 'X-API-Key': localStorage.getItem("claudeKey"),
             },
             body: JSON.stringify({
-                messages: filterGPTMessages(messages),
+                messages: tempMessages,
                 temperature: attitude * 0.01,
                 max_tokens: 4096,
                 model: model,

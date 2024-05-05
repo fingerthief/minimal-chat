@@ -5,6 +5,11 @@ let localStreamRetryCount = 0;
 export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     const gptMessagesOnly = filterLocalMessages(conversation);
 
+    let tempMessages = gptMessagesOnly.map(message => ({
+        role: message.role,
+        content: message.content
+    }));
+
     const requestOptions = {
         method: "POST",
         headers: {
@@ -14,7 +19,7 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
         body: JSON.stringify({
             model: model,
             stream: true,
-            messages: gptMessagesOnly,
+            messages: tempMessages,
             temperature: parseFloat(attitude),
             max_tokens: parseInt(localStorage.getItem("maxTokens")),
             top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
@@ -44,12 +49,17 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
 
 let localVisionRetryCount = 0;
 export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint) {
+    let tempMessages = visionMessages.map(message => ({
+        role: message.role,
+        content: message.content
+    }));
+
     const payload = {
         model: model,
         messages: [
             {
                 role: "user",
-                content: visionMessages
+                content: tempMessages
             }
         ],
         max_tokens: 4096,
