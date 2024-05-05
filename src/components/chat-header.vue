@@ -1,7 +1,7 @@
 <!-- eslint-disable no-unused-vars -->
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Settings, Trash2, MessagesSquare, Github, SquarePlus } from 'lucide-vue-next';
 
 // Define props
@@ -63,7 +63,6 @@ function onShowConversationsClick() {
             <Github :size="20" :stroke-width="2.5" class="header-icon" />
         </a>
         <div class="models-dropdown">
-            <!-- Model Selection -->
             <div class="control select-dropdown">
                 <label for="model-selector"></label>
                 <select id="model-selector" :value="selectedModel" @change="$emit('change-model', $event.target.value)">
@@ -73,7 +72,7 @@ function onShowConversationsClick() {
                     <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                     <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                     <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                    <option value="open-ai-format">Custom API Endpoint (Open AI Format)</option>
+                    <option value="open-ai-format">Custom API Endpoint</option>
                     <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
                 </select>
             </div>
@@ -106,7 +105,11 @@ $shadow-spread-radius: 0px;
 .control {
     margin-bottom: 15px;
     padding-bottom: 15px;
-    margin-top: 3px;
+}
+
+.chevron {
+    top: 10px;
+    position: absolute;
 }
 
 .models-dropdown {
@@ -123,15 +126,16 @@ $shadow-spread-radius: 0px;
     transition: background-color 0.3s ease, transform 0.2s ease;
 
     .select-dropdown {
+
         select {
             appearance: none;
-            background-color: #1c40468c;
             color: whitesmoke;
+            background-color: transparent;
             margin-top: 6px;
             padding: 6px;
-            border: none;
+            border: 1px solid #533865c9;
+            border-radius: 20px;
             max-width: 80%;
-            border: 1px solid #223737;
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s ease, transform 0.2s ease;

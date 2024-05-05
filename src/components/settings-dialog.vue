@@ -95,8 +95,8 @@ function toggleSidebar() {
                             <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                             <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                             <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                            <option value="open-ai-format">Custom API Endpoint (Open AI Format)</option>
-                            <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
+                            <option value="open-ai-format">Custom API Endpoint</option>
+                            <option value="web-llm">Local Browser Model</option>
                         </select>
                     </div>
                     <div class="control select-dropdown">
@@ -111,7 +111,7 @@ function toggleSidebar() {
             </div>
 
             <div class="config-section" v-show="showBrowserModelConfig">
-                <h3>Local Browser Model</h3>
+                <h3>Local Browser Model (Chrome and Edge Only)</h3>
                 <div class="control select-dropdown">
                     <label for="localModelsSelection">Model To Load In Browser:</label>
                     <select id="localModelsSelection" :value="browserModelSelection"
@@ -132,7 +132,7 @@ function toggleSidebar() {
             </div>
 
             <div class="config-section" v-show="showLocalConfig">
-                <h3>OpenAI Format Model Config</h3>
+                <h3>Custom Endpoint Config (Open AI Format)</h3>
                 <div class="control-grid">
                     <InputField v-show="showLocalConfig" labelText="Model Name:" inputId="model-name"
                         :value="localModelName" @update:value="update('localModelName', $event)" :isSecret="false"

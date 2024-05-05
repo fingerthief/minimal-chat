@@ -1408,7 +1408,7 @@ pre {
     width: 6px;
     height: 100%;
     cursor: col-resize;
-    background-color: #191b1b;
+    background-color: #274d683b;
     z-index: 1000;
     max-width: 100%;
 }

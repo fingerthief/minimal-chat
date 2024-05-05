@@ -179,7 +179,7 @@ $icon-color: rgb(187, 187, 187);
     width: 6px;
     height: 100%;
     cursor: col-resize;
-    background-color: #191b1b;
+    background-color: #274d683b;
     z-index: 1000;
     max-width: 100%;
 }
@@ -307,9 +307,9 @@ $icon-color: rgb(187, 187, 187);
     li {
         padding: 15px;
         border-bottom: 1px solid #100d0d;
-        background-color: #1c292ea8;
+        background-color: #0a2b2b;
         transition: background-color 0.2s ease;
-        border-left: 6px solid #353434;
+        border-left: 6px solid #3a3a3a;
 
         -webkit-user-select: none;
         -ms-user-select: none;
@@ -355,11 +355,11 @@ $icon-color: rgb(187, 187, 187);
         cursor: pointer;
         position: relative;
         background-color: #0a1e24;
-        border-bottom: 3px solid #26622ab5;
+        border-bottom: 2px solid #26622ab5;
 
         &--delete {
             background-color: #0a1e24;
-            border-bottom: 3px solid #713f3fe8;
+            border-bottom: 2px solid #713f3fe8;
 
             &:hover {
                 background-color: #6b4438;
@@ -382,7 +382,7 @@ $icon-color: rgb(187, 187, 187);
         &--settings {
 
             background-color: #0a1e24;
-            border-bottom: 3px solid #725182b5;
+            border-bottom: 2px solid #725182b5;
 
             &:hover {
                 background-color: #332e3c;
