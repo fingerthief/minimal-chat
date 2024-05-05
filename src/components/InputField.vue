@@ -33,10 +33,7 @@ const emitUpdate = (event) => {
 .input-field {
     display: flex;
     flex-direction: column;
-    margin-bottom: 15px;
     padding-bottom: 15px;
-    padding-top: 10px;
-    border-bottom: 1px solid #3f4151;
 
     label {
         font-size: 14px;

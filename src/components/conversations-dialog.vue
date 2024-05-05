@@ -348,16 +348,18 @@ $icon-color: rgb(187, 187, 187);
 
     .new-conversation-option {
         text-align: left;
-        background-color: #1047456f;
         color: #FFFFFF;
         font-weight: bold;
         border-radius: 5px;
         display: flex;
         cursor: pointer;
         position: relative;
+        background-color: #0a1e24;
+        border-bottom: 3px solid #26622ab5;
 
         &--delete {
-            background-color: #6b44385f;
+            background-color: #0a1e24;
+            border-bottom: 3px solid #713f3fe8;
 
             &:hover {
                 background-color: #6b4438;
@@ -379,7 +381,8 @@ $icon-color: rgb(187, 187, 187);
 
         &--settings {
 
-            background-color: #292530ae;
+            background-color: #0a1e24;
+            border-bottom: 3px solid #725182b5;
 
             &:hover {
                 background-color: #332e3c;
@@ -389,7 +392,6 @@ $icon-color: rgb(187, 187, 187);
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                margin-top: 5px;
 
                 .settings-text {
                     line-height: 1;

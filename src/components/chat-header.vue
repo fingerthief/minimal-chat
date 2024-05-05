@@ -125,7 +125,7 @@ $shadow-spread-radius: 0px;
     .select-dropdown {
         select {
             appearance: none;
-            background-color: #1c262a;
+            background-color: #1c40468c;
             color: whitesmoke;
             margin-top: 6px;
             padding: 6px;

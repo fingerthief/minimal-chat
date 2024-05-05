@@ -72,151 +72,154 @@ function toggleSidebar() {
 </script>
 
 <template>
-    <div class="settings-header">
-        <h2>
-            <span @click="reloadPage">
-                <RefreshCcw :size="23" :stroke-width="2" />
-            </span>
-            Settings | V6.0.0
-        </h2>
-    </div>
-    <div class="sidebar-content-container">
-        <div class="config-section">
-            <h3>General Config</h3>
+    <div class="settings-dialog">
+        <div class="settings-header">
+            <h2>
+                <span @click="reloadPage">
+                    <RefreshCcw :size="23" :stroke-width="2" />
+                </span>
+                Settings | V6.0.0
+            </h2>
         </div>
+        <div class="sidebar-content-container">
+            <div class="config-section">
+                <h3>General Config</h3>
+                <div class="control-grid">
+                    <div class="control select-dropdown">
+                        <label for="model-selector">Model:</label>
+                        <select id="model-selector" :value="selectedModel"
+                            @change="update('model', $event.target.value)">
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            <option value="gpt-4">GPT-4</option>
+                            <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                            <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                            <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                            <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                            <option value="open-ai-format">Custom API Endpoint (Open AI Format)</option>
+                            <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
+                        </select>
+                    </div>
+                    <div class="control select-dropdown">
+                        <label for="auto-save-conversations">Auto Save Conversations:</label>
+                        <select id="auto-save-conversations" :value="selectedAutoSaveOption"
+                            @change="update('selectedAutoSaveOption', $event.target.value)">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Model Selection -->
-        <div class="control select-dropdown">
-            <label for="model-selector">Model:</label>
-            <select id="model-selector" :value="selectedModel" @change="update('model', $event.target.value)">
-                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                <option value="gpt-4">GPT-4</option>
-                <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                <option value="claude-3-opus-20240229">Claude 3 Opus</option>
-                <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
-                <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                <option value="open-ai-format">Custom API Endpoint (Open AI Format)</option>
-                <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
-            </select>
+            <div class="config-section" v-show="showBrowserModelConfig">
+                <h3>Local Browser Model</h3>
+                <div class="control select-dropdown">
+                    <label for="localModelsSelection">Model To Load In Browser:</label>
+                    <select id="localModelsSelection" :value="browserModelSelection"
+                        @change="update('browserModelSelection', $event.target.value)">
+                        @change="update('browserModelSelection', $event.target.value)">
+                        <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
+                        <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 (~4.6gb VRAM)</option>
+                        <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 (~5.2gb VRAM)</option>
+                        <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2 (~6.1gb VRAM)</option>
+                        <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)
+                        </option>
+                        <option value="RedPajama-INCITE-Chat-3B-v1-q4f16_1">RedPajama-INCITE-Chat-3B-v1 (~3.0gb VRAM)
+                        </option>
+                        <option value="gemma-2b-it-q4f32_1">gemma-2b-it (~1.8gb VRAM)
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="config-section" v-show="showLocalConfig">
+                <h3>OpenAI Format Model Config</h3>
+                <div class="control-grid">
+                    <InputField v-show="showLocalConfig" labelText="Model Name:" inputId="model-name"
+                        :value="localModelName" @update:value="update('localModelName', $event)" :isSecret="false"
+                        :placeholderText="'Enter the model name'" />
+                    <InputField v-show="showLocalConfig" :isSecret="false" labelText="API Endpoint:"
+                        :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
+                        :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
+                    <InputField v-show="showLocalConfig" :isSecret="true" labelText="API Key:"
+                        :placeholderText="'Enter the API key if applicable'" inputId="local-model-key"
+                        :value="localModelKey" @update:value="update('localModelKey', $event)" />
+                    <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Temperature (0.0-2.0):"
+                        :isSecret="false" :placeholderText="'Enter the temperature value for the model.'"
+                        inputId="localSliderValue" :value="localSliderValue.toString()"
+                        @update:value="update('localSliderValue', $event)" />
+                    <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Top_P Value (0.0-1.0):"
+                        :isSecret="false" :placeholderText="'Enter the top_P value if applicable'" inputId="top_P"
+                        :value="top_P.toString()" @update:value="update('top_P', $event)" />
+                    <InputField v-show="showLocalConfig || showBrowserModelConfig"
+                        labelText="Repetition Penalty (0.0-2.0):" :isSecret="false"
+                        :placeholderText="'Enter the repetition penalty value if applicable'"
+                        inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
+                        @update:value="update('repetitionPenalty', $event)" />
+                    <InputField v-show="showLocalConfig" labelText="Max Tokens:" :isSecret="false"
+                        :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
+                        :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
+                </div>
+            </div>
+
+            <div class="config-section" v-show="showGPTConfig">
+                <h3>GPT Config</h3>
+                <div class="control-grid">
+                    <InputField :labelText="'API Key'" :isSecret="true" labelText="Key:"
+                        :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey"
+                        @update:value="update('gptKey', $event)" />
+                    <div class="slider-container">
+                        <span>Serious</span>
+                        <input type="range" min="0" max="100" :value="sliderValue"
+                            @blur="update('sliderValue', $event.target.value)">
+                        <span>Creative</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-section" v-show="showClaudeConfig">
+                <h3>Claude Config</h3>
+                <div class="control-grid">
+                    <InputField :labelText="'API Key'" :isSecret="true" labelText="Key:"
+                        :placeholderText="'Enter the API Key'" inputId="claude-api-key" :value="claudeKey"
+                        @update:value="update('claudeKey', $event)" />
+                    <div class="slider-container">
+                        <span>Serious</span>
+                        <input type="range" min="0" max="100" :value="claudeSliderValue"
+                            @blur="update('claudeSliderValue', $event.target.value)">
+                        <span>Creative</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-section" v-show="showGPTConfig">
+                <h3>DALL-E Config</h3>
+                <div class="control-grid">
+                    <div class="control select-dropdown">
+                        <label for="dalle-image-count">DALL-E Image Count:</label>
+                        <select id="dalle-image-count" :value="selectedDallEImageCount"
+                            @change="update('selectedDallEImageCount', $event.target.value)">
+                            <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                        </select>
+                    </div>
+                    <div class="control select-dropdown">
+                        <label for="dalle-image-resolution">Image Resolution:</label>
+                        <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
+                            @change="update('selectedDallEImageResolution', $event.target.value)">
+                            <option value="256x256">256x256</option>
+                            <option value="512x512">512x512</option>
+                            <option value="1024x1024">1024x1024</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- Auto Save Conversations -->
-        <div class="control select-dropdown">
-            <span>Auto Save Conversations: </span>
-            <select id="auto-save-conversations" :value="selectedAutoSaveOption"
-                @change="update('selectedAutoSaveOption', $event.target.value)">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-            </select>
+        <div class="bottom-panel">
+            <button class="close-btn" @click="toggleSidebar">Close</button>
         </div>
-        <div class="config-section" v-show="showBrowserModelConfig">
-            <h3>Local Browser Model</h3>
-        </div>
-        <br>
-        <div class="control select-dropdown" v-show="showBrowserModelConfig">
-            <span>Model To Load In Browser: </span>
-            <select id="localModelsSelection" :value="browserModelSelection"
-                @change="update('browserModelSelection', $event.target.value)">
-                <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
-                <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 (~4.6gb VRAM)</option>
-                <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 (~5.2gb VRAM)</option>
-                <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2 (~6.1gb VRAM)</option>
-                <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)
-                </option>
-                <option value="RedPajama-INCITE-Chat-3B-v1-q4f16_1">RedPajama-INCITE-Chat-3B-v1 (~3.0gb VRAM)
-                </option>
-                <option value="gemma-2b-it-q4f32_1">gemma-2b-it (~1.8gb VRAM)
-                </option>
-            </select>
-        </div>
-        <div class="config-section" v-show="showLocalConfig">
-            <h3>OpenAI Format Model Config</h3>
-        </div>
-        <!-- Model Name -->
-        <InputField v-show="showLocalConfig" label="Model:" :labelText="'Model Name'" inputId="model-name"
-            :value="localModelName" @update:value="update('localModelName', $event)" :isSecret="false"
-            :placeholderText="'Enter the model name'" />
-        <!-- Model Endpoint -->
-        <InputField v-show="showLocalConfig" :isSecret="false" :labelText="'API Endpoint'" label="API Endpoint:"
-            :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
-            :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
-        <!-- API key -->
-        <InputField v-show="showLocalConfig" :isSecret="true" label="Key:" :labelText="'API Key'"
-            :placeholderText="'Enter the API key if applicable'" inputId="local-model-key" :value="localModelKey"
-            @update:value="update('localModelKey', $event)" />
-        <!-- Temp -->
-        <InputField v-show="showLocalConfig || showBrowserModelConfig"
-            :labelText="'Temperature (0.0-2.0) Default: (0.6)'" :isSecret="false"
-            :placeholderText="'Enter the temperature value for the model.'" label="localSliderValue"
-            inputId="localSliderValue" :value="localSliderValue.toString()"
-            @update:value="update('localSliderValue', $event)" />
-        <!-- Top_P -->
-        <InputField v-show="showLocalConfig || showBrowserModelConfig"
-            :labelText="'Top_P Value (0.0-1.0) Default: (1.0)'" :isSecret="false"
-            :placeholderText="'Enter the top_P value if applicable'" label="Top_P:" inputId="top_P"
-            :value="top_P.toString()" @update:value="update('top_P', $event)" />
-        <!-- Repetition Penalty -->
-        <InputField v-show="showLocalConfig || showBrowserModelConfig"
-            :labelText="'Repetition Penalty  (0.0-2.0) Default: (1.0)'" :isSecret="false"
-            :placeholderText="'Enter the repetition penalty value if applicable'" label="repetitionPenalty:"
-            inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
-            @update:value="update('repetitionPenalty', $event)" />
-        <!-- Max Tokens -->
-        <InputField v-show="showLocalConfig" :labelText="'Max Tokens (Default: -1 disabled)'" :isSecret="false"
-            :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
-            :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
-        <!-- GPT Key -->
-        <InputField v-show="showGPTConfig" :labelText="'API Key'" :isSecret="true" label="Key:"
-            :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey"
-            @update:value="update('gptKey', $event)" />
-        <!-- Slider Value -->
-        <div class="slider-container" v-show="showGPTConfig">
-            <span>Serious</span>
-            <input type="range" min="0" max="100" :value="sliderValue"
-                @blur="update('sliderValue', $event.target.value)">
-            <span>Creative</span>
-        </div>
-        <div class="config-section" v-show="showClaudeConfig">
-            <h3>Claude Config</h3>
-        </div>
-        <!-- Claude Key -->
-        <InputField v-show="showClaudeConfig" :labelText="'API Key'" :isSecret="true" label="Key:"
-            :placeholderText="'Enter the API Key'" inputId="claude-api-key" :value="claudeKey"
-            @update:value="update('claudeKey', $event)" />
-        <!-- Claude Slider Value -->
-        <div class="slider-container" v-show="showClaudeConfig">
-            <span>Serious</span>
-            <input type="range" min="0" max="100" :value="claudeSliderValue"
-                @blur="update('claudeSliderValue', $event.target.value)">
-            <span>Creative</span>
-        </div>
-        <div class="config-section" v-show="showGPTConfig">
-            <h3>DALL-E Config</h3>
-        </div>
-        <!-- DALL-E Image Count -->
-        <div class="control select-dropdown" v-show="showGPTConfig">
-            <span>DALL-E Image Count: </span>
-            <select id="dalle-image-count" :value="selectedDallEImageCount"
-                @change="update('selectedDallEImageCount', $event.target.value)">
-                <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-            </select>
-        </div>
-        <!-- DALL-E Image Resolution -->
-        <div class="control select-dropdown" v-show="showGPTConfig">
-            <span>Image Resolution: </span>
-            <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
-                @change="update('selectedDallEImageResolution', $event.target.value)">
-                <option value="256x256">256x256</option>
-                <option value="512x512">512x512</option>
-                <option value="1024x1024">1024x1024</option>
-            </select>
-        </div>
-    </div>
-    <div class="bottom-panel">
-        <button class="close-btn" @click="toggleSidebar">Close</button>
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 $shadow-color: #252629;
 $shadow-offset-x: 0px;
 $shadow-offset-y: 1px;
@@ -224,17 +227,23 @@ $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
-
+.settings-dialog {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 99vw;
+}
 
 .sidebar-content-container {
-    overflow: auto;
-    text-overflow: clip;
-    overflow: hidden;
+    flex-grow: 1;
+    overflow-y: auto;
     padding: 6px;
+    overflow: hidden;
     z-index: 10000;
     background-color: #181f20;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
+    overflow: auto;
+    scrollbar-width: none;
 }
 
 .select-dropdown {
@@ -242,7 +251,6 @@ $icon-color: rgb(187, 187, 187);
         appearance: none;
         background-color: #333;
         color: #fff;
-        margin-top: 6px;
         padding: 6px;
         border: none;
         border-radius: 4px;
@@ -264,40 +272,29 @@ $icon-color: rgb(187, 187, 187);
     }
 }
 
-.close-btn {
-    align-self: flex-end; // Align the button to the right
-    padding: 5px 10px;
-    border: 1px solid #444;
-    background-color: #3d3c3e;
-    color: white;
-    cursor: pointer;
-    width: 98%;
-    font-size: 18px;
-    height: 50px;
-    outline: none;
-    margin-bottom: 10px; // Add some margin at the bottom
-    transition: background-color 0.2s ease, transform 0.2s ease;
+.config-section {
+    margin-bottom: 30px;
 
-    &:hover {
-        background-color: #3e3e3f;
-        transform: scale(1.03);
+    h3 {
+        margin-bottom: 15px;
+        background-color: #181f20;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        position: relative;
+        border-bottom: 3px solid #1b6a72c4;
+        padding-bottom: 8px;
+        padding-top: 8px;
+        // width: 112%;
+        // left: -21px;
+
     }
 }
 
-.bottom-panel {
-    display: flex;
-    justify-content: center;
-}
-
-.config-section {
-    background-color: #1c302e;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    position: relative;
-    border-bottom: 1px solid rgb(57, 56, 56);
-    padding-bottom: 8px;
-    padding-top: 8px;
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
 }
 
 .settings-header {
@@ -313,22 +310,28 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .close-btn {
-    align-self: flex-end; // Align the button to the right
-    padding: 5px 10px;
-    border: 1px solid #444;
-
+    align-self: flex-end;
+    padding: 10px;
+    border: none;
     color: white;
     cursor: pointer;
-    width: 98%;
-    font-size: 18px;
-    height: 50px;
+    width: 100%;
+    font-size: 16px;
+    height: 40px;
     outline: none;
-    margin-bottom: 10px; // Add some margin at the bottom
-    transition: background-color 0.2s ease;
-    background-color: #29293a;
+    transition: background-color 0.3s ease;
+    background-color: #2c2d35;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
 
     &:hover {
-        background-color: #252534;
+        background-color: #34495e;
+    }
+
+    &:active {
+        background-color: #2c3e50;
+        transform: translateY(1px);
     }
 }
 
@@ -351,10 +354,6 @@ $icon-color: rgb(187, 187, 187);
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    margin-bottom: 10px;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #3f4151;
 
     input[type="range"] {
         -webkit-appearance: none;
@@ -385,40 +384,13 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .control {
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    margin-top: 3px;
+    margin-bottom: 0;
 }
 
-.api-key {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    margin-bottom: 10px;
-    flex-wrap: nowrap;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #3f4151;
+.bottom-panel {
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-top: 2px solid #5f4575cf;
 
-    input {
-        width: 70%;
-        padding: 5px;
-        border: 1px solid #444;
-        border-radius: 5px;
-        background-color: #1c1c1e;
-        color: #f0f0f0;
-        outline: none;
-        margin-top: 5px;
-    }
-}
-
-.settings-section {
-    border-bottom: 1px solid #3f4151;
-    padding: 1rem 0;
-}
-
-.settings-section h3 {
-    margin-bottom: 0.5rem;
 }
 </style>
