@@ -19,6 +19,9 @@
 
 MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
 
+![image](https://github.com/fingerthief/minimal-chat/assets/2380471/466b6956-00e1-4bf7-b520-ff4b0eb4e07f)
+
+
 ## **Experience the Power of Web Local LLM Models**
 
 A huge thank you to the innovative folks at [Web LLM](https://github.com/mlc-ai/web-llm) for making it possible to bring the magic of large language models (LLMs) directly to your browser!
@@ -29,15 +32,11 @@ With this integration, you can now seamlessly download and cache popular LLM mod
 
 ### General Demo
 
-![minimal-chat-general-demo-ezgif com-optimize](https://github.com/fingerthief/minimal-chat/assets/2380471/21c7c793-1b65-4452-8acb-6a87acf21476)
+![minimal-chat-general-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/57002988-be25-46dc-9075-0b40fb93143a)
 
-### Demo Vision Support (Claude, GPT, and Custom Models)
+### Application Demos
 
-[https://github.com/fingerthief/minimal-chat/wiki/Demo-Vision-Support](https://github.com/fingerthief/minimal-chat/wiki/Vision-Support-Demo) (View in Wiki)
-
-### Mobile Demo
-
-https://github.com/fingerthief/minimal-chat/wiki/Mobile-Demo (View in Wiki)
+[Visit the Application Demos Wiki Page](https://github.com/fingerthief/minimal-chat/wiki/Application-Demos)
 
 ### Fast and Lightweight
 
@@ -58,12 +57,8 @@ To run the web app locally, you'll need NodeJS installed. Then, navigate to the 
 
 ### Configuration
 
-To integrate an external API, follow these steps in the settings panel of MinimalChat:
+[Visit the Wiki for a detailed explanation of available configuration options.](https://github.com/fingerthief/minimal-chat/wiki/Configuration-Options-Explained)
 
-1. **Model Name**: Enter the identifier for the language model you wish to use.
-2. **API Endpoint**: Specify the URL where the API is hosted.
-3. **API Key**: Enter the API key provided by the service hosting the model.
-4. **Max Tokens**: Define the maximum number of tokens that can be generated in a response. This is input token + potential output tokens.
 
 ## **Features**
 
@@ -80,7 +75,6 @@ To integrate an external API, follow these steps in the settings panel of Minima
 - Code Syntax Highlighting
 - Basic DALL-E 3 Integration (Prefix GPT model messages with **image::** and then your description to generate images)
 - Conversation Importing/Exporting
-- Customizable settings
 - Responsive layout for mobile use
 - PWA Support
 
