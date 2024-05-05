@@ -106,6 +106,7 @@ $shadow-spread-radius: 0px;
 .control {
     margin-bottom: 15px;
     padding-bottom: 15px;
+    margin-top: 3px;
 }
 
 .models-dropdown {
