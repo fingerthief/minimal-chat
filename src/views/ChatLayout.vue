@@ -134,6 +134,7 @@ watch(maxTokens, (newValue) => {
 
 watch(browserModelSelection, async (newValue) => {
     localStorage.setItem('browserModelSelection', newValue);
+
     modelDisplayName.value = browserModelSelection.value;
 
     isLoading.value = true;
@@ -1055,6 +1056,11 @@ async function editConversationTitle(oldConversation, newConversationTitle) {
     showToast("Failed to update title");
 }
 
+async function onModelChange(newModel) {
+    console.log(newModel);
+    selectedModel.value = newModel;
+}
+
 onUnmounted(() => {
     document.removeEventListener('click', handleGlobalClick);
 });
@@ -1134,7 +1140,7 @@ onMounted(() => {
                         <chatHeader :selectedModel="selectedModel" :isSidebarOpen="isSidebarOpen"
                             :storedConversations="storedConversations" @toggle-sidebar="toggleSidebar"
                             @delete-conversation="deleteCurrentConversation" @toggle-conversations="showConversations"
-                            @new-conversation="clearMessages" />
+                            @new-conversation="clearMessages" @change-model="onModelChange" />
                         <!-- Messages -->
                         <div class="messages">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"

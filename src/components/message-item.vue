@@ -113,10 +113,10 @@ const saveEditedMessage = (message, event) => {
             <ToolTip :targetId="'message-label-' + index">
                 Copy Text</ToolTip>
             <div class="label" @click="copyText(message)" :id="'message-label-' + index">
-                <RefreshCcw v-if="message.role === 'user'" class="icon"
+                <RefreshCcw v-if="message.role === 'user'" class="icon" :size="18"
                     :class="{ 'loading': isLoading && loadingIcon === index }"
                     @click="$emit('regenerate-response', message.content), startLoading(index)" />
-                <Trash v-if="message.role === 'user'" class="delete-icon"
+                <Trash v-if="message.role === 'user'" class="delete-icon" :size="18"
                     :class="{ 'loading': isLoading && loadingIcon === index }"
                     @click="$emit('delete-response', message.content), startLoading(index)" />
                 {{ message.role === 'user' ? 'User' : modelDisplayName }}
@@ -166,14 +166,16 @@ const saveEditedMessage = (message, event) => {
     min-width: 62px;
     font-weight: 500;
     font-size: 18px;
+    min-width: fit-content;
 }
 
 .icon {
     position: absolute;
-    left: -7px;
+    left: -10px;
     color: #9d81a0;
     transition: background-color 0.3s ease, transform 0.2s ease;
     background-color: transparent;
+    bottom: 5px;
 
     &.loading {
         animation: spin 1s infinite linear;
@@ -188,10 +190,11 @@ const saveEditedMessage = (message, event) => {
 
 .delete-icon {
     position: absolute;
-    left: -40px;
+    left: -32px;
     color: #827b83;
     transition: background-color 0.3s ease, transform 0.2s ease;
     background-color: transparent;
+    bottom: 5px;
 
     &:hover {
         transform: scale(1.15);

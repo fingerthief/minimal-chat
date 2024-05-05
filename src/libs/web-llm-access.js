@@ -1,4 +1,5 @@
 import * as webllm from "@mlc-ai/web-llm";
+import { showToast } from "./utils";
 
 export let engine = undefined;
 
@@ -9,11 +10,18 @@ export async function loadNewModel(modelName, updateUI) {
 
     if (engine !== undefined) {
         engine.unload();
+        showToast("Model Unloaded");
     }
 
-    engine = await webllm.CreateEngine(modelName, {
+    const chatOpts = {
+        "repetition_penalty": parseFloat(localStorage.getItem("repetitionPenalty") || 1.0),
+        "temperature": (parseFloat(localStorage.getItem("local-attitude")) || 0.6),
+        "top_p": (parseFloat(localStorage.getItem("top_P")) || 1.0),
         initProgressCallback: initProgressCallback
-    });
+    };
+
+    engine = await webllm.CreateEngine(modelName, chatOpts);
+    showToast("Model Loaded");
 }
 
 export async function sendBrowserLoadedModelMessage(messages, updateUI) {
@@ -24,9 +32,15 @@ export async function sendBrowserLoadedModelMessage(messages, updateUI) {
     const selectedModel = localStorage.getItem("browserModelSelection");
 
     if (engine === undefined) {
-        engine = await webllm.CreateEngine(selectedModel, {
+        const chatOpts = {
+            "repetition_penalty": parseFloat(localStorage.getItem("repetitionPenalty") || 1.0),
+            "temperature": (parseFloat(localStorage.getItem("local-attitude")) || 0.6),
+            "top_p": (parseFloat(localStorage.getItem("top_P")) || 1.0),
             initProgressCallback: initProgressCallback
-        });
+        };
+
+        engine = await webllm.CreateEngine(selectedModel, chatOpts);
+        showToast("Model Loaded");
     }
 
     const filteredMessages = filterMessages(messages);

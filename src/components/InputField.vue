@@ -19,13 +19,13 @@ const emitUpdate = (event) => {
     emit('update:value', event.target.value);
 };
 </script>
-
 <template>
     <div class="input-field">
         <!-- Render the label if labelText is provided -->
         <label :for="props.inputId" v-if="props.labelText">{{ props.labelText }}</label>
-        <input :id="props.inputId" :value="props.value" @blur="emitUpdate" :type="props.isSecret ? 'password' : 'text'"
-            :placeholder="props.placeholderText" :autocomplete="props.isSecret ? 'new-password' : 'off'">
+        <input :id="props.inputId" :value="props.value" @blur="emitUpdate"
+            :type="props.isSecret ? 'password' : props.type" :placeholder="props.placeholderText"
+            :autocomplete="props.isSecret ? 'off' : 'on'" /> <!-- Disable autocomplete for secret fields -->
     </div>
 </template>
 

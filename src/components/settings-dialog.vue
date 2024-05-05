@@ -95,7 +95,7 @@ function toggleSidebar() {
                 <option value="claude-3-opus-20240229">Claude 3 Opus</option>
                 <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
                 <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-                <option value="open-ai-format">Open AI Response Formatted API</option>
+                <option value="open-ai-format">Custom API Endpoint (Open AI Format)</option>
                 <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
             </select>
         </div>
@@ -116,11 +116,15 @@ function toggleSidebar() {
             <span>Model To Load In Browser: </span>
             <select id="localModelsSelection" :value="browserModelSelection"
                 @change="update('browserModelSelection', $event.target.value)">
-                <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32_1 (~6.1gb VRAM)</option>
-                <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16_1-1k (~4.6gb VRAM)</option>
-                <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32_1-1k (~5.2gb VRAM)</option>
-                <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2-q4f16_1 (~6.1gb VRAM)</option>
-                <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B-q4f16_1 (~6.1gb VRAM)
+                <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
+                <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 (~4.6gb VRAM)</option>
+                <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 (~5.2gb VRAM)</option>
+                <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2 (~6.1gb VRAM)</option>
+                <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)
+                </option>
+                <option value="RedPajama-INCITE-Chat-3B-v1-q4f16_1">RedPajama-INCITE-Chat-3B-v1 (~3.0gb VRAM)
+                </option>
+                <option value="gemma-2b-it-q4f32_1">gemma-2b-it (~1.8gb VRAM)
                 </option>
             </select>
         </div>
@@ -140,22 +144,25 @@ function toggleSidebar() {
             :placeholderText="'Enter the API key if applicable'" inputId="local-model-key" :value="localModelKey"
             @update:value="update('localModelKey', $event)" />
         <!-- Temp -->
-        <InputField v-show="showLocalConfig" :labelText="'Temperature (0.0-2.0) Default: (0.6)'" :isSecret="false"
+        <InputField v-show="showLocalConfig || showBrowserModelConfig"
+            :labelText="'Temperature (0.0-2.0) Default: (0.6)'" :isSecret="false"
             :placeholderText="'Enter the temperature value for the model.'" label="localSliderValue"
             inputId="localSliderValue" :value="localSliderValue" @update:value="update('localSliderValue', $event)" />
+        <!-- Top_P -->
+        <InputField v-show="showLocalConfig || showBrowserModelConfig"
+            :labelText="'Top_P Value (0.0-1.0) Default: (1.0)'" :isSecret="false"
+            :placeholderText="'Enter the top_P value if applicable'" label="Top_P:" inputId="top_P" :value="top_P"
+            @update:value="update('top_P', $event)" />
+        <!-- Repetition Penalty -->
+        <InputField v-show="showLocalConfig || showBrowserModelConfig"
+            :labelText="'Repetition Penalty  (0.0-2.0) Default: (1.0)'" :isSecret="false"
+            :placeholderText="'Enter the repetition penalty value if applicable'" label="repetitionPenalty:"
+            inputId="repetitionPenalty" :value="repetitionPenalty"
+            @update:value="update('repetitionPenalty', $event)" />
         <!-- Max Tokens -->
         <InputField v-show="showLocalConfig" :labelText="'Max Tokens (Default: -1 disabled)'" :isSecret="false"
             :placeholderText="'Enter the max token limit if applicable'" label="Max Tokens:" inputId="max-tokens"
             :value="maxTokens" @update:value="update('maxTokens', $event)" />
-        <!-- Top_P -->
-        <InputField v-show="showLocalConfig" :labelText="'Top_P Value (0.0-1.0) Default: (1.0)'" :isSecret="false"
-            :placeholderText="'Enter the top_P value if applicable'" label="Top_P:" inputId="top_P" :value="top_P"
-            @update:value="update('top_P', $event)" />
-        <!-- Repetition Penalty -->
-        <InputField v-show="showLocalConfig" :labelText="'Repetition Penalty  (0.0-2.0) Default: (1.0)'"
-            :isSecret="false" :placeholderText="'Enter the repetition penalty value if applicable'"
-            label="repetitionPenalty:" inputId="repetitionPenalty" :value="repetitionPenalty"
-            @update:value="update('repetitionPenalty', $event)" />
         <!-- GPT Key -->
         <InputField v-show="showGPTConfig" :labelText="'API Key'" :isSecret="true" label="Key:"
             :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey"

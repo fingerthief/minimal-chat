@@ -15,7 +15,7 @@ const props = defineProps({
     storedConversations: Array
 });
 
-const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation']);
+const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation', 'change-model']);
 
 const faConversationsCountClass = computed(() => {
     const length = props.storedConversations.length;
@@ -62,6 +62,22 @@ function onShowConversationsClick() {
         <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
             <Github :size="20" :stroke-width="2.5" class="header-icon" />
         </a>
+        <div class="models-dropdown">
+            <!-- Model Selection -->
+            <div class="control select-dropdown">
+                <label for="model-selector"></label>
+                <select id="model-selector" :value="selectedModel" @change="$emit('change-model', $event.target.value)">
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                    <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                    <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                    <option value="open-ai-format">Custom API Endpoint (Open AI Format)</option>
+                    <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
+                </select>
+            </div>
+        </div>
         <div class="settings-btn" @click="toggleSidebar">
             <Settings :stroke-width="1.00" :size="30" />
         </div>
@@ -86,6 +102,60 @@ $shadow-offset-y: 1px;
 $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 
+
+.control {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+
+.models-dropdown {
+    position: absolute;
+    left: -2%;
+    top: -2%;
+    background-color: transparent;
+    border: none;
+    color: $icon-color;
+    cursor: pointer;
+    outline: none;
+    max-width: fit-content;
+
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    .select-dropdown {
+        select {
+            appearance: none;
+            background-color: #333;
+            color: whitesmoke;
+            margin-top: 6px;
+            padding: 6px;
+            border: none;
+            max-width: 80%;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+
+            &:hover {
+                background-color: #262627;
+            }
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        option {
+            background-color: #222;
+            outline: none;
+            border: 0px;
+            color: #fff;
+        }
+    }
+
+    @media (max-width: 600px) {
+        display: none;
+    }
+}
 
 .saved-conversations {
     display: none;
