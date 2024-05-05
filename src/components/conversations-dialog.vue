@@ -307,9 +307,10 @@ $icon-color: rgb(187, 187, 187);
     li {
         padding: 15px;
         border-bottom: 1px solid #100d0d;
-        background-color: #0a2b2b;
+        background-color: #313131;
         transition: background-color 0.2s ease;
         border-left: 6px solid #3a3a3a;
+        color: #7f7f7f;
 
         -webkit-user-select: none;
         -ms-user-select: none;
@@ -328,10 +329,11 @@ $icon-color: rgb(187, 187, 187);
         }
 
         &.selected {
-            background-color: #222a23eb;
+            background-color: #242424;
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
             border-left: 6px solid #009463d5;
+            color: whitesmoke;
         }
     }
 }

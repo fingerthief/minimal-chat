@@ -48,7 +48,7 @@ const emitUpdate = (event) => {
         color: #e0e0e0;
         border-radius: 5px;
         border: none;
-        background-color: #1e2933;
+        background-color: #263039;
         font-size: 16px;
         font-family: Roboto-Regular, sans-serif;
 

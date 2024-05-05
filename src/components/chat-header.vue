@@ -17,9 +17,17 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation', 'change-model']);
 
-const faConversationsCountClass = computed(() => {
-    const length = props.storedConversations.length;
-    return `fa-${length > 0 ? length : '0'}`;
+const modelTypes = [
+    { name: 'claude', display: 'MinimalClaude' },
+    { name: 'gpt', display: 'MinimalGPT' },
+    { name: 'open-ai-format', display: 'MinimalCustom' },
+    { name: 'web-llm', display: 'MinimalLocal' }
+];
+
+const visibleModelLinks = computed(() => {
+    return modelTypes.filter(modelType =>
+        props.selectedModel.includes(modelType.name)
+    );
 });
 
 function toggleSidebar() {
@@ -43,21 +51,9 @@ function onShowConversationsClick() {
 
 <template>
     <div class="header box">
-        <a v-show="props.selectedModel.includes('claude')" href="https://github.com/fingerthief/minimal-chat"
-            target="_blank" class="no-style-link">
-            MinimalClaude
-        </a>
-        <a v-show="props.selectedModel.includes('gpt')" href="https://github.com/fingerthief/minimal-chat"
-            target="_blank" class="no-style-link">
-            MinimalGPT
-        </a>
-        <a v-show="props.selectedModel.includes('open-ai-format')" href="https://github.com/fingerthief/minimal-chat"
-            target="_blank" class="no-style-link">
-            MinimalCustom
-        </a>
-        <a v-show="props.selectedModel.includes('web-llm')" href="https://github.com/fingerthief/minimal-chat"
-            target="_blank" class="no-style-link">
-            MinimalLocal
+        <a v-for="modelType in visibleModelLinks" :key="modelType.name"
+            href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
+            {{ modelType.display }}
         </a>
         <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
             <Github :size="20" :stroke-width="2.5" class="header-icon" />
@@ -176,14 +172,15 @@ $shadow-spread-radius: 0px;
 }
 
 .header {
-    background-color: #212121;
+    background-color: #15242fb5;
     height: 50px;
     font-size: 20px;
     font-weight: bold;
+    border-bottom: 1px solid #4e386587;
     text-align: center;
     position: relative; // Add this line
     border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     a {
         top: 22%;
