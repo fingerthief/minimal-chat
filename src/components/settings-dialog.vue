@@ -385,7 +385,6 @@ $icon-color: rgb(187, 187, 187);
 .control {
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #3f4151;
 }
 
 .api-key {
