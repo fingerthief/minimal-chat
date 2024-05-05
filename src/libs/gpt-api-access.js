@@ -4,6 +4,7 @@ const MAX_RETRY_ATTEMPTS = 5;
 let gptResponseRetryCount = 0;
 let gptVisionRetryCount = 0;
 let dalleRetryCount = 0;
+
 export async function fetchGPTResponse(conversation, attitude, model) {
     const apiKey = localStorage.getItem("gptKey");
     try {
@@ -144,6 +145,7 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
         const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
 
         result = await readResponseStream(response, updateUiFunction, autoScrollToBottom);
+
         return result;
     }
     catch (error) {
