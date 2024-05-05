@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.0.0-blue)
+![Version](https://img.shields.io/badge/version-6.0.1-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalgpt.app)
@@ -25,9 +25,11 @@ A huge thank you to the innovative folks at [Web LLM](https://github.com/mlc-ai/
 
 With this integration, you can now seamlessly download and cache popular LLM models like `llama-3-8b-instruct` locally and run them entirely within your browser, without any hassle or reliance on external servers. This means you can enjoy greater control and unparalleled flexibility in how you choose to interact with models.
 
+[More notes in the Wiki](https://github.com/fingerthief/minimal-chat/wiki/Host-and-Run-Entire-LLM-Models-Directly-in-the-Browser-Locally)
+
 ### General Demo
 
-![minimal-chat-general-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/ad8a1427-0777-4a49-9ead-cec7676d4d89)
+![minimal-chat-general-demo-ezgif com-optimize](https://github.com/fingerthief/minimal-chat/assets/2380471/21c7c793-1b65-4452-8acb-6a87acf21476)
 
 ### Demo Vision Support (Claude, GPT, and Custom Models)
 
@@ -70,6 +72,7 @@ To integrate an external API, follow these steps in the settings panel of Minima
   - GPT Model
   - Claude 3 Models
   - Open AI Response Formatted APIs (custom/local) models
+  - Local Browser Loaded Models
 - Switch models mid-conversations and maintain context
 - Swipe Gestures for quick settings and conversations access
 - Edit, Regenerate or Delete past message responses
@@ -79,7 +82,6 @@ To integrate an external API, follow these steps in the settings panel of Minima
 - Conversation Importing/Exporting
 - Customizable settings
 - Responsive layout for mobile use
-- Auto Save New Conversations Option
 - PWA Support
 
 ## **FAQs**
