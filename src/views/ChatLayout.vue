@@ -1409,7 +1409,7 @@ pre {
 }
 
 .sidebar-conversations {
-    background-color: #151517;
+    background-color: #000;
     min-width: 0px;
     max-width: 100%;
     position: inherit;

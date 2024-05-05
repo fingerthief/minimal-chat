@@ -231,8 +231,9 @@ $icon-color: rgb(187, 187, 187);
     overflow: hidden;
     padding: 6px;
     z-index: 10000;
-    background-color: #151517;
+    background-color: #000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
 }
 
 .select-dropdown {
