@@ -125,13 +125,13 @@ $shadow-spread-radius: 0px;
     .select-dropdown {
         select {
             appearance: none;
-            background-color: #333;
+            background-color: #1c262a;
             color: whitesmoke;
             margin-top: 6px;
             padding: 6px;
             border: none;
             max-width: 80%;
-            border-radius: 20px;
+            border: 1px solid #223737;
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s ease, transform 0.2s ease;
