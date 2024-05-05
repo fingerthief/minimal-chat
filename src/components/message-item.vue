@@ -145,12 +145,14 @@ const saveEditedMessage = (message, event) => {
     position: relative;
     padding: 12px;
     min-width: 10%;
-    width: 88%;
+    width: fit-content;
     margin-bottom: 8px;
     clear: both;
     margin-top: 18px;
     font-size: 1em;
     line-height: 1.5;
+
+    max-width: 98vw;
 }
 
 .label {
@@ -227,7 +229,6 @@ const saveEditedMessage = (message, event) => {
 
 .message-contents {
     display: block;
-    overflow: clip;
 
     &[contenteditable="true"] {
         outline: none;

@@ -1356,12 +1356,17 @@ button {
 }
 
 pre {
-    background-color: #000 !important;
-    background: #000 !important;
+    background-color: #212426 !important;
     color: #d8d8d8 !important;
     padding: 10px;
-}
+    border-radius: 12px;
+    max-width: 98vw;
+    overflow: auto;
 
+    code {
+        max-width: 97vw;
+    }
+}
 
 .app-container {
     position: relative; // Add relative positioning
