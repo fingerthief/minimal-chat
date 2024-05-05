@@ -1154,7 +1154,7 @@ onMounted(() => {
                         <div class="floating-button scroll" id="scroll-button" @click="scrollToBottom"
                             :class="{ show: shouldShowScrollButton }">
                             <span>
-                                <ChevronDown :strokeWidth="5" />
+                                <ChevronDown :strokeWidth="3" />
                             </span>
 
                         </div>
@@ -1180,6 +1180,7 @@ $icon-color: rgb(187, 187, 187);
     position: relative;
     max-height: 90vh;
 }
+
 
 
 @font-face {
@@ -1298,12 +1299,14 @@ button {
 
 .floating-button {
     border: 1px solid #444;
-    background-color: #2a3441;
+    background: transparent;
+    border: none;
     cursor: pointer;
     outline: none;
     color: $icon-color;
     position: fixed;
     min-height: 50px;
+    border: none;
     top: 130px;
     display: grid;
     align-content: center;
