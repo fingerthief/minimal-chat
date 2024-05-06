@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.0.2-blue)
+![Version](https://img.shields.io/badge/version-6.0.3-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalgpt.app)
@@ -20,7 +20,6 @@
 MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
 
 ![image](https://github.com/fingerthief/minimal-chat/assets/2380471/466b6956-00e1-4bf7-b520-ff4b0eb4e07f)
-
 
 ## **Experience the Power of Web Local LLM Models**
 
@@ -58,7 +57,6 @@ To run the web app locally, you'll need NodeJS installed. Then, navigate to the 
 ### Configuration
 
 [Visit the Wiki for a detailed explanation of available configuration options.](https://github.com/fingerthief/minimal-chat/wiki/Configuration-Options-Explained)
-
 
 ## **Features**
 
