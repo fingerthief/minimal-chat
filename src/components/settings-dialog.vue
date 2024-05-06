@@ -320,13 +320,14 @@ $icon-color: rgb(187, 187, 187);
     height: 40px;
     outline: none;
     transition: background-color 0.3s ease;
-    background-color: #2c2d35;
+    background-color: #1e1e1e;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: bold;
+    border-bottom: 3px solid #865757cf;
 
     &:hover {
-        background-color: #34495e;
+        background-color: #6f383889;
     }
 
     &:active {
