@@ -174,7 +174,7 @@ $shadow-spread-radius: 0px;
 }
 
 .header {
-    background-color: #15242fb5;
+    background-color: #0a1e24;
     height: 50px;
     font-size: 20px;
     font-weight: bold;

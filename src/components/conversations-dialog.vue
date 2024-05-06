@@ -237,8 +237,13 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .bottom-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     align-items: flex-end;
+    justify-content: flex-end; // Add this line to align items to the bottom
     flex-direction: column;
     width: 100%;
 
@@ -246,10 +251,151 @@ $icon-color: rgb(187, 187, 187);
         text-align: center;
     }
 
-
     @media (max-width: 600px) {
         width: 100%;
     }
+
+
+    .scrollable-list--bottom {
+        max-width: 100%;
+        overflow-x: hidden;
+        width: 100%;
+        height: 22dvh;
+        max-height: 22dvh;
+        min-height: 0vh;
+        overflow: auto;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+
+        .new-conversation-option {
+            text-align: left;
+            color: #FFFFFF;
+            font-weight: bold;
+            border-radius: 5px;
+            display: flex;
+            cursor: pointer;
+            position: relative;
+            background-color: #0a1e24;
+            border-bottom: 2px solid #26622ab5;
+
+            &--delete {
+                background-color: #0a1e24;
+                border-bottom: 2px solid #713f3fe8;
+
+                &:hover {
+                    background-color: #713f3f9d;
+                }
+
+                .delete-icon {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-top: 5px;
+
+                    .delete-text {
+                        line-height: 1;
+                    }
+
+                }
+
+            }
+
+            &--settings {
+
+                background-color: #0a1e24;
+                border-bottom: 2px solid #725182b5;
+
+                &:hover {
+                    background-color: #332e3c;
+                }
+
+                .settings-icon {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+
+                    .settings-text {
+                        line-height: 1;
+                    }
+
+                }
+
+            }
+
+            &:hover {
+                background-color: #104745;
+            }
+
+            .new-icon {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 5px;
+
+                .new-text {
+                    line-height: 1;
+                }
+            }
+        }
+
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #100d0d;
+            background-color: #2a2121;
+            transition: background-color 0.2s ease;
+
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+
+            &:hover {
+                background-color: #114335;
+            }
+
+            &.selected {
+                background-color: #3e3347;
+                font-weight: bold;
+                box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+                animation: pulse 0.250s ease-out forwards;
+                border: 1px solid #513f77;
+            }
+
+            &.selected:before {
+                content: '\2713'; // Unicode for checkmark
+                font-family: 'Arial Unicode MS';
+                display: inline-block;
+                margin-right: 10px;
+                color: #4cae4c; // Green color for the checkmark
+            }
+
+            @keyframes pulse {
+                0% {
+                    background-color: #352d458c;
+                    transform: scale(1);
+                }
+
+                50% {
+                    background-color: #413558; // Slightly lighter color for the pulse effect
+                    transform: scale(1.02);
+                }
+
+                100% {
+                    background-color: #352d458c;
+                    transform: scale(1);
+                }
+            }
+        }
+    }
+
 }
 
 .scrollable-list {
@@ -334,143 +480,6 @@ $icon-color: rgb(187, 187, 187);
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
             border-left: 6px solid #009463d5;
             color: whitesmoke;
-        }
-    }
-}
-
-.scrollable-list--bottom {
-    max-width: 100%;
-    overflow-x: hidden;
-    width: 100%;
-    height: 22dvh;
-    max-height: 22dvh;
-    min-height: 0vh;
-    overflow: auto;
-    box-sizing: border-box;
-
-    .new-conversation-option {
-        text-align: left;
-        color: #FFFFFF;
-        font-weight: bold;
-        border-radius: 5px;
-        display: flex;
-        cursor: pointer;
-        position: relative;
-        background-color: #0a1e24;
-        border-bottom: 2px solid #26622ab5;
-
-        &--delete {
-            background-color: #0a1e24;
-            border-bottom: 2px solid #713f3fe8;
-
-            &:hover {
-                background-color: #6b4438;
-            }
-
-            .delete-icon {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-top: 5px;
-
-                .delete-text {
-                    line-height: 1;
-                }
-
-            }
-
-        }
-
-        &--settings {
-
-            background-color: #0a1e24;
-            border-bottom: 2px solid #725182b5;
-
-            &:hover {
-                background-color: #332e3c;
-            }
-
-            .settings-icon {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-
-                .settings-text {
-                    line-height: 1;
-                }
-
-            }
-
-        }
-
-        &:hover {
-            background-color: #104745;
-        }
-
-        .new-icon {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-
-            .new-text {
-                line-height: 1;
-            }
-        }
-    }
-
-
-    ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    li {
-        padding: 10px;
-        border-bottom: 1px solid #100d0d;
-        background-color: #2a2121;
-        transition: background-color 0.2s ease;
-
-        -webkit-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-
-        &:hover {
-            background-color: #114335;
-        }
-
-        &.selected {
-            background-color: #3e3347;
-            font-weight: bold;
-            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-            animation: pulse 0.250s ease-out forwards;
-            border: 1px solid #513f77;
-        }
-
-        &.selected:before {
-            content: '\2713'; // Unicode for checkmark
-            font-family: 'Arial Unicode MS';
-            display: inline-block;
-            margin-right: 10px;
-            color: #4cae4c; // Green color for the checkmark
-        }
-
-        @keyframes pulse {
-            0% {
-                background-color: #352d458c;
-                transform: scale(1);
-            }
-
-            50% {
-                background-color: #413558; // Slightly lighter color for the pulse effect
-                transform: scale(1.02);
-            }
-
-            100% {
-                background-color: #352d458c;
-                transform: scale(1);
-            }
         }
     }
 }
