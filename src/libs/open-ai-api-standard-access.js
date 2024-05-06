@@ -49,17 +49,12 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
 
 let localVisionRetryCount = 0;
 export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint) {
-    let tempMessages = visionMessages.map(message => ({
-        role: message.role,
-        content: message.content
-    }));
-
     const payload = {
         model: model,
         messages: [
             {
                 role: "user",
-                content: tempMessages
+                content: visionMessages
             }
         ],
         max_tokens: 4096,
