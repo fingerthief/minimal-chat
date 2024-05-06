@@ -88,6 +88,8 @@ Yes, MinimalChat is open-source and free to use. However, you'll need to provide
 
 Yes! If you use LM Studio to locally host a LLM Model, you can connect and chat with any model that returns a response in the OpenAI Response format standard.
 
+You can even load a full model into your browser directly and run interact with it all within MinimalChat. After the model is initally downloaded and cached the first time it can be used without an internet connection.
+
 ### Are my conversations secure and private?
 
 Yes, all conversations are stored locally on your device and are not sent to any servers other than the necessary API calls to the language models.
@@ -104,6 +106,8 @@ Yes, MinimalChat is designed to be responsive and works well on mobile devices. 
 ## **Integration with Open AI Response Formatted APIs**
 
 MinimalChat supports integration with any API endpoint that returns responses formatted according to OpenAI's specifications. This feature allows users to connect with a variety of language models hosted externally, providing flexibility and extending the capabilities of the app.
+
+Get more information in the [Open AI API Format Wiki](https://github.com/fingerthief/minimal-chat/wiki/Open-AI-Formatted-Response-APIs)
 
 ## **Benefits of Using Open AI Formatted APIs**
 
@@ -129,14 +133,6 @@ If you encounter any issues while using MinimalChat, try the following:
 - As a **LAST STEP** Clear your browser cache and reload the app.
   - This also clears all of your saved configured settings. You should never really need to do this, but weirder things have happened.
 - If the issue persists, please report it using the [issue tracker](https://github.com/fingerthief/minimal-chat/issues).
-
-## **Future Plans**
-
-We have exciting plans for the future of MinimalChat! Some of the features and improvements we're working on include:
-
-- Integration with additional language models and APIs.
-- Enhanced customization options for the user interface.
-- Improved mobile experience
 
 ## **License**
 
