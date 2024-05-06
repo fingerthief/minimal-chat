@@ -9,17 +9,23 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/fingerthief/minimal-chat)
 ![GitHub Repo stars](https://img.shields.io/github/stars/fingerthief/minimal-chat)
 
+## **What is MinimalChat?**
+
+MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
+
+![Screenshot_2024-05-06_175224-removebg](https://github.com/fingerthief/minimal-chat/assets/2380471/12fc6652-2982-411d-af4f-591ecee7b10a)
+
 ## Self Host with Docker
 
 - `docker pull tannermiddleton/minimal-chat:latest` - Enter the port number to run on and that is it!
 
 ---
 
-## **What is MinimalChat?**
+### Application Demo
 
-MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
+[Visit the Application Demos Wiki Page](https://github.com/fingerthief/minimal-chat/wiki/Application-Demos) for more demos.
 
-![image](https://github.com/fingerthief/minimal-chat/assets/2380471/466b6956-00e1-4bf7-b520-ff4b0eb4e07f)
+![minimal-chat-general-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/57002988-be25-46dc-9075-0b40fb93143a)
 
 ## **Experience the Power of Web Local LLM Models**
 
@@ -28,14 +34,6 @@ A huge thank you to the innovative folks at [Web LLM](https://github.com/mlc-ai/
 With this integration, you can now seamlessly download and cache popular LLM models like `llama-3-8b-instruct` locally and run them entirely within your browser, without any hassle or reliance on external servers. This means you can enjoy greater control and unparalleled flexibility in how you choose to interact with models.
 
 [More notes in the Wiki](https://github.com/fingerthief/minimal-chat/wiki/Host-and-Run-Entire-LLM-Models-Directly-in-the-Browser-Locally)
-
-### General Demo
-
-![minimal-chat-general-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/57002988-be25-46dc-9075-0b40fb93143a)
-
-### Application Demos
-
-[Visit the Application Demos Wiki Page](https://github.com/fingerthief/minimal-chat/wiki/Application-Demos)
 
 ### Fast and Lightweight
 
