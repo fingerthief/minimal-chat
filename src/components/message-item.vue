@@ -281,8 +281,8 @@ const saveEditedMessage = (message, event) => {
         margin-top: 40px;
         border-top: 2px solid #0b6363e5;
         width: fit-content;
-        min-width: 35%;
-        max-width: 70%; // Optionally set a max-width for better responsiveness
+        min-width: 10%;
+        max-width: 95%; // Optionally set a max-width for better responsiveness
 
         .label {
             position: absolute;
