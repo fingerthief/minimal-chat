@@ -240,18 +240,30 @@ const saveEditedMessage = (message, event) => {
 }
 
 .message {
+    position: relative;
+    padding: 12px;
+    min-width: 10%;
+    width: fit-content;
+    margin-bottom: 8px;
+    clear: both;
+    margin-top: 18px;
+    font-size: 1em;
+    line-height: 1.5;
 
+    max-width: 98vw;
+
+    // Ensure that the user message is aligned to the right
     &.user {
-        float: right;
+        margin-left: auto; // Align to the right by using auto margin on the left
         color: #dadbde;
         margin-top: 40px;
-        text-align: end;
         border-top: 2px solid #583e72d9;
-        width: fit-content;
-        min-width: 35%;
+        min-width: 10%;
+        max-width: 95%; // Optionally set a max-width for better responsiveness
 
         .label {
-            right: 0;
+            position: absolute;
+            right: 0; // Position label to the right
             padding-left: 13px;
             color: #ece9ef;
             font-size: 18px;
@@ -262,17 +274,33 @@ const saveEditedMessage = (message, event) => {
         }
     }
 
+    // Align the GPT (assistant) message to the left
     &.gpt {
-        float: left;
+        margin-right: auto; // Align to the left by using auto margin on the right
         color: #dadbde;
         margin-top: 40px;
         border-top: 2px solid #0b6363e5;
         width: fit-content;
         min-width: 35%;
+        max-width: 70%; // Optionally set a max-width for better responsiveness
 
         .label {
+            position: absolute;
+            left: 0; // Position label to the left
             color: #ece9ef;
-            left: 0;
+        }
+    }
+
+    // Shared styles for the message content
+    .message-contents {
+        display: block;
+
+        &[contenteditable="true"] {
+            outline: none;
+            border: 2px solid #423d42;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: left; // Align text to the left for both user and GPT messages
         }
     }
 }
