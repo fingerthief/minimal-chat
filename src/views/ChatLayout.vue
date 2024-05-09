@@ -102,7 +102,7 @@ watch(selectedModel, (newValue) => {
         unloadModel();
     }
     else if (newValue.includes(MODEL_TYPES.WEB_LLM)) {
-        modelDisplayName.value = browserModelSelection.value;
+        modelDisplayName.value = 'Local Browser Model';
     }
 
 
