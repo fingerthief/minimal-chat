@@ -4,15 +4,14 @@ const numberOfRetryAttemptsAllowed = 5;
 
 let retryClaudeCount = 0;
 export async function fetchClaudeResponse(conversation, attitude, model) {
+    let filteredMessages = filterGPTMessages(conversation);
 
-    let lastMessageContent = "";
+    let filteredMessagesWithoutSystemPrompt = filteredMessages.slice(1);
 
-
-    let messagesOnly = conversation.filter(message => {
-        let isMessage = message.content.trim().toLowerCase().startsWith("image::") === false & lastMessageContent.startsWith("image::") === false;
-        lastMessageContent = message.content.trim().toLowerCase();
-        return isMessage;
-    });
+    let tempMessages = filteredMessagesWithoutSystemPrompt.map(message => ({
+        role: message.role,
+        content: message.content
+    }))
 
     let storedApiKey = localStorage.getItem("claudeKey");
 
@@ -29,11 +28,13 @@ export async function fetchClaudeResponse(conversation, attitude, model) {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                max_tokens: 4096,
+                system: filteredMessages[0].content,
                 stream: false,
                 model: model,
-                messages: messagesOnly,
-                temperature: attitude * 0.01
+                messages: tempMessages,
+                temperature: attitude * 0.01,
+                max_tokens: parseInt(localStorage.getItem("maxTokens")) || 4096,
+                top_p: parseFloat(localStorage.getItem("top_P") || 1.0)
             }),
         });
 
@@ -69,10 +70,14 @@ export async function fetchClaudeConversationTitle(messages) {
     try {
         let storedApiKey = localStorage.getItem("claudeKey");
 
-        let tempMessages = messages.map(message => ({
+        let filteredMessages = filterGPTMessages(messages);
+
+        let filteredMessagesWithoutSystemPrompt = filteredMessages.slice(1);
+
+        let tempMessages = filteredMessagesWithoutSystemPrompt.map(message => ({
             role: message.role,
             content: message.content
-        }));
+        }))
 
         tempMessages.push({ role: 'user', content: "Summarize our conversation in 5 words or less." });
 
@@ -186,7 +191,10 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
 export async function streamClaudeResponse(messages, model, attitude, updateUIFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     try {
         let filteredMessages = filterGPTMessages(messages);
-        let tempMessages = filteredMessages.map(message => ({
+
+        let filteredMessagesWithoutSystemPrompt = filteredMessages.slice(1);
+
+        let tempMessages = filteredMessagesWithoutSystemPrompt.map(message => ({
             role: message.role,
             content: message.content
         }));
@@ -199,11 +207,13 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
                 'X-API-Key': localStorage.getItem("claudeKey"),
             },
             body: JSON.stringify({
+                system: filteredMessages[0].content,
                 messages: tempMessages,
                 temperature: attitude * 0.01,
-                max_tokens: 4096,
                 model: model,
-                stream: true
+                stream: true,
+                max_tokens: parseInt(localStorage.getItem("maxTokens")) || 4096,
+                top_p: parseFloat(localStorage.getItem("top_P") || 1.0)
             }),
             signal: abortController.signal
         });
