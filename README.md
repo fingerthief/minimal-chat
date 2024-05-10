@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-6.0.3-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalgpt.app)
+![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
 ![GitHub repo size](https://img.shields.io/github/repo-size/fingerthief/minimal-chat)
 ![Docker Image Size](https://img.shields.io/docker/image-size/tannermiddleton/minimal-chat)
 ![GitHub top language](https://img.shields.io/github/languages/top/fingerthief/minimal-chat)
