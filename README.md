@@ -13,7 +13,7 @@
 
 MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is always the top priority.
 
-![Screenshot_2024-05-06_175224-removebg](https://github.com/fingerthief/minimal-chat/assets/2380471/12fc6652-2982-411d-af4f-591ecee7b10a)
+![output-onlinepngtools (2)](https://github.com/fingerthief/minimal-chat/assets/2380471/17333a99-2585-4c23-a859-da9b24e3f9b8)
 
 ## Self Host with Docker
 
