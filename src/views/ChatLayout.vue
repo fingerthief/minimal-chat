@@ -853,6 +853,11 @@ async function sendVisionPrompt(message) {
 //#endregion
 
 //#region Image Processing
+function importFileClick() {
+    document.getElementById('fileImportUpload').click();
+}
+
+
 async function imageInputChanged(event) {
     const file = event.target.files[0];
     const fileType = file.type;
@@ -890,6 +895,38 @@ async function visionimageUploadClick() {
 //#endregion
 
 //#region File/Upload Handling
+async function uploadFileContentsToCoversation(event, element) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const contents = e.target.result;
+
+        if (file.type.startsWith('image/')) {
+            showToast("Cannot add images to context currently.");
+            // // The uploaded file is an image
+            // addMessage('user', userText.value);
+            // addMessage('assistant', "The uploaded file is an image. Processing the image...");
+
+            // // Process the image and generate a response
+            // const visionResponse = await processImage(file, file.type);
+            // addMessage("assistant", visionResponse);
+        } else {
+            // The uploaded file is not an image
+            addMessage('user', userText.value + " " + contents);
+            addMessage('assistant', "Context added");
+            showToast("Context Added");
+        }
+
+        saveMessages();
+        scrollToBottom();
+    };
+
+    await reader.readAsText(file);
+}
+
+
 function uploadFile(event, element) {
     const file = event.target.files[0];
     if (!file) return;
@@ -925,6 +962,10 @@ function uploadFile(event, element) {
 
 function openFileSelector() {
     document.getElementById('fileUpload').click();
+}
+
+function openFileImportSelector() {
+    document.getElementById('fileImportUpload').click();
 }
 //#endregion
 
@@ -1109,7 +1150,9 @@ onMounted(() => {
     <!-- File Upload -->
     <div id="fileUploadDiv">
         <input type="file" id="fileUpload" style="display: none;" @change="uploadFile">
+        <input type="file" id="fileImportUpload" style="display: none;" @change="uploadFileContentsToCoversation">
         <div @click="openFileSelector" style="display: none;">Upload File</div>
+        <div @click="openFileImportSelector" style="display: none;">Import File</div>
         <input id="imageInput" @change="imageInputChanged" style="display: none;" type="file">
     </div>
     <div class="app-body">
@@ -1188,7 +1231,8 @@ onMounted(() => {
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
                             @send-message="sendMessage" @vision-prompt="visionimageUploadClick"
-                            @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
+                            @upload-context="importFileClick" @update:userInput="updateUserText"
+                            @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
             </div>
