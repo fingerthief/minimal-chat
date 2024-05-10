@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
-import { SquareArrowUp, ImageUp, CircleStop } from 'lucide-vue-next';
+import { SquareArrowUp, ImageUp, CircleStop, Upload } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import "swiped-events";
 
@@ -10,7 +10,7 @@ const props = defineProps({
     isLoading: Boolean
 });
 
-const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt']);
+const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt', 'upload-context']);
 // Local reactive stat
 const localUserInput = ref(props.userInput);
 
@@ -67,6 +67,11 @@ const visionImageUploadClick = () => {
     localUserInput.value = "";
 };
 
+const importFileUploadClick = () => {
+    emit("upload-context");
+    localUserInput.value = "";
+};
+
 async function abortStream() {
     emit("abort-stream");
 }
@@ -83,6 +88,13 @@ async function abortStream() {
         <div class="image-button" id="imageButton" @click="visionImageUploadClick">
             <span>
                 <ImageUp />
+            </span>
+        </div>
+        <ToolTip :targetId="'uploadButton'">
+            Upload file to add contents to current conversation</ToolTip>
+        <div class="upload-button" id="uploadButton" @click="importFileUploadClick">
+            <span>
+                <Upload />
             </span>
         </div>
         <div class="send-button" @click="props.isLoading ? abortStream() : sendMessage()">
@@ -115,6 +127,26 @@ $icon-color: rgb(187, 187, 187);
         display: grid;
         align-content: center;
         right: 62px;
+        z-index: 99999;
+        border-radius: 30px;
+        justify-content: space-around;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.30);
+        }
+    }
+
+    .upload-button {
+        background-color: transparent;
+        cursor: pointer;
+        outline: none;
+        color: $icon-color;
+        position: absolute;
+        min-height: 55px;
+        display: grid;
+        align-content: center;
+        right: 104px;
         z-index: 99999;
         border-radius: 30px;
         justify-content: space-around;
