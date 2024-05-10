@@ -120,13 +120,12 @@ function purgeConversations() {
                         @dblclick="editConversationTitle(conversation)"
                         @blur="saveEditedConversationTitle(conversation, $event)"
                         :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
-                        <Pencil :id="'pencil-' + index" :size="15" @click="editConversationTitle(conversation)" />
+                        <Pencil :id="'pencil-' + index" :size="15" @click.stop="editConversationTitle(conversation)" />
                         <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
                         <span>&nbsp;&nbsp;{{ conversation.conversation.title }}</span>
                     </li>
                 </ul>
             </div>
-
         </div>
         <div class="bottom-panel">
             <div class="scrollable-list--bottom">
