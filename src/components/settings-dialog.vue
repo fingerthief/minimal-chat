@@ -22,7 +22,8 @@ const props = defineProps({
     browserModelSelection: String,
     maxTokens: Number,
     top_P: Number,
-    repetitionPenalty: Number
+    repetitionPenalty: Number,
+    systemPrompt: String
 });
 
 const showGPTConfig = ref((props.selectedModel.indexOf("gpt") !== -1));
@@ -47,7 +48,8 @@ const emit = defineEmits([
     'update:selectedDallEImageResolution',
     'update:selectedAutoSaveOption',
     'update:browserModelSelection',
-    'toggle-sidebar'
+    'toggle-sidebar',
+    'update:systemPrompt'
 ]);
 
 const update = (field, value) => {
@@ -78,7 +80,7 @@ function toggleSidebar() {
                 <span @click="reloadPage">
                     <RefreshCcw :size="23" :stroke-width="2" />
                 </span>
-                Settings | V6.0.3
+                Settings | V6.0.4
             </h2>
         </div>
         <div class="sidebar-content-container">
@@ -107,6 +109,9 @@ function toggleSidebar() {
                             <option value="false">No</option>
                         </select>
                     </div>
+                    <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
+                        @update:value="update('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
+                        :placeholderText="'Enter the system prompt if applicable.'" />
                 </div>
             </div>
 

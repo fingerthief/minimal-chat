@@ -2,11 +2,12 @@
 import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
-    labelText: String, // Added labelText prop
+    labelText: String,
     value: String,
     inputId: String,
     placeholderText: String,
     isSecret: Boolean,
+    isMultiline: Boolean, // New prop to enable multiline input
     type: {
         type: String,
         default: 'text'
@@ -19,13 +20,17 @@ const emitUpdate = (event) => {
     emit('update:value', event.target.value);
 };
 </script>
+
 <template>
     <div class="input-field">
         <!-- Render the label if labelText is provided -->
         <label :for="props.inputId" v-if="props.labelText">{{ props.labelText }}</label>
-        <input :id="props.inputId" :value="props.value" @blur="emitUpdate"
+        <!-- Conditionally render input or textarea based on isMultiline -->
+        <input v-if="!props.isMultiline" :id="props.inputId" :value="props.value" @blur="emitUpdate"
             :type="props.isSecret ? 'password' : props.type" :placeholder="props.placeholderText"
-            :autocomplete="props.isSecret ? 'off' : 'on'" /> <!-- Disable autocomplete for secret fields -->
+            :autocomplete="props.isSecret ? 'off' : 'on'" />
+        <textarea v-else :id="props.inputId" :value="props.value" @blur="emitUpdate"
+            :placeholder="props.placeholderText" rows="4"></textarea>
     </div>
 </template>
 
@@ -42,7 +47,8 @@ const emitUpdate = (event) => {
         display: block;
     }
 
-    input {
+    input,
+    textarea {
         width: 100%;
         padding: 10px;
         color: #e0e0e0;
@@ -56,6 +62,11 @@ const emitUpdate = (event) => {
             outline: none;
             border-color: rgb(70, 68, 68);
         }
+    }
+
+    // Additional styles for textarea
+    textarea {
+        resize: vertical; // Allow vertical resizing
     }
 }
 </style>

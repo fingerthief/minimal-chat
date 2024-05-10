@@ -51,6 +51,8 @@ const maxTokens = ref(parseInt(localStorage.getItem("maxTokens")) || -1);
 const top_P = ref(parseFloat(localStorage.getItem("top_P")) || 1.0);
 const repetitionPenalty = ref(parseFloat(localStorage.getItem("repetitionPenalty")) || 1.0);
 
+const systemPrompt = ref(localStorage.getItem("systemPrompt") || "");
+
 const conversations = ref(loadConversationTitles());
 const conversationTitles = ref(loadConversationTitles());
 const storedConversations = ref(loadStoredConversations());
@@ -128,6 +130,10 @@ watch(localModelKey, (newValue) => {
     localStorage.setItem('localModelKey', newValue);
 });
 
+watch(systemPrompt, (newValue) => {
+    localStorage.setItem('systemPrompt', newValue);
+});
+
 watch(maxTokens, (newValue) => {
     localStorage.setItem('maxTokens', newValue);
 });
@@ -192,6 +198,23 @@ watch(selectedAutoSaveOption, (newValue) => {
     localStorage.setItem('selectedAutoSaveOption', newValue);
 });
 //#endregion watchers
+
+async function setSystemPrompt(prompt) {
+    // Find the index of the existing system prompt (if any)
+    const systemPromptIndex = messages.value.findIndex(message => message.role === 'system');
+
+    if (systemPromptIndex === 0) {
+        // Update the existing system prompt (always the first message)
+        messages.value[0].content = prompt;
+        return;
+    }
+
+    // Add a new system prompt at the beginning of the messages
+    messages.value.unshift({
+        role: 'system',
+        content: prompt
+    });
+}
 
 //#region UI Updates
 function determineModelDisplayName(newValue) {
@@ -614,6 +637,8 @@ async function sendBrowserModelMessage(message) {
 }
 
 function addMessage(role, message) {
+    setSystemPrompt(systemPrompt.value);
+
     // Find the highest existing message ID in the messages array
     const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
 
@@ -963,7 +988,8 @@ const refs = {
     top_P,
     repetitionPenalty,
     browserModelSelection,
-    localModelKey
+    localModelKey,
+    systemPrompt
 };
 // Event handlers for updating the parent's state when the child emits an update
 const updateSetting = (field, value) => {
@@ -1101,7 +1127,8 @@ onMounted(() => {
                     :browserModelSelection="browserModelSelection" :selectedDallEImageCount="selectedDallEImageCount"
                     :selectedDallEImageResolution="selectedDallEImageResolution"
                     :selectedAutoSaveOption="selectedAutoSaveOption" :maxTokens="maxTokens" :top_P="top_P"
-                    :repetitionPenalty="repetitionPenalty" :localModelKey="localModelKey"
+                    :repetitionPenalty="repetitionPenalty" :localModelKey="localModelKey" :systemPrompt="systemPrompt"
+                    @update:systemPrompt="updateSetting('systemPrompt', $event)"
                     @update:maxTokens="updateSetting('maxTokens', $event)"
                     @update:browserModelSelection="updateSetting('browserModelSelection', $event)"
                     @update:repetitionPenalty="updateSetting('repetitionPenalty', $event)"

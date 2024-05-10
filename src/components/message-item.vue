@@ -4,7 +4,7 @@
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
 import { RefreshCcw, Trash } from 'lucide-vue-next';
-import { defineEmits, ref, nextTick } from 'vue';
+import { defineEmits, ref, nextTick, computed } from 'vue';
 import "/node_modules/highlight.js/scss/github-dark-dimmed.scss";
 import ToolTip from './ToolTip.vue';
 
@@ -105,11 +105,14 @@ const saveEditedMessage = (message, event) => {
     }
 };
 
+const filteredMessages = computed(() => {
+    return props.messages.filter(message => message.role !== 'system');
+});
 </script>
 
 <template>
     <div>
-        <div v-for="(message, index) in messages" :key="index" :class="messageClass(message.role)">
+        <div v-for="(message, index) in filteredMessages" :key="index" :class="messageClass(message.role)">
             <ToolTip :targetId="'message-label-' + index">
                 Copy Text</ToolTip>
             <div class="label" @click="copyText(message)" :id="'message-label-' + index">
