@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.0.3-blue)
+![Version](https://img.shields.io/badge/version-6.0.4-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
@@ -11,7 +11,7 @@
 
 ## **What is MinimalChat?**
 
-MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is the top priority.
+MinimalChat is a minimal and lightweight open-source chat application with full mobile PWA support that allows you to interact with various language models, including GPT-4, Claude Opus, various Local/Custom Model Endpoints. A focus on being simple to setup and use while being fully featured and very responsive is always the top priority.
 
 ![Screenshot_2024-05-06_175224-removebg](https://github.com/fingerthief/minimal-chat/assets/2380471/12fc6652-2982-411d-af4f-591ecee7b10a)
 
@@ -72,13 +72,13 @@ To run the web app locally, you'll need NodeJS installed. Then, navigate to the 
 - Basic DALL-E 3 Integration (Prefix GPT model messages with **image::** and then your description to generate images)
 - Conversation Importing/Exporting
 - Responsive layout for mobile use
-- PWA Support
+- Progressive Web Application Support
 
 ## **FAQs**
 
 ### Is MinimalChat free to use?
 
-Yes, MinimalChat is open-source and free to use. However, you'll need to provide your own API keys for the language models you want to use.
+Yes, MinimalChat is open-source and free to use. However, you'll need to provide your own API keys for the language models you want to use if they require one. Local models etc..would not require an API key and could be used freely.
 
 ### Can I use MinimalChat without an internet connection?
 
@@ -92,7 +92,7 @@ Yes, all conversations are stored locally on your device and are not sent to any
 
 ### Can I use MinimalChat on my mobile device?
 
-Yes, MinimalChat is designed to be responsive and works well on mobile devices. You can even install it as a PWA for a native app-like experience.
+Yes, MinimalChat is designed to be fully mobile compatible. You can even install it as a PWA for a native app-like experience.
 
 ## **Mobile Swipe Gestures**
 
@@ -104,12 +104,6 @@ Yes, MinimalChat is designed to be responsive and works well on mobile devices. 
 MinimalChat supports integration with any API endpoint that returns responses formatted according to OpenAI's specifications. This feature allows users to connect with a variety of language models hosted externally, providing flexibility and extending the capabilities of the app.
 
 Get more information in the [Open AI API Format Wiki](https://github.com/fingerthief/minimal-chat/wiki/Open-AI-Formatted-Response-APIs)
-
-## **Benefits of Using Open AI Formatted APIs**
-
-- Flexibility: Connect with a wide range of models from different providers that adhere to OpenAI's response format.
-- Customization: Tailor the chat experience by selecting models that best fit the needs of your conversations or application.
-- Scalability: Easily switch between different models or update API settings to enhance capabilities as new models become available.
 
 ## **Contributing**
 
