@@ -201,25 +201,31 @@ watch(selectedAutoSaveOption, (newValue) => {
 //#endregion watchers
 
 async function setSystemPrompt(prompt) {
-    // Trim the prompt and check if it is empty
-    if (prompt.trim() === '') {
-        console.error('System prompt cannot be empty');
-        return; // Exit the function if prompt is empty
-    }
-
     // Find the index of the existing system prompt (if any)
     const systemPromptIndex = messages.value.findIndex(message => message.role === 'system');
 
     if (systemPromptIndex === 0) {
-        // Update the existing system prompt (always the first message)
+        // Trim the prompt and check if it is empty
+        if (prompt.trim() === '') {
+            // Remove the system entry entry from the messages ref if the prompt is an empty string
+            messages.value.shift();
+            return;
+        }
+
         messages.value[0].content = prompt;
-    } else {
-        // Add a new system prompt at the beginning of the messages
-        messages.value.unshift({
-            role: 'system',
-            content: prompt
-        });
+        return;
     }
+
+    if (prompt.trim() === '') {
+        return; //Do not add an empty system prompt
+    }
+
+    // Add a new system prompt at the beginning of the messages
+    messages.value.unshift({
+        role: 'system',
+        content: prompt
+    });
+
 }
 
 //#region UI Updates
