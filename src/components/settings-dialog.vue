@@ -71,6 +71,17 @@ function toggleSidebar() {
     emit('toggle-sidebar');
 }
 
+const updateLocalSliderValue = (value) => {
+    update('localSliderValue', parseFloat(value));
+};
+
+const updateTopPSliderValue = (value) => {
+    update('top_P', parseFloat(value));
+};
+
+const updateRepetitionSliderValue = (value) => {
+    update('repetitionPenalty', parseFloat(value));
+};
 </script>
 
 <template>
@@ -80,7 +91,7 @@ function toggleSidebar() {
                 <span @click="reloadPage">
                     <RefreshCcw :size="23" :stroke-width="2" />
                 </span>
-                Settings | V6.0.4
+                Settings | V6.0.5
             </h2>
         </div>
         <div class="sidebar-content-container">
@@ -152,14 +163,32 @@ function toggleSidebar() {
                         :isSecret="false" :placeholderText="'Enter the temperature value for the model.'"
                         inputId="localSliderValue" :value="localSliderValue.toString()"
                         @update:value="update('localSliderValue', $event)" />
+                    <div class="slider-container">
+                        <span>Serious</span>
+                        <input type="range" min="0" max="2" step="0.01" :value="localSliderValue"
+                            @input="updateLocalSliderValue($event.target.value)">
+                        <span>Creative</span>
+                    </div>
                     <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Top_P Value (0.0-1.0):"
                         :isSecret="false" :placeholderText="'Enter the top_P value if applicable'" inputId="top_P"
                         :value="top_P.toString()" @update:value="update('top_P', $event)" />
+                    <div class="slider-container">
+                        <span>Serious</span>
+                        <input type="range" min="0" max="1" step="0.01" :value="top_P"
+                            @input="updateTopPSliderValue($event.target.value)">
+                        <span>Creative</span>
+                    </div>
                     <InputField v-show="showLocalConfig || showBrowserModelConfig"
                         labelText="Repetition Penalty (0.0-2.0):" :isSecret="false"
                         :placeholderText="'Enter the repetition penalty value if applicable'"
                         inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
                         @update:value="update('repetitionPenalty', $event)" />
+                    <div class="slider-container">
+                        <span>Serious</span>
+                        <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
+                            @input="updateRepetitionSliderValue($event.target.value)">
+                        <span>Creative</span>
+                    </div>
                     <InputField v-show="showLocalConfig" labelText="Max Tokens:" :isSecret="false"
                         :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
                         :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
@@ -308,7 +337,7 @@ $icon-color: rgb(187, 187, 187);
     text-align: center;
     margin-top: -7px;
     position: relative;
-    border-bottom: 5px solid #3f4151;
+    border-bottom: 5px solid #583e72b5;
     padding-bottom: 25px;
     padding-top: 25px;
     background-color: #212121;
