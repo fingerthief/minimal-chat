@@ -205,9 +205,19 @@ async function setSystemPrompt(prompt) {
     const systemPromptIndex = messages.value.findIndex(message => message.role === 'system');
 
     if (systemPromptIndex === 0) {
-        // Update the existing system prompt (always the first message)
+        // Trim the prompt and check if it is empty
+        if (prompt.trim() === '') {
+            // Remove the system entry from the messages ref if the prompt is an empty string
+            messages.value.shift();
+            return;
+        }
+
         messages.value[0].content = prompt;
         return;
+    }
+
+    if (prompt.trim() === '') {
+        return; //Do not add an empty system prompt
     }
 
     // Add a new system prompt at the beginning of the messages
@@ -215,6 +225,7 @@ async function setSystemPrompt(prompt) {
         role: 'system',
         content: prompt
     });
+
 }
 
 //#region UI Updates
@@ -725,6 +736,9 @@ async function sendClaudeMessage(messageText) {
 
 async function regenerateMessageReponse(content) {
     isLoading.value = true;
+
+    setSystemPrompt(systemPrompt.value);
+
     const messageIndex = messages.value.findIndex(message => message.content === content && message.role === 'user');
 
     if (messageIndex !== -1) {
