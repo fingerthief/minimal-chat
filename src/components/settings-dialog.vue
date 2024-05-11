@@ -31,6 +31,14 @@ const showLocalConfig = ref((props.selectedModel.indexOf("open-ai-format") !== -
 const showClaudeConfig = ref((props.selectedModel.indexOf("claude") !== -1));
 const showBrowserModelConfig = ref((props.selectedModel.indexOf("web-llm") !== -1));
 
+// New visibility states for collapsible config sections
+const isGeneralConfigOpen = ref(true);
+const isBrowserModelConfigOpen = ref(true);
+const isLocalConfigOpen = ref(true);
+const isGPTConfigOpen = ref(true);
+const isDALLEConfigOpen = ref(true);
+const isClaudeConfigOpen = ref(true);
+
 const emit = defineEmits([
     'update:repetitionPenalty',
     'update:maxTokens',
@@ -95,9 +103,12 @@ const updateRepetitionSliderValue = (value) => {
             </h2>
         </div>
         <div class="sidebar-content-container">
-            <div class="config-section">
-                <h3>General Config</h3>
-                <div class="control-grid">
+            <div class="config-section" :class="{ 'show': isGeneralConfigOpen }">
+                <h3 @click="isGeneralConfigOpen = !isGeneralConfigOpen">
+                    General Config
+                    <span class="indicator">{{ isGeneralConfigOpen ? '-' : '+' }}</span>
+                </h3>
+                <div v-show="isGeneralConfigOpen" class="control-grid">
                     <div class="control select-dropdown">
                         <label for="model-selector">Model:</label>
                         <select id="model-selector" :value="selectedModel"
@@ -126,9 +137,12 @@ const updateRepetitionSliderValue = (value) => {
                 </div>
             </div>
 
-            <div class="config-section" v-show="showBrowserModelConfig">
-                <h3>Local Browser Model (Chrome and Edge Only)</h3>
-                <div class="control select-dropdown">
+            <div class="config-section" :class="{ 'show': isBrowserModelConfigOpen }" v-show="showBrowserModelConfig">
+                <h3 @click="isBrowserModelConfigOpen = !isBrowserModelConfigOpen">
+                    Local Browser Model (Chrome and Edge Only)
+                    <span class="indicator">{{ isBrowserModelConfigOpen ? '-' : '+' }}</span>
+                </h3>
+                <div v-show="isBrowserModelConfigOpen" class="control select-dropdown">
                     <label for="localModelsSelection">Model To Load In Browser:</label>
                     <select id="localModelsSelection" :value="browserModelSelection"
                         @change="update('browserModelSelection', $event.target.value)">
@@ -147,9 +161,12 @@ const updateRepetitionSliderValue = (value) => {
                 </div>
             </div>
 
-            <div class="config-section" v-show="showLocalConfig">
-                <h3>Custom Endpoint Config (Open AI Format)</h3>
-                <div class="control-grid">
+            <div class="config-section" :class="{ 'show': isLocalConfigOpen }" v-show="showLocalConfig">
+                <h3 @click="isLocalConfigOpen = !isLocalConfigOpen">
+                    Custom Endpoint Config (Open AI Format)
+                    <span class="indicator">{{ isLocalConfigOpen ? '-' : '+' }}</span>
+                </h3>
+                <div v-show="isLocalConfigOpen" class="control-grid">
                     <InputField v-show="showLocalConfig" labelText="Model Name:" inputId="model-name"
                         :value="localModelName" @update:value="update('localModelName', $event)" :isSecret="false"
                         :placeholderText="'Enter the model name'" />
@@ -195,9 +212,12 @@ const updateRepetitionSliderValue = (value) => {
                 </div>
             </div>
 
-            <div class="config-section" v-show="showGPTConfig">
-                <h3>GPT Config</h3>
-                <div class="control-grid">
+            <div class="config-section" :class="{ 'show': isGPTConfigOpen }" v-show="showGPTConfig">
+                <h3 @click="isGPTConfigOpen = !isGPTConfigOpen">
+                    GPT Config
+                    <span class="indicator">{{ isGPTConfigOpen ? '-' : '+' }}</span>
+                </h3>
+                <div v-show="isGPTConfigOpen" class="control-grid">
                     <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                         inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
                     <div class="slider-container">
@@ -209,9 +229,12 @@ const updateRepetitionSliderValue = (value) => {
                 </div>
             </div>
 
-            <div class="config-section" v-show="showClaudeConfig">
-                <h3>Claude Config</h3>
-                <div class="control-grid">
+            <div class="config-section" :class="{ 'show': isClaudeConfigOpen }" v-show="showClaudeConfig">
+                <h3 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+                    Claude Config
+                    <span class="indicator">{{ isClaudeConfigOpen ? '-' : '+' }}</span>
+                </h3>
+                <div v-show="isClaudeConfigOpen" class="control-grid">
                     <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                         inputId="claude-api-key" :value="claudeKey" @update:value="update('claudeKey', $event)" />
                     <div class="slider-container">
@@ -223,9 +246,12 @@ const updateRepetitionSliderValue = (value) => {
                 </div>
             </div>
 
-            <div class="config-section" v-show="showGPTConfig">
-                <h3>DALL-E Config</h3>
-                <div class="control-grid">
+            <div class="config-section" :class="{ 'show': isDALLEConfigOpen }" v-show="showGPTConfig">
+                <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
+                    DALL-E Config
+                    <span class="indicator">{{ isDALLEConfigOpen ? '-' : '+' }}</span>
+                </h3>
+                <div v-show="isDALLEConfigOpen" class="control-grid">
                     <div class="control select-dropdown">
                         <label for="dalle-image-count">DALL-E Image Count:</label>
                         <select id="dalle-image-count" :value="selectedDallEImageCount"
@@ -306,27 +332,37 @@ $icon-color: rgb(187, 187, 187);
 
 .config-section {
     margin-bottom: 30px;
-
+    
     h3 {
         margin-bottom: 15px;
         background-color: #181f20;
         font-size: 16px;
         font-weight: bold;
-        text-align: center;
+        text-align: left;
         position: relative;
         border-bottom: 3px solid #1b6a72c4;
-        padding-bottom: 8px;
-        padding-top: 8px;
         // width: 112%;
         // left: -21px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 8px;
 
     }
-}
+    .control-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        transition: max-height 0.3s ease-in-out;
+        overflow: hidden;
+        max-height: 0; /* Start collapsed */
+    }
 
-.control-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    &.show .control-grid {
+        max-height: fit-content;
+    }
+
 }
 
 .settings-header {
