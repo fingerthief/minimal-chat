@@ -30,7 +30,8 @@
     "tippy.js": "^6.3.7",
     "toastify-js": "^1.12.0",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vue-virtual-scroller": "^2.0.0-beta.8"
   },
   "devDependencies": {
     "@playwright/test": "^1.43.0",
