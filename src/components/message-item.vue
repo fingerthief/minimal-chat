@@ -7,6 +7,7 @@ import { RefreshCcw, Trash } from 'lucide-vue-next';
 import { defineEmits, ref, nextTick, computed } from 'vue';
 import "/node_modules/highlight.js/scss/github-dark-dimmed.scss";
 import ToolTip from './ToolTip.vue';
+import { showToast } from '@/libs/utils';
 
 
 const props = defineProps({
@@ -64,6 +65,8 @@ const copyText = (message) => {
         console.error('Failed to copy content: ', error);
     }
     document.body.removeChild(textarea);
+
+    showToast("Copied text!")
 };
 
 const startLoading = (index) => {
@@ -274,6 +277,11 @@ const filteredMessages = computed(() => {
             @media (max-width: 600px) {
                 font-size: 16px;
             }
+
+            &:hover {
+                background-color: #583e72d9;
+                cursor: pointer;
+            }
         }
     }
 
@@ -291,6 +299,11 @@ const filteredMessages = computed(() => {
             position: absolute;
             left: 0; // Position label to the left
             color: #ece9ef;
+
+            &:hover {
+                background-color: #0b6363e5;
+                cursor: pointer;
+            }
         }
     }
 

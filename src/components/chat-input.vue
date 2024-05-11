@@ -82,7 +82,7 @@ async function abortStream() {
         data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
         <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
             @input="autoResize" @focus="autoResize" @blur="autoResize" @keydown="handleKeyDown"
-            placeholder="Enter your prompt"></textarea>
+            placeholder="Enter a prompt"></textarea>
         <ToolTip :targetId="'imageButton'">
             Upload image for vision processing</ToolTip>
         <div class="image-button" id="imageButton" @click="visionImageUploadClick">
