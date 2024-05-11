@@ -2,7 +2,7 @@
 
 <script setup>
 import { computed, ref } from 'vue';
-import { Settings, Trash2, MessagesSquare, Github, SquarePlus } from 'lucide-vue-next';
+import { Menu, ArchiveX, MessagesSquare, Github, MessageSquarePlus } from 'lucide-vue-next';
 
 // Define props
 const props = defineProps({
@@ -74,16 +74,16 @@ function onShowConversationsClick() {
             </div>
         </div>
         <div class="settings-btn" @click="toggleSidebar">
-            <Settings :stroke-width="0.5" :size="30" />
+            <Menu :stroke-width="0.5" :size="30" />
         </div>
         <div class="trash-btn" @click="deleteCurrentConversation">
-            <Trash2 :stroke-width="0.5" :size="30" />
+            <ArchiveX :stroke-width="0.5" :size="30" />
         </div>
         <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
             <MessagesSquare :stroke-width="0.5" :size="30" />
         </div>
         <span class="save-icon" @click="clearMessages">
-            <SquarePlus :stroke-width="0.5" :size="30" />
+            <MessageSquarePlus :stroke-width="0.5" :size="30" />
         </span>
     </div>
 </template>
@@ -260,8 +260,8 @@ $shadow-spread-radius: 0px;
 
 .saved-conversations-dropdown {
     position: absolute;
-    top: 18%;
-    right: 50px;
+    top: 17%;
+    right: 55px;
     cursor: pointer;
     color: $icon-color;
     transition: background-color 0.3s ease, transform 0.2s ease;
