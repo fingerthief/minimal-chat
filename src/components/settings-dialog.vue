@@ -159,6 +159,9 @@ const updateRepetitionSliderValue = (value) => {
                     <InputField v-show="showLocalConfig" :isSecret="true" labelText="API Key:"
                         :placeholderText="'Enter the API key if applicable'" inputId="local-model-key"
                         :value="localModelKey" @update:value="update('localModelKey', $event)" />
+                    <InputField v-show="showLocalConfig" labelText="Max Tokens:" :isSecret="false"
+                        :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
+                        :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
                     <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Temperature (0.0-2.0):"
                         :isSecret="false" :placeholderText="'Enter the temperature value for the model.'"
                         inputId="localSliderValue" :value="localSliderValue.toString()"
@@ -173,10 +176,10 @@ const updateRepetitionSliderValue = (value) => {
                         :isSecret="false" :placeholderText="'Enter the top_P value if applicable'" inputId="top_P"
                         :value="top_P.toString()" @update:value="update('top_P', $event)" />
                     <div class="slider-container">
-                        <span>Serious</span>
+                        <span>Lower</span>
                         <input type="range" min="0" max="1" step="0.01" :value="top_P"
                             @input="updateTopPSliderValue($event.target.value)">
-                        <span>Creative</span>
+                        <span>Higher</span>
                     </div>
                     <InputField v-show="showLocalConfig || showBrowserModelConfig"
                         labelText="Repetition Penalty (0.0-2.0):" :isSecret="false"
@@ -184,14 +187,11 @@ const updateRepetitionSliderValue = (value) => {
                         inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
                         @update:value="update('repetitionPenalty', $event)" />
                     <div class="slider-container">
-                        <span>Serious</span>
+                        <span>Less</span>
                         <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
                             @input="updateRepetitionSliderValue($event.target.value)">
-                        <span>Creative</span>
+                        <span>More</span>
                     </div>
-                    <InputField v-show="showLocalConfig" labelText="Max Tokens:" :isSecret="false"
-                        :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
-                        :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
                 </div>
             </div>
 
