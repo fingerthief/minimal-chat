@@ -253,33 +253,6 @@ function determineModelDisplayName(newValue) {
 
 }
 
-function scrollToBottom(delay = 0) {
-    const tempMessagesContainer = messagesContainer;
-
-    if (tempMessagesContainer) {
-        const lastMessage = tempMessagesContainer.lastElementChild;
-
-        if (lastMessage) {
-            // Smooth scrolling
-            lastMessage.scrollIntoView({
-                block: 'end',
-                inline: 'end',
-                behavior: 'smooth'
-            }, delay);
-
-            // Fallback to ensure the last message is scrolled into view
-            setTimeout(() => {
-                lastMessage.scrollIntoView({
-                    block: 'end',
-                    inline: 'end',
-                    behavior: 'smooth'
-                });
-            }); // Adjust the timeout duration as needed
-        }
-
-        updateScrollButtonVisibility();
-    }
-}
 
 const updateUserText = (newText) => {
     userText.value = newText;
@@ -298,10 +271,6 @@ function updateUI(content, autoScrollBottom = true, appendTextValue = true) {
     }
 
     streamedMessageText.value = (streamedMessageText.value || "") + content;
-
-    if (autoScrollBottom) {
-        scrollToBottom();
-    }
 }
 
 function toggleSidebar() {
@@ -637,7 +606,7 @@ async function sendMessage(event) {
 }
 
 async function sendBrowserModelMessage(message) {
-    scrollToBottom();
+
 
     userText.value = "";
 
@@ -652,10 +621,10 @@ async function sendBrowserModelMessage(message) {
 
     await saveMessages();
 
-    scrollToBottom();
+
 }
 
-function addMessage(role, message) {
+async function addMessage(role, message) {
     setSystemPrompt(systemPrompt.value);
 
     // Find the highest existing message ID in the messages array
@@ -670,11 +639,20 @@ function addMessage(role, message) {
         role: role,
         content: message
     });
+
+    // Last resort: Press the page down key to scroll down
+    // Find the element with the scroller class
+    const scrollerElement = document.querySelector('.messages');
+
+    if (scrollerElement) {
+        // Focus on the scroller element
+        scrollerElement.focus();
+    }
 }
 
 
 async function sendGPTMessage(message) {
-    scrollToBottom();
+
 
     userText.value = "";
 
@@ -703,7 +681,7 @@ async function sendGPTMessage(message) {
 
         await saveMessages();
 
-        scrollToBottom();
+
     } catch (error) {
         console.error("Error sending message:", error);
     }
@@ -717,7 +695,7 @@ async function sendClaudeMessage(messageText) {
 
         document.getElementById('imageInput').click();
 
-        scrollToBottom();
+
         return;
     }
 
@@ -729,7 +707,7 @@ async function sendClaudeMessage(messageText) {
 
     addMessage("user", messageText);
 
-    scrollToBottom();
+
 
     const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
 
@@ -737,7 +715,7 @@ async function sendClaudeMessage(messageText) {
 
     saveMessages();
 
-    scrollToBottom();
+
     isLoading.value = false;
 }
 
@@ -781,7 +759,7 @@ async function regenerateMessageReponse(content) {
         messages.value = [...messages.value, ...messagesAfter];
 
         saveMessages();
-        scrollToBottom();
+
     }
     isLoading.value = false;
 }
@@ -846,7 +824,7 @@ async function deleteMessageFromHistory(content) {
 async function sendImagePrompt(imagePrompt) {
     isGeneratingImage.value = true;
     streamedMessageText.value = "";
-    scrollToBottom();
+
     userText.value = "";
 
     const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
@@ -859,7 +837,7 @@ async function sendImagePrompt(imagePrompt) {
 
     addMessage('assistant', imageURLStrings);
     saveMessages();
-    scrollToBottom();
+
     isGeneratingImage.value = false;
 }
 
@@ -869,7 +847,7 @@ async function sendVisionPrompt(message) {
 
     document.getElementById('imageInput').click();
 
-    scrollToBottom();
+
 
     userText.value = "";
 }
@@ -895,7 +873,7 @@ async function imageInputChanged(event) {
 
     saveMessages();
     isAnalyzingImage.value = false;
-    scrollToBottom();
+
 }
 
 async function processImage(file, fileType) {
@@ -943,7 +921,7 @@ async function uploadFileContentsToCoversation(event, element) {
         }
 
         saveMessages();
-        scrollToBottom();
+
     };
 
     await reader.readAsText(file);
@@ -1244,7 +1222,7 @@ onMounted(() => {
                                 @delete-response="deleteMessageFromHistory" @edit-message="EditPreviousMessage" />
                         </div>
                         <!-- Floating button to quick scroll to the bottom of the page -->
-                        <div class="floating-button scroll" id="scroll-button" @click="scrollToBottom"
+                        <div class="floating-button scroll" id="scroll-button" @click="null"
                             :class="{ show: shouldShowScrollButton }">
                             <span>
                                 <ChevronDown :strokeWidth="3" />
