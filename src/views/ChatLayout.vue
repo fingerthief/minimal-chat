@@ -253,22 +253,29 @@ function determineModelDisplayName(newValue) {
 
 }
 
-function scrollToBottom() {
+function scrollToBottom(delay = 0) {
     const tempMessagesContainer = messagesContainer;
 
     if (tempMessagesContainer) {
-        // Smooth scrolling
-        tempMessagesContainer.scrollTo({
-            top: tempMessagesContainer.scrollHeight,
-            behavior: 'smooth',
-        });
+        const lastMessage = tempMessagesContainer.lastElementChild;
 
-        // Fallback to ensure the container is scrolled to the bottom
-        setTimeout(() => {
-            tempMessagesContainer.scrollTo({
-                top: tempMessagesContainer.scrollHeight,
-            });
-        }, 500); // Adjust the timeout duration as needed
+        if (lastMessage) {
+            // Smooth scrolling
+            lastMessage.scrollIntoView({
+                block: 'end',
+                inline: 'end',
+                behavior: 'smooth'
+            }, delay);
+
+            // Fallback to ensure the last message is scrolled into view
+            setTimeout(() => {
+                lastMessage.scrollIntoView({
+                    block: 'end',
+                    inline: 'end',
+                    behavior: 'smooth'
+                });
+            }); // Adjust the timeout duration as needed
+        }
 
         updateScrollButtonVisibility();
     }
@@ -774,6 +781,7 @@ async function regenerateMessageReponse(content) {
         messages.value = [...messages.value, ...messagesAfter];
 
         saveMessages();
+        scrollToBottom();
     }
     isLoading.value = false;
 }

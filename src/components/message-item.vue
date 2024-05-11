@@ -153,7 +153,7 @@ const filteredMessages = computed(() => {
 
 <style lang="scss" scoped>
 .scroller {
-    height: 100%;
+    height: auto;
     scrollbar-width: none;
 }
 
