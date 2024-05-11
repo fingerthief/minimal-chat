@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "version": "auto-changelog -p && git add CHANGELOG.md",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -39,6 +40,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/test-utils": "^2.4.5",
+    "auto-changelog": "^2.4.0",
     "eslint": "^8.57.0",
     "eslint-plugin-playwright": "^1.5.4",
     "eslint-plugin-vue": "^9.23.0",

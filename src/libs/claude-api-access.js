@@ -1,69 +1,6 @@
-import { showToast, sleep } from "./utils";
+import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
 
 const numberOfRetryAttemptsAllowed = 5;
-
-let retryClaudeCount = 0;
-export async function fetchClaudeResponse(conversation, attitude, model) {
-    let filteredMessages = filterGPTMessages(conversation);
-
-    let filteredMessagesWithoutSystemPrompt = filteredMessages.slice(1);
-
-    let tempMessages = filteredMessagesWithoutSystemPrompt.map(message => ({
-        role: message.role,
-        content: message.content
-    }))
-
-    let storedApiKey = localStorage.getItem("claudeKey");
-
-    if (!localStorage.getItem("claude-attitude") || localStorage.getItem("claude-attitude") !== attitude) {
-        localStorage.setItem("claude-attitude", attitude);
-    }
-
-    try {
-        const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
-            method: "POST",
-            headers: {
-                "x-api-key": storedApiKey,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({
-                system: filteredMessages[0].content,
-                stream: false,
-                model: model,
-                messages: tempMessages,
-                temperature: attitude * 0.01,
-                max_tokens: parseInt(localStorage.getItem("maxTokens")) || 4096,
-                top_p: parseFloat(localStorage.getItem("top_P") || 1.0)
-            }),
-        });
-
-        const result = await response.json();
-
-        if (result.content && result.content.length > 0) {
-            return result.content[0].text;
-        } else {
-            return "I'm sorry, I couldn't generate a response.";
-        }
-    } catch (error) {
-
-        if (retryClaudeCount < numberOfRetryAttemptsAllowed) {
-            retryClaudeCount++;
-
-            showToast(`Failed fetchClaudeResponse Request. Retrying...Attempt #${retryClaudeCount}`);
-
-            await sleep(1000);
-
-            console.log("Retry Number: " + retryClaudeCount);
-            return await fetchClaudeResponse(conversation, attitude, model);
-        }
-        else {
-            showToast(`Retry Attempts Failed for fetchClaudeResponse Request.`);
-            console.error("Error fetching Claude response:", error);
-            return "An error occurred while fetching Claude response.";
-        }
-    }
-}
 
 let claudeRetryTitleCount = 0;
 export async function fetchClaudeConversationTitle(messages) {
@@ -222,48 +159,10 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
+        const result = await readResponseStream(response, updateUIFunction, autoScrollToBottom);
 
-        let result = '';
-        let decodedResult = '';
+        return result;
 
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            result += chunk;
-
-            // Efficiently process the streamed response chunk by chunk
-            const lines = result.split('\n');
-            result = lines.pop(); // Keep incomplete line for next chunk processing
-
-            for (const line of lines) {
-                if (line.startsWith('data:')) {
-                    const data = line.slice(5).trim();
-                    if (data === '[DONE]') {
-                        return decodedResult;
-                    }
-
-                    try {
-                        const token = JSON.parse(data);
-
-                        if (token?.delta?.text) {
-                            decodedResult += token.delta.text;
-                            updateUIFunction(token.delta.text, autoScrollToBottom);
-                        }
-
-                        if (token?.type === "message_stop") {
-                            return decodedResult;
-                        }
-                    } catch (parseError) {
-                        console.error("JSON parsing error:", parseError);
-                        continue;
-                    }
-                }
-            }
-        }
     } catch (error) {
         if (error.name === 'AbortError') {
             showToast(`Stream Request Aborted.`);
@@ -284,4 +183,26 @@ function filterGPTMessages(conversation) {
         lastMessageContent = message.content.trim().toLowerCase();
         return isGPT;
     });
+}
+
+async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let decodedResult = "";
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const parsedLines = parseOpenAiFormatResponseChunk(chunk);
+        for (const parsedLine of parsedLines) {
+            if (parsedLine.delta && parsedLine.delta.text) {
+                decodedResult += parsedLine.delta.text;
+                updateUiFunction(parsedLine.delta.text, autoScrollToBottom);
+            }
+        }
+    }
+
+    return decodedResult;
 }

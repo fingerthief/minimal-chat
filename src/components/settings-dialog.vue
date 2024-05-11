@@ -198,9 +198,8 @@ const updateRepetitionSliderValue = (value) => {
             <div class="config-section" v-show="showGPTConfig">
                 <h3>GPT Config</h3>
                 <div class="control-grid">
-                    <InputField :labelText="'API Key'" :isSecret="true" labelText="Key:"
-                        :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey"
-                        @update:value="update('gptKey', $event)" />
+                    <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
+                        inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
                     <div class="slider-container">
                         <span>Serious</span>
                         <input type="range" min="0" max="100" :value="sliderValue"
@@ -213,9 +212,8 @@ const updateRepetitionSliderValue = (value) => {
             <div class="config-section" v-show="showClaudeConfig">
                 <h3>Claude Config</h3>
                 <div class="control-grid">
-                    <InputField :labelText="'API Key'" :isSecret="true" labelText="Key:"
-                        :placeholderText="'Enter the API Key'" inputId="claude-api-key" :value="claudeKey"
-                        @update:value="update('claudeKey', $event)" />
+                    <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
+                        inputId="claude-api-key" :value="claudeKey" @update:value="update('claudeKey', $event)" />
                     <div class="slider-container">
                         <span>Serious</span>
                         <input type="range" min="0" max="100" :value="claudeSliderValue"
