@@ -5,15 +5,14 @@ export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function wrapCodeSnippets(input) {
-    const codeSnippetRegex = /`([^`]+)`/g;
+export function removeAPIEndpoints(url) {
+    if (typeof url !== 'string') {
+        showToast("URL must be a string");
+        throw new Error('Input URL must be a string');
+    }
 
-    const wrapped = input.replace(codeSnippetRegex, (match, code) => {
-
-        return `<pre><code>${code}</code></pre>`;
-    });
-
-    return wrapped;
+    // Remove API endpoints and any trailing "/"
+    return url.replace(/\/v1(?:\/chat(?:\/completions)?)?/g, '').replace(/\/$/, '');
 }
 
 let retryCount = 0;

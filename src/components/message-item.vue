@@ -284,7 +284,7 @@ const filteredMessages = computed(() => {
         margin-top: 40px;
         border-top: 2px solid #0b6363e5;
         width: fit-content;
-        min-width: 10%;
+        min-width: 20%;
         max-width: 95%; // Optionally set a max-width for better responsiveness
 
         .label {

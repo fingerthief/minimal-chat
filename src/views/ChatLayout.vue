@@ -5,7 +5,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { ChevronDown, Underline } from 'lucide-vue-next';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
-import { getConversationTitleFromGPT, showToast } from '@/libs/utils';
+import { getConversationTitleFromGPT, showToast, removeAPIEndpoints } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
 import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
@@ -35,7 +35,7 @@ const modelDisplayName = ref("Unknown");
 
 const localModelKey = ref(localStorage.getItem("localModelKey") || '')
 const localModelName = ref(localStorage.getItem("localModelName") || '');
-const localModelEndpoint = ref(localStorage.getItem("localModelEndpoint") || '');
+const localModelEndpoint = ref(removeAPIEndpoints(localStorage.getItem("localModelEndpoint")) || '');
 const localSliderValue = ref(parseFloat(localStorage.getItem("local-attitude")) || 0.6);
 const gptKey = ref(localStorage.getItem("gptKey") || '');
 const sliderValue = ref(parseInt(localStorage.getItem("gpt-attitude")) || 50);
@@ -163,7 +163,8 @@ watch(localModelName, (newValue) => {
 });
 
 watch(localModelEndpoint, (newValue) => {
-    localStorage.setItem('localModelEndpoint', newValue);
+    const apiSafeURL = removeAPIEndpoints(newValue);
+    localStorage.setItem('localModelEndpoint', apiSafeURL);
 });
 
 watch(localSliderValue, (newValue) => {
