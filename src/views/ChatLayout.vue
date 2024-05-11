@@ -207,7 +207,7 @@ async function setSystemPrompt(prompt) {
     if (systemPromptIndex === 0) {
         // Trim the prompt and check if it is empty
         if (prompt.trim() === '') {
-            // Remove the system entry entry from the messages ref if the prompt is an empty string
+            // Remove the system entry from the messages ref if the prompt is an empty string
             messages.value.shift();
             return;
         }
