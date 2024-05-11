@@ -1,6 +1,6 @@
 {
   "name": "minimal-chat",
-  "version": "6.0.6",
+  "version": "6.0.7",
   "private": true,
   "type": "module",
   "scripts": {
