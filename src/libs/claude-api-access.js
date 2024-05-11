@@ -212,7 +212,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
                 temperature: attitude * 0.01,
                 model: model,
                 stream: true,
-                max_tokens: parseInt(localStorage.getItem("maxTokens")) || 4096,
+                max_tokens: 4096,
                 top_p: parseFloat(localStorage.getItem("top_P") || 1.0)
             }),
             signal: abortController.signal

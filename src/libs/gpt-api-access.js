@@ -1,52 +1,8 @@
 import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
 
 const MAX_RETRY_ATTEMPTS = 5;
-let gptResponseRetryCount = 0;
 let gptVisionRetryCount = 0;
 let dalleRetryCount = 0;
-
-export async function fetchGPTResponse(conversation, attitude, model) {
-    const apiKey = localStorage.getItem("gptKey");
-
-    let tempMessages = conversation.map(message => ({
-        role: message.role,
-        content: message.content
-    }));
-
-    try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey || 'Missing API Key'}`,
-            },
-            body: JSON.stringify({
-                model,
-                messages: tempMessages,
-                temperature: attitude * 0.01,
-            }),
-        });
-
-        const result = await response.json();
-        gptResponseRetryCount = 0;
-
-        if (result.choices && result.choices.length > 0) {
-            return result.choices[0].message.content;
-        } else {
-            return "Error parsing fetchGPTResponse response object.";
-        }
-    } catch (error) {
-        if (gptResponseRetryCount < MAX_RETRY_ATTEMPTS) {
-            gptResponseRetryCount++;
-            showToast(`Failed fetchGPTResponse Request. Retrying...Attempt #${gptResponseRetryCount}`);
-            await sleep(1000);
-            return await fetchGPTResponse(conversation, attitude, model);
-        } else {
-            showToast(`Retry Attempts Failed for fetchGPTResponse Request.`);
-            return "An error occurred while fetching GPT response.";
-        }
-    }
-}
 
 export async function fetchGPTVisionResponse(visionMessages, apiKey) {
     const payload = {
@@ -143,7 +99,7 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
             "Authorization": `Bearer ${localStorage.getItem("gptKey")}`,
         },
         body: JSON.stringify({
-            model,
+            model: model,
             stream: true,
             messages: tempMessages,
             temperature: attitude * 0.01,
@@ -172,28 +128,26 @@ export async function fetchGPTResponseStream(conversation, attitude, model, upda
 }
 
 async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
-    const reader = await response.body.getReader();
+    const reader = response.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let decodedResult = "";
 
     while (true) {
         const { done, value } = await reader.read();
+        if (done) break;
 
-        if (done) {
-            return decodedResult;
-        }
         const chunk = decoder.decode(value);
         const parsedLines = parseOpenAiFormatResponseChunk(chunk);
-        for (const parsedLine of parsedLines) {
-            const { choices } = parsedLine;
-            const { delta } = choices[0];
-            const { content } = delta;
+
+        for (const { choices: [{ delta: { content } }] } of parsedLines) {
             if (content) {
                 decodedResult += content;
                 updateUiFunction(content, autoScrollToBottom);
             }
         }
     }
+
+    return decodedResult;
 }
 
 function filterGPTMessages(conversation) {
@@ -203,12 +157,6 @@ function filterGPTMessages(conversation) {
         lastMessageContent = message.content.trim().toLowerCase();
         return isGPT;
     });
-}
-
-export async function loadMessagesFromLocalStorage() {
-    const storedMessages = localStorage.getItem("gpt-conversations");
-    let parsedConversations = storedMessages ? JSON.parse(storedMessages) : [];
-    return parsedConversations.length ? parsedConversations[parsedConversations.length - 1].messageHistory : [];
 }
 
 export function loadConversationTitles() {
