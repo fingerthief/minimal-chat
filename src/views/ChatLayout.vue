@@ -736,6 +736,9 @@ async function sendClaudeMessage(messageText) {
 
 async function regenerateMessageReponse(content) {
     isLoading.value = true;
+
+    setSystemPrompt(systemPrompt.value);
+
     const messageIndex = messages.value.findIndex(message => message.content === content && message.role === 'user');
 
     if (messageIndex !== -1) {
