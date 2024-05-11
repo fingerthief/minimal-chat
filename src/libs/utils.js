@@ -77,13 +77,14 @@ export function parseOpenAiFormatResponseChunk(chunk) {
     for (const line of completeLines) {
         let cleanedLine = line.trim();
 
-        // Removing multiple occurrences of "data:" and any "[DONE]" tags
+        // Removing multiple occurrences of "data:", any "[DONE]" tags, and ": OPENROUTER PROCESSING"
         // Regex explanation:
         // - \[DONE\]: Matches the literal "[DONE]"
         // - \s*: Matches any whitespace characters (space, tab, newline, etc.)
         // - data:\s*: Matches "data:" followed by any whitespace
+        // - : OPENROUTER PROCESSING: Matches the literal ": OPENROUTER PROCESSING"
         // Global flag 'g' to replace all occurrences throughout the string
-        cleanedLine = cleanedLine.replace(/\[DONE\]\s*|data:\s*/gi, '');
+        cleanedLine = cleanedLine.replace(/\[DONE\]\s*|data:\s*|: OPENROUTER PROCESSING/gi, '');
 
         if (cleanedLine !== '') {
             try {
@@ -96,8 +97,6 @@ export function parseOpenAiFormatResponseChunk(chunk) {
     }
     return results;
 }
-
-
 
 export function showToast(message) {
     Toastify({
@@ -113,5 +112,4 @@ export function showToast(message) {
         },
         onClick: function () { } // Callback after click
     }).showToast();
-
 }
