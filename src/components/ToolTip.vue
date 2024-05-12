@@ -12,20 +12,19 @@ let tippyInstance = null;
 
 const createTooltip = () => {
     const target = document.getElementById(props.targetId);
-
     if (target && tooltipElement.value) {
-        tippyInstance = tippy(target, {
-            content: tooltipElement.value,
-            placement: 'top',
-            trigger: 'mouseenter focus',
-            appendTo: document.body,
-            arrow: true,
-            animation: 'shift-away-subtle',
-            interactive: true,
-            onHidden: (instance) => {
-                instance.destroy();
-            }
-        });
+        if (!tippyInstance) {
+            tippyInstance = tippy(target, {
+                content: tooltipElement.value,
+                placement: 'top',
+                trigger: 'mouseenter focus',
+                appendTo: document.body,
+                arrow: true,
+                animation: 'shift-away-subtle',
+                interactive: true,
+                hideOnClick: false
+            });
+        }
     }
 };
 
@@ -54,8 +53,6 @@ onUnmounted(() => {
     border-radius: 4px;
     font-size: 14px;
     z-index: 1000001;
-    /* Ensure it's on top */
     pointer-events: none;
-    /* Prevents tooltip from blocking mouse events */
 }
 </style>
