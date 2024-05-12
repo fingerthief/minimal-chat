@@ -1500,13 +1500,13 @@ pre {
 
     @media (max-width: 600px) {
         position: fixed;
-        transform: translateX(100%);
+        transform: translateX(110%);
         border-right: 2px solid #3d3c3e;
 
-        width: 100vw;
+        width: 100%;
 
         &.open {
-            transform: translateX(-3px);
+            transform: translateX(1%);
         }
     }
 }
