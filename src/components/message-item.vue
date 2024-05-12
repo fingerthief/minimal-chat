@@ -137,8 +137,8 @@ watch(
 
 <template>
     <div ref="messageList" class="message-list">
-        <DynamicScroller ref="scroller" class="scroller" @emitUpdates="true" :items="filteredMessages"
-            :min-item-size="75" key-field="id" v-slot="{ item, index, active }">
+        <DynamicScroller :min-item-size="200" ref="scroller" class="scroller" @emitUpdates="true"
+            :items="filteredMessages" key-field="id" v-slot="{ item, index, active }">
             <DynamicScrollerItem :item="item" :active="active" :data-index="index">
                 <div v-if="active" :class="messageClass(item.role)">
                     <ToolTip :targetId="'message-label-' + index">
