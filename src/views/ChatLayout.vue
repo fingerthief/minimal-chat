@@ -35,7 +35,7 @@ const modelDisplayName = ref("Unknown");
 
 const localModelKey = ref(localStorage.getItem("localModelKey") || '')
 const localModelName = ref(localStorage.getItem("localModelName") || '');
-const localModelEndpoint = ref(removeAPIEndpoints(localStorage.getItem("localModelEndpoint")) || '');
+const localModelEndpoint = ref(removeAPIEndpoints(localStorage.getItem("localModelEndpoint") || ''));
 const localSliderValue = ref(parseFloat(localStorage.getItem("local-attitude")) || 0.6);
 const gptKey = ref(localStorage.getItem("gptKey") || '');
 const sliderValue = ref(parseInt(localStorage.getItem("gpt-attitude")) || 50);
