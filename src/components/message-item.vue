@@ -21,117 +21,73 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['regenerate-response', 'delete-response', 'edit-message']);
-
 const loadingIcon = ref(-1);
 
 const formatMessage = (content) => {
     const md = new MarkdownIt({
-        highlight: (str) => {
+        highlight: (str, lang) => {
             try {
-                return hljs.highlightAuto(str).value;
+                return hljs.highlightAuto(str, lang ? [lang] : undefined).value;
             } catch (__) {
                 return '';
             }
         },
     });
-
-    let renderedMessage = md.render(content);
-
-    // Replace newlines inside <ul> and <li> tags with spaces
-    renderedMessage = renderedMessage.replace(/<(ul|li)>\s*\n/g, '<$1> ');
-    renderedMessage = renderedMessage.replace(/\n\s*<\/(ul|li)>/g, ' </$1>');
-
-    // Replace newlines with <br>
-    renderedMessage = renderedMessage.replace(/\n/g, '<br>');
-
-    // Remove first and last <br>
-    renderedMessage = renderedMessage.replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
-
-    return renderedMessage;
+    return md.render(content)
+        .replace(/<(ul|li)>\s*\n/g, '<$1> ')
+        .replace(/\n\s*<\/(ul|li)>/g, ' </$1>')
+        .replace(/\n/g, '<br>')
+        .replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
 };
 
-const messageClass = (role) => {
-    return role === 'user' ? 'user message' : 'gpt message';
-};
+const messageClass = (role) => role === 'user' ? 'user message' : 'gpt message';
 
 const copyText = (message) => {
-    const textarea = document.createElement('textarea');
-    textarea.value = message.content;
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-        document.execCommand('copy');
+    navigator.clipboard.writeText(message.content).then(() => {
+        showToast("Copied text!");
         console.log('Content copied to clipboard');
-    } catch (error) {
+    }).catch(error => {
         console.error('Failed to copy content: ', error);
-    }
-    document.body.removeChild(textarea);
-
-    showToast("Copied text!")
+    });
 };
 
-const startLoading = (index) => {
-    loadingIcon.value = index;
-};
+const startLoading = (index) => loadingIcon.value = index;
 
-
-let initalMessage = "";
-
+let initialMessage = "";
 const editMessage = (message) => {
-    if (message.role !== 'user') {
-        return;
-    }
-
-    if (message.isEditing) {
-        return;
-    }
-
-    message.isEditing = !message.isEditing;
-
-    if (message.isEditing) {
-        initalMessage = message;
-
-        nextTick(() => {
-            const messageContent = document.getElementById(`message-${props.messages.indexOf(message)}`);
-            if (messageContent) {
-                messageContent.focus();
-            }
-        });
-    }
+    if (message.role !== 'user' || message.isEditing) return;
+    message.isEditing = true;
+    initialMessage = message;
+    nextTick(() => {
+        const messageContent = document.getElementById(`message-${props.messages.indexOf(message)}`);
+        if (messageContent) messageContent.focus();
+    });
 };
 
 const saveEditedMessage = (message, event) => {
     message.isEditing = false;
     const updatedContent = event.target.innerText.trim();
-
-    if (updatedContent !== initalMessage.content.trim()) {
-        emit('edit-message', initalMessage, updatedContent);
+    if (updatedContent !== initialMessage.content.trim()) {
+        emit('edit-message', initialMessage, updatedContent);
     }
 };
 
-const filteredMessages = computed(() => {
-    return props.messages.filter(message => message.role !== 'system');
-});
+const filteredMessages = computed(() => props.messages.filter(message => message.role !== 'system'));
 
 const messageList = ref(null);
 const scroller = ref(null);
-
 const scrollToBottom = async () => {
-    try {
-        if (scroller.value !== undefined && messageList.value !== undefined) {
-            scroller.value.scrollToItem(filteredMessages.value.length);
-            messageList.value.scrollTop = messageList.value.scrollHeight;
-        }
+    if (scroller.value && messageList.value) {
+        await nextTick();
+        scroller.value.scrollToItem(filteredMessages.value.length - 1);
+        messageList.value.scrollTop = messageList.value.scrollHeight;
     }
-    catch (error) { }
 };
 
 watch(() => [filteredMessages, props.streamedMessageText, props.messages],
     async () => {
         await scrollToBottom();
-        await scrollToBottom();
-    },
-    { deep: true }
+    }, { deep: true }
 );
 </script>
 
@@ -141,28 +97,30 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
             :items="filteredMessages" key-field="id" v-slot="{ item, index, active }">
             <DynamicScrollerItem :item="item" :active="active" :data-index="index">
                 <div v-if="active" :class="messageClass(item.role)">
-                    <ToolTip :targetId="'message-label-' + index">
-                        Copy Text</ToolTip>
-                    <div class="label" @click="copyText(item)" :id="'message-label-' + index">
-                        <RefreshCcw v-if="item.role === 'user'" class="icon" :size="18"
+                    <div class="message-header">
+                        <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + index" :size="18"
                             :class="{ 'loading': isLoading && loadingIcon === index }"
-                            @click="$emit('regenerate-response', item.content), startLoading(index)" />
-                        <Trash v-if="item.role === 'user'" class="delete-icon" :size="18"
+                            @click.stop="$emit('regenerate-response', item.content), startLoading(index)" />
+                        <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + index">Regenerate</ToolTip>
+                        <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + index" :size="18"
                             :class="{ 'loading': isLoading && loadingIcon === index }"
-                            @click="$emit('delete-response', item.content), startLoading(index)" />
-                        {{ item.role === 'user' ? 'User' : modelDisplayName }}
+                            @click.stop="$emit('delete-response', item.content), startLoading(index)" />
+                        <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + index">Remove</ToolTip>
+                        <div class="label" @click="copyText(item)" :id="'message-label-' + index">
+                            {{ item.role === 'user' ? 'User' : modelDisplayName }}
+                        </div>
+                        <ToolTip :targetId="'message-label-' + index">Copy message</ToolTip>
                     </div>
-
                     <div class="message-contents" :id="'message-' + index" :contenteditable="item.isEditing"
                         @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)"
                         v-html="formatMessage(item.content)"></div>
-                    <ToolTip v-if="item.role === 'user'" :targetId="'message-' + index">
-                        Double click to
-                        edit message</ToolTip>
+                    <ToolTip v-if="item.role === 'user'" :targetId="'message-' + index">Double click to edit message</ToolTip>
                 </div>
                 <div v-if="(streamedMessageText.length || isLoading || isGeneratingImage || isAnalyzingImage) && index === (filteredMessages.length - 1)"
                     class="gpt message">
-                    <div class="label padded">{{ modelDisplayName }}</div>
+                    <div class="message-header">
+                        <div class="label padded">{{ modelDisplayName }}</div>
+                    </div>
                     <span class="message-contents" v-html="formatMessage(streamedMessageText || '')"></span>
                     <span v-if="!streamedMessageText.trim().length">Awaiting response...</span>
                     <span v-if="!streamedMessageText.trim().length" class="loading spinner"></span>
@@ -173,195 +131,98 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
 </template>
 
 <style lang="scss" scoped>
-.scroller {
-    height: 100%;
-    scrollbar-width: none;
-}
-
-.message-list {
+.scroller, .message-list {
     height: 88vh;
     overflow-y: auto;
     scrollbar-width: none;
 }
 
-.message {
-    position: relative;
-    padding: 12px;
-    min-width: 10%;
-    width: fit-content;
-    margin-bottom: 8px;
-    clear: both;
-    margin-top: 18px;
-    font-size: 1em;
-    line-height: 1.5;
-
-    max-width: 98vw;
-}
-
-.label {
-
-    @media (max-width: 600px) {
-        top: -27px;
-        font-size: 16px;
-    }
-
-    position: absolute;
-    top: -33px;
-    color: #dadbde;
-    min-width: 62px;
-    font-weight: 500;
-    font-size: 18px;
-    min-width: fit-content;
-}
-
-.icon {
-    position: absolute;
-    left: -10px;
+.icon, .delete-icon {
     color: #9d81a0;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color: transparent;
-    bottom: 5px;
-
-    &.loading {
-        animation: spin 1s infinite linear;
-        background-color: transparent;
-    }
-
     &:hover {
-        transform: scale(1.15) rotate(-45deg);
+        transform: scale(1.1);
+        cursor: pointer;
     }
 }
 
-
-.delete-icon {
-    position: absolute;
-    left: -32px;
-    color: #827b83;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color: transparent;
-    bottom: 5px;
-
-    &:hover {
-        transform: scale(1.15);
-    }
-}
-
-
-.edit-icon {
-    position: absolute;
-    top: 3px;
-    left: -95px;
-    color: #9d81a0;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color: transparent;
-
-    &:hover {
-        transform: scale(1.15);
-    }
+.icon.loading {
+    animation: spin 1s infinite linear;
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.message-contents {
-    display: block;
-
-    &[contenteditable="true"] {
-        outline: none;
-        border: 2px solid #423d42;
-        padding: 15px;
-        border-radius: 5px;
-        text-align: center;
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .message {
     position: relative;
-    padding: 12px;
     min-width: 10%;
     width: fit-content;
-    margin-bottom: 8px;
+    padding: 8px 0;
     clear: both;
-    margin-top: 18px;
     font-size: 1em;
     line-height: 1.5;
+    max-width: calc(100% - 1rem);
 
-    max-width: 98vw;
-
-    // Ensure that the user message is aligned to the right
-    &.user {
-        margin-left: auto; // Align to the right by using auto margin on the left
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         color: #dadbde;
-        margin-top: 40px;
-        border-top: 2px solid #583e72d9;
-        min-width: 10%;
-        max-width: 95%; // Optionally set a max-width for better responsiveness
-        padding-bottom: 50px;
+        padding: 8px 6px;
 
         .label {
-            position: absolute;
-            right: 0; // Position label to the right
-            padding-left: 13px;
-            color: #ece9ef;
+            color: #dadbde;
+            font-weight: 500;
             font-size: 18px;
-
-            @media (max-width: 600px) {
-                font-size: 16px;
-            }
+            line-height: 1;
+            cursor: pointer;
 
             &:hover {
-                background-color: #583e72d9;
-                cursor: pointer;
+                border-radius: 3px;
+                padding: 6px;
+                margin: -6px;
             }
         }
     }
 
-    // Align the GPT (assistant) message to the left
+    &.user {
+        margin-left: auto;
+
+        .label:hover {
+            background-color: #583e72d9;
+        }
+    }
     &.gpt {
-        margin-right: auto; // Align to the left by using auto margin on the right
-        color: #dadbde;
-        margin-top: 40px;
-        border-top: 2px solid #0b6363e5;
-        width: fit-content;
-        min-width: 20%;
-        max-width: 95%; // Optionally set a max-width for better responsiveness
-        padding-bottom: 50px;
+        margin-right: auto;
 
-        .label {
-            position: absolute;
-            left: 0; // Position label to the left
-            color: #ece9ef;
-
-            &:hover {
-                background-color: #0b6363e5;
-                cursor: pointer;
-            }
+        .label:hover {
+            background-color: #0b6363e5;
         }
     }
 
-    // Shared styles for the message content
-    .message-contents {
-        display: block;
+    &.user .message-header {
+        justify-content: end;
+        border-bottom: 2px solid #583e72d9;
+    }
+    &.gpt .message-header {
+        justify-content: start;
+        border-bottom: 2px solid #0b6363e5;
+    }
 
+    .message-contents {
+        padding: 8px;
+        margin: 8px;
+        display: block;
+        overflow-wrap: break-word;
         &[contenteditable="true"] {
             outline: none;
-            border: 2px solid #423d42;
-            padding: 15px;
+            outline: 2px solid #423d42;
             border-radius: 5px;
-            text-align: left; // Align text to the left for both user and GPT messages
+            text-align: left;
         }
     }
-}
-
-.icon {
-    color: #827b83;
 }
 
 .loading.spinner {
@@ -373,15 +234,5 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
     width: 10px;
     height: 10px;
     animation: spin 1s infinite linear;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
 }
 </style>
