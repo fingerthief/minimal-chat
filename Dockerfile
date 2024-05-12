@@ -13,8 +13,11 @@ COPY ./dist  .
 # Install the app dependencies
 RUN npm install
 
-# Specify the port on which the app will run
-EXPOSE 3000
+# Specify the default port on which the app will run
+ENV PORT=3000
+
+# Expose the port specified by the environment variable
+EXPOSE $PORT
 
 # Define the command to start the app
 CMD ["npm", "run", "start-server-docker"]
