@@ -99,7 +99,7 @@ const updateRepetitionSliderValue = (value) => {
                 <span @click="reloadPage">
                     <RefreshCcw :size="23" :stroke-width="2" />
                 </span>
-                Settings | V6.0.7
+                Settings | V6.0.8
             </h2>
         </div>
         <div class="sidebar-content-container">
@@ -147,15 +147,29 @@ const updateRepetitionSliderValue = (value) => {
                     <select id="localModelsSelection" :value="browserModelSelection"
                         @change="update('browserModelSelection', $event.target.value)">
                         @change="update('browserModelSelection', $event.target.value)">
+
                         <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
-                        <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 (~4.6gb VRAM)</option>
-                        <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 (~5.2gb VRAM)</option>
+                        <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 1k Context (~4.6gb
+                            VRAM)</option>
+                        <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 1k Context (~5.2gb
+                            VRAM)</option>
+                        <option value="Llama-2-7b-chat-hf-q4f16_1">Llama-2-7b-chat-hf-q4f16 (~6.8gb VRAM)</option>
+                        <option value="TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k">TinyLlama-1.1B-Chat-v0.4-q4f32 1k Context
+                            (~1.0gb
+                            VRAM)</option>
+                        <option value="TinyLlama-1.1B-Chat-v0.4-q0f32">TinyLlama-1.1B-Chat-v0.4-q0f32 (~5.3gb VRAM)
+                        </option>
                         <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2 (~6.1gb VRAM)</option>
                         <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)
                         </option>
-                        <option value="RedPajama-INCITE-Chat-3B-v1-q4f16_1">RedPajama-INCITE-Chat-3B-v1 (~3.0gb VRAM)
+                        <option value="WizardMath-7B-V1.1-q4f16_1">WizardMath-7B-V1.1-q4f16 (~6.1gb VRAM)
                         </option>
-                        <option value="gemma-2b-it-q4f32_1">gemma-2b-it (~1.8gb VRAM)
+                        <option value="NeuralHermes-2.5-Mistral-7B-q4f16_1">NeuralHermes-2.5-Mistral-7B-q4f16 (~6.1gb
+                            VRAM)
+                        </option>
+                        <option value="gemma-2b-it-q4f32_1">gemma-2b-it-q4f32 (~1.8gb VRAM)
+                        </option>
+                        <option value="gemma-2b-it-q4f32_1-1k">gemma-2b-it-q4f32 1k Context (~1.6gb VRAM)
                         </option>
                     </select>
                 </div>
@@ -332,7 +346,7 @@ $icon-color: rgb(187, 187, 187);
 
 .config-section {
     margin-bottom: 30px;
-    
+
     h3 {
         margin-bottom: 15px;
         background-color: #181f20;
@@ -350,13 +364,15 @@ $icon-color: rgb(187, 187, 187);
         padding: 8px;
 
     }
+
     .control-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
         transition: max-height 0.3s ease-in-out;
         overflow: hidden;
-        max-height: 0; /* Start collapsed */
+        max-height: 0;
+        /* Start collapsed */
     }
 
     &.show .control-grid {
