@@ -103,7 +103,6 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
                             @click.stop="$emit('regenerate-response', item.content), startLoading(index)" />
                         <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + index">Regenerate</ToolTip>
                         <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + index" :size="18"
-                            :class="{ 'loading': isLoading && loadingIcon === index }"
                             @click.stop="$emit('delete-response', item.content), startLoading(index)" />
                         <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + index">Remove</ToolTip>
                         <div class="label" @click="copyText(item)" :id="'message-label-' + index">
