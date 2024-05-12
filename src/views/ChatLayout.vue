@@ -323,6 +323,8 @@ function showConversations() {
 }
 
 async function saveMessages() {
+    streamedMessageText.value = "";
+
     const savedMessages = messages.value.map(({
         role,
         content
@@ -574,6 +576,7 @@ async function sendMessage(event) {
 
     if (selectedModel.value.indexOf("claude") !== -1) {
         await sendClaudeMessage(messageText);
+        streamedMessageText.value = "";
         return;
     }
 
@@ -599,10 +602,13 @@ async function sendMessage(event) {
 
     if (selectedModel.value.indexOf('web-llm') !== -1) {
         await sendBrowserModelMessage(messageText);
+        streamedMessageText.value = "";
         return;
     }
 
     await sendGPTMessage(messageText);
+
+    streamedMessageText.value = "";
 }
 
 async function sendBrowserModelMessage(message) {
@@ -620,8 +626,6 @@ async function sendBrowserModelMessage(message) {
     addMessage('assistant', response);
 
     await saveMessages();
-
-
 }
 
 async function addMessage(role, message) {
@@ -639,21 +643,10 @@ async function addMessage(role, message) {
         role: role,
         content: message
     });
-
-    // Last resort: Press the page down key to scroll down
-    // Find the element with the scroller class
-    const scrollerElement = document.querySelector('.messages');
-
-    if (scrollerElement) {
-        // Focus on the scroller element
-        scrollerElement.focus();
-    }
 }
 
 
 async function sendGPTMessage(message) {
-
-
     userText.value = "";
 
     streamedMessageText.value = "";
@@ -707,14 +700,11 @@ async function sendClaudeMessage(messageText) {
 
     addMessage("user", messageText);
 
-
-
     const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
 
     addMessage("assistant", response);
 
     saveMessages();
-
 
     isLoading.value = false;
 }

@@ -117,16 +117,16 @@ const messageList = ref(null);
 const scroller = ref(null);
 
 const scrollToBottom = async () => {
-    await nextTick();
-
-    if (scroller.value && messageList.value) {
-        scroller.value.scrollToItem(filteredMessages.value.length);
-        messageList.value.scrollTop = messageList.value.scrollHeight;
+    try {
+        if (scroller.value !== undefined && messageList.value !== undefined) {
+            scroller.value.scrollToItem(filteredMessages.value.length);
+            messageList.value.scrollTop = messageList.value.scrollHeight;
+        }
     }
+    catch (error) { }
 };
 
-watch(
-    () => [filteredMessages, props.message, props.streamedMessageText],
+watch(() => [filteredMessages, props.streamedMessageText, props.messages],
     async () => {
         await scrollToBottom();
         await scrollToBottom();
@@ -137,7 +137,7 @@ watch(
 
 <template>
     <div ref="messageList" class="message-list">
-        <DynamicScroller :min-item-size="200" ref="scroller" class="scroller" @emitUpdates="true"
+        <DynamicScroller :min-item-size="600" ref="scroller" class="scroller" @emitUpdates="true"
             :items="filteredMessages" key-field="id" v-slot="{ item, index, active }">
             <DynamicScrollerItem :item="item" :active="active" :data-index="index">
                 <div v-if="active" :class="messageClass(item.role)">
@@ -160,7 +160,7 @@ watch(
                         Double click to
                         edit message</ToolTip>
                 </div>
-                <div v-if="(isLoading || isGeneratingImage || isAnalyzingImage) && index === (filteredMessages.length - 1)"
+                <div v-if="(streamedMessageText.length || isLoading || isGeneratingImage || isAnalyzingImage) && index === (filteredMessages.length - 1)"
                     class="gpt message">
                     <div class="label padded">{{ modelDisplayName }}</div>
                     <span class="message-contents" v-html="formatMessage(streamedMessageText || '')"></span>
