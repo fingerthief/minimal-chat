@@ -8,7 +8,7 @@ export function sleep(ms) {
 export function removeAPIEndpoints(url) {
     if (typeof url !== 'string') {
         showToast("URL must be a string");
-        throw new Error('Input URL must be a string');
+        return;
     }
 
     // Remove API endpoints and any trailing "/"
