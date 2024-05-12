@@ -118,11 +118,10 @@ const scroller = ref(null);
 
 const scrollToBottom = async () => {
     await nextTick();
+
     if (scroller.value && messageList.value) {
         scroller.value.scrollToItem(filteredMessages.value.length);
-
         messageList.value.scrollTop = messageList.value.scrollHeight;
-        await nextTick();
     }
 };
 
@@ -161,16 +160,15 @@ watch(
                         Double click to
                         edit message</ToolTip>
                 </div>
+                <div v-if="(isLoading || isGeneratingImage || isAnalyzingImage) && index === (filteredMessages.length - 1)"
+                    class="gpt message">
+                    <div class="label padded">{{ modelDisplayName }}</div>
+                    <span class="message-contents" v-html="formatMessage(streamedMessageText || '')"></span>
+                    <span v-if="!streamedMessageText.trim().length">Awaiting response...</span>
+                    <span v-if="!streamedMessageText.trim().length" class="loading spinner"></span>
+                </div>
             </DynamicScrollerItem>
         </DynamicScroller>
-        <div v-if="isLoading || isGeneratingImage || isAnalyzingImage" class="gpt message">
-            <div class="label padded">{{ modelDisplayName }}</div>
-            <span class="message-contents" v-html="formatMessage(streamedMessageText || '')"></span>
-            <span v-if="!streamedMessageText.trim().length">
-                {{ isAnalyzingImage || isGeneratingImage ? 'Generating...' : 'Waiting For Stream Response...' }}
-            </span>
-            <span v-if="!streamedMessageText.trim().length" class="loading spinner"></span>
-        </div>
     </div>
 </template>
 
