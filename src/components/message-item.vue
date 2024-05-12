@@ -102,8 +102,8 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
                             :class="{ 'loading': isLoading && loadingIcon === index }"
                             @click.stop="$emit('regenerate-response', item.content), startLoading(index)" />
                         <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + index">Regenerate</ToolTip>
-                        <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + index" :size="18"
-                            @click.stop="$emit('delete-response', item.content), startLoading(index)" />
+                        <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + index"
+                            :size="18" @click.stop="$emit('delete-response', item.content), startLoading(index)" />
                         <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + index">Remove</ToolTip>
                         <div class="label" @click="copyText(item)" :id="'message-label-' + index">
                             {{ item.role === 'user' ? 'User' : modelDisplayName }}
@@ -113,7 +113,8 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
                     <div class="message-contents" :id="'message-' + index" :contenteditable="item.isEditing"
                         @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)"
                         v-html="formatMessage(item.content)"></div>
-                    <ToolTip v-if="item.role === 'user'" :targetId="'message-' + index">Double click to edit message</ToolTip>
+                    <ToolTip v-if="item.role === 'user'" :targetId="'message-' + index">Double click to edit message
+                    </ToolTip>
                 </div>
                 <div v-if="(streamedMessageText.length || isLoading || isGeneratingImage || isAnalyzingImage) && index === (filteredMessages.length - 1)"
                     class="gpt message">
@@ -130,15 +131,18 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
 </template>
 
 <style lang="scss" scoped>
-.scroller, .message-list {
+.scroller,
+.message-list {
     height: 88vh;
     overflow-y: auto;
     scrollbar-width: none;
 }
 
-.icon, .delete-icon {
+.icon,
+.delete-icon {
     color: #9d81a0;
     transition: background-color 0.3s ease, transform 0.2s ease;
+
     &:hover {
         transform: scale(1.1);
         cursor: pointer;
@@ -150,8 +154,13 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .message {
@@ -193,6 +202,7 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
             background-color: #583e72d9;
         }
     }
+
     &.gpt {
         margin-right: auto;
 
@@ -205,6 +215,7 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
         justify-content: end;
         border-bottom: 2px solid #583e72d9;
     }
+
     &.gpt .message-header {
         justify-content: start;
         border-bottom: 2px solid #0b6363e5;
@@ -215,6 +226,7 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
         margin: 8px;
         display: block;
         overflow-wrap: break-word;
+
         &[contenteditable="true"] {
             outline: none;
             outline: 2px solid #423d42;

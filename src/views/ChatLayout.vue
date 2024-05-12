@@ -9,7 +9,7 @@ import { getConversationTitleFromGPT, showToast, removeAPIEndpoints } from '@/li
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
 import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
-
+import { updateConversation, deleteConversation, createConversation } from '@/libs/conversations-management';
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
@@ -253,16 +253,9 @@ function determineModelDisplayName(newValue) {
 
 }
 
-
 const updateUserText = (newText) => {
     userText.value = newText;
 };
-
-function resetMessages() {
-    localStorage.removeItem("gpt-messages");
-    messages.value = [];
-    lastLoadedConversationId.value = null;
-}
 
 function updateUI(content, autoScrollBottom = true, appendTextValue = true) {
     if (!appendTextValue) {
@@ -280,214 +273,127 @@ function toggleSidebar() {
 //#endregion
 
 //#region Conversation Handling
-function deleteCurrentConversation() {
-    if (lastLoadedConversationId.value === null) {
-        return;
-    }
-
-    isProcessing.value = true;
-    const tempStoredConversations = loadStoredConversations();
-
-    const conversationIndex = tempStoredConversations.findIndex(
-        (conversation) => conversation.id === parseInt(lastLoadedConversationId.value)
-    );
-
-    if (conversationIndex !== -1) {
-        tempStoredConversations.splice(conversationIndex, 1);
-        localStorage.setItem("gpt-conversations", JSON.stringify(tempStoredConversations));
-    }
-
-    storedConversations.value = tempStoredConversations;
-
-    messages.value = [];
-
-    const tempConversationTitles = loadConversationTitles();
-
-    conversationTitles.value = tempConversationTitles;
-    conversations.value = tempConversationTitles;
-    lastLoadedConversationId.value = 0;
-
-    localStorage.setItem("lastConversationId", 0);
-
-    if (conversations.value.length > 0) {
-        loadSelectedConversation(conversations.value[0]);
-    }
-
-    isProcessing.value = false;
-    showToast("Conversation Deleted");
-}
-
 function showConversations() {
     event.stopPropagation();
     showConversationOptions.value = !showConversationOptions.value;
 }
 
+function createUniqueMessagesWithIds() {
+    let maxId = messages.value.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
+
+    // Process each message to ensure it has a unique ID
+    return messages.value.map(message => {
+        if (!message.id) {
+            maxId++; // Increment maxId to ensure a unique ID
+            return { ...message, id: maxId }; // Assign the new ID
+        }
+        return message;
+    });
+}
+
+function deleteCurrentConversation() {
+    const updatedConversations = deleteConversation(conversations.value, lastLoadedConversationId.value);
+
+    conversations.value = updatedConversations;
+
+    messages.value = [];
+
+    if (conversations.value.length > 0) {
+        selectConversation(conversations.value[conversations.value.length - 1].id);
+    }
+
+    localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
+}
+
 async function saveMessages() {
     streamedMessageText.value = "";
 
-    const savedMessages = messages.value.map(({
-        role,
-        content
-    }) => ({
-        role,
-        content
-    }));
+    const updatedConversation = selectedConversation.value;
 
-    const conversationIndex = selectedConversation.value ?
-        storedConversations.value.findIndex(
-            (conversation) => conversation.conversation.title === selectedConversation.value.conversation.title
-        ) :
-        -1;
+    if (!selectedConversation.value || !selectedConversation.value === null) {
+        const title = await createNewConversationWithTitle();
 
-    if (conversationIndex !== -1) {
-        storedConversations.value[conversationIndex].conversation.messageHistory = savedMessages;
-    } else if (JSON.parse(selectedAutoSaveOption.value)) {
-        await saveNewConversations();
+        const uniqueMessages = createUniqueMessagesWithIds();
 
-        localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations.value));
-        selectConversation(lastLoadedConversationId.value);
+        const updatedConversations = createConversation(conversations.value, title, uniqueMessages);
+
+        messages.value = [...uniqueMessages];
+
+        conversations.value = [...updatedConversations];
+
+        lastLoadedConversationId.value = updatedConversations[updatedConversations.length - 1].id;
+        localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
+
+        localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
+        selectedConversation.value = conversations.value[conversations.value.length - 1];
+        return;
     }
 
-    localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations.value));
-};
+    updatedConversation.messageHistory = messages.value
 
-async function clearMessages() {
-    isProcessing.value = true;
+    const result = updateConversation(conversations.value, updatedConversation.id, updatedConversation);
 
-    const newConversation = {
-        messageHistory: selectedConversation.value.conversation.messageHistory.slice(0),
-        title: ""
-    };
+    conversations.value = [...result];
 
-    const tempStoredConversations = loadStoredConversations();
+    localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
+}
 
-    if (tempStoredConversations.length === 0) {
-        await createAndStoreNewConversation(tempStoredConversations, newConversation);
+function selectConversation(conversationId) {
+    if (!conversations.value.length) {
+        return;
+    }
+
+    const conversation = conversations.value.find(c => c.id === conversationId);
+
+    if (conversation) {
+        lastLoadedConversationId.value = conversationId;
+        localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
+
+        let maxId = messages.value.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
+
+        // Process each message to ensure it has a unique ID
+        const processedMessages = conversation.messageHistory.map(message => {
+            if (!message.id) {
+                maxId++; // Increment maxId to ensure a unique ID
+                return { ...message, id: maxId }; // Assign the new ID
+            }
+            return message;
+        });
+
+        messages.value = processedMessages;
+        selectedConversation.value = conversation;
     } else {
-        newConversation.conversationId = tempStoredConversations.length - 1;
-
-        if (selectedAutoSaveOption.value && lastLoadedConversationId.value !== null) {
-            await updateExistingConversation(tempStoredConversations, newConversation);
-        } else {
-            await createAndStoreNewConversation(tempStoredConversations, newConversation);
-        }
+        console.error('Conversation with ID ' + conversationId + ' not found.');
     }
+}
 
-    localStorage.setItem("gpt-conversations", JSON.stringify(tempStoredConversations));
-
-    conversations.value = loadConversationTitles();
-    storedConversations.value = loadStoredConversations();
-
-    lastLoadedConversationId.value = tempStoredConversations.length - 1;
-    localStorage.setItem("lastConversationId", lastLoadedConversationId.value);
-
-    resetMessages();
-
-    selectedConversation.value = {
-        id: tempStoredConversations.length,
-        conversation: {
-            messageHistory: [],
-            title: 'placeholder'
-        }
-    };
-
-    if (showConversationOptions.value) {
-        showConversations();
-    }
-
-    isProcessing.value = false;
+async function startNewConversation() {
+    selectedConversation.value = null;
+    messages.value = [];
 
     showToast("Conversation Saved");
 }
 
-async function saveNewConversations() {
-    const newConversationWithTitle = await createNewConversationWithTitle();
-
-    const tempStoredConversations = localStorage.getItem("gpt-conversations") ?
-        JSON.parse(localStorage.getItem("gpt-conversations")) : [];
-
-    if (tempStoredConversations.length === 0) {
-        tempStoredConversations.push({
-            id: 0,
-            conversation: newConversationWithTitle
-        });
-        localStorage.setItem("lastConversationId", 0);
-        lastLoadedConversationId.value = 0;
-    }
-    else {
-        newConversationWithTitle.conversationId = tempStoredConversations.length - 1;
-
-        if (lastLoadedConversationId.value !== null) {
-            const conversationIndex = tempStoredConversations.findIndex(
-                conversation => conversation.id === parseInt(lastLoadedConversationId.value)
-            );
-
-            tempStoredConversations[conversationIndex].conversation.messageHistory = newConversationWithTitle.messageHistory;
-        }
-        else {
-            const highestId = Math.max(...tempStoredConversations.map(conversation => conversation.id));
-            tempStoredConversations.push({
-                id: highestId + 1,
-                conversation: newConversationWithTitle
-            });
-            lastLoadedConversationId.value = highestId + 1;
-        }
-    }
-
-    localStorage.setItem("gpt-conversations", JSON.stringify(tempStoredConversations));
-    localStorage.setItem("lastConversationId", lastLoadedConversationId.value);
-
-    conversations.value = loadConversationTitles();
-    storedConversations.value = loadStoredConversations();
-
-    selectedConversation.value = conversations.value[conversations.value.length - 1];
-}
-
 async function createNewConversationWithTitle() {
-    const newConversationWithTitle = {
-        messageHistory: messages.value.slice(0),
-        title: ""
-    };
+    let title = "";
 
     if (isClaudeEnabled.value) {
-        newConversationWithTitle.title = await fetchClaudeConversationTitle(messages.value.slice(0));
+        title = await fetchClaudeConversationTitle(messages.value.slice(0));
     }
 
     if (selectedModel.value.indexOf("open-ai-format") !== -1) {
-        newConversationWithTitle.title = await getConversationTitleFromLocalModel(messages.value.slice(0), localModelName.value, localModelEndpoint.value);
+        title = await getConversationTitleFromLocalModel(messages.value.slice(0), localModelName.value, localModelEndpoint.value);
     }
 
     if (selectedModel.value.indexOf("gpt") !== -1) {
-        newConversationWithTitle.title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
+        title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
     }
 
     if (selectedModel.value.indexOf("web-llm") !== -1) {
-        newConversationWithTitle.title = await getBrowserLoadedModelConversationTitle(messages.value.slice(0));
+        title = await getBrowserLoadedModelConversationTitle(messages.value.slice(0));
     }
 
-    return newConversationWithTitle;
-}
-
-async function createAndStoreNewConversation(storedConversations, newConversation) {
-    const newConversationWithTitle = await createNewConversationWithTitle();
-
-    const highestId = storedConversations.length > 0 ?
-        Math.max(...storedConversations.map(conversation => conversation.id)) :
-        -1;
-    storedConversations.push({
-        id: highestId + 1,
-        conversation: newConversationWithTitle
-    });
-
-    localStorage.setItem("lastConversationId", (highestId + 1).toString());
-    lastLoadedConversationId.value = highestId + 1;
-}
-
-async function updateExistingConversation(storedConversations, newConversation) {
-    const conversationIndex = storedConversations.findIndex(
-        conversation => conversation.id === lastLoadedConversationId.value
-    );
-    storedConversations[conversationIndex].messageHistory = newConversation.messageHistory;
+    return title;
 }
 
 function handleImportConversations() {
@@ -518,20 +424,7 @@ function handlePurgeConversations() {
     showToast("All Conversations Deleted.");
 }
 
-function selectConversation(conversationId) {
-    if (!conversations.value.length) {
-        return;
-    }
 
-    const conversation = conversations.value.find(c => c.id === conversationId);
-
-    if (conversation) {
-        selectedConversation.value = conversation;
-        loadSelectedConversation(selectedConversation.value);
-    } else {
-        console.error('Conversation with ID ' + conversationId + ' not found.');
-    }
-}
 
 function loadSelectedConversation(conversation) {
     if (conversation) {
@@ -540,15 +433,17 @@ function loadSelectedConversation(conversation) {
         localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
     }
 
-    if (!selectedConversation.value || !selectedConversation.value.conversation.messageHistory) {
+
+    if (!selectedConversation.value || !selectedConversation.value.messageHistory) {
         return;
     }
+
 
     // Initialize the maximum ID found in the current messages
     let maxId = messages.value.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
 
     // Process each message to ensure it has a unique ID
-    const processedMessages = selectedConversation.value.conversation.messageHistory.map(message => {
+    const processedMessages = selectedConversation.value.messageHistory.map(message => {
         if (!message.id) {
             maxId++; // Increment maxId to ensure a unique ID
             return { ...message, id: maxId }; // Assign the new ID
@@ -565,50 +460,55 @@ function loadSelectedConversation(conversation) {
 //#region Messages Handling
 let lastMessageText;
 async function sendMessage(event) {
-    const messageText = userText.value.trim();
+    try {
+        const messageText = userText.value.trim();
 
-    if (userText.value.trim().length === 0) {
-        showToast("Please Enter a Prompt First");
-        return;
-    }
+        if (userText.value.trim().length === 0) {
+            showToast("Please Enter a Prompt First");
+            return;
+        }
 
-    lastMessageText = messageText;
+        lastMessageText = messageText;
 
-    if (selectedModel.value.indexOf("claude") !== -1) {
-        await sendClaudeMessage(messageText);
+        if (selectedModel.value.indexOf("claude") !== -1) {
+            await sendClaudeMessage(messageText);
+            streamedMessageText.value = "";
+            return;
+        }
+
+        isClaudeEnabled.value = false;
+        addMessage("user", messageText);
+
+        userText.value = "";
+
+        if (!messageText || messageText === "" || isLoading.value || isGeneratingImage.value) {
+            return;
+        }
+
+        if (messageText.toLowerCase().startsWith("image::")) {
+            await sendImagePrompt(messageText);
+            return;
+        }
+
+        if (messageText.toLowerCase().startsWith("vision::")) {
+            await sendVisionPrompt();
+            return;
+        }
+
+
+        if (selectedModel.value.indexOf('web-llm') !== -1) {
+            await sendBrowserModelMessage(messageText);
+            streamedMessageText.value = "";
+            return;
+        }
+
+        await sendGPTMessage(messageText);
+
         streamedMessageText.value = "";
-        return;
     }
-
-    isClaudeEnabled.value = false;
-    addMessage("user", messageText);
-
-    userText.value = "";
-
-    if (!messageText || messageText === "" || isLoading.value || isGeneratingImage.value) {
-        return;
+    finally {
+        await saveMessages();
     }
-
-    if (messageText.toLowerCase().startsWith("image::")) {
-        await sendImagePrompt(messageText);
-        return;
-    }
-
-    if (messageText.toLowerCase().startsWith("vision::")) {
-        await sendVisionPrompt();
-        return;
-    }
-
-
-    if (selectedModel.value.indexOf('web-llm') !== -1) {
-        await sendBrowserModelMessage(messageText);
-        streamedMessageText.value = "";
-        return;
-    }
-
-    await sendGPTMessage(messageText);
-
-    streamedMessageText.value = "";
 }
 
 async function sendBrowserModelMessage(message) {
@@ -624,8 +524,6 @@ async function sendBrowserModelMessage(message) {
     isLoading.value = false;
 
     addMessage('assistant', response);
-
-    await saveMessages();
 }
 
 async function addMessage(role, message) {
@@ -672,9 +570,6 @@ async function sendGPTMessage(message) {
 
         addMessage('assistant', response);
 
-        await saveMessages();
-
-
     } catch (error) {
         console.error("Error sending message:", error);
     }
@@ -703,8 +598,6 @@ async function sendClaudeMessage(messageText) {
     const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
 
     addMessage("assistant", response);
-
-    saveMessages();
 
     isLoading.value = false;
 }
@@ -789,8 +682,6 @@ async function EditPreviousMessage(oldContent, newContent) {
 
         // Append messagesAfter to the current messages value
         messages.value = [...messages.value, ...messagesAfter];
-
-        saveMessages();
     }
     isLoading.value = false;
 }
@@ -806,8 +697,6 @@ async function deleteMessageFromHistory(content) {
         const messagesAfter = messages.value.slice(messageIndex + 2); // This line remains the same
 
         messages.value = [...beforeMessages, ...messagesAfter];
-
-        saveMessages();
     }
 }
 
@@ -826,7 +715,6 @@ async function sendImagePrompt(imagePrompt) {
     }
 
     addMessage('assistant', imageURLStrings);
-    saveMessages();
 
     isGeneratingImage.value = false;
 }
@@ -861,9 +749,7 @@ async function imageInputChanged(event) {
 
     addMessage("assistant", visionReponse);
 
-    saveMessages();
     isAnalyzingImage.value = false;
-
 }
 
 async function processImage(file, fileType) {
@@ -909,9 +795,6 @@ async function uploadFileContentsToCoversation(event, element) {
             addMessage('assistant', "Context added");
             showToast("Context Added");
         }
-
-        saveMessages();
-
     };
 
     await reader.readAsText(file);
@@ -933,16 +816,6 @@ function uploadFile(event, element) {
                 console.log("Invalid file format");
                 return;
             }
-
-            localStorage.setItem("gpt-conversations", contents);
-            conversations.value = loadConversationTitles();
-            storedConversations.value = loadStoredConversations();
-
-            const lastConversationIndex = conversations.value.length - 1;
-            selectedConversation.value = conversations.value[lastConversationIndex];
-            loadSelectedConversation();
-
-            showConversationOptions.value = true;
         } catch (err) {
             console.log("Bad file detected");
         }
@@ -1091,27 +964,23 @@ function stopResize() {
 }
 
 async function editConversationTitle(oldConversation, newConversationTitle) {
-    const conversationIndex = conversations.value.findIndex(
-        (conversation) => conversation.id === oldConversation.id
-    );
+    const updatedConversation = {
+        ...oldConversation,
+        title: newConversationTitle,
+    };
 
-    if (conversationIndex !== -1) {
-        conversations.value[conversationIndex].conversation.title = newConversationTitle;
+    const updatedConversationsList = await updateConversation(conversations.value, oldConversation.id, updatedConversation);
 
-        const storedConversationIndex = storedConversations.value.findIndex(
-            (conversation) => conversation.id === oldConversation.id
-        );
+    if (updatedConversationsList) {
+        conversations.value = updatedConversationsList;
 
-        if (storedConversationIndex !== -1) {
-            storedConversations.value[storedConversationIndex].conversation.title = newConversationTitle;
-            localStorage.setItem("gpt-conversations", JSON.stringify(storedConversations.value));
-        }
+        localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
 
         showToast("Title Updated");
-        return;
-    }
 
-    showToast("Failed to update title");
+    } else {
+        showToast("Failed to update title");
+    }
 }
 
 async function onModelChange(newModel) {
@@ -1122,14 +991,34 @@ async function onModelChange(newModel) {
 onUnmounted(() => {
     document.removeEventListener('click', handleGlobalClick);
 });
+
+function convertConversations(oldConversations) {
+    return oldConversations.map(oldConversation => ({
+        id: oldConversation.id,
+        title: oldConversation.conversation.title,
+        messageHistory: oldConversation.conversation.messageHistory
+    }));
+}
 //#endregion
 
 onMounted(() => {
+
+    //temporary converter so any users of the old conversation system will be auto
+    //converted to the new conversation template. Will remove after a period of time.
+    if (!localStorage.getItem('hasConvertedConversations')) {
+        let oldConversationsStyle = loadConversationTitles();
+
+        localStorage.setItem("gpt-conversations", JSON.stringify(convertConversations(oldConversationsStyle)));
+        conversations.value = loadConversationTitles();
+
+        localStorage.setItem('hasConvertedConversations', true);
+    }
+
     sidebarContentContainer.value = document.querySelector(".sidebar-conversations");
     sidebarContentContainer.value.style.width = '420px';
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
     determineModelDisplayName(selectedModel.value);
-    selectConversation(lastLoadedConversationId.value);
+    selectConversation(lastLoadedConversationId.value || conversations.value[0].id);
 
     messagesContainer = document.querySelector('.messages');
     messagesContainer.addEventListener('scroll', updateScrollButtonVisibility);
@@ -1185,8 +1074,8 @@ onMounted(() => {
             <div class="sidebar-conversations sidebar-right box" id="conversations-dialog"
                 :class="{ 'open': showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
-                    @toggle-sidebar="showConversations" @load-conversation="loadSelectedConversation"
-                    :selectedConversationItem="selectedConversation" @new-conversation="clearMessages"
+                    @toggle-sidebar="showConversations" @load-conversation="selectConversation"
+                    :selectedConversationItem="selectedConversation" @new-conversation="startNewConversation"
                     @edit-conversation-title="editConversationTitle" @import-conversations="handleImportConversations"
                     @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
                     @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
@@ -1201,7 +1090,7 @@ onMounted(() => {
                         <chatHeader :selectedModel="selectedModel" :isSidebarOpen="isSidebarOpen"
                             :storedConversations="storedConversations" @toggle-sidebar="toggleSidebar"
                             @delete-conversation="deleteCurrentConversation" @toggle-conversations="showConversations"
-                            @new-conversation="clearMessages" @change-model="onModelChange" />
+                            @new-conversation="startNewConversation" @change-model="onModelChange" />
                         <!-- Messages -->
                         <div class="messages">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"

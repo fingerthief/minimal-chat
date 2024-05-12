@@ -14,7 +14,7 @@ const loadedConversation = ref({});
 
 const selectedConversation = computed(() => {
     return props.conversations.find(conversation =>
-        conversation.id === props.selectedConversationItem.id
+        conversation.id === props.selectedConversationItem?.id
     );
 });
 
@@ -28,10 +28,8 @@ onMounted(() => {
     } else {
         // Fallback if no matching conversation is found
         loadedConversation.value = {
-            conversation: {
-                title: '',
-                messageHistory: [{}]
-            },
+            title: '',
+            messageHistory: [],
             id: 0
         };
     }
@@ -64,14 +62,14 @@ const saveEditedConversationTitle = (conversation, event) => {
     conversation.isEditing = false;
     const updatedContent = event.target.innerText.trim();
 
-    if (updatedContent !== initialConversation.conversation.title.trim()) {
+    if (updatedContent !== initialConversation.title.trim()) {
         emit('edit-conversation-title', initialConversation, updatedContent);
     }
 };
 
 async function loadSelectedConversation(conversation) {
     loadedConversation.value = conversation;
-    emit('load-conversation', conversation);
+    emit('load-conversation', conversation.id);
 }
 
 function startNewConversation() {
@@ -122,7 +120,7 @@ function purgeConversations() {
                         :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
                         <Pencil :id="'pencil-' + index" :size="15" @click.stop="editConversationTitle(conversation)" />
                         <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
-                        <span>&nbsp;&nbsp;{{ conversation.conversation.title }}</span>
+                        <span>&nbsp;&nbsp;{{ conversation.title }}</span>
                     </li>
                 </ul>
             </div>
