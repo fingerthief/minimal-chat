@@ -158,6 +158,7 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
                 stream: true,
                 messages: tempMessages,
                 temperature: 0.25,
+                max_tokens: 32,
                 top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
                 repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
             }),
