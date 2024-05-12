@@ -25,7 +25,7 @@ MinimalChat is a minimal and lightweight open-source chat application with full 
 
 [Visit the Application Demos Wiki Page](https://github.com/fingerthief/minimal-chat/wiki/Application-Demos) for more demos.
 
-![minimal-chat-general-demo](https://github.com/fingerthief/minimal-chat/assets/2380471/57002988-be25-46dc-9075-0b40fb93143a)
+https://github.com/fingerthief/minimal-chat/assets/2380471/51fde475-1b3f-4904-8c5a-48188e95ea31
 
 ## **Experience the Power of Web Local LLM Models**
 
