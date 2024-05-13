@@ -362,7 +362,9 @@ function selectConversation(conversationId) {
 
         messages.value = processedMessages;
         selectedConversation.value = conversation;
+        showConversationOptions.value = false;
     } else {
+        showToast("Conversations ID not found");
         console.error('Conversation with ID ' + conversationId + ' not found.');
     }
 }
