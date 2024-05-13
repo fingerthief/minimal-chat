@@ -1020,7 +1020,7 @@ onMounted(() => {
     sidebarContentContainer.value.style.width = '420px';
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
     determineModelDisplayName(selectedModel.value);
-    selectConversation(lastLoadedConversationId.value || conversations.value[0].id);
+    selectConversation(lastLoadedConversationId.value || conversations.value[0]?.id);
 
     messagesContainer = document.querySelector('.messages');
     messagesContainer.addEventListener('scroll', updateScrollButtonVisibility);
