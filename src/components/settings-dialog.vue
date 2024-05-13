@@ -1,8 +1,14 @@
-<!-- eslint-disable no-unused-vars -->
+<!-- settings-dialog.vue -->
 <script setup>
-import { RefreshCcw } from 'lucide-vue-next';
+import { RefreshCcw, Download, Upload } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref } from 'vue';
+import {
+    handleExportSettings,
+    exportSettingsToFile,
+    handleImportSettings,
+    importSettings
+} from '@/libs/settings-utils';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -38,6 +44,7 @@ const isLocalConfigOpen = ref(true);
 const isGPTConfigOpen = ref(true);
 const isDALLEConfigOpen = ref(true);
 const isClaudeConfigOpen = ref(true);
+const isImportExportConfigOpen = ref(true);
 
 const emit = defineEmits([
     'update:repetitionPenalty',
@@ -146,8 +153,6 @@ const updateRepetitionSliderValue = (value) => {
                     <label for="localModelsSelection">Model To Load In Browser:</label>
                     <select id="localModelsSelection" :value="browserModelSelection"
                         @change="update('browserModelSelection', $event.target.value)">
-                        @change="update('browserModelSelection', $event.target.value)">
-
                         <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
                         <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 1k Context (~4.6gb
                             VRAM)</option>
@@ -284,6 +289,28 @@ const updateRepetitionSliderValue = (value) => {
                     </div>
                 </div>
             </div>
+            <div class="config-section" :class="{ 'show': isImportExportConfigOpen }">
+                <h3 @click="isImportExportConfigOpen = !isImportExportConfigOpen">
+                    Import/Export Configuration
+                    <span class="indicator">{{ isImportExportConfigOpen ? '-' : '+' }}</span>
+                </h3>
+                <div v-show="isImportExportConfigOpen" class="control-grid">
+                    <h4>Manage Settings</h4>
+                    <p class="config-info">Export your current settings to a JSON file for backup or to easily set up the application on another device. You can also import settings from a JSON file.</p>
+                    <div class="settings-list">
+                        <div class="settings-item-button" @click="handleExportSettings(props, exportSettingsToFile)">
+                            <span class="action-text">Export Settings</span>
+                            <Download :stroke-width="1.5" />
+                        </div>
+                        <label class="settings-item-button">
+                            <span class="action-text">Import Settings</span>
+                            <Upload :stroke-width="1.5" />
+                            <input type="file" accept=".json" @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))" style="display:none">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div class="bottom-panel">
             <button class="close-btn" @click="toggleSidebar">Close</button>
@@ -293,10 +320,6 @@ const updateRepetitionSliderValue = (value) => {
 
 <style lang="scss" scoped>
 $shadow-color: #252629;
-$shadow-offset-x: 0px;
-$shadow-offset-y: 1px;
-$shadow-blur-radius: 2px;
-$shadow-spread-radius: 0px;
 $icon-color: rgb(187, 187, 187);
 
 .settings-dialog {
@@ -310,38 +333,34 @@ $icon-color: rgb(187, 187, 187);
     flex-grow: 1;
     overflow-y: auto;
     padding: 6px;
-    overflow: hidden;
     z-index: 10000;
     background-color: #181f20;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: auto;
     scrollbar-width: none;
 }
 
-.select-dropdown {
-    select {
-        appearance: none;
-        background-color: #333;
-        color: #fff;
-        padding: 6px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
+.select-dropdown select {
+    appearance: none;
+    background-color: #333;
+    color: #fff;
+    padding: 6px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
 
-        &:hover {
-            background-color: #444;
-        }
-
-        &:focus {
-            outline: none;
-        }
+    &:hover {
+        background-color: #444;
     }
 
-    option {
-        background-color: #222;
-        color: #fff;
+    &:focus {
+        outline: none;
     }
+}
+
+.select-dropdown option {
+    background-color: #222;
+    color: #fff;
 }
 
 .config-section {
@@ -355,14 +374,15 @@ $icon-color: rgb(187, 187, 187);
         text-align: left;
         position: relative;
         border-bottom: 3px solid #1b6a72c4;
-        // width: 112%;
-        // left: -21px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
         padding: 8px;
+    }
 
+    .config-info {
+        font-size: 12px;
     }
 
     .control-grid {
@@ -372,13 +392,32 @@ $icon-color: rgb(187, 187, 187);
         transition: max-height 0.3s ease-in-out;
         overflow: hidden;
         max-height: 0;
-        /* Start collapsed */
     }
 
     &.show .control-grid {
         max-height: fit-content;
     }
+}
 
+.control-grid .settings-list {
+    display: flex;
+    gap: 0.5rem;
+
+    .settings-item-button {
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        margin: 6px 0;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #1b302e;
+
+        &:hover {
+            background: #165951;
+        }
+    }
 }
 
 .settings-header {
@@ -388,8 +427,7 @@ $icon-color: rgb(187, 187, 187);
     margin-top: -7px;
     position: relative;
     border-bottom: 5px solid #583e72b5;
-    padding-bottom: 25px;
-    padding-top: 25px;
+    padding: 25px 0;
     background-color: #212121;
 }
 
@@ -421,7 +459,7 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .box {
-    box-shadow: $shadow-offset-x $shadow-offset-y $shadow-blur-radius $shadow-spread-radius $shadow-color;
+    box-shadow: 0px 1px 2px 0px $shadow-color;
 }
 
 .no-style-link {
@@ -468,14 +506,9 @@ $icon-color: rgb(187, 187, 187);
     }
 }
 
-.control {
-    margin-bottom: 0;
-}
-
 .bottom-panel {
     padding: 20px;
     background-color: #1e1e1e;
     border-top: 2px solid #5f4575cf;
-
 }
 </style>
