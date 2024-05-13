@@ -6,7 +6,7 @@ let dalleRetryCount = 0;
 
 export async function fetchGPTVisionResponse(visionMessages, apiKey) {
     const payload = {
-        model: "gpt-4-turbo",
+        model: localStorage.getItem("selectedModel") || "gpt-4-turbo",
         messages: [
             {
                 role: "user",
