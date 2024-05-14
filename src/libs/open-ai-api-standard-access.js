@@ -182,6 +182,36 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
     }
 }
 
+export async function getOpenAICompatibleAvailableModels(localModelEndpoint) {
+    try {
+        const storedApiKey = localStorage.getItem("localModelKey");
+
+        const response = await fetch(`${localModelEndpoint}/v1/models`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+            },
+        });
+
+        const data = await response.json();
+
+        if (data?.data) {
+            return data.data.map(model => model.id);
+        }
+
+        if (Array.isArray(data)) {
+            return data.map(model => model.id);
+        }
+
+        console.error("Error fetching available models:", data);
+        return [];
+    } catch (error) {
+        console.error("Error fetching available models:", error);
+        return [];
+    }
+}
+
 async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
     let decodedResult = "";
 
