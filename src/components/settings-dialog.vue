@@ -10,6 +10,7 @@ import {
     importSettings
 } from '@/libs/settings-utils';
 import { getOpenAICompatibleAvailableModels } from '@/libs/open-ai-api-standard-access';
+import { removeAPIEndpoints } from '@/libs/utils';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -72,7 +73,7 @@ const availableModels = ref([]);
 
 const fetchAvailableModels = async () => {
     try {
-        const models = await getOpenAICompatibleAvailableModels(props.localModelEndpoint);
+        const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
         availableModels.value = models
     } catch (error) {
         console.error('Error fetching available models:', error);

@@ -204,9 +204,11 @@ export async function getOpenAICompatibleAvailableModels(localModelEndpoint) {
             return data.map(model => model.id);
         }
 
+        showToast("Error fetching models, double check the API endpoint configured");
         console.error("Error fetching available models:", data);
         return [];
     } catch (error) {
+        showToast("Error fetching models, double check the API endpoint configured");
         console.error("Error fetching available models:", error);
         return [];
     }
