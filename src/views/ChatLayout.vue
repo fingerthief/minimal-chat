@@ -1003,8 +1003,8 @@ onUnmounted(() => {
 function convertConversations(oldConversations) {
     return oldConversations.map(oldConversation => ({
         id: oldConversation.id,
-        title: oldConversation.conversation.title,
-        messageHistory: oldConversation.conversation.messageHistory
+        title: oldConversation?.conversation?.title,
+        messageHistory: oldConversation?.conversation?.messageHistory
     }));
 }
 //#endregion
