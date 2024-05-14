@@ -816,8 +816,14 @@ function uploadFile(event, element) {
 
             if (!parsedContents.some(item => item.id)) {
                 console.log("Invalid file format");
+                showToast("Error importing conversations");
                 return;
             }
+
+            localStorage.setItem('gpt-conversations', contents);
+            conversations.value = parsedContents;
+            selectConversation(conversations.value[0].id);
+            showToast("Import successful!");
         } catch (err) {
             console.log("Bad file detected");
         }
@@ -1405,7 +1411,7 @@ pre {
 // Common styles for both sidebars
 .sidebar-common {
     background-color: #0a1e24;
-    width: 28vw; // Adjust the width as needed
+    width: 35vw; // Adjust the width as needed
     min-width: 25vw;
     max-width: 100%; // Ensure it doesn't exceed the screen width
     height: 100vh; // Full height
