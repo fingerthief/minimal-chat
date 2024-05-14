@@ -2,13 +2,14 @@
 <script setup>
 import { RefreshCcw, Download, Upload } from 'lucide-vue-next';
 import InputField from './InputField.vue';
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import {
     handleExportSettings,
     exportSettingsToFile,
     handleImportSettings,
     importSettings
 } from '@/libs/settings-utils';
+import { getOpenAICompatibleAvailableModels } from '@/libs/open-ai-api-standard-access';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -67,6 +68,30 @@ const emit = defineEmits([
     'update:systemPrompt'
 ]);
 
+const availableModels = ref([]);
+
+const fetchAvailableModels = async () => {
+    try {
+        const models = await getOpenAICompatibleAvailableModels(props.localModelEndpoint);
+        availableModels.value = models
+    } catch (error) {
+        console.error('Error fetching available models:', error);
+    }
+};
+
+watch(() => [props.localModelEndpoint, props.selectedModel], () => {
+    if (props.selectedModel === 'open-ai-format') {
+        fetchAvailableModels();
+    }
+});
+
+onMounted(() => {
+    if (props.selectedModel === 'open-ai-format') {
+        fetchAvailableModels();
+    }
+});
+
+
 const update = (field, value) => {
     if (field === "model") {
         showGPTConfig.value = (value.indexOf("gpt") !== -1);
@@ -106,7 +131,7 @@ const updateRepetitionSliderValue = (value) => {
                 <span @click="reloadPage">
                     <RefreshCcw :size="23" :stroke-width="2" />
                 </span>
-                Settings | V6.0.9
+                Settings | V6.1.0
             </h2>
         </div>
         <div class="sidebar-content-container">
@@ -186,12 +211,17 @@ const updateRepetitionSliderValue = (value) => {
                     <span class="indicator">{{ isLocalConfigOpen ? '-' : '+' }}</span>
                 </h3>
                 <div v-show="isLocalConfigOpen" class="control-grid">
-                    <InputField v-show="showLocalConfig" labelText="Model Name:" inputId="model-name"
-                        :value="localModelName" @update:value="update('localModelName', $event)" :isSecret="false"
-                        :placeholderText="'Enter the model name'" />
                     <InputField v-show="showLocalConfig" :isSecret="false" labelText="API Endpoint:"
                         :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
                         :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
+                    <div class="control select-dropdown">
+                        <label for="custom-model-selector">Models Available:</label>
+                        <select id="custom-model-selector" :value="localModelName"
+                            @change="update('localModelName', $event.target.value)">
+                            <option v-for="model in availableModels" :key="model" :value="model">{{ model }}
+                            </option>
+                        </select>
+                    </div>
                     <InputField v-show="showLocalConfig" :isSecret="true" labelText="API Key:"
                         :placeholderText="'Enter the API key if applicable'" inputId="local-model-key"
                         :value="localModelKey" @update:value="update('localModelKey', $event)" />
@@ -295,8 +325,11 @@ const updateRepetitionSliderValue = (value) => {
                     <span class="indicator">{{ isImportExportConfigOpen ? '-' : '+' }}</span>
                 </h3>
                 <div v-show="isImportExportConfigOpen" class="control-grid">
-                    <h4>Manage Settings</h4>
-                    <p class="config-info">Export your current settings to a JSON file for backup or to easily set up the application on another device. You can also import settings from a JSON file.</p>
+                    <h4>Manage Settings <p class="config-info">Export your current settings to a JSON file for backup or
+                            to easily set up
+                            the application on another device. You can also import settings from a JSON file.</p>
+                    </h4>
+
                     <div class="settings-list">
                         <div class="settings-item-button" @click="handleExportSettings(props, exportSettingsToFile)">
                             <span class="action-text">Export Settings</span>
@@ -305,7 +338,9 @@ const updateRepetitionSliderValue = (value) => {
                         <label class="settings-item-button">
                             <span class="action-text">Import Settings</span>
                             <Upload :stroke-width="1.5" />
-                            <input type="file" accept=".json" @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))" style="display:none">
+                            <input type="file" accept=".json"
+                                @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))"
+                                style="display:none">
                         </label>
                     </div>
                 </div>
@@ -343,6 +378,7 @@ $icon-color: rgb(187, 187, 187);
     appearance: none;
     background-color: #333;
     color: #fff;
+    height: 40px;
     padding: 6px;
     border: none;
     border-radius: 4px;
