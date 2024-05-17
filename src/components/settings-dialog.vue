@@ -1,6 +1,6 @@
 <!-- settings-dialog.vue -->
 <script setup>
-import { RefreshCcw, Download, Upload, Trash2 } from 'lucide-vue-next';
+import { RefreshCcw, Download, Upload, Trash2, Save } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
 import {
@@ -73,16 +73,22 @@ const availableModels = ref([]);
 
 const fetchAvailableModels = async () => {
     try {
-        const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
-        availableModels.value = models
+        if (props.localModelEndpoint.trim() !== "") {
+            const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
+            availableModels.value = models
+        }
     } catch (error) {
         console.error('Error fetching available models:', error);
     }
 };
 
-watch(() => [props.localModelEndpoint, props.selectedModel], () => {
+watch(() => [props.localModelKey, props.selectedModel], () => {
     if (props.selectedModel === 'open-ai-format') {
         fetchAvailableModels();
+
+        if (customConfigs.value.length === 0 && props.localModelEndpoint.trim() !== "") {
+            saveCustomConfig();
+        }
     }
 });
 
@@ -115,6 +121,65 @@ const selectSystemPrompt = (index) => {
     update('systemPrompt', systemPrompts.value[index]);
 };
 
+const customConfigs = ref([]);
+const selectedCustomConfigIndex = ref(null);
+
+const saveCustomConfig = () => {
+    if (props.localModelEndpoint.trim() === "") {
+        return;
+    }
+
+    const newConfig = {
+        endpoint: props.localModelEndpoint,
+        apiKey: props.localModelKey,
+        modelName: props.localModelName, // Include the last selected model name
+        maxTokens: props.maxTokens,
+        temperature: props.localSliderValue,
+        top_P: props.top_P,
+        repetitionPenalty: props.repetitionPenalty
+    };
+
+    const existingConfigIndex = customConfigs.value.findIndex(config => config.endpoint === newConfig.endpoint);
+
+    if (existingConfigIndex !== -1) {
+        customConfigs.value[existingConfigIndex] = newConfig;
+    } else {
+        customConfigs.value.push(newConfig);
+        selectedCustomConfigIndex.value = customConfigs.value.length - 1;
+        showToast("Saved New Custom Config");
+    }
+
+    localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
+};
+
+const deleteCustomConfig = (index) => {
+    customConfigs.value.splice(index, 1);
+    localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
+    showToast("Deleted Custom Config");
+};
+
+const selectCustomConfig = (index) => {
+    selectedCustomConfigIndex.value = index;
+    const config = customConfigs.value[index];
+    update('localModelEndpoint', config.endpoint);
+    update('localModelKey', config.apiKey);
+    update('localModelName', config.modelName);
+    update('maxTokens', config.maxTokens);
+    update('localSliderValue', config.temperature);
+    update('top_P', config.top_P);
+    update('repetitionPenalty', config.repetitionPenalty);
+
+    // Update the selected model to match the newly updated model name
+    const modelSelector = document.getElementById('custom-model-selector');
+    if (modelSelector) {
+        const options = Array.from(modelSelector.options);
+        const matchingOption = options.find(option => option.value === config.modelName);
+        if (matchingOption) {
+            modelSelector.value = matchingOption.value;
+        }
+    }
+};
+
 onMounted(() => {
     if (props.selectedModel === 'open-ai-format') {
         fetchAvailableModels();
@@ -122,16 +187,41 @@ onMounted(() => {
 
     const storedSystemPrompts = localStorage.getItem('system-prompts');
     if (storedSystemPrompts) {
-
         systemPrompts.value = JSON.parse(storedSystemPrompts);
         const savedPromptIndex = systemPrompts.value.findIndex(prompt => prompt === props.systemPrompt);
-
         if (savedPromptIndex !== -1) {
             selectedSystemPromptIndex.value = savedPromptIndex;
         }
     }
-});
 
+    const storedCustomConfigs = localStorage.getItem('saved-custom-configs');
+    if (storedCustomConfigs) {
+        customConfigs.value = JSON.parse(storedCustomConfigs);
+
+        if (customConfigs.value.length > 0) {
+            const matchingConfigIndex = customConfigs.value.findIndex(config => config.endpoint === props.localModelEndpoint);
+
+            if (matchingConfigIndex !== -1) {
+
+                selectedCustomConfigIndex.value = matchingConfigIndex;
+                const config = customConfigs.value[matchingConfigIndex];
+                update('localModelEndpoint', config.endpoint);
+                update('localModelKey', config.apiKey);
+                update('localModelName', config.modelName);
+                update('maxTokens', config.maxTokens);
+                update('localSliderValue', config.temperature);
+                update('top_P', config.top_P);
+                update('repetitionPenalty', config.repetitionPenalty);
+
+                selectCustomConfig(selectedCustomConfigIndex.value);
+            }
+        } else {
+            console.log('No saved custom configs found.');
+        }
+    } else {
+        console.log('No saved custom configs found.');
+    }
+});
 
 const update = (field, value) => {
     if (field === "model") {
@@ -144,6 +234,15 @@ const update = (field, value) => {
     if (field === "systemPrompt") {
         emit(`update:${field}`, value);
         saveSystemPrompt(value);
+        return;
+    }
+
+    if (["localModelName", "localSliderValue", "top_P", "repetitionPenalty", "maxTokens", "localModelEndpoint", "localModelKey"].includes(field)) {
+        emit(`update:${field}`, value);
+
+        if (selectedCustomConfigIndex.value !== null) {
+            saveCustomConfig();
+        }
         return;
     }
 
@@ -319,6 +418,17 @@ const updateRepetitionSliderValue = (value) => {
                         <span>More</span>
                     </div>
                 </div>
+                <div class="saved-custom-configs">
+                    <h4>Saved Custom Configs:</h4>
+                    <ul>
+                        <li v-for="(config, index) in customConfigs" :key="index"
+                            :class="{ 'selected': index === selectedCustomConfigIndex }"
+                            @click="selectCustomConfig(index)">
+                            {{ config.endpoint }}
+                            <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteCustomConfig(index)" />
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div class="config-section" :class="{ 'show': isGPTConfigOpen }" v-show="showGPTConfig">
@@ -480,6 +590,66 @@ $icon-color: rgb(187, 187, 187);
                     color: #ff3333;
                 }
             }
+        }
+    }
+}
+
+.saved-custom-configs {
+    margin-top: 20px;
+
+    h4 {
+        margin-bottom: 10px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        max-height: 20vh;
+        overflow: auto;
+        scrollbar-width: none;
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: #1b302e;
+            border-radius: 4px;
+            margin-bottom: 8px;
+
+            &.selected {
+                background-color: #165951;
+            }
+
+            .delete-custom-config-btn {
+                background-color: transparent;
+                border: none;
+                color: #ff5555;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                &:hover {
+                    color: #ff3333;
+                }
+            }
+        }
+    }
+
+    .save-custom-config-btn {
+        padding: 6px 12px;
+        background-color: #1a5951;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        &:hover {
+            background-color: #165951;
         }
     }
 }
