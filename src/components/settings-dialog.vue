@@ -73,8 +73,10 @@ const availableModels = ref([]);
 
 const fetchAvailableModels = async () => {
     try {
-        const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
-        availableModels.value = models
+        if (props.localModelEndpoint.trim() !== "") {
+            const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
+            availableModels.value = models
+        }
     } catch (error) {
         console.error('Error fetching available models:', error);
     }
@@ -83,6 +85,10 @@ const fetchAvailableModels = async () => {
 watch(() => [props.localModelKey, props.selectedModel], () => {
     if (props.selectedModel === 'open-ai-format') {
         fetchAvailableModels();
+
+        if (customConfigs.value.length === 0 && props.localModelEndpoint.trim() !== "") {
+            saveCustomConfig();
+        }
     }
 });
 
@@ -119,6 +125,10 @@ const customConfigs = ref([]);
 const selectedCustomConfigIndex = ref(null);
 
 const saveCustomConfig = () => {
+    if (props.localModelEndpoint.trim() === "") {
+        return;
+    }
+
     const newConfig = {
         endpoint: props.localModelEndpoint,
         apiKey: props.localModelKey,
@@ -418,10 +428,6 @@ const updateRepetitionSliderValue = (value) => {
                             <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteCustomConfig(index)" />
                         </li>
                     </ul>
-                    <button class="save-custom-config-btn" @click="saveCustomConfig">
-                        <Save :size="18" :stroke-width="1.5" />
-                        Save Custom Config
-                    </button>
                 </div>
             </div>
 
