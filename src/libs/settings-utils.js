@@ -53,7 +53,7 @@ export function handleImportSettings(event, importSettings) {
 
 export function importSettings(settingsData, update) {
     for (const key in settingsData) {
-        if (settingsData.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(settingsData, key)) {
             update(key, settingsData[key]);
         }
     }
