@@ -214,10 +214,6 @@ const updateRepetitionSliderValue = (value) => {
                         <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
                             @update:value="update('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
                             :placeholderText="'Enter the system prompt if applicable.'" />
-                        <button @click="saveSystemPrompt" class="save-system-prompt-btn">
-                            <Save :size="18" :stroke-width="1.5" />
-                            Save
-                        </button>
                     </div>
                     <div class="saved-system-prompts">
                         <h4>Saved System Prompts:</h4>
