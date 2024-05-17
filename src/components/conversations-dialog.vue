@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, nextTick } from 'vue';
-import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil } from 'lucide-vue-next';
+import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 
 const props = defineProps({
@@ -17,6 +17,20 @@ const selectedConversation = computed(() => {
         conversation.id === props.selectedConversationItem?.id
     );
 });
+
+const conversationCharacterCount = (conversation) => {
+    if (conversation) {
+        const messageHistory = conversation.messageHistory;
+        let totalCharacters = 0;
+
+        messageHistory.forEach(message => {
+            totalCharacters += message.content.length;
+        });
+
+        return totalCharacters / 4; //rough estimation of characters to tokens
+    }
+    return 0;
+};
 
 onMounted(() => {
     const lastConversationId = parseInt(localStorage.getItem("lastConversationId")) || 0;
@@ -120,7 +134,15 @@ function purgeConversations() {
                         :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
                         <Pencil :id="'pencil-' + index" :size="15" @click.stop="editConversationTitle(conversation)" />
                         <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
-                        <span>&nbsp;&nbsp;{{ conversation.title }}</span>
+                        <span>
+                            &nbsp;&nbsp;{{ conversation.title }}
+                        </span>
+                        <br><br>
+                        <span>
+                            <Database :size="15" />
+                            &nbsp;&nbsp;
+                            Context Length: ({{ conversationCharacterCount(conversation) }})
+                        </span>
                     </li>
                 </ul>
             </div>
