@@ -80,7 +80,7 @@ const fetchAvailableModels = async () => {
     }
 };
 
-watch(() => [props.localModelEndpoint, props.selectedModel], () => {
+watch(() => [props.localModelKey, props.selectedModel], () => {
     if (props.selectedModel === 'open-ai-format') {
         fetchAvailableModels();
     }
@@ -192,6 +192,7 @@ onMounted(() => {
             const matchingConfigIndex = customConfigs.value.findIndex(config => config.endpoint === props.localModelEndpoint);
 
             if (matchingConfigIndex !== -1) {
+
                 selectedCustomConfigIndex.value = matchingConfigIndex;
                 const config = customConfigs.value[matchingConfigIndex];
                 update('localModelEndpoint', config.endpoint);
@@ -201,6 +202,8 @@ onMounted(() => {
                 update('localSliderValue', config.temperature);
                 update('top_P', config.top_P);
                 update('repetitionPenalty', config.repetitionPenalty);
+
+                selectCustomConfig(selectedCustomConfigIndex.value);
             }
         } else {
             console.log('No saved custom configs found.');
