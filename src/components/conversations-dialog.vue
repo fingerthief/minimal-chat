@@ -476,6 +476,7 @@ $icon-color: rgb(187, 187, 187);
         transition: background-color 0.2s ease;
         border-left: 6px solid #3a3a3a;
         color: #7f7f7f;
+        border-bottom: 1px solid #8080806e;
 
         -webkit-user-select: none;
         -ms-user-select: none;

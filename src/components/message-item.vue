@@ -93,7 +93,7 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
 
 <template>
     <div ref="messageList" class="message-list">
-        <DynamicScroller :min-item-size="600" ref="scroller" class="scroller" @emitUpdates="true"
+        <DynamicScroller :min-item-size="600" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
             :items="filteredMessages" key-field="id" v-slot="{ item, index, active }">
             <DynamicScrollerItem :item="item" :active="active" :data-index="index">
                 <div v-if="active" :class="messageClass(item.role)">

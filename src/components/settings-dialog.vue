@@ -1,6 +1,6 @@
 <!-- settings-dialog.vue -->
 <script setup>
-import { RefreshCcw, Download, Upload } from 'lucide-vue-next';
+import { RefreshCcw, Download, Upload, Trash2 } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
 import {
@@ -10,7 +10,7 @@ import {
     importSettings
 } from '@/libs/settings-utils';
 import { getOpenAICompatibleAvailableModels } from '@/libs/open-ai-api-standard-access';
-import { removeAPIEndpoints } from '@/libs/utils';
+import { removeAPIEndpoints, showToast } from '@/libs/utils';
 
 const props = defineProps({
     isSidebarOpen: Boolean,
@@ -86,9 +86,49 @@ watch(() => [props.localModelEndpoint, props.selectedModel], () => {
     }
 });
 
+const systemPrompts = ref([]);
+const selectedSystemPromptIndex = ref(null);
+
+const saveSystemPrompt = (prompt) => {
+    if (prompt !== '') {
+        const trimmedPrompt = prompt.trim();
+        if (!systemPrompts.value.includes(trimmedPrompt)) {
+            systemPrompts.value.push(trimmedPrompt);
+            localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
+            selectedSystemPromptIndex.value = systemPrompts.value.length - 1;
+            showToast("Added New System Prompt");
+        }
+    }
+    else {
+        selectedSystemPromptIndex.value = -1;
+    }
+};
+
+const deleteSystemPrompt = (index) => {
+    systemPrompts.value.splice(index, 1);
+    localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
+    showToast("Deleted System Prompt");
+};
+
+const selectSystemPrompt = (index) => {
+    selectedSystemPromptIndex.value = index;
+    update('systemPrompt', systemPrompts.value[index]);
+};
+
 onMounted(() => {
     if (props.selectedModel === 'open-ai-format') {
         fetchAvailableModels();
+    }
+
+    const storedSystemPrompts = localStorage.getItem('system-prompts');
+    if (storedSystemPrompts) {
+
+        systemPrompts.value = JSON.parse(storedSystemPrompts);
+        const savedPromptIndex = systemPrompts.value.findIndex(prompt => prompt === props.systemPrompt);
+
+        if (savedPromptIndex !== -1) {
+            selectedSystemPromptIndex.value = savedPromptIndex;
+        }
     }
 });
 
@@ -99,6 +139,12 @@ const update = (field, value) => {
         showLocalConfig.value = (value.indexOf("open-ai-format") !== -1);
         showClaudeConfig.value = (value.indexOf("claude") !== -1);
         showBrowserModelConfig.value = (value.indexOf("web-llm") !== -1);
+    }
+
+    if (field === "systemPrompt") {
+        emit(`update:${field}`, value);
+        saveSystemPrompt(value);
+        return;
     }
 
     emit(`update:${field}`, value);
@@ -164,9 +210,22 @@ const updateRepetitionSliderValue = (value) => {
                             <option value="false">No</option>
                         </select>
                     </div>
-                    <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
-                        @update:value="update('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
-                        :placeholderText="'Enter the system prompt if applicable.'" />
+                    <div class="system-prompt-container">
+                        <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
+                            @update:value="update('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
+                            :placeholderText="'Enter the system prompt if applicable.'" />
+                    </div>
+                    <div class="saved-system-prompts">
+                        <h4>Saved System Prompts:</h4>
+                        <ul>
+                            <li v-for="(prompt, index) in systemPrompts" :key="index"
+                                :class="{ 'selected': index === selectedSystemPromptIndex }"
+                                @click="selectSystemPrompt(index)">
+                                {{ prompt }}
+                                <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteSystemPrompt(index)" />
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -357,6 +416,73 @@ const updateRepetitionSliderValue = (value) => {
 <style lang="scss" scoped>
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
+
+.system-prompt-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    .save-system-prompt-btn {
+        padding: 6px 12px;
+        background-color: #1a5951;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        &:hover {
+            background-color: #165951;
+        }
+    }
+}
+
+.saved-system-prompts {
+    margin-top: 20px;
+
+
+    h4 {
+        margin-bottom: 10px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        max-height: 20vh;
+        overflow: auto;
+        scrollbar-width: none;
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: #1b302e;
+            border-radius: 4px;
+            margin-bottom: 8px;
+
+            &.selected {
+                background-color: #165951;
+            }
+
+            .delete-system-prompt-btn {
+                background-color: transparent;
+                border: none;
+                color: #ff5555;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                &:hover {
+                    color: #ff3333;
+                }
+            }
+        }
+    }
+}
 
 .settings-dialog {
     display: flex;
