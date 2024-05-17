@@ -250,7 +250,6 @@ function determineModelDisplayName(newValue) {
     else if (newValue.includes(MODEL_TYPES.WEB_LLM)) {
         modelDisplayName.value = browserModelSelection.value;
     }
-
 }
 
 const updateUserText = (newText) => {
@@ -319,7 +318,7 @@ async function saveMessages() {
 
         messages.value = [...uniqueMessages];
 
-        conversations.value = [...updatedConversations];
+        conversations.value = updatedConversations;
 
         lastLoadedConversationId.value = updatedConversations[updatedConversations.length - 1].id;
         localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
@@ -333,7 +332,7 @@ async function saveMessages() {
 
     const result = updateConversation(conversations.value, updatedConversation.id, updatedConversation);
 
-    conversations.value = [...result];
+    conversations.value = result;
 
     localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
 }
@@ -425,38 +424,6 @@ function handlePurgeConversations() {
     storedConversations.value = [];
     showToast("All Conversations Deleted.");
 }
-
-
-
-function loadSelectedConversation(conversation) {
-    if (conversation) {
-        selectedConversation.value = conversation;
-        lastLoadedConversationId.value = conversation.id;
-        localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
-    }
-
-
-    if (!selectedConversation.value || !selectedConversation.value.messageHistory) {
-        return;
-    }
-
-
-    // Initialize the maximum ID found in the current messages
-    let maxId = messages.value.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
-
-    // Process each message to ensure it has a unique ID
-    const processedMessages = selectedConversation.value.messageHistory.map(message => {
-        if (!message.id) {
-            maxId++; // Increment maxId to ensure a unique ID
-            return { ...message, id: maxId }; // Assign the new ID
-        }
-        return message;
-    });
-
-    messages.value = processedMessages; // Update the messages reactive variable
-    showConversationOptions.value = false;
-}
-
 //#endregion
 
 //#region Messages Handling
@@ -506,16 +473,14 @@ async function sendMessage(event) {
 
         await sendGPTMessage(messageText);
 
-        streamedMessageText.value = "";
     }
     finally {
+        streamedMessageText.value = "";
         await saveMessages();
     }
 }
 
 async function sendBrowserModelMessage(message) {
-
-
     userText.value = "";
 
     streamedMessageText.value = "";
@@ -584,8 +549,6 @@ async function sendClaudeMessage(messageText) {
         isAnalyzingImage.value = true;
 
         document.getElementById('imageInput').click();
-
-
         return;
     }
 
@@ -727,8 +690,6 @@ async function sendVisionPrompt(message) {
 
     document.getElementById('imageInput').click();
 
-
-
     userText.value = "";
 }
 //#endregion
@@ -784,13 +745,6 @@ async function uploadFileContentsToCoversation(event, element) {
 
         if (file.type.startsWith('image/')) {
             showToast("Cannot add images to context currently.");
-            // // The uploaded file is an image
-            // addMessage('user', userText.value);
-            // addMessage('assistant', "The uploaded file is an image. Processing the image...");
-
-            // // Process the image and generate a response
-            // const visionResponse = await processImage(file, file.type);
-            // addMessage("assistant", visionResponse);
         } else {
             // The uploaded file is not an image
             addMessage('user', userText.value + " " + contents);
