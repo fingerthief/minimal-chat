@@ -120,13 +120,14 @@ $icon-color: rgb(187, 187, 187);
 #chat-form {
     position: absolute;
     display: flex;
-    width: 58vw;
+    width: 50vw;
     align-self: center;
     top: 104%;
 
     @media (max-width: 600px) {
         max-width: 98vw;
         width: 100%;
+        top: 103%;
     }
 
     .input-container {
