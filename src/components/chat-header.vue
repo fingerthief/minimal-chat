@@ -174,7 +174,7 @@ $shadow-spread-radius: 0px;
 }
 
 .header {
-    background-color: #0a1e24;
+    background-color: #212121;
     min-height: 50px;
     font-size: 20px;
     font-weight: bold;
@@ -189,6 +189,7 @@ $shadow-spread-radius: 0px;
         position: relative;
 
         @media (max-width: 600px) {
+            background-color: #0a1e24;
             left: 5%;
             top: 14%;
         }
