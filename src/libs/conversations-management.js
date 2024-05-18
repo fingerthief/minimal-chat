@@ -112,7 +112,7 @@ export async function regenerateMessageResponse(conversations, messages, content
             response = await fetchGPTResponseStream(regenMessages, sliderValue, selectedModel, updateUI, abortController.value, streamedMessageText, false);
         } else if (selectedModel.indexOf("web-llm") !== -1) {
             response = await sendBrowserLoadedModelMessage(regenMessages, updateUI);
-        } else if (isClaudeEnabled) {
+        } else if (selectedModel.indexOf("claude") !== -1) {
             response = await streamClaudeResponse(regenMessages, selectedModel, claudeSliderValue, updateUI, abortController.value, streamedMessageText, false);
         } else {
             response = await fetchLocalModelResponseStream(regenMessages, localSliderValue, localModelName, localModelEndpoint, updateUI, abortController.value, streamedMessageText, false);

@@ -1,4 +1,4 @@
-import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
+import { showToast, sleep, parseStreamResponseChunk } from "./utils";
 
 const numberOfRetryAttemptsAllowed = 5;
 
@@ -68,13 +68,6 @@ export async function fetchClaudeConversationTitle(messages) {
 let claudeVisionRetryCount = 0;
 export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) {
     try {
-
-        let filteredMessages = filterGPTMessages(visionMessages);
-        let tempMessages = filteredMessages.map(message => ({
-            role: message.role,
-            content: message.content
-        }));
-
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
             method: "POST",
             headers: {
@@ -89,7 +82,7 @@ export async function fetchClaudeVisionResponse(visionMessages, apiKey, model,) 
                 messages: [
                     {
                         role: "user",
-                        content: tempMessages
+                        content: visionMessages
                     }
                 ],
                 temperature: 0.5
@@ -129,12 +122,15 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
     try {
         let filteredMessages = filterGPTMessages(messages);
 
-        let filteredMessagesWithoutSystemPrompt = filteredMessages.slice(1);
-
-        let tempMessages = filteredMessagesWithoutSystemPrompt.map(message => ({
+        let tempMessages = filteredMessages.map(message => ({
             role: message.role,
             content: message.content
         }));
+
+        // Check if the first message is a system role, if not, add an empty system role message
+        if (tempMessages.length === 0 || tempMessages[0].role !== 'system') {
+            tempMessages.unshift({ role: 'system', content: '' });
+        }
 
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent("https://api.anthropic.com/v1/messages")}`, {
             method: 'POST',
@@ -145,7 +141,7 @@ export async function streamClaudeResponse(messages, model, attitude, updateUIFu
             },
             body: JSON.stringify({
                 system: filteredMessages[0].content,
-                messages: tempMessages,
+                messages: tempMessages.slice(1),
                 temperature: attitude * 0.01,
                 model: model,
                 stream: true,
@@ -195,7 +191,7 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
         if (done) break;
 
         const chunk = decoder.decode(value);
-        const parsedLines = parseOpenAiFormatResponseChunk(chunk);
+        const parsedLines = parseStreamResponseChunk(chunk);
         for (const parsedLine of parsedLines) {
             if (parsedLine.delta && parsedLine.delta.text) {
                 decodedResult += parsedLine.delta.text;
