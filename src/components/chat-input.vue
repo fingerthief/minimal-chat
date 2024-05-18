@@ -11,7 +11,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt', 'upload-context']);
-// Local reactive stat
+// Local reactive state
 const localUserInput = ref(props.userInput);
 
 const userInputRef = ref(null);
@@ -80,120 +80,83 @@ async function abortStream() {
 <template>
     <form @submit.prevent="sendMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
         data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
-        <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
-            @input="autoResize" @focus="autoResize" @blur="autoResize" @keydown="handleKeyDown"
-            placeholder="Enter a prompt"></textarea>
-        <ToolTip :targetId="'imageButton'">
-            Upload image for vision processing</ToolTip>
-        <div class="image-button" id="imageButton" @click="visionImageUploadClick">
-            <span>
-                <ImageUp />
-            </span>
-        </div>
-        <ToolTip :targetId="'uploadButton'">
-            Upload file to add contents to current conversation</ToolTip>
-        <div class="upload-button" id="uploadButton" @click="importFileUploadClick">
-            <span>
-                <Upload />
-            </span>
-        </div>
-        <div class="send-button" @click="props.isLoading ? abortStream() : sendMessage()">
-            <span v-show="props.isLoading" class="loading input-spinner">
-
-            </span>
-            <span class="stop-button" v-show="props.isLoading">
-                <CircleStop />
-            </span>
-            <span v-show="!props.isLoading">
-                <SquareArrowUp />
-            </span>
+        <div class="input-container">
+            <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
+                :class="{ 'loading-border': props.isLoading }" @input="autoResize" @focus="autoResize"
+                @blur="autoResize" @keydown="handleKeyDown" placeholder="Enter a prompt"></textarea>
+            <div class="icons">
+                <ToolTip :targetId="'imageButton'">
+                    Upload image for vision processing
+                </ToolTip>
+                <div class="image-button" id="imageButton" @click="visionImageUploadClick">
+                    <span>
+                        <ImageUp />
+                    </span>
+                </div>
+                <ToolTip :targetId="'uploadButton'">
+                    Upload file to add contents to current conversation
+                </ToolTip>
+                <div class="upload-button" id="uploadButton" @click="importFileUploadClick">
+                    <span>
+                        <Upload />
+                    </span>
+                </div>
+                <div class="send-button" @click="props.isLoading ? abortStream() : sendMessage()">
+                    <span class="stop-button" v-if="props.isLoading">
+                        <CircleStop />
+                    </span>
+                    <span v-if="!props.isLoading">
+                        <SquareArrowUp />
+                    </span>
+                </div>
+            </div>
         </div>
     </form>
 </template>
-<SendHorizontal />
+
 <style lang="scss" scoped>
 $icon-color: rgb(187, 187, 187);
 
 #chat-form {
+    position: absolute;
     display: flex;
+    width: 58vw;
+    align-self: center;
+    top: 104%;
 
-    .image-button {
-        background-color: transparent;
-        cursor: pointer;
-        outline: none;
-        color: $icon-color;
-        position: absolute;
-        min-height: 55px;
-        display: grid;
-        align-content: center;
-        right: 62px;
-        z-index: 0;
-        border-radius: 30px;
-        justify-content: space-around;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-
-        &:hover {
-            transform: scale(1.30);
-        }
+    @media (max-width: 600px) {
+        max-width: 98vw;
+        width: 100%;
     }
 
-    .upload-button {
-        background-color: transparent;
-        cursor: pointer;
-        outline: none;
-        color: $icon-color;
-        position: absolute;
-        min-height: 55px;
-        display: grid;
-        align-content: center;
-        right: 104px;
-        z-index: 0;
-        border-radius: 30px;
-        justify-content: space-around;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-
-        &:hover {
-            transform: scale(1.30);
-        }
+    .input-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        position: relative;
     }
 
-
-    .send-button {
-        background-color: transparent;
-        cursor: pointer;
-        outline: none;
-        color: $icon-color;
+    .icons {
+        display: flex;
+        align-items: center;
         position: absolute;
-        min-height: 55px;
-        display: grid;
-        align-content: center;
-        right: 7px;
-        z-index: 0;
-        border-radius: 30px;
-        min-width: 50px;
-        justify-content: space-around;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-
-        &:hover {
-            transform: scale(1.30);
-        }
+        right: 20px;
     }
 
+    .image-button,
+    .upload-button,
+    .send-button,
     .stop-button {
         background-color: transparent;
         cursor: pointer;
         outline: none;
         color: $icon-color;
-        position: absolute;
-        min-height: 55px;
         display: grid;
         align-content: center;
-        right: -2px;
-        z-index: 0;
         border-radius: 30px;
-        min-width: 50px;
         justify-content: space-around;
         transition: background-color 0.3s ease, transform 0.2s ease;
+        margin-left: 10px;
 
         &:hover {
             transform: scale(1.30);
@@ -202,7 +165,6 @@ $icon-color: rgb(187, 187, 187);
 
     #user-input {
         flex-grow: 1;
-        z-index: 0;
         border: 1px solid #70707087;
         outline: none;
         background-color: #212121;
@@ -214,6 +176,7 @@ $icon-color: rgb(187, 187, 187);
         white-space: pre-wrap;
         min-height: 50px;
         transition: 0.2s height ease-in-out;
+        padding-right: 150px; // Adjust padding to make space for icons
         box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
 
         @media (max-width: 600px) {
@@ -232,23 +195,32 @@ $icon-color: rgb(187, 187, 187);
     textarea {
         padding-top: 14px;
         padding-left: 20px;
-        padding-right: 100px;
         transition: 0.2s height ease-in-out;
         margin-right: 6px;
 
         font-family: Roboto-Regular, sans-serif;
     }
 
-    .input-spinner {
-        display: inline-block;
-        width: 34px;
-        color: lightskyblue;
-        height: 34px;
-        margin-left: 5px;
-        border: 4px solid #3c8280;
-        border-left-color: #1cdfd8;
-        border-radius: 50%;
-        animation: spinner 1s linear infinite;
+    .loading-border {
+        animation: pulse 3.0s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            border-color: #0b8181c4;
+            box-shadow: 0 0 5px #0b8181c4;
+        }
+
+        50% {
+            border-color: #6a4292e0;
+            box-shadow: 0 0 10px #6a4292d9;
+
+        }
+
+        100% {
+            border-color: #0b8181c4;
+            box-shadow: 0 0 5px #0b8181c4;
+        }
     }
 }
 </style>
