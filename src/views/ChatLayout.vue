@@ -1,8 +1,8 @@
 // ChatLayout.vue
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
-import { ChevronDown, Underline } from 'lucide-vue-next';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ChevronDown } from 'lucide-vue-next';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
 import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast, removeAPIEndpoints } from '@/libs/utils';
@@ -10,7 +10,6 @@ import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
 import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
 import {
-    updateConversation,
     deleteConversation,
     handleExportConversations,
     setSystemPrompt,
@@ -35,7 +34,6 @@ const isLoading = ref(false);
 const isClaudeEnabled = ref(false);
 const isUsingLocalModel = ref(false);
 const isGeneratingImage = ref(false);
-const isProcessing = ref(false);
 const hasFilterText = ref(false);
 const selectedModel = ref(localStorage.getItem("selectedModel") || "gpt-4-turbo");
 const isSidebarOpen = ref(false);
@@ -65,13 +63,11 @@ const repetitionPenalty = ref(parseFloat(localStorage.getItem("repetitionPenalty
 const systemPrompt = ref(localStorage.getItem("systemPrompt") || "");
 
 const conversations = ref(loadConversationTitles());
-const conversationTitles = ref(loadConversationTitles());
 const storedConversations = ref(loadStoredConversations());
 const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversationId")) || 0);
 const selectedConversation = ref(conversations.value[0]);
 const abortController = ref(null);
 
-const displayConversations = computed(() => conversations);
 let messagesContainer;
 
 //#endregion
@@ -86,50 +82,60 @@ watch(selectedModel, (newValue) => {
         WEB_LLM: 'web-llm'
     };
 
-    // Default settings
-    let useLocalModel = false;
-
-    const flags = {
-        isUsingLocalModel: false,
-        isClaudeEnabled: false,
+    const modelSettings = {
+        [MODEL_TYPES.OPEN_AI_FORMAT]: {
+            useLocalModel: true,
+            isUsingLocalModel: true,
+            isClaudeEnabled: false,
+            modelDisplayName: "Custom Model"
+        },
+        [MODEL_TYPES.CLAUDE]: {
+            useLocalModel: false,
+            isUsingLocalModel: false,
+            isClaudeEnabled: true,
+            modelDisplayName: "Claude"
+        },
+        [MODEL_TYPES.GPT]: {
+            useLocalModel: false,
+            isUsingLocalModel: false,
+            isClaudeEnabled: false,
+            modelDisplayName: "GPT"
+        },
+        [MODEL_TYPES.WEB_LLM]: {
+            useLocalModel: false,
+            isUsingLocalModel: false,
+            isClaudeEnabled: false,
+            modelDisplayName: "Local Browser Model"
+        }
     };
 
-    // Determine settings based on model type
-    if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
-        useLocalModel = true;
-        flags.isUsingLocalModel = true;
-        modelDisplayName.value = "Custom Model"
+    const defaultSettings = {
+        useLocalModel: false,
+        isUsingLocalModel: false,
+        isClaudeEnabled: false,
+        modelDisplayName: "Unknown"
+    };
 
+    const settings = Object.keys(MODEL_TYPES).reduce((acc, key) => {
+        if (newValue.includes(MODEL_TYPES[key])) {
+            return modelSettings[MODEL_TYPES[key]];
+        }
+        return acc;
+    }, defaultSettings);
+
+    if (settings.modelDisplayName !== "Local Browser Model") {
         unloadModel();
     }
-    else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
-        useLocalModel = false;
-        flags.isClaudeEnabled = true;
-        modelDisplayName.value = "Claude"
-
-        unloadModel();
-    }
-    else if (newValue.includes(MODEL_TYPES.GPT)) {
-        modelDisplayName.value = "GPT"
-
-        unloadModel();
-    }
-    else if (newValue.includes(MODEL_TYPES.WEB_LLM)) {
-        modelDisplayName.value = 'Local Browser Model';
-    }
-
-    // Apply settings
     try {
-        localStorage.setItem('useLocalModel', useLocalModel);
+        localStorage.setItem('useLocalModel', settings.useLocalModel);
         localStorage.setItem('selectedModel', newValue);
-        isUsingLocalModel.value = flags.isUsingLocalModel;
-        isClaudeEnabled.value = flags.isClaudeEnabled;
-    }
-    catch (error) {
+        isUsingLocalModel.value = settings.isUsingLocalModel;
+        isClaudeEnabled.value = settings.isClaudeEnabled;
+        modelDisplayName.value = settings.modelDisplayName;
+    } catch (error) {
         console.error('Error updating settings:', error);
     }
 });
-
 const watchAndStore = (ref, key, transform = (val) => val) => {
     watch(ref, (newValue) => {
         localStorage.setItem(key, transform(newValue));
@@ -321,13 +327,16 @@ async function sendMessage(event) {
             return;
         }
 
-        if (selectedModel.value.indexOf("claude") !== -1) {
-            await sendClaudeMessage(messageText);
-            return;
-        }
+
 
         isClaudeEnabled.value = false;
         addMessage("user", messageText);
+
+        if (selectedModel.value.indexOf("claude") !== -1) {
+            isClaudeEnabled.value = true;
+            await sendClaudeMessage(messageText);
+            return;
+        }
 
         userText.value = "";
 
@@ -411,18 +420,25 @@ async function sendGPTMessage() {
 }
 
 async function sendClaudeMessage(messageText) {
-    if (messageText.toLowerCase().startsWith("vision::")) {
-        addMessage("user", messageText);
-
+    if (messageText.startsWith("vision::")) {
         isClaudeEnabled.value = true;
         isLoading.value = true;
 
-        abortController.value = new AbortController();
+        await sendVisionPrompt();
 
-        await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
-
+        isClaudeEnabled.value = false;
         isLoading.value = false;
+        return;
     }
+
+    isClaudeEnabled.value = true;
+    isLoading.value = true;
+
+    abortController.value = new AbortController();
+
+    await streamClaudeResponse(messages.value, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
+
+    isLoading.value = false;
 }
 
 function handleDeleteMessage(content) {
@@ -515,7 +531,6 @@ function importFileClick() {
     document.getElementById('fileImportUpload').click();
 }
 
-
 async function imageInputChanged(event) {
     const file = event.target.files[0];
     const fileType = file.type;
@@ -524,17 +539,22 @@ async function imageInputChanged(event) {
         return;
     }
 
-    let visionReponse = await processImage(file, fileType);
+    isLoading.value = true;
 
-    addMessage("assistant", visionReponse);
+    let visionResponse = await processImage(file, fileType);
 
+    addMessage("assistant", visionResponse);
+
+    saveMessagesHandler();
+
+    isLoading.value = false;
     isAnalyzingImage.value = false;
 }
 
 async function processImage(file, fileType) {
     userText.value = "";
 
-    return await analyzeImage(file, fileType, messages.value.slice(0), selectedModel.value, localModelName.value, localModelEndpoint.value);
+    return await analyzeImage(file, fileType, messages.value, selectedModel.value, localModelName.value, localModelEndpoint.value);
 }
 
 async function visionimageUploadClick() {
@@ -892,8 +912,6 @@ onMounted(() => {
         </div>
     </div>
 </template>
-
-
 
 <style lang="scss">
 $icon-color: rgb(187, 187, 187);
