@@ -257,12 +257,18 @@ const updateUserText = (newText) => {
 };
 
 function updateUI(content, autoScrollBottom = true, appendTextValue = true) {
-    if (!appendTextValue) {
-        streamedMessageText.value = content;
-        return;
-    }
+    const lastMessage = messages.value[messages.value.length - 1];
 
-    streamedMessageText.value = (streamedMessageText.value || "") + content;
+    if (lastMessage && lastMessage.role === 'assistant') {
+        if (!appendTextValue) {
+            lastMessage.content = content;
+            return;
+        }
+
+        lastMessage.content += content;
+    } else {
+        addMessage('assistant', content);
+    }
 }
 
 function toggleSidebar() {
@@ -464,7 +470,6 @@ async function sendMessage(event) {
             return;
         }
 
-
         if (selectedModel.value.indexOf('web-llm') !== -1) {
             await sendBrowserModelMessage(messageText);
             streamedMessageText.value = "";
@@ -472,7 +477,6 @@ async function sendMessage(event) {
         }
 
         await sendGPTMessage(messageText);
-
     }
     finally {
         streamedMessageText.value = "";
@@ -489,8 +493,6 @@ async function sendBrowserModelMessage(message) {
     let response = await sendBrowserLoadedModelMessage(messages.value, updateUI);
 
     isLoading.value = false;
-
-    addMessage('assistant', response);
 }
 
 async function addMessage(role, message) {
@@ -534,8 +536,6 @@ async function sendGPTMessage(message) {
         }
 
         isLoading.value = false;
-
-        addMessage('assistant', response);
 
     } catch (error) {
         console.error("Error sending message:", error);
@@ -599,15 +599,10 @@ async function regenerateMessageReponse(content) {
             response = await fetchLocalModelResponseStream(regenMessages, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText, false);
         }
 
-        addMessage("assistant", response);
-
         messages.value[messageIndex + 1].content = response;
 
         // Append messagesAfter to the current messages value
         messages.value = [...messages.value, ...messagesAfter];
-
-        saveMessages();
-
     }
     isLoading.value = false;
 }
