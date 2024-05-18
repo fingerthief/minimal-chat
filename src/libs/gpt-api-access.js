@@ -1,4 +1,4 @@
-import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
+import { showToast, sleep, parseStreamResponseChunk } from "./utils";
 
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;
@@ -137,7 +137,7 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
         if (done) break;
 
         const chunk = decoder.decode(value);
-        const parsedLines = parseOpenAiFormatResponseChunk(chunk);
+        const parsedLines = parseStreamResponseChunk(chunk);
 
         for (const { choices: [{ delta: { content } }] } of parsedLines) {
             if (content) {

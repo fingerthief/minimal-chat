@@ -61,7 +61,7 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
 
 let buffer = "";
 
-export function parseOpenAiFormatResponseChunk(chunk) {
+export function parseStreamResponseChunk(chunk) {
     if (typeof chunk !== 'string') {
         throw new Error('Input chunk must be a string');
     }
@@ -77,14 +77,18 @@ export function parseOpenAiFormatResponseChunk(chunk) {
     for (const line of completeLines) {
         let cleanedLine = line.trim();
 
-        // Removing multiple occurrences of "data:", any "[DONE]" tags, and ": OPENROUTER PROCESSING"
+        // Removing multiple occurrences of "data:", any "[DONE]" tags, ": OPENROUTER PROCESSING", "event: " tags, and "ping"
+        // Also removing streaming tags: message_start, content_block_start, content_block_delta, content_block_stop, message_delta, message_stop
         // Regex explanation:
         // - \[DONE\]: Matches the literal "[DONE]"
         // - \s*: Matches any whitespace characters (space, tab, newline, etc.)
         // - data:\s*: Matches "data:" followed by any whitespace
         // - : OPENROUTER PROCESSING: Matches the literal ": OPENROUTER PROCESSING"
+        // - event:\s*: Matches "event:" followed by any whitespace
+        // - ping: Matches the literal "ping"
+        // - message_start|content_block_start|content_block_delta|content_block_stop|message_delta|message_stop: Matches any of these literal tags
         // Global flag 'g' to replace all occurrences throughout the string
-        cleanedLine = cleanedLine.replace(/\[DONE\]\s*|data:\s*|: OPENROUTER PROCESSING/gi, '');
+        cleanedLine = cleanedLine.replace(/\[DONE\]\s*|data:\s*|: OPENROUTER PROCESSING|event:\s*|ping|message_start|content_block_start|content_block_delta|content_block_stop|message_delta|message_stop/gi, '');
 
         if (cleanedLine !== '') {
             try {
@@ -97,6 +101,7 @@ export function parseOpenAiFormatResponseChunk(chunk) {
     }
     return results;
 }
+
 
 export function showToast(message) {
     Toastify({

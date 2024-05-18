@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { showToast, sleep, parseOpenAiFormatResponseChunk } from "./utils";
+import { showToast, sleep, parseStreamResponseChunk } from "./utils";
 
 let localStreamRetryCount = 0;
 export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
@@ -225,7 +225,7 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
             return decodedResult
         };
         const chunk = decoder.decode(value);
-        const parsedLines = parseOpenAiFormatResponseChunk(chunk);
+        const parsedLines = parseStreamResponseChunk(chunk);
         for (const parsedLine of parsedLines) {
             const { choices } = parsedLine;
             const { delta } = choices[0];
