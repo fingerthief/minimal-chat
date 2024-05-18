@@ -1459,7 +1459,7 @@ pre {
     min-width: 350px;
     max-width: 100vw;
     width: 50%;
-    background-color: #1d1d1d;
+    background-color: #212121;
     justify-content: space-between;
 }
 </style>
