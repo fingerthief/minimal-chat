@@ -526,133 +526,24 @@ const updateRepetitionSliderValue = (value) => {
 <style lang="scss" scoped>
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
-
-.system-prompt-container {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-
-    .save-system-prompt-btn {
-        padding: 6px 12px;
-        background-color: #1a5951;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-
-        &:hover {
-            background-color: #165951;
-        }
-    }
-}
-
-.saved-system-prompts {
-    margin-top: 20px;
-
-
-    h4 {
-        margin-bottom: 10px;
-    }
-
-    ul {
-        list-style-type: none;
-        padding: 0;
-        max-height: 20vh;
-        overflow: auto;
-        scrollbar-width: none;
-
-        li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            background-color: #1b302e;
-            border-radius: 4px;
-            margin-bottom: 8px;
-
-            &.selected {
-                background-color: #165951;
-            }
-
-            .delete-system-prompt-btn {
-                background-color: transparent;
-                border: none;
-                color: #ff5555;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-
-                &:hover {
-                    color: #ff3333;
-                }
-            }
-        }
-    }
-}
-
-.saved-custom-configs {
-    margin-top: 20px;
-
-    h4 {
-        margin-bottom: 10px;
-    }
-
-    ul {
-        list-style-type: none;
-        padding: 0;
-        max-height: 20vh;
-        overflow: auto;
-        scrollbar-width: none;
-
-        li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            background-color: #1b302e;
-            border-radius: 4px;
-            margin-bottom: 8px;
-
-            &.selected {
-                background-color: #165951;
-            }
-
-            .delete-custom-config-btn {
-                background-color: transparent;
-                border: none;
-                color: #ff5555;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-
-                &:hover {
-                    color: #ff3333;
-                }
-            }
-        }
-    }
-
-    .save-custom-config-btn {
-        padding: 6px 12px;
-        background-color: #1a5951;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-
-        &:hover {
-            background-color: #165951;
-        }
-    }
-}
+$primary-bg-color: #1b302e;
+$secondary-bg-color: #181f20;
+$highlight-bg-color: #165951;
+$button-bg-color: #1a5951;
+$button-hover-bg-color: #165951;
+$delete-color: #ff5555;
+$delete-hover-color: #ff3333;
+$input-bg-color: #333;
+$input-hover-bg-color: #444;
+$input-focus-bg-color: #222;
+$header-bg-color: #212121;
+$close-btn-bg-color: #1e1e1e;
+$close-btn-hover-bg-color: #6f383889;
+$close-btn-active-bg-color: #2c3e50;
+$border-color: #1b6a72c4;
+$header-border-color: #583e72b5;
+$bottom-panel-bg-color: #1e1e1e;
+$bottom-panel-border-color: #5f4575cf;
 
 .settings-dialog {
     display: flex;
@@ -666,14 +557,14 @@ $icon-color: rgb(187, 187, 187);
     overflow-y: auto;
     padding: 6px;
     z-index: 10000;
-    background-color: #181f20;
+    background-color: $secondary-bg-color;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     scrollbar-width: none;
 }
 
 .select-dropdown select {
     appearance: none;
-    background-color: #333;
+    background-color: $input-bg-color;
     color: #fff;
     height: 40px;
     padding: 6px;
@@ -683,7 +574,7 @@ $icon-color: rgb(187, 187, 187);
     font-size: 16px;
 
     &:hover {
-        background-color: #444;
+        background-color: $input-hover-bg-color;
     }
 
     &:focus {
@@ -692,7 +583,7 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .select-dropdown option {
-    background-color: #222;
+    background-color: $input-focus-bg-color;
     color: #fff;
 }
 
@@ -701,12 +592,12 @@ $icon-color: rgb(187, 187, 187);
 
     h3 {
         margin-bottom: 15px;
-        background-color: #181f20;
+        background-color: $secondary-bg-color;
         font-size: 16px;
         font-weight: bold;
         text-align: left;
         position: relative;
-        border-bottom: 3px solid #1b6a72c4;
+        border-bottom: 3px solid $border-color;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -745,10 +636,10 @@ $icon-color: rgb(187, 187, 187);
         margin: 6px 0;
         border-radius: 6px;
         cursor: pointer;
-        background: #1b302e;
+        background: $primary-bg-color;
 
         &:hover {
-            background: #165951;
+            background: $highlight-bg-color;
         }
     }
 }
@@ -759,9 +650,9 @@ $icon-color: rgb(187, 187, 187);
     text-align: center;
     margin-top: -7px;
     position: relative;
-    border-bottom: 5px solid #583e72b5;
+    border-bottom: 5px solid $header-border-color;
     padding: 25px 0;
-    background-color: #212121;
+    background-color: $header-bg-color;
 }
 
 .close-btn {
@@ -775,18 +666,18 @@ $icon-color: rgb(187, 187, 187);
     height: 40px;
     outline: none;
     transition: background-color 0.3s ease;
-    background-color: #1e1e1e;
+    background-color: $close-btn-bg-color;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: bold;
-    border-bottom: 3px solid #865757cf;
+    border-bottom: 3px solid $header-border-color;
 
     &:hover {
-        background-color: #6f383889;
+        background-color: $close-btn-hover-bg-color;
     }
 
     &:active {
-        background-color: #2c3e50;
+        background-color: $close-btn-active-bg-color;
         transform: translateY(1px);
     }
 }
@@ -815,33 +706,92 @@ $icon-color: rgb(187, 187, 187);
         -webkit-appearance: none;
         flex-grow: 1;
         height: 15px;
-        border-radius: 5px;
-        background: #1c302e;
+        background: $primary-bg-color;
         outline: none;
         margin-left: 10px;
+        margin-right: 10px;
 
         &::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #1a5951;
+            background: $button-bg-color;
             cursor: pointer;
         }
 
-        &::-moz-range-thumb {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #1a5951;
-            cursor: pointer;
-        }
+        background: $button-bg-color;
+        cursor: pointer;
     }
 }
 
 .bottom-panel {
     padding: 20px;
-    background-color: #1e1e1e;
-    border-top: 2px solid #5f4575cf;
+    background-color: $bottom-panel-bg-color;
+    border-top: 2px solid $bottom-panel-border-color;
+}
+
+.system-prompt-container,
+.saved-custom-configs,
+.saved-system-prompts {
+    margin-top: 20px;
+
+    h4 {
+        margin-bottom: 10px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        max-height: 20vh;
+        overflow: auto;
+        scrollbar-width: none;
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: $primary-bg-color;
+            border-radius: 4px;
+            margin-bottom: 8px;
+
+            &.selected {
+                background-color: $highlight-bg-color;
+            }
+
+            .delete-system-prompt-btn,
+            .delete-custom-config-btn {
+                background-color: transparent;
+                border: none;
+                color: $delete-color;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                &:hover {
+                    color: $delete-hover-color;
+                }
+            }
+        }
+    }
+}
+
+.save-system-prompt-btn,
+.save-custom-config-btn {
+    padding: 6px 12px;
+    background-color: $button-bg-color;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    &:hover {
+        background-color: $button-hover-bg-color;
+    }
 }
 </style>
