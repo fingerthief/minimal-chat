@@ -133,7 +133,7 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
 <style lang="scss" scoped>
 .scroller,
 .message-list {
-    height: 88vh;
+    height: 84vh;
     overflow-y: auto;
     scrollbar-width: none;
 }

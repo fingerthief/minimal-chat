@@ -1004,7 +1004,7 @@ onMounted(() => {
             <div class="overlay" v-show="isSidebarOpen || showConversationOptions"></div>
 
             <!-- Settings Sidebar -->
-            <div class="sidebar-common sidebar-left box" id="settings-dialog" :class="{ open: isSidebarOpen }">
+            <div class="sidebar-common sidebar-left" id="settings-dialog" :class="{ open: isSidebarOpen }">
                 <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel"
                     :localModelName="localModelName" :localModelEndpoint="localModelEndpoint"
                     :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
@@ -1033,7 +1033,7 @@ onMounted(() => {
                     @toggle-sidebar="toggleSidebar" />
             </div>
             <!-- Conversations Sidebar -->
-            <div class="sidebar-conversations sidebar-right box" id="conversations-dialog"
+            <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
                 :class="{ 'open': showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="selectConversation"
@@ -1161,8 +1161,8 @@ a {
 .messages {
     overflow-y: auto;
     padding: 3px;
-    max-height: 88dvh;
-    min-height: 80vh;
+    max-height: 89dvh;
+    min-height: 89vh;
     scrollbar-width: none; // For Firefox
     -ms-overflow-style: none; // For Internet Explorer and Edge
 
