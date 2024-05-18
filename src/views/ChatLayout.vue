@@ -1348,6 +1348,7 @@ pre {
 
         &.open {
             width: 100vw;
+            height: 102vh;
         }
     }
 }
