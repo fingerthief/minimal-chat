@@ -3,12 +3,7 @@
 import { RefreshCcw, Download, Upload, Trash2, Save } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
-import {
-    handleExportSettings,
-    exportSettingsToFile,
-    handleImportSettings,
-    importSettings
-} from '@/libs/settings-utils';
+import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/settings-utils';
 import { getOpenAICompatibleAvailableModels } from '@/libs/open-ai-api-standard-access';
 import { removeAPIEndpoints, showToast } from '@/libs/utils';
 
@@ -34,10 +29,10 @@ const props = defineProps({
     systemPrompt: String
 });
 
-const showGPTConfig = ref((props.selectedModel.indexOf("gpt") !== -1));
-const showLocalConfig = ref((props.selectedModel.indexOf("open-ai-format") !== -1));
-const showClaudeConfig = ref((props.selectedModel.indexOf("claude") !== -1));
-const showBrowserModelConfig = ref((props.selectedModel.indexOf("web-llm") !== -1));
+const showGPTConfig = ref(props.selectedModel.indexOf('gpt') !== -1);
+const showLocalConfig = ref(props.selectedModel.indexOf('open-ai-format') !== -1);
+const showClaudeConfig = ref(props.selectedModel.indexOf('claude') !== -1);
+const showBrowserModelConfig = ref(props.selectedModel.indexOf('web-llm') !== -1);
 
 // New visibility states for collapsible config sections
 const isGeneralConfigOpen = ref(true);
@@ -73,24 +68,27 @@ const availableModels = ref([]);
 
 const fetchAvailableModels = async () => {
     try {
-        if (props.localModelEndpoint.trim() !== "") {
+        if (props.localModelEndpoint.trim() !== '') {
             const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
-            availableModels.value = models
+            availableModels.value = models;
         }
     } catch (error) {
         console.error('Error fetching available models:', error);
     }
 };
 
-watch(() => [props.localModelKey, props.selectedModel], () => {
-    if (props.selectedModel === 'open-ai-format') {
-        fetchAvailableModels();
+watch(
+    () => [props.localModelKey, props.selectedModel],
+    () => {
+        if (props.selectedModel === 'open-ai-format') {
+            fetchAvailableModels();
 
-        if (customConfigs.value.length === 0 && props.localModelEndpoint.trim() !== "") {
-            saveCustomConfig();
+            if (customConfigs.value.length === 0 && props.localModelEndpoint.trim() !== '') {
+                saveCustomConfig();
+            }
         }
     }
-});
+);
 
 const systemPrompts = ref([]);
 const selectedSystemPromptIndex = ref(null);
@@ -102,10 +100,9 @@ const saveSystemPrompt = (prompt) => {
             systemPrompts.value.push(trimmedPrompt);
             localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
             selectedSystemPromptIndex.value = systemPrompts.value.length - 1;
-            showToast("Added New System Prompt");
+            showToast('Added New System Prompt');
         }
-    }
-    else {
+    } else {
         selectedSystemPromptIndex.value = -1;
     }
 };
@@ -113,7 +110,7 @@ const saveSystemPrompt = (prompt) => {
 const deleteSystemPrompt = (index) => {
     systemPrompts.value.splice(index, 1);
     localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
-    showToast("Deleted System Prompt");
+    showToast('Deleted System Prompt');
 };
 
 const selectSystemPrompt = (index) => {
@@ -125,7 +122,7 @@ const customConfigs = ref([]);
 const selectedCustomConfigIndex = ref(null);
 
 const saveCustomConfig = () => {
-    if (props.localModelEndpoint.trim() === "") {
+    if (props.localModelEndpoint.trim() === '') {
         return;
     }
 
@@ -139,14 +136,14 @@ const saveCustomConfig = () => {
         repetitionPenalty: props.repetitionPenalty
     };
 
-    const existingConfigIndex = customConfigs.value.findIndex(config => config.endpoint === newConfig.endpoint);
+    const existingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === newConfig.endpoint);
 
     if (existingConfigIndex !== -1) {
         customConfigs.value[existingConfigIndex] = newConfig;
     } else {
         customConfigs.value.push(newConfig);
         selectedCustomConfigIndex.value = customConfigs.value.length - 1;
-        showToast("Saved New Custom Config");
+        showToast('Saved New Custom Config');
     }
 
     localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
@@ -155,7 +152,7 @@ const saveCustomConfig = () => {
 const deleteCustomConfig = (index) => {
     customConfigs.value.splice(index, 1);
     localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
-    showToast("Deleted Custom Config");
+    showToast('Deleted Custom Config');
 };
 
 const selectCustomConfig = (index) => {
@@ -173,7 +170,7 @@ const selectCustomConfig = (index) => {
     const modelSelector = document.getElementById('custom-model-selector');
     if (modelSelector) {
         const options = Array.from(modelSelector.options);
-        const matchingOption = options.find(option => option.value === config.modelName);
+        const matchingOption = options.find((option) => option.value === config.modelName);
         if (matchingOption) {
             modelSelector.value = matchingOption.value;
         }
@@ -188,7 +185,7 @@ onMounted(() => {
     const storedSystemPrompts = localStorage.getItem('system-prompts');
     if (storedSystemPrompts) {
         systemPrompts.value = JSON.parse(storedSystemPrompts);
-        const savedPromptIndex = systemPrompts.value.findIndex(prompt => prompt === props.systemPrompt);
+        const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === props.systemPrompt);
         if (savedPromptIndex !== -1) {
             selectedSystemPromptIndex.value = savedPromptIndex;
         }
@@ -199,10 +196,9 @@ onMounted(() => {
         customConfigs.value = JSON.parse(storedCustomConfigs);
 
         if (customConfigs.value.length > 0) {
-            const matchingConfigIndex = customConfigs.value.findIndex(config => config.endpoint === props.localModelEndpoint);
+            const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === props.localModelEndpoint);
 
             if (matchingConfigIndex !== -1) {
-
                 selectedCustomConfigIndex.value = matchingConfigIndex;
                 const config = customConfigs.value[matchingConfigIndex];
                 update('localModelEndpoint', config.endpoint);
@@ -224,20 +220,20 @@ onMounted(() => {
 });
 
 const update = (field, value) => {
-    if (field === "model") {
-        showGPTConfig.value = (value.indexOf("gpt") !== -1);
-        showLocalConfig.value = (value.indexOf("open-ai-format") !== -1);
-        showClaudeConfig.value = (value.indexOf("claude") !== -1);
-        showBrowserModelConfig.value = (value.indexOf("web-llm") !== -1);
+    if (field === 'model') {
+        showGPTConfig.value = value.indexOf('gpt') !== -1;
+        showLocalConfig.value = value.indexOf('open-ai-format') !== -1;
+        showClaudeConfig.value = value.indexOf('claude') !== -1;
+        showBrowserModelConfig.value = value.indexOf('web-llm') !== -1;
     }
 
-    if (field === "systemPrompt") {
+    if (field === 'systemPrompt') {
         emit(`update:${field}`, value);
         saveSystemPrompt(value);
         return;
     }
 
-    if (["localModelName", "localSliderValue", "top_P", "repetitionPenalty", "maxTokens", "localModelEndpoint", "localModelKey"].includes(field)) {
+    if (['localModelName', 'localSliderValue', 'top_P', 'repetitionPenalty', 'maxTokens', 'localModelEndpoint', 'localModelKey'].includes(field)) {
         emit(`update:${field}`, value);
 
         if (selectedCustomConfigIndex.value !== null) {
@@ -277,11 +273,11 @@ const updateRepetitionSliderValue = (value) => {
                 <span @click="reloadPage">
                     <RefreshCcw :size="23" :stroke-width="2" />
                 </span>
-                Settings | V6.1.2
+                Settings | V6.1.3
             </h2>
         </div>
         <div class="sidebar-content-container">
-            <div class="config-section" :class="{ 'show': isGeneralConfigOpen }">
+            <div class="config-section" :class="{ show: isGeneralConfigOpen }">
                 <h3 @click="isGeneralConfigOpen = !isGeneralConfigOpen">
                     General Config
                     <span class="indicator">{{ isGeneralConfigOpen ? '-' : '+' }}</span>
@@ -289,8 +285,7 @@ const updateRepetitionSliderValue = (value) => {
                 <div v-show="isGeneralConfigOpen" class="control-grid">
                     <div class="control select-dropdown">
                         <label for="model-selector">Model:</label>
-                        <select id="model-selector" :value="selectedModel"
-                            @change="update('model', $event.target.value)">
+                        <select id="model-selector" :value="selectedModel" @change="update('model', $event.target.value)">
                             <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                             <option value="gpt-4-turbo">GPT-4 Turbo</option>
                             <option value="gpt-4o">GPT-4 Omni</option>
@@ -303,23 +298,26 @@ const updateRepetitionSliderValue = (value) => {
                     </div>
                     <div class="control select-dropdown">
                         <label for="auto-save-conversations">Auto Save Conversations:</label>
-                        <select id="auto-save-conversations" :value="selectedAutoSaveOption"
-                            @change="update('selectedAutoSaveOption', $event.target.value)">
+                        <select id="auto-save-conversations" :value="selectedAutoSaveOption" @change="update('selectedAutoSaveOption', $event.target.value)">
                             <option value="true">Yes</option>
                             <option value="false">No</option>
                         </select>
                     </div>
                     <div class="system-prompt-container">
-                        <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
-                            @update:value="update('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
-                            :placeholderText="'Enter the system prompt if applicable.'" />
+                        <InputField
+                            labelText="System Prompt:"
+                            inputId="system-prompt"
+                            :value="systemPrompt"
+                            @update:value="update('systemPrompt', $event)"
+                            :isSecret="false"
+                            :isMultiline="true"
+                            :placeholderText="'Enter the system prompt if applicable.'"
+                        />
                     </div>
                     <div class="saved-system-prompts">
                         <h4>Saved System Prompts:</h4>
                         <ul>
-                            <li v-for="(prompt, index) in systemPrompts" :key="index"
-                                :class="{ 'selected': index === selectedSystemPromptIndex }"
-                                @click="selectSystemPrompt(index)">
+                            <li v-for="(prompt, index) in systemPrompts" :key="index" :class="{ selected: index === selectedSystemPromptIndex }" @click="selectSystemPrompt(index)">
                                 {{ prompt }}
                                 <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteSystemPrompt(index)" />
                             </li>
@@ -328,102 +326,116 @@ const updateRepetitionSliderValue = (value) => {
                 </div>
             </div>
 
-            <div class="config-section" :class="{ 'show': isBrowserModelConfigOpen }" v-show="showBrowserModelConfig">
+            <div class="config-section" :class="{ show: isBrowserModelConfigOpen }" v-show="showBrowserModelConfig">
                 <h3 @click="isBrowserModelConfigOpen = !isBrowserModelConfigOpen">
                     Local Browser Model (Chrome and Edge Only)
                     <span class="indicator">{{ isBrowserModelConfigOpen ? '-' : '+' }}</span>
                 </h3>
                 <div v-show="isBrowserModelConfigOpen" class="control select-dropdown">
                     <label for="localModelsSelection">Model To Load In Browser:</label>
-                    <select id="localModelsSelection" :value="browserModelSelection"
-                        @change="update('browserModelSelection', $event.target.value)">
+                    <select id="localModelsSelection" :value="browserModelSelection" @change="update('browserModelSelection', $event.target.value)">
                         <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
-                        <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 1k Context (~4.6gb
-                            VRAM)</option>
-                        <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 1k Context (~5.2gb
-                            VRAM)</option>
+                        <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 1k Context (~4.6gb VRAM)</option>
+                        <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 1k Context (~5.2gb VRAM)</option>
                         <option value="Llama-2-7b-chat-hf-q4f16_1">Llama-2-7b-chat-hf-q4f16 (~6.8gb VRAM)</option>
-                        <option value="TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k">TinyLlama-1.1B-Chat-v0.4-q4f32 1k Context
-                            (~1.0gb
-                            VRAM)</option>
-                        <option value="TinyLlama-1.1B-Chat-v0.4-q0f32">TinyLlama-1.1B-Chat-v0.4-q0f32 (~5.3gb VRAM)
-                        </option>
+                        <option value="TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k">TinyLlama-1.1B-Chat-v0.4-q4f32 1k Context (~1.0gb VRAM)</option>
+                        <option value="TinyLlama-1.1B-Chat-v0.4-q0f32">TinyLlama-1.1B-Chat-v0.4-q0f32 (~5.3gb VRAM)</option>
                         <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2 (~6.1gb VRAM)</option>
-                        <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)
-                        </option>
-                        <option value="WizardMath-7B-V1.1-q4f16_1">WizardMath-7B-V1.1-q4f16 (~6.1gb VRAM)
-                        </option>
-                        <option value="NeuralHermes-2.5-Mistral-7B-q4f16_1">NeuralHermes-2.5-Mistral-7B-q4f16 (~6.1gb
-                            VRAM)
-                        </option>
-                        <option value="gemma-2b-it-q4f32_1">gemma-2b-it-q4f32 (~1.8gb VRAM)
-                        </option>
-                        <option value="gemma-2b-it-q4f32_1-1k">gemma-2b-it-q4f32 1k Context (~1.6gb VRAM)
-                        </option>
+                        <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)</option>
+                        <option value="WizardMath-7B-V1.1-q4f16_1">WizardMath-7B-V1.1-q4f16 (~6.1gb VRAM)</option>
+                        <option value="NeuralHermes-2.5-Mistral-7B-q4f16_1">NeuralHermes-2.5-Mistral-7B-q4f16 (~6.1gb VRAM)</option>
+                        <option value="gemma-2b-it-q4f32_1">gemma-2b-it-q4f32 (~1.8gb VRAM)</option>
+                        <option value="gemma-2b-it-q4f32_1-1k">gemma-2b-it-q4f32 1k Context (~1.6gb VRAM)</option>
                     </select>
                 </div>
             </div>
 
-            <div class="config-section" :class="{ 'show': isLocalConfigOpen }" v-show="showLocalConfig">
+            <div class="config-section" :class="{ show: isLocalConfigOpen }" v-show="showLocalConfig">
                 <h3 @click="isLocalConfigOpen = !isLocalConfigOpen">
                     Custom Endpoint Config (Open AI Format)
                     <span class="indicator">{{ isLocalConfigOpen ? '-' : '+' }}</span>
                 </h3>
                 <div v-show="isLocalConfigOpen" class="control-grid">
-                    <InputField v-show="showLocalConfig" :isSecret="false" labelText="API Endpoint:"
-                        :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
-                        :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
+                    <InputField
+                        v-show="showLocalConfig"
+                        :isSecret="false"
+                        labelText="API Endpoint:"
+                        :placeholderText="'Enter the base API Endpoint URL'"
+                        inputId="local-model-endpoint"
+                        :value="localModelEndpoint"
+                        @update:value="update('localModelEndpoint', $event)"
+                    />
                     <div class="control select-dropdown">
                         <label for="custom-model-selector">Models Available:</label>
-                        <select id="custom-model-selector" :value="localModelName"
-                            @change="update('localModelName', $event.target.value)">
-                            <option v-for="model in availableModels" :key="model" :value="model">{{ model }}
-                            </option>
+                        <select id="custom-model-selector" :value="localModelName" @change="update('localModelName', $event.target.value)">
+                            <option v-for="model in availableModels" :key="model" :value="model">{{ model }}</option>
                         </select>
                     </div>
-                    <InputField v-show="showLocalConfig" :isSecret="true" labelText="API Key:"
-                        :placeholderText="'Enter the API key if applicable'" inputId="local-model-key"
-                        :value="localModelKey" @update:value="update('localModelKey', $event)" />
-                    <InputField v-show="showLocalConfig" labelText="Max Tokens:" :isSecret="false"
-                        :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
-                        :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
-                    <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Temperature (0.0-2.0):"
-                        :isSecret="false" :placeholderText="'Enter the temperature value for the model.'"
-                        inputId="localSliderValue" :value="localSliderValue.toString()"
-                        @update:value="update('localSliderValue', $event)" />
+                    <InputField
+                        v-show="showLocalConfig"
+                        :isSecret="true"
+                        labelText="API Key:"
+                        :placeholderText="'Enter the API key if applicable'"
+                        inputId="local-model-key"
+                        :value="localModelKey"
+                        @update:value="update('localModelKey', $event)"
+                    />
+                    <InputField
+                        v-show="showLocalConfig"
+                        labelText="Max Tokens:"
+                        :isSecret="false"
+                        :placeholderText="'Enter the max token limit if applicable'"
+                        inputId="max-tokens"
+                        :value="maxTokens.toString()"
+                        @update:value="update('maxTokens', $event)"
+                    />
+                    <InputField
+                        v-show="showLocalConfig || showBrowserModelConfig"
+                        labelText="Temperature (0.0-2.0):"
+                        :isSecret="false"
+                        :placeholderText="'Enter the temperature value for the model.'"
+                        inputId="localSliderValue"
+                        :value="localSliderValue.toString()"
+                        @update:value="update('localSliderValue', $event)"
+                    />
                     <div class="slider-container">
                         <span>Serious</span>
-                        <input type="range" min="0" max="2" step="0.01" :value="localSliderValue"
-                            @input="updateLocalSliderValue($event.target.value)">
+                        <input type="range" min="0" max="2" step="0.01" :value="localSliderValue" @input="updateLocalSliderValue($event.target.value)" />
                         <span>Creative</span>
                     </div>
-                    <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Top_P Value (0.0-1.0):"
-                        :isSecret="false" :placeholderText="'Enter the top_P value if applicable'" inputId="top_P"
-                        :value="top_P.toString()" @update:value="update('top_P', $event)" />
+                    <InputField
+                        v-show="showLocalConfig || showBrowserModelConfig"
+                        labelText="Top_P Value (0.0-1.0):"
+                        :isSecret="false"
+                        :placeholderText="'Enter the top_P value if applicable'"
+                        inputId="top_P"
+                        :value="top_P.toString()"
+                        @update:value="update('top_P', $event)"
+                    />
                     <div class="slider-container">
                         <span>Lower</span>
-                        <input type="range" min="0" max="1" step="0.01" :value="top_P"
-                            @input="updateTopPSliderValue($event.target.value)">
+                        <input type="range" min="0" max="1" step="0.01" :value="top_P" @input="updateTopPSliderValue($event.target.value)" />
                         <span>Higher</span>
                     </div>
-                    <InputField v-show="showLocalConfig || showBrowserModelConfig"
-                        labelText="Repetition Penalty (0.0-2.0):" :isSecret="false"
+                    <InputField
+                        v-show="showLocalConfig || showBrowserModelConfig"
+                        labelText="Repetition Penalty (0.0-2.0):"
+                        :isSecret="false"
                         :placeholderText="'Enter the repetition penalty value if applicable'"
-                        inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
-                        @update:value="update('repetitionPenalty', $event)" />
+                        inputId="repetitionPenalty"
+                        :value="repetitionPenalty.toString()"
+                        @update:value="update('repetitionPenalty', $event)"
+                    />
                     <div class="slider-container">
                         <span>Less</span>
-                        <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
-                            @input="updateRepetitionSliderValue($event.target.value)">
+                        <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty" @input="updateRepetitionSliderValue($event.target.value)" />
                         <span>More</span>
                     </div>
                 </div>
                 <div class="saved-custom-configs">
                     <h4>Saved Custom Configs:</h4>
                     <ul>
-                        <li v-for="(config, index) in customConfigs" :key="index"
-                            :class="{ 'selected': index === selectedCustomConfigIndex }"
-                            @click="selectCustomConfig(index)">
+                        <li v-for="(config, index) in customConfigs" :key="index" :class="{ selected: index === selectedCustomConfigIndex }" @click="selectCustomConfig(index)">
                             {{ config.endpoint }}
                             <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteCustomConfig(index)" />
                         </li>
@@ -431,41 +443,44 @@ const updateRepetitionSliderValue = (value) => {
                 </div>
             </div>
 
-            <div class="config-section" :class="{ 'show': isGPTConfigOpen }" v-show="showGPTConfig">
+            <div class="config-section" :class="{ show: isGPTConfigOpen }" v-show="showGPTConfig">
                 <h3 @click="isGPTConfigOpen = !isGPTConfigOpen">
                     GPT Config
                     <span class="indicator">{{ isGPTConfigOpen ? '-' : '+' }}</span>
                 </h3>
                 <div v-show="isGPTConfigOpen" class="control-grid">
-                    <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
-                        inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
+                    <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'" inputId="api-key" :value="gptKey" @update:value="update('gptKey', $event)" />
                     <div class="slider-container">
                         <span>Serious</span>
-                        <input type="range" min="0" max="100" :value="sliderValue"
-                            @blur="update('sliderValue', $event.target.value)">
+                        <input type="range" min="0" max="100" :value="sliderValue" @blur="update('sliderValue', $event.target.value)" />
                         <span>Creative</span>
                     </div>
                 </div>
             </div>
 
-            <div class="config-section" :class="{ 'show': isClaudeConfigOpen }" v-show="showClaudeConfig">
+            <div class="config-section" :class="{ show: isClaudeConfigOpen }" v-show="showClaudeConfig">
                 <h3 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
                     Claude Config
                     <span class="indicator">{{ isClaudeConfigOpen ? '-' : '+' }}</span>
                 </h3>
                 <div v-show="isClaudeConfigOpen" class="control-grid">
-                    <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
-                        inputId="claude-api-key" :value="claudeKey" @update:value="update('claudeKey', $event)" />
+                    <InputField
+                        :labelText="'API Key'"
+                        :isSecret="true"
+                        :placeholderText="'Enter the API Key'"
+                        inputId="claude-api-key"
+                        :value="claudeKey"
+                        @update:value="update('claudeKey', $event)"
+                    />
                     <div class="slider-container">
                         <span>Serious</span>
-                        <input type="range" min="0" max="100" :value="claudeSliderValue"
-                            @blur="update('claudeSliderValue', $event.target.value)">
+                        <input type="range" min="0" max="100" :value="claudeSliderValue" @blur="update('claudeSliderValue', $event.target.value)" />
                         <span>Creative</span>
                     </div>
                 </div>
             </div>
 
-            <div class="config-section" :class="{ 'show': isDALLEConfigOpen }" v-show="showGPTConfig">
+            <div class="config-section" :class="{ show: isDALLEConfigOpen }" v-show="showGPTConfig">
                 <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
                     DALL-E Config
                     <span class="indicator">{{ isDALLEConfigOpen ? '-' : '+' }}</span>
@@ -473,15 +488,13 @@ const updateRepetitionSliderValue = (value) => {
                 <div v-show="isDALLEConfigOpen" class="control-grid">
                     <div class="control select-dropdown">
                         <label for="dalle-image-count">DALL-E Image Count:</label>
-                        <select id="dalle-image-count" :value="selectedDallEImageCount"
-                            @change="update('selectedDallEImageCount', $event.target.value)">
+                        <select id="dalle-image-count" :value="selectedDallEImageCount" @change="update('selectedDallEImageCount', $event.target.value)">
                             <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
                         </select>
                     </div>
                     <div class="control select-dropdown">
                         <label for="dalle-image-resolution">Image Resolution:</label>
-                        <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
-                            @change="update('selectedDallEImageResolution', $event.target.value)">
+                        <select id="dalle-image-resolution" :value="selectedDallEImageResolution" @change="update('selectedDallEImageResolution', $event.target.value)">
                             <option value="256x256">256x256</option>
                             <option value="512x512">512x512</option>
                             <option value="1024x1024">1024x1024</option>
@@ -489,15 +502,17 @@ const updateRepetitionSliderValue = (value) => {
                     </div>
                 </div>
             </div>
-            <div class="config-section" :class="{ 'show': isImportExportConfigOpen }">
+            <div class="config-section" :class="{ show: isImportExportConfigOpen }">
                 <h3 @click="isImportExportConfigOpen = !isImportExportConfigOpen">
                     Import/Export Configuration
                     <span class="indicator">{{ isImportExportConfigOpen ? '-' : '+' }}</span>
                 </h3>
                 <div v-show="isImportExportConfigOpen" class="control-grid">
-                    <h4>Manage Settings <p class="config-info">Export your current settings to a JSON file for backup or
-                            to easily set up
-                            the application on another device. You can also import settings from a JSON file.</p>
+                    <h4>
+                        Manage Settings
+                        <p class="config-info">
+                            Export your current settings to a JSON file for backup or to easily set up the application on another device. You can also import settings from a JSON file.
+                        </p>
                     </h4>
 
                     <div class="settings-list">
@@ -508,14 +523,11 @@ const updateRepetitionSliderValue = (value) => {
                         <label class="settings-item-button">
                             <span class="action-text">Import Settings</span>
                             <Upload :stroke-width="1.5" />
-                            <input type="file" accept=".json"
-                                @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))"
-                                style="display:none">
+                            <input type="file" accept=".json" @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))" style="display: none" />
                         </label>
                     </div>
                 </div>
             </div>
-
         </div>
         <div class="bottom-panel">
             <button class="close-btn" @click="toggleSidebar">Close</button>
@@ -702,7 +714,7 @@ $bottom-panel-border-color: #5f4575cf;
     align-items: center;
     width: 100%;
 
-    input[type="range"] {
+    input[type='range'] {
         -webkit-appearance: none;
         flex-grow: 1;
         height: 15px;

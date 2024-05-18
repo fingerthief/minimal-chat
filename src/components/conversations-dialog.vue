@@ -13,9 +13,7 @@ const props = defineProps({
 const loadedConversation = ref({});
 
 const selectedConversation = computed(() => {
-    return props.conversations.find(conversation =>
-        conversation.id === props.selectedConversationItem?.id
-    );
+    return props.conversations.find((conversation) => conversation.id === props.selectedConversationItem?.id);
 });
 
 const conversationCharacterCount = (conversation) => {
@@ -23,7 +21,7 @@ const conversationCharacterCount = (conversation) => {
         const messageHistory = conversation.messageHistory;
         let totalCharacters = 0;
 
-        messageHistory.forEach(message => {
+        messageHistory.forEach((message) => {
             totalCharacters += message.content.length;
         });
 
@@ -33,8 +31,8 @@ const conversationCharacterCount = (conversation) => {
 };
 
 onMounted(() => {
-    const lastConversationId = parseInt(localStorage.getItem("lastConversationId")) || 0;
-    const lastConversation = props.conversations.find(conversation => conversation.id === lastConversationId);
+    const lastConversationId = parseInt(localStorage.getItem('lastConversationId')) || 0;
+    const lastConversation = props.conversations.find((conversation) => conversation.id === lastConversationId);
 
     // Only set loadedConversation if the conversation exists
     if (lastConversation) {
@@ -49,9 +47,19 @@ onMounted(() => {
     }
 });
 
-const emit = defineEmits(['toggle-sidebar', 'load-conversation', 'new-conversation', 'import-conversations', 'export-conversations', 'purge-conversations', 'delete-current-conversation', 'open-settings', 'edit-conversation-title']);
+const emit = defineEmits([
+    'toggle-sidebar',
+    'load-conversation',
+    'new-conversation',
+    'import-conversations',
+    'export-conversations',
+    'purge-conversations',
+    'delete-current-conversation',
+    'open-settings',
+    'edit-conversation-title'
+]);
 
-let initialConversation = "";
+let initialConversation = '';
 
 const editConversationTitle = (conversation) => {
     if (conversation.isEditing) {
@@ -111,37 +119,36 @@ function purgeConversations() {
     <div class="resize-container">
         <div class="settings-header">
             <h2>
-                Conversations
-                &nbsp;
-                <ToolTip :targetId="'purgeConversations'">
-                    Purge all conversations</ToolTip>
-                <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.00" />&nbsp;
-                <ToolTip :targetId="'exportConversations'">
-                    Export conversations</ToolTip>
-                <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.00" />&nbsp;
-                <ToolTip :targetId="'importConversations'">
-                    Import conversations</ToolTip>
-                <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.00" />
+                Conversations &nbsp;
+                <ToolTip :targetId="'purgeConversations'"> Purge all conversations</ToolTip>
+                <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.0" />&nbsp;
+                <ToolTip :targetId="'exportConversations'"> Export conversations</ToolTip>
+                <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.0" />&nbsp;
+                <ToolTip :targetId="'importConversations'"> Import conversations</ToolTip>
+                <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
             </h2>
         </div>
         <div class="sidebar-content-container">
             <div class="scrollable-list">
                 <ul>
-                    <li v-for="(conversation, index) in props.conversations" :key="index" :id="'conversation-' + index"
-                        :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
+                    <li
+                        v-for="(conversation, index) in props.conversations"
+                        :key="index"
+                        :id="'conversation-' + index"
+                        :contenteditable="conversation.isEditing"
+                        @click="loadSelectedConversation(conversation)"
                         @dblclick="editConversationTitle(conversation)"
                         @blur="saveEditedConversationTitle(conversation, $event)"
-                        :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
-                        <Pencil :id="'pencil-' + index" :size="15" @click.stop="editConversationTitle(conversation)" />
+                        :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }"
+                    >
+                        <Pencil :id="'pencil-' + index" :size="13" @click.stop="editConversationTitle(conversation)" />
                         <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
-                        <span>
-                            &nbsp;&nbsp;{{ conversation.title }}
-                        </span>
-                        <br><br>
-                        <span>
-                            <Database :size="15" />
-                            &nbsp;&nbsp;
-                            Context Length: ({{ conversationCharacterCount(conversation) }})
+                        <span> &nbsp;{{ conversation.title }} </span>
+                        <br /><br />
+                        <span v-if="!conversation.isEditing">
+                            <Database :size="13" />
+                            &nbsp;
+                            {{ conversationCharacterCount(conversation) }} Tokens
                         </span>
                     </li>
                 </ul>
@@ -162,15 +169,13 @@ function purgeConversations() {
                             <span class="delete-text">Delete Current Conversation</span>
                         </span>
                     </li>
-                    <li v-if="!props.showConversationOptions" class="new-conversation-option--settings"
-                        @click="$emit('open-settings')">
+                    <li v-if="!props.showConversationOptions" class="new-conversation-option--settings" @click="$emit('open-settings')">
                         <span class="settings-icon">
                             <Settings :stroke-width="1.5" />
                             <span class="settings-text">Settings</span>
                         </span>
                     </li>
-                    <li v-if="props.showConversationOptions" class="new-conversation-option--settings"
-                        @click="$emit('toggle-sidebar')">
+                    <li v-if="props.showConversationOptions" class="new-conversation-option--settings" @click="$emit('toggle-sidebar')">
                         <span class="settings-icon">
                             <Settings :stroke-width="1.5" />
                             <span class="settings-text">Close</span>
@@ -243,7 +248,7 @@ $shadow-color: #252629;
 
         .new-conversation-option {
             text-align: left;
-            color: #FFFFFF;
+            color: #ffffff;
             font-weight: bold;
             border-radius: 5px;
             display: flex;
@@ -326,7 +331,7 @@ $shadow-color: #252629;
                 font-weight: bold;
                 box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
                 border: 1px solid #513f77;
-                animation: pulse 0.250s ease-out forwards;
+                animation: pulse 0.25s ease-out forwards;
             }
 
             &.selected:before {
@@ -372,7 +377,7 @@ $shadow-color: #252629;
     .new-conversation-option {
         text-align: left;
         background-color: #0d3937;
-        color: #FFFFFF;
+        color: #ffffff;
         font-weight: bold;
         border-radius: 5px;
         padding: 15px;
@@ -402,15 +407,15 @@ $shadow-color: #252629;
     }
 
     li {
-        padding: 8px;
-        border-bottom: 1px solid #100d0d;
+        padding: 6px;
+        border-bottom: 1px solid #77737b69;
         background-color: #313131a1;
         transition: background-color 0.2s ease;
         border-left: 6px solid #3a3a3a;
-        color: #7f7f7f;
+        color: #9e9d9d;
         user-select: none;
 
-        &[contenteditable="true"] {
+        &[contenteditable='true'] {
             outline: none;
             border: 2px solid #423d42;
             padding: 15px;
@@ -423,10 +428,10 @@ $shadow-color: #252629;
         }
 
         &.selected {
-            background-color: #242424;
+            background-color: #171616;
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-left: 6px solid #009463d5;
+            border-left: 6px solid #02af75d5;
             color: whitesmoke;
         }
     }

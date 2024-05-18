@@ -2,7 +2,6 @@
 import ChatLayout from './views/ChatLayout.vue';
 </script>
 <template>
-
     <body>
         <ChatLayout />
     </body>
@@ -49,7 +48,7 @@ body {
 }
 
 .loading::after {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: -5px;

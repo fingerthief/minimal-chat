@@ -2,7 +2,7 @@
 import { ref, watch, defineEmits } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
-import "swiped-events";
+import 'swiped-events';
 
 // Define props and emits
 const props = defineProps({
@@ -23,7 +23,7 @@ watch(localUserInput, (newVal) => {
 
 // Methods
 const sendMessage = () => {
-    localUserInput.value = "";
+    localUserInput.value = '';
     emit('send-message');
     autoResize();
 };
@@ -37,7 +37,7 @@ function swipedRight() {
 }
 
 const autoResize = () => {
-    if (!localUserInput.value || localUserInput.value.trim() === "") {
+    if (!localUserInput.value || localUserInput.value.trim() === '') {
         userInputRef.value.style.height = '30px';
         return;
     }
@@ -52,7 +52,7 @@ const handleKeyDown = (event) => {
             event.preventDefault();
             const cursorPosition = event.target.selectionStart;
             const text = localUserInput.value;
-            localUserInput.value = text.slice(0, cursorPosition) + "\n" + text.slice(cursorPosition);
+            localUserInput.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
             userInputRef.value.selectionStart = userInputRef.value.selectionEnd = cursorPosition + 1;
             autoResize();
         } else {
@@ -63,39 +63,44 @@ const handleKeyDown = (event) => {
 };
 
 const visionImageUploadClick = () => {
-    emit("vision-prompt");
-    localUserInput.value = "";
+    emit('vision-prompt');
+    localUserInput.value = '';
 };
 
 const importFileUploadClick = () => {
-    emit("upload-context");
-    localUserInput.value = "";
+    emit('upload-context');
+    localUserInput.value = '';
 };
 
 async function abortStream() {
-    emit("abort-stream");
+    emit('abort-stream');
 }
 </script>
 
 <template>
-    <form @submit.prevent="sendMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
-        data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
+    <form @submit.prevent="sendMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
         <div class="input-container">
-            <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
-                :class="{ 'loading-border': props.isLoading }" @input="autoResize" @focus="autoResize"
-                @blur="autoResize" @keydown="handleKeyDown" placeholder="Enter a prompt"></textarea>
+            <textarea
+                class="user-input-text"
+                id="user-input"
+                rows="1"
+                v-model="localUserInput"
+                ref="userInputRef"
+                :class="{ 'loading-border': props.isLoading }"
+                @input="autoResize"
+                @focus="autoResize"
+                @blur="autoResize"
+                @keydown="handleKeyDown"
+                placeholder="Enter a prompt"
+            ></textarea>
             <div class="icons">
-                <ToolTip :targetId="'imageButton'">
-                    Upload image for vision processing
-                </ToolTip>
+                <ToolTip :targetId="'imageButton'"> Upload image for vision processing </ToolTip>
                 <div class="image-button" id="imageButton" @click="visionImageUploadClick">
                     <span>
                         <ImageUp />
                     </span>
                 </div>
-                <ToolTip :targetId="'uploadButton'">
-                    Upload file to add contents to current conversation
-                </ToolTip>
+                <ToolTip :targetId="'uploadButton'"> Upload file to add contents to current conversation </ToolTip>
                 <div class="upload-button" id="uploadButton" @click="importFileUploadClick">
                     <span>
                         <Upload />
@@ -156,11 +161,13 @@ $icon-color: rgb(187, 187, 187);
         align-content: center;
         border-radius: 30px;
         justify-content: space-around;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        transition:
+            background-color 0.3s ease,
+            transform 0.2s ease;
         margin-left: 10px;
 
         &:hover {
-            transform: scale(1.30);
+            transform: scale(1.3);
         }
     }
 
@@ -203,7 +210,7 @@ $icon-color: rgb(187, 187, 187);
     }
 
     .loading-border {
-        animation: pulse 3.0s infinite;
+        animation: pulse 3s infinite;
     }
 
     @keyframes pulse {
@@ -215,7 +222,6 @@ $icon-color: rgb(187, 187, 187);
         50% {
             border-color: #6a4292e0;
             box-shadow: 0 0 10px #6a4292d9;
-
         }
 
         100% {
