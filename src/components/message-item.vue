@@ -14,9 +14,6 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 const props = defineProps({
     messages: Array,
     isLoading: Boolean,
-    isAnalyzingImage: Boolean,
-    isGeneratingImage: Boolean,
-    streamedMessageText: String,
     modelDisplayName: String
 });
 
@@ -83,7 +80,7 @@ const scrollToBottom = async () => {
     }
 };
 
-watch(() => [filteredMessages, props.streamedMessageText],
+watch(() => [filteredMessages],
     async () => {
         await scrollToBottom();
     }, { deep: true }
@@ -93,7 +90,7 @@ watch(() => [filteredMessages, props.streamedMessageText],
 <template>
     <div ref="messageList" class="message-list">
         <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
-            :items="filteredMessages" key-field="id" v-slot="{ item, index, active }">
+            :items="filteredMessages" key-field="id" v-slot="{ item, active }">
             <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
                 <div v-if="active" :class="messageClass(item.role)">
                     <div class="message-header">

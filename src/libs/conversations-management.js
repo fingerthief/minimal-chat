@@ -94,7 +94,7 @@ export function selectConversation(conversations, conversationId, messages, last
     }
 }
 
-export async function regenerateMessageResponse(conversations, messages, content, sliderValue, selectedModel, localSliderValue, localModelName, localModelEndpoint, claudeSliderValue, updateUI, abortController, streamedMessageText, isClaudeEnabled) {
+export async function regenerateMessageResponse(conversations, messages, content, sliderValue, selectedModel, localSliderValue, localModelName, localModelEndpoint, claudeSliderValue, updateUI, abortController, streamedMessageText) {
     let baseMessages = messages.value.slice();
 
     const messageIndex = baseMessages.findIndex(message => message.content === content && message.role === 'user');
@@ -125,7 +125,7 @@ export async function regenerateMessageResponse(conversations, messages, content
     return { conversations, baseMessages };
 }
 
-export async function editPreviousMessage(conversations, messages, oldContent, newContent, sliderValue, selectedModel, localSliderValue, localModelName, localModelEndpoint, claudeSliderValue, updateUI, abortController, streamedMessageText, isClaudeEnabled) {
+export async function editPreviousMessage(conversations, messages, oldContent, newContent, sliderValue, selectedModel, localSliderValue, localModelName, localModelEndpoint, claudeSliderValue, updateUI, abortController, streamedMessageText) {
     let baseMessages = messages.value.slice();
 
     const messageIndex = baseMessages.findIndex(message => message.content === oldContent.content && message.role === 'user');
@@ -142,7 +142,7 @@ export async function editPreviousMessage(conversations, messages, oldContent, n
         let response = "";
         if (selectedModel.indexOf("gpt") !== -1) {
             response = await fetchGPTResponseStream(regenMessages, sliderValue, selectedModel, updateUI, abortController.value, streamedMessageText, false);
-        } else if (isClaudeEnabled) {
+        } else if (selectedModel.indexOf("claude") !== -1) {
             response = await streamClaudeResponse(regenMessages, selectedModel, claudeSliderValue, updateUI, abortController.value, streamedMessageText, false);
         } else {
             response = await fetchLocalModelResponseStream(regenMessages, localSliderValue, localModelName, localModelEndpoint, updateUI, abortController.value, streamedMessageText, false);

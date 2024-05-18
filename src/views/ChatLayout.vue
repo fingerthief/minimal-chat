@@ -31,11 +31,10 @@ const shouldShowScrollButton = ref(false);
 const isAnalyzingImage = ref(false);
 const userText = ref('');
 const isLoading = ref(false);
-const isClaudeEnabled = ref(false);
 const isUsingLocalModel = ref(false);
 const isGeneratingImage = ref(false);
 const hasFilterText = ref(false);
-const selectedModel = ref(localStorage.getItem("selectedModel") || "gpt-4-turbo");
+const selectedModel = ref(localStorage.getItem("selectedModel") || "gpt-4o");
 const isSidebarOpen = ref(false);
 const showConversationOptions = ref(false);
 const messages = ref([]);
@@ -85,26 +84,18 @@ watch(selectedModel, (newValue) => {
     const modelSettings = {
         [MODEL_TYPES.OPEN_AI_FORMAT]: {
             useLocalModel: true,
-            isUsingLocalModel: true,
-            isClaudeEnabled: false,
             modelDisplayName: "Custom Model"
         },
         [MODEL_TYPES.CLAUDE]: {
             useLocalModel: false,
-            isUsingLocalModel: false,
-            isClaudeEnabled: true,
             modelDisplayName: "Claude"
         },
         [MODEL_TYPES.GPT]: {
             useLocalModel: false,
-            isUsingLocalModel: false,
-            isClaudeEnabled: false,
             modelDisplayName: "GPT"
         },
         [MODEL_TYPES.WEB_LLM]: {
             useLocalModel: false,
-            isUsingLocalModel: false,
-            isClaudeEnabled: false,
             modelDisplayName: "Local Browser Model"
         }
     };
@@ -112,7 +103,7 @@ watch(selectedModel, (newValue) => {
     const defaultSettings = {
         useLocalModel: false,
         isUsingLocalModel: false,
-        isClaudeEnabled: false,
+
         modelDisplayName: "Unknown"
     };
 
@@ -129,8 +120,6 @@ watch(selectedModel, (newValue) => {
     try {
         localStorage.setItem('useLocalModel', settings.useLocalModel);
         localStorage.setItem('selectedModel', newValue);
-        isUsingLocalModel.value = settings.isUsingLocalModel;
-        isClaudeEnabled.value = settings.isClaudeEnabled;
         modelDisplayName.value = settings.modelDisplayName;
     } catch (error) {
         console.error('Error updating settings:', error);
@@ -285,7 +274,7 @@ async function startNewConversation() {
 }
 
 async function createNewConversationWithTitle() {
-    if (isClaudeEnabled.value) {
+    if (selectedModel.value.indexOf("claude") !== -1) {
         return await fetchClaudeConversationTitle(messages.value.slice(0));
     }
 
@@ -327,13 +316,9 @@ async function sendMessage(event) {
             return;
         }
 
-
-
-        isClaudeEnabled.value = false;
         addMessage("user", messageText);
 
         if (selectedModel.value.indexOf("claude") !== -1) {
-            isClaudeEnabled.value = true;
             await sendClaudeMessage(messageText);
             return;
         }
@@ -421,17 +406,14 @@ async function sendGPTMessage() {
 
 async function sendClaudeMessage(messageText) {
     if (messageText.startsWith("vision::")) {
-        isClaudeEnabled.value = true;
         isLoading.value = true;
 
         await sendVisionPrompt();
-
-        isClaudeEnabled.value = false;
+        ;
         isLoading.value = false;
         return;
     }
 
-    isClaudeEnabled.value = true;
     isLoading.value = true;
 
     abortController.value = new AbortController();
@@ -462,8 +444,7 @@ async function regenerateMessageResponseHandler(content) {
         claudeSliderValue.value,
         updateUI,
         abortController,
-        streamedMessageText,
-        isClaudeEnabled.value
+        streamedMessageText
     );
 
     isLoading.value = false;
@@ -489,8 +470,7 @@ async function EditPreviousMessage(oldContent, newContent) {
         claudeSliderValue.value,
         updateUI,
         abortController,
-        streamedMessageText,
-        isClaudeEnabled.value
+        streamedMessageText
     );
 
     messages.value = [...result.baseMessages];
@@ -775,7 +755,6 @@ async function editConversationTitle(oldConversation, newConversationTitle) {
 }
 
 async function onModelChange(newModel) {
-    console.log(newModel);
     selectedModel.value = newModel;
 }
 
@@ -807,7 +786,8 @@ onMounted(() => {
 
     sidebarContentContainer.value = document.querySelector(".sidebar-conversations");
     sidebarContentContainer.value.style.width = '420px';
-    selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
+    selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4o";
+
     determineModelDisplayName(selectedModel.value);
     selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
 
@@ -886,9 +866,7 @@ onMounted(() => {
                         <!-- Messages -->
                         <div class="messages">
                             <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
-                                :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
-                                :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
-                                :isGeneratingImage="isGeneratingImage" :modelDisplayName="modelDisplayName"
+                                :modelDisplayName="modelDisplayName"
                                 @regenerate-response="regenerateMessageResponseHandler"
                                 @delete-response="handleDeleteMessage" @edit-message="EditPreviousMessage" />
                         </div>
