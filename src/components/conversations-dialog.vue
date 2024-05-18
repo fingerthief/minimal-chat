@@ -184,23 +184,16 @@ function purgeConversations() {
 
 <style lang="scss" scoped>
 $shadow-color: #252629;
-$shadow-offset-x: 0px;
-$shadow-offset-y: 1px;
-$shadow-blur-radius: 2px;
-$shadow-spread-radius: 0px;
-$icon-color: rgb(187, 187, 187);
-
 
 .resize-handle {
     position: absolute;
     top: 0;
-    right: 0px;
+    right: 0;
     width: 3px;
     height: 100%;
     cursor: col-resize;
     background-color: #212121;
     z-index: 1000;
-    max-width: 100%;
 }
 
 .settings-header {
@@ -208,50 +201,16 @@ $icon-color: rgb(187, 187, 187);
     font-weight: bold;
     position: relative;
     border-bottom: 1px solid #3d3d3d;
-    padding-bottom: 11px;
-    padding-top: 10px;
+    padding: 10px 22px;
     background-color: #151517;
     text-align: left;
     white-space: nowrap;
-    padding-left: 22px;
 
     @media (max-width: 600px) {
         border-bottom: 5px solid #3d3d3d;
-        padding-bottom: 25px;
-        padding-top: 25px;
-        padding-left: 0px;
+        padding: 25px 0;
         background-color: #212121;
         text-align: center;
-    }
-
-}
-
-
-.import-export-container {
-    z-index: 10000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.import-export-btn {
-    /* Remove this line: align-self: flex-end; */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    margin-right: 10px;
-    color: white;
-    cursor: pointer;
-    width: 100%;
-    font-size: 18px;
-    height: 56px;
-    outline: none;
-    margin-bottom: 10px;
-    transition: background-color 0.2s ease;
-    background-color: #29293a;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-        background-color: #252534;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 }
 
@@ -262,18 +221,12 @@ $icon-color: rgb(187, 187, 187);
     right: 0;
     display: flex;
     align-items: flex-end;
-    justify-content: flex-end; // Add this line to align items to the bottom
     flex-direction: column;
     width: 100%;
-
-    .settings-cog {
-        text-align: center;
-    }
 
     @media (max-width: 600px) {
         width: 100%;
     }
-
 
     .scrollable-list--bottom {
         max-width: 100%;
@@ -281,7 +234,6 @@ $icon-color: rgb(187, 187, 187);
         width: 100%;
         height: 22dvh;
         max-height: 22dvh;
-        min-height: 0vh;
         overflow: auto;
         box-sizing: border-box;
         display: flex;
@@ -300,8 +252,11 @@ $icon-color: rgb(187, 187, 187);
             background-color: #0a1e24;
             border-bottom: 2px solid #26622ab5;
 
+            &:hover {
+                background-color: #104745;
+            }
+
             &--delete {
-                background-color: #0a1e24;
                 border-bottom: 2px solid #713f3fe8;
 
                 &:hover {
@@ -317,14 +272,10 @@ $icon-color: rgb(187, 187, 187);
                     .delete-text {
                         line-height: 1;
                     }
-
                 }
-
             }
 
             &--settings {
-
-                background-color: #0a1e24;
                 border-bottom: 2px solid #725182b5;
 
                 &:hover {
@@ -339,13 +290,7 @@ $icon-color: rgb(187, 187, 187);
                     .settings-text {
                         line-height: 1;
                     }
-
                 }
-
-            }
-
-            &:hover {
-                background-color: #104745;
             }
 
             .new-icon {
@@ -360,7 +305,6 @@ $icon-color: rgb(187, 187, 187);
             }
         }
 
-
         ul {
             list-style-type: none;
             padding: 0;
@@ -370,11 +314,7 @@ $icon-color: rgb(187, 187, 187);
         li {
             padding: 10px;
             border-bottom: 1px solid #100d0d;
-            background-color: #2a2121;
             transition: background-color 0.2s ease;
-
-            -webkit-user-select: none;
-            -ms-user-select: none;
             user-select: none;
 
             &:hover {
@@ -385,16 +325,15 @@ $icon-color: rgb(187, 187, 187);
                 background-color: #3e3347;
                 font-weight: bold;
                 box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-                animation: pulse 0.250s ease-out forwards;
                 border: 1px solid #513f77;
+                animation: pulse 0.250s ease-out forwards;
             }
 
             &.selected:before {
-                content: '\2713'; // Unicode for checkmark
-                font-family: 'Arial Unicode MS';
+                content: '\2713';
                 display: inline-block;
                 margin-right: 10px;
-                color: #4cae4c; // Green color for the checkmark
+                color: #4cae4c;
             }
 
             @keyframes pulse {
@@ -404,7 +343,7 @@ $icon-color: rgb(187, 187, 187);
                 }
 
                 50% {
-                    background-color: #413558; // Slightly lighter color for the pulse effect
+                    background-color: #413558;
                     transform: scale(1.02);
                 }
 
@@ -415,7 +354,6 @@ $icon-color: rgb(187, 187, 187);
             }
         }
     }
-
 }
 
 .scrollable-list {
@@ -427,15 +365,9 @@ $icon-color: rgb(187, 187, 187);
     overflow-x: hidden;
     width: 100%;
     height: 77dvh;
-    min-height: 0vh;
     overflow: auto;
     box-sizing: border-box;
     font-size: 12px;
-
-    &--bottom-options {
-        display: flex;
-        align-items: flex-end;
-    }
 
     .new-conversation-option {
         text-align: left;
@@ -446,7 +378,6 @@ $icon-color: rgb(187, 187, 187);
         padding: 15px;
         display: flex;
         cursor: pointer;
-        position: relative;
 
         &:hover {
             background-color: #104745aa;
@@ -464,7 +395,6 @@ $icon-color: rgb(187, 187, 187);
         }
     }
 
-
     ul {
         list-style-type: none;
         padding: 0;
@@ -478,10 +408,6 @@ $icon-color: rgb(187, 187, 187);
         transition: background-color 0.2s ease;
         border-left: 6px solid #3a3a3a;
         color: #7f7f7f;
-        border-bottom: 1px solid #8080806e;
-
-        -webkit-user-select: none;
-        -ms-user-select: none;
         user-select: none;
 
         &[contenteditable="true"] {
@@ -506,32 +432,7 @@ $icon-color: rgb(187, 187, 187);
     }
 }
 
-.close-btn {
-    @media (max-width: 600px) {
-        display: block;
-    }
-
-    display: none;
-    align-self: flex-end; // Align the button to the right
-    padding: 5px 10px;
-    border: 1px solid #444;
-    background-color: #3d3c3e;
-    color: white;
-    cursor: pointer;
-    width: 99%;
-    font-size: 18px;
-    margin-right: 6px;
-    height: 50px;
-    outline: none;
-    transition: background-color 0.2s ease;
-    background-color: #29293a;
-
-    &:hover {
-        background-color: #252534;
-    }
-}
-
 .box {
-    box-shadow: $shadow-offset-x $shadow-offset-y $shadow-blur-radius $shadow-spread-radius $shadow-color;
+    box-shadow: 0px 1px 2px 0px $shadow-color;
 }
 </style>
