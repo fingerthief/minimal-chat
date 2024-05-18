@@ -195,10 +195,10 @@ $icon-color: rgb(187, 187, 187);
     position: absolute;
     top: 0;
     right: 0px;
-    width: 6px;
+    width: 3px;
     height: 100%;
     cursor: col-resize;
-    background-color: #274d683b;
+    background-color: #212121;
     z-index: 1000;
     max-width: 100%;
 }
@@ -286,6 +286,7 @@ $icon-color: rgb(187, 187, 187);
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
+        font-size: 14px;
         justify-content: flex-end;
 
         .new-conversation-option {
@@ -429,6 +430,7 @@ $icon-color: rgb(187, 187, 187);
     min-height: 0vh;
     overflow: auto;
     box-sizing: border-box;
+    font-size: 12px;
 
     &--bottom-options {
         display: flex;
@@ -470,9 +472,9 @@ $icon-color: rgb(187, 187, 187);
     }
 
     li {
-        padding: 15px;
+        padding: 8px;
         border-bottom: 1px solid #100d0d;
-        background-color: #313131;
+        background-color: #313131a1;
         transition: background-color 0.2s ease;
         border-left: 6px solid #3a3a3a;
         color: #7f7f7f;

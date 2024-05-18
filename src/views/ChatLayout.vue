@@ -1321,10 +1321,10 @@ pre {
     position: absolute;
     top: 0;
     right: 0px;
-    width: 6px;
+    width: 3px;
     height: 100%;
     cursor: col-resize;
-    background-color: #274d683b;
+    background-color: #212121;
     z-index: 1000;
     max-width: 100%;
 }
