@@ -1004,7 +1004,7 @@ onMounted(() => {
             <div class="overlay" v-show="isSidebarOpen || showConversationOptions"></div>
 
             <!-- Settings Sidebar -->
-            <div class="sidebar-common sidebar-left box" id="settings-dialog" :class="{ open: isSidebarOpen }">
+            <div class="sidebar-common sidebar-left" id="settings-dialog" :class="{ open: isSidebarOpen }">
                 <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel"
                     :localModelName="localModelName" :localModelEndpoint="localModelEndpoint"
                     :localSliderValue="localSliderValue" :gptKey="gptKey" :sliderValue="sliderValue"
@@ -1033,7 +1033,7 @@ onMounted(() => {
                     @toggle-sidebar="toggleSidebar" />
             </div>
             <!-- Conversations Sidebar -->
-            <div class="sidebar-conversations sidebar-right box" id="conversations-dialog"
+            <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
                 :class="{ 'open': showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="selectConversation"
@@ -1085,16 +1085,18 @@ onMounted(() => {
 
 <style lang="scss">
 $icon-color: rgb(187, 187, 187);
-
-.app-body {
-    z-index: 0;
-    width: 100vw;
-    height: 90vh;
-    position: relative;
-    max-height: 90vh;
-}
-
-
+$background-color: #1c1c1e;
+$container-bg-color: #212121;
+$sidebar-bg-color: #07161a;
+$scrollbar-track-color: #665067;
+$scrollbar-thumb-color: #4f3d50;
+$scrollbar-thumb-hover-color: #5d455e;
+$border-color: #444;
+$hover-bg-color: #4a4a4c;
+$button-bg-color: #3a3a3c;
+$button-hover-bg-color: #4a4a4c;
+$font-color: #f0f0f0;
+$overlay-bg-color: rgba(15, 15, 15, 0.5);
 
 @font-face {
     font-family: Roboto-Regular;
@@ -1107,16 +1109,8 @@ body {
     font-family: Roboto-Regular, sans-serif;
     margin: 0;
     padding: 0;
-    position: relative;
-    background-color: #1c1c1e;
-    color: #f0f0f0;
-    z-index: -1;
-}
-
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: $background-color;
+    color: $font-color;
 }
 
 a {
@@ -1126,18 +1120,33 @@ a {
     &:focus,
     &:active,
     &:visited {
-        color: rgb(187, 187, 187);
+        color: $icon-color;
     }
 }
 
+.app-body {
+    width: 100vw;
+    height: 90vh;
+    position: relative;
+    max-height: 90vh;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .chat {
-    // border: 1px solid #444;
     width: 99dvw;
-    background-color: #181818;
+    background-color: $container-bg-color;
     height: 98dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     &.header {
-        background-color: #444;
+        background-color: $border-color;
         padding: 10px;
         font-size: 18px;
         font-weight: bold;
@@ -1149,33 +1158,24 @@ a {
     }
 }
 
-
 .messages {
     overflow-y: auto;
-    overflow-x: hidden;
     padding: 3px;
-    position: relative;
-    max-height: 88dvh;
-    min-height: 80vh;
-    scrollbar-width: none;
-    /* For Firefox */
-    -ms-overflow-style: none;
-    /* For Internet Explorer and Edge */
-}
+    min-height: 93vh;
+    scrollbar-width: none; // For Firefox
+    -ms-overflow-style: none; // For Internet Explorer and Edge
 
-.messages::-webkit-scrollbar {
-    /* For Chrome, Safari, and Opera */
-    display: none;
+    &::-webkit-scrollbar {
+        display: none; // For Chrome, Safari, and Opera
+    }
 }
 
 #user-search-input {
     flex-grow: 1;
-    z-index: 9999;
-    border: 1px solid #444;
-    outline: none;
-    background-color: #1c1c1e;
+    border: 1px solid $border-color;
+    background-color: $background-color;
     font-size: 18px;
-    color: #f0f0f0;
+    color: $font-color;
     width: inherit;
     resize: vertical;
     overflow: auto;
@@ -1183,20 +1183,17 @@ a {
     min-height: 30px;
     border-radius: 30px;
     transition: 0.2s height ease-in-out;
-    padding: 14px;
-    padding-top: 20px;
+    padding: 14px 14px 14px 20px;
 }
 
-
 button {
-    border: 1px solid #444;
-    background-color: #3a3a3c;
-    color: #f0f0f0;
+    border: 1px solid $border-color;
+    background-color: $button-bg-color;
+    color: $font-color;
     cursor: pointer;
-    outline: none;
 
     &:hover {
-        background-color: #4a4a4c;
+        background-color: $button-hover-bg-color;
     }
 }
 
@@ -1208,18 +1205,13 @@ button {
     }
 }
 
-
-
 .floating-button {
-    border: 1px solid #444;
+    border: 1px solid $border-color;
     background: transparent;
-    border: none;
     cursor: pointer;
-    outline: none;
     color: $icon-color;
     position: fixed;
     min-height: 50px;
-    border: none;
     top: 130px;
     display: grid;
     align-content: center;
@@ -1240,17 +1232,15 @@ button {
         }
     }
 
-
     &:hover {
         opacity: 1;
     }
 }
 
 .floating-search-field {
-    border: 1px solid #444;
+    border: 1px solid $border-color;
     background-color: #2f2f31;
     cursor: pointer;
-    outline: none;
     color: #433944;
     position: fixed;
     min-height: 0px;
@@ -1285,125 +1275,107 @@ pre {
 }
 
 .app-container {
-    position: relative; // Add relative positioning
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 1px;
     border-radius: 8px;
-    z-index: -1;
-
 }
 
 .general-processing {
     display: contents;
-    position: relative;
 }
 
-// For Webkit-based browsers (Chrome, Safari)
 ::-webkit-scrollbar {
     width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #665067;
+    background: $scrollbar-track-color;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #4f3d50;
-}
+    background: $scrollbar-thumb-color;
 
-::-webkit-scrollbar-thumb:hover {
-    background: #5d455e;
+    &:hover {
+        background: $scrollbar-thumb-hover-color;
+    }
 }
 
 .resize-handle {
     position: absolute;
     top: 0;
     right: 0px;
-    width: 6px;
+    width: 3px;
     height: 100%;
     cursor: col-resize;
-    background-color: #274d683b;
+    background-color: #212121;
     z-index: 1000;
-    max-width: 100%;
+}
+
+.sidebar-conversations,
+.sidebar-common {
+    background-color: $sidebar-bg-color;
+    padding: 6px;
+    overflow: hidden;
+    transition: transform 0.1s ease-in-out;
+    z-index: 0;
+
+    &.open {
+        transform: translateX(0);
+    }
+
+    @media (max-width: 600px) {
+        position: fixed;
+        width: 100vw;
+    }
 }
 
 .sidebar-conversations {
-    background-color: #0a1e24;
-    min-width: 0px;
+    min-width: 0;
     max-width: 100%;
     position: inherit;
-    width: 100%;
-    top: 0;
-    left: 0;
+    height: 99vh;
+    width: auto;
     transform: translateX(-3px);
-    transition: transform 0.1s ease-in-out;
-    z-index: 100000;
-    overflow: hidden;
-    padding-left: 6px;
-    padding-right: 6px;
-
-    /* Add these lines */
-    height: calc(100vh - 2 * 6px);
-    /* Subtract double padding */
-    box-sizing: border-box;
 
     @media (max-width: 600px) {
         position: fixed;
         transform: translateX(110%);
-        border-right: 2px solid #3d3c3e;
-
-        width: 100%;
+        border-right: 2px solid $border-color;
+        z-index: 1;
+        width: 100vw;
 
         &.open {
-            transform: translateX(1%);
+            width: 100vw;
+            height: 102vh;
         }
     }
 }
 
-// Common styles for both sidebars
 .sidebar-common {
-    background-color: #0a1e24;
-    width: 35vw; // Adjust the width as needed
+    width: 35vw;
     min-width: 25vw;
-    max-width: 100%; // Ensure it doesn't exceed the screen width
-    height: 100vh; // Full height
-    position: fixed; // Fixed position to stay in place
-    top: 0; // Align to the top
-    transform: translateX(-100%); // Start hidden (default left)
-    transition: transform 0.1s ease-in-out; // Smooth transition for sliding in and out
-    z-index: 100001; // Ensure it's above other content
-    overflow-y: auto; // Allow scrolling if content is too long
-    border-right: 2px solid #3d3c3e; // Optional border for styling
-    padding-left: 6px;
-    padding-right: 6px;
-
-    &.open {
-        transform: translateX(0); // Move into view when open
-    }
+    max-width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    transform: translateX(-100%);
+    border-right: 2px solid $border-color;
+    z-index: 1;
 
     @media (max-width: 600px) {
-        width: 100vw; // Full width on smaller screens
+        width: 100vw;
     }
 
-    // Specific styles for right sidebar
-    .sidebar-right {
-        right: 0; // Align to the right side
-        transform: translateX(100%); // Start hidden to the right
+    &.sidebar-right {
+        right: 0;
+        transform: translateX(100%);
     }
 }
 
-// Specific styles for left sidebar
 .sidebar-left {
-    left: 0; // Align to the left side
-}
-
-
-
-.sidebar::-webkit-scrollbar {
-    /* For Chrome, Safari, and Opera */
-    display: none;
+    left: 0;
 }
 
 .overlay {
@@ -1412,15 +1384,14 @@ pre {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(15, 15, 15, 0.5); // Semi-transparent black
-    z-index: 99999; // Ensure it's below the sidebar but above other content
+    background-color: $overlay-bg-color;
+    z-index: 0;
     transition: opacity 0.3s ease-in-out;
     display: block;
-}
 
-// Hide the overlay when not needed
-.overlay:not(:empty) {
-    display: none;
+    &:not(:empty) {
+        display: none;
+    }
 }
 
 @keyframes delayZIndex {
@@ -1433,33 +1404,15 @@ pre {
     }
 }
 
-
-
 .chat-container {
-    position: relative; // Add relative positioning
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     min-height: 500px;
     min-width: 350px;
-    //border: 1px solid #444;
-    border-radius: 4px;
     width: 100vw;
     max-width: 100vw;
     background-color: #1d1d1d;
-    justify-content: space-between;
-}
-
-
-.chat {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-height: 90vh;
-    min-width: 350px;
-    max-width: 100vw;
-    width: 50%;
-    background-color: #212121;
     justify-content: space-between;
 }
 </style>

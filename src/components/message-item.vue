@@ -133,7 +133,7 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
 <style lang="scss" scoped>
 .scroller,
 .message-list {
-    height: 88vh;
+    height: 87vh;
     overflow-y: auto;
     scrollbar-width: none;
 }
@@ -173,6 +173,32 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
     line-height: 1.5;
     max-width: calc(100% - 1rem);
 
+    &.user {
+        margin-left: auto;
+
+        .message-header {
+            justify-content: end;
+            border-bottom: 2px solid #583e72d9;
+        }
+
+        .label:hover {
+            background-color: #583e72d9;
+        }
+    }
+
+    &.gpt {
+        margin-right: auto;
+
+        .message-header {
+            justify-content: start;
+            border-bottom: 2px solid #0b6363e5;
+        }
+
+        .label:hover {
+            background-color: #0b6363e5;
+        }
+    }
+
     .message-header {
         display: flex;
         align-items: center;
@@ -193,32 +219,6 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
                 margin: -6px;
             }
         }
-    }
-
-    &.user {
-        margin-left: auto;
-
-        .label:hover {
-            background-color: #583e72d9;
-        }
-    }
-
-    &.gpt {
-        margin-right: auto;
-
-        .label:hover {
-            background-color: #0b6363e5;
-        }
-    }
-
-    &.user .message-header {
-        justify-content: end;
-        border-bottom: 2px solid #583e72d9;
-    }
-
-    &.gpt .message-header {
-        justify-content: start;
-        border-bottom: 2px solid #0b6363e5;
     }
 
     .message-contents {
