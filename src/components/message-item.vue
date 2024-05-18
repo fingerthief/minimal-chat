@@ -51,7 +51,7 @@ const copyText = (message) => {
     });
 };
 
-const startLoading = (index) => loadingIcon.value = index;
+const startLoading = (id) => loadingIcon.value = id;
 
 let initialMessage = "";
 const editMessage = (message) => {
@@ -59,7 +59,7 @@ const editMessage = (message) => {
     message.isEditing = true;
     initialMessage = message;
     nextTick(() => {
-        const messageContent = document.getElementById(`message-${props.messages.indexOf(message)}`);
+        const messageContent = document.getElementById(`message-${message.id}`);
         if (messageContent) messageContent.focus();
     });
 };
@@ -79,12 +79,11 @@ const scroller = ref(null);
 const scrollToBottom = async () => {
     if (scroller.value && messageList.value) {
         await nextTick();
-        scroller.value.scrollToItem(filteredMessages.value.length - 1);
-        messageList.value.scrollTop = messageList.value.scrollHeight;
+        scroller.value.scrollToItem(filteredMessages.value.length);
     }
 };
 
-watch(() => [filteredMessages, props.streamedMessageText, props.messages],
+watch(() => [filteredMessages, props.streamedMessageText],
     async () => {
         await scrollToBottom();
     }, { deep: true }
@@ -93,37 +92,29 @@ watch(() => [filteredMessages, props.streamedMessageText, props.messages],
 
 <template>
     <div ref="messageList" class="message-list">
-        <DynamicScroller :min-item-size="600" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
+        <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
             :items="filteredMessages" key-field="id" v-slot="{ item, index, active }">
-            <DynamicScrollerItem :item="item" :active="active" :data-index="index">
+            <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
                 <div v-if="active" :class="messageClass(item.role)">
                     <div class="message-header">
-                        <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + index" :size="18"
-                            :class="{ 'loading': isLoading && loadingIcon === index }"
-                            @click.stop="$emit('regenerate-response', item.content), startLoading(index)" />
-                        <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + index">Regenerate</ToolTip>
-                        <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + index"
-                            :size="18" @click.stop="$emit('delete-response', item.content), startLoading(index)" />
-                        <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + index">Remove</ToolTip>
-                        <div class="label" @click="copyText(item)" :id="'message-label-' + index">
+                        <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + item.id"
+                            :size="18" :class="{ 'loading': isLoading && loadingIcon === item.id }"
+                            @click.stop="$emit('regenerate-response', item.content), startLoading(item.id)" />
+                        <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate
+                        </ToolTip>
+                        <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + item.id"
+                            :size="18" @click.stop="$emit('delete-response', item.content), startLoading(item.id)" />
+                        <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
+                        <div class="label" @click="copyText(item)" :id="'message-label-' + item.id">
                             {{ item.role === 'user' ? 'User' : modelDisplayName }}
                         </div>
-                        <ToolTip :targetId="'message-label-' + index">Copy message</ToolTip>
+                        <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
                     </div>
-                    <div class="message-contents" :id="'message-' + index" :contenteditable="item.isEditing"
+                    <div class="message-contents" :id="'message-' + item.id" :contenteditable="item.isEditing"
                         @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)"
                         v-html="formatMessage(item.content)"></div>
-                    <ToolTip v-if="item.role === 'user'" :targetId="'message-' + index">Double click to edit message
+                    <ToolTip v-if="item.role === 'user'" :targetId="'message-' + item.id">Double click to edit message
                     </ToolTip>
-                </div>
-                <div v-if="(streamedMessageText.length || isLoading || isGeneratingImage || isAnalyzingImage) && index === (filteredMessages.length - 1)"
-                    class="gpt message">
-                    <div class="message-header">
-                        <div class="label padded">{{ modelDisplayName }}</div>
-                    </div>
-                    <span class="message-contents" v-html="formatMessage(streamedMessageText || '')"></span>
-                    <span v-if="!streamedMessageText.trim().length">Awaiting response...</span>
-                    <span v-if="!streamedMessageText.trim().length" class="loading spinner"></span>
                 </div>
             </DynamicScrollerItem>
         </DynamicScroller>
