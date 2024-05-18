@@ -1161,8 +1161,7 @@ a {
 .messages {
     overflow-y: auto;
     padding: 3px;
-    max-height: 89dvh;
-    min-height: 89vh;
+    min-height: 93vh;
     scrollbar-width: none; // For Firefox
     -ms-overflow-style: none; // For Internet Explorer and Edge
 
