@@ -132,16 +132,16 @@ function purgeConversations() {
                         @dblclick="editConversationTitle(conversation)"
                         @blur="saveEditedConversationTitle(conversation, $event)"
                         :class="{ 'selected': selectedConversation && selectedConversation.id === conversation.id }">
-                        <Pencil :id="'pencil-' + index" :size="15" @click.stop="editConversationTitle(conversation)" />
+                        <Pencil :id="'pencil-' + index" :size="13" @click.stop="editConversationTitle(conversation)" />
                         <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
                         <span>
-                            &nbsp;&nbsp;{{ conversation.title }}
+                            &nbsp;{{ conversation.title }}
                         </span>
                         <br><br>
                         <span>
-                            <Database :size="15" />
-                            &nbsp;&nbsp;
-                            Context Length: ({{ conversationCharacterCount(conversation) }})
+                            <Database :size="13" />
+                            &nbsp;
+                            {{ conversationCharacterCount(conversation) }} Tokens
                         </span>
                     </li>
                 </ul>
@@ -402,12 +402,12 @@ $shadow-color: #252629;
     }
 
     li {
-        padding: 8px;
-        border-bottom: 1px solid #100d0d;
+        padding: 6px;
+        border-bottom: 1px solid #77737b69;
         background-color: #313131a1;
         transition: background-color 0.2s ease;
         border-left: 6px solid #3a3a3a;
-        color: #7f7f7f;
+        color: #9e9d9d;
         user-select: none;
 
         &[contenteditable="true"] {
@@ -423,10 +423,10 @@ $shadow-color: #252629;
         }
 
         &.selected {
-            background-color: #242424;
+            background-color: #171616;
             font-weight: bold;
             box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-left: 6px solid #009463d5;
+            border-left: 6px solid #02af75d5;
             color: whitesmoke;
         }
     }
