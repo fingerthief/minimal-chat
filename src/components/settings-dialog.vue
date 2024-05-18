@@ -754,7 +754,7 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .settings-header {
-    font-size: 19px;
+    font-size: 14px;
     font-weight: bold;
     text-align: center;
     margin-top: -7px;
