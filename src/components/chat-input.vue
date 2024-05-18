@@ -202,7 +202,7 @@ $icon-color: rgb(187, 187, 187);
 
     #user-input {
         flex-grow: 1;
-        z-index: 9999;
+        z-index: 0;
         border: 1px solid #583e72b5;
         outline: none;
         background-color: #1d1d1d;
