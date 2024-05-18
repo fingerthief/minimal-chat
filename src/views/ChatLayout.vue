@@ -1086,8 +1086,8 @@ onMounted(() => {
 <style lang="scss">
 $icon-color: rgb(187, 187, 187);
 $background-color: #1c1c1e;
-$container-bg-color: #181818;
-$sidebar-bg-color: #0a1e24;
+$container-bg-color: #212121;
+$sidebar-bg-color: #07161a;
 $scrollbar-track-color: #665067;
 $scrollbar-thumb-color: #4f3d50;
 $scrollbar-thumb-hover-color: #5d455e;

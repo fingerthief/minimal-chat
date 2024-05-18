@@ -527,7 +527,7 @@ const updateRepetitionSliderValue = (value) => {
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
 $primary-bg-color: #1b302e;
-$secondary-bg-color: #181f20;
+$secondary-bg-color: #212121;
 $highlight-bg-color: #165951;
 $button-bg-color: #1a5951;
 $button-hover-bg-color: #165951;

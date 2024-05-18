@@ -431,8 +431,4 @@ $shadow-color: #252629;
         }
     }
 }
-
-.box {
-    box-shadow: 0px 1px 2px 0px $shadow-color;
-}
 </style>
