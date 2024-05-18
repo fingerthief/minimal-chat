@@ -118,3 +118,105 @@ export function showToast(message) {
         onClick: function () { } // Callback after click
     }).showToast();
 }
+
+export function determineModelDisplayName(newValue) {
+    const MODEL_TYPES = {
+        OPEN_AI_FORMAT: 'open-ai-format',
+        CLAUDE: 'claude',
+        GPT: 'gpt',
+        WEB_LLM: 'web-llm'
+    };
+
+    // Determine settings based on model type
+    if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
+        return "Custom Model"
+    }
+    else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
+        return "Claude"
+    }
+    else if (newValue.includes(MODEL_TYPES.GPT)) {
+        return "GPT"
+    }
+    else if (newValue.includes(MODEL_TYPES.WEB_LLM)) {
+        return "WebGPU Model";
+    }
+}
+
+export function unloadModel(engine) {
+    if (engine !== undefined) {
+        engine.unload();
+    }
+}
+
+// utils.js
+
+export function updateUI(content, messages, addMessage, autoScrollBottom = true, appendTextValue = true) {
+    const lastMessage = messages[messages.length - 1];
+
+    if (lastMessage && lastMessage.role === 'assistant') {
+        if (!appendTextValue) {
+            lastMessage.content = content;
+            return;
+        }
+
+        lastMessage.content += content;
+    } else {
+        addMessage('assistant', content);
+    }
+}
+
+export function isScrollable(element) {
+    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+}
+
+export function updateScrollButtonVisibility(messagesContainer, shouldShowScrollButton) {
+    const messagesElement = messagesContainer.querySelectorAll('.scroller');
+    if (messagesElement.length > 0) {
+        const lastMessage = messagesElement[messagesElement.length - 1];
+
+        if (!isScrollable(messagesContainer)) {
+            shouldShowScrollButton.value = false;
+            return;
+        }
+
+        // Calculate the bottom position of the last message relative to the container
+        const lastMessageBottom = lastMessage.offsetTop + lastMessage.offsetHeight;
+        const scrollBottom = messagesContainer.scrollTop + messagesContainer.offsetHeight;
+
+        // Determine if the scroll position is within 20% of the bottom of the container
+        const threshold = messagesContainer.scrollHeight - (messagesContainer.offsetHeight * 0.2);
+
+        if (lastMessageBottom > messagesContainer.offsetHeight && scrollBottom < threshold) {
+            shouldShowScrollButton.value = true;
+        } else {
+            shouldShowScrollButton.value = false;
+        }
+    }
+}
+
+export function handleDoubleClick(sidebarContentContainer) {
+    const currentWidth = sidebarContentContainer.offsetWidth;
+    console.log(currentWidth);
+    if (currentWidth < 25) {
+        sidebarContentContainer.style.width = '420px';
+    } else {
+        sidebarContentContainer.style.width = '0px';
+    }
+}
+
+export function startResize(event, sidebarContentContainer, initialWidth, initialMouseX) {
+    initialWidth = sidebarContentContainer.offsetWidth;
+    initialMouseX = event.clientX;
+    document.addEventListener("mousemove", (e) => resize(e, sidebarContentContainer, initialWidth, initialMouseX));
+    document.addEventListener("mouseup", () => stopResize(sidebarContentContainer, initialWidth, initialMouseX));
+}
+
+export function resize(event, sidebarContentContainer, initialWidth, initialMouseX) {
+    const deltaX = event.clientX - initialMouseX;
+    sidebarContentContainer.style.width = `${initialWidth + deltaX}px`;
+}
+
+export function stopResize() {
+    document.removeEventListener("mousemove", resize);
+    document.removeEventListener("mouseup", stopResize);
+}

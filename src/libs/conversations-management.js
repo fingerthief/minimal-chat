@@ -1,7 +1,28 @@
 import { fetchGPTResponseStream } from "./gpt-api-access";
-import { fetchLocalModelResponseStream } from "./open-ai-api-standard-access";
-import { streamClaudeResponse } from "./claude-api-access";
-import { sendBrowserLoadedModelMessage } from "./web-llm-access";
+import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from "./open-ai-api-standard-access";
+import { streamClaudeResponse, fetchClaudeConversationTitle } from "./claude-api-access";
+import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle } from "./web-llm-access";
+import { getConversationTitleFromGPT } from "@/libs/utils";
+
+export async function createNewConversationWithTitle(messages, selectedModel, localModelName, localModelEndpoint, sliderValue) {
+    if (selectedModel.indexOf("claude") !== -1) {
+        return await fetchClaudeConversationTitle(messages);
+    }
+
+    if (selectedModel.indexOf("open-ai-format") !== -1) {
+        return await getConversationTitleFromLocalModel(messages, localModelName, localModelEndpoint);
+    }
+
+    if (selectedModel.indexOf("gpt") !== -1) {
+        return await getConversationTitleFromGPT(messages, selectedModel, sliderValue);
+    }
+
+    if (selectedModel.indexOf("web-llm") !== -1) {
+        return await getBrowserLoadedModelConversationTitle(messages);
+    }
+
+    return "Error Generating Title";
+}
 
 export function createConversation(conversations, title, messages) {
     const maxId = conversations.length > 0 ? Math.max(...conversations.map(c => c.id)) : 0;
@@ -31,12 +52,11 @@ export function deleteConversation(conversations, id) {
 
 // conversations-management.js
 
-export async function saveMessages(conversations, selectedConversation, messages, createNewConversationWithTitle, lastLoadedConversationId) {
+export async function saveMessages(conversations, selectedConversation, messages, lastLoadedConversationId) {
     const updatedConversation = selectedConversation;
 
     if (!selectedConversation || !selectedConversation === null) {
-        const title = await createNewConversationWithTitle();
-
+        const title = await createNewConversationWithTitle(messages, localStorage.getItem("selectedModel") || "gpt-4o", localStorage.getItem("localModelName") || "", localStorage.getItem("localModelEndpoint") || "", localStorage.getItem("gpt-attitude") || 50);
         const uniqueMessages = createUniqueMessagesWithIds(messages);
 
         const updatedConversations = createConversation(conversations, title, uniqueMessages);

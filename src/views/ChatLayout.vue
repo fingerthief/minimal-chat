@@ -3,12 +3,18 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
-import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
-import { fetchClaudeConversationTitle } from '@/libs/claude-api-access';
-import { getConversationTitleFromGPT, showToast, removeAPIEndpoints } from '@/libs/utils';
+import { loadConversationTitles, loadStoredConversations } from '@/libs/gpt-api-access';
+
+import {
+    showToast,
+    removeAPIEndpoints,
+    determineModelDisplayName,
+    unloadModel,
+    updateUI,
+    handleDoubleClick,
+    startResize
+} from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
-import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
-import { getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
 import {
     deleteConversation,
     handleExportConversations,
@@ -29,7 +35,6 @@ import conversationsDialog from '@/components/conversations-dialog.vue';
 
 //#region Refs
 const shouldShowScrollButton = ref(false);
-const isAnalyzingImage = ref(false);
 const userText = ref('');
 const isLoading = ref(false);
 const hasFilterText = ref(false);
@@ -114,7 +119,7 @@ watch(selectedModel, (newValue) => {
     }, defaultSettings);
 
     if (settings.modelDisplayName !== "Local Browser Model") {
-        unloadModel();
+        unloadModel(engine);
     }
     try {
         localStorage.setItem('useLocalModel', settings.useLocalModel);
@@ -154,58 +159,18 @@ watch(browserModelSelection, async (newValue) => {
     localStorage.setItem('browserModelSelection', newValue);
     modelDisplayName.value = newValue;
     isLoading.value = true;
-    await loadNewModel(newValue, updateUI);
+    await loadNewModel(newValue, updateUIWrapper);
     isLoading.value = false;
 });
 //#endregion watchers
 
-function unloadModel() {
-    if (engine !== undefined) {
-        engine.unload();
-    }
-}
-
 //#region UI Updates
-function determineModelDisplayName(newValue) {
-    const MODEL_TYPES = {
-        OPEN_AI_FORMAT: 'open-ai-format',
-        CLAUDE: 'claude',
-        GPT: 'gpt',
-        WEB_LLM: 'web-llm'
-    };
-
-    // Determine settings based on model type
-    if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
-        modelDisplayName.value = "Custom Model"
-    }
-    else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
-        modelDisplayName.value = "Claude"
-    }
-    else if (newValue.includes(MODEL_TYPES.GPT)) {
-        modelDisplayName.value = "GPT"
-    }
-    else if (newValue.includes(MODEL_TYPES.WEB_LLM)) {
-        modelDisplayName.value = browserModelSelection.value;
-    }
-}
-
 const updateUserText = (newText) => {
     userText.value = newText;
 };
 
-function updateUI(content, autoScrollBottom = true, appendTextValue = true) {
-    const lastMessage = messages.value[messages.value.length - 1];
-
-    if (lastMessage && lastMessage.role === 'assistant') {
-        if (!appendTextValue) {
-            lastMessage.content = content;
-            return;
-        }
-
-        lastMessage.content += content;
-    } else {
-        addMessage('assistant', content);
-    }
+function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = true) {
+    updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
 }
 
 function toggleSidebar() {
@@ -239,7 +204,6 @@ async function saveMessagesHandler() {
         conversations.value,
         selectedConversation.value,
         messages.value,
-        createNewConversationWithTitle,
         lastLoadedConversationId.value
     );
 
@@ -270,26 +234,6 @@ async function startNewConversation() {
     messages.value = [];
 
     showToast("Conversation Saved");
-}
-
-async function createNewConversationWithTitle() {
-    if (selectedModel.value.indexOf("claude") !== -1) {
-        return await fetchClaudeConversationTitle(messages.value.slice(0));
-    }
-
-    if (selectedModel.value.indexOf("open-ai-format") !== -1) {
-        return await getConversationTitleFromLocalModel(messages.value.slice(0), localModelName.value, localModelEndpoint.value);
-    }
-
-    if (selectedModel.value.indexOf("gpt") !== -1) {
-        return await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
-    }
-
-    if (selectedModel.value.indexOf("web-llm") !== -1) {
-        return await getBrowserLoadedModelConversationTitle(messages.value.slice(0));
-    }
-
-    return "Error Generating Title";
 }
 
 function handleImportConversations() {
@@ -342,7 +286,7 @@ async function regenerateMessageResponseHandler(content) {
         localModelName.value,
         localModelEndpoint.value,
         claudeSliderValue.value,
-        updateUI,
+        updateUIWrapper,
         abortController,
         streamedMessageText
     );
@@ -368,7 +312,7 @@ async function EditPreviousMessage(oldContent, newContent) {
         localModelName.value,
         localModelEndpoint.value,
         claudeSliderValue.value,
-        updateUI,
+        updateUIWrapper,
         abortController,
         streamedMessageText
     );
@@ -417,7 +361,7 @@ async function visionimageUploadClick() {
     }
 
     userText.value = 'vision:: ' + userText.value;
-    await sendMessage(null, userText.value, messages.value, selectedModel.value, claudeSliderValue.value, sliderValue.value, localModelName.value, localSliderValue.value, localModelEndpoint.value, updateUI, addMessage, saveMessagesHandler);
+    await sendMessage(null, userText.value, messages.value, selectedModel.value, claudeSliderValue.value, sliderValue.value, localModelName.value, localSliderValue.value, localModelEndpoint.value, updateUIWrapper, addMessage, saveMessagesHandler);
     //#endregion
 }
 //#region File/Upload Handling
@@ -492,37 +436,6 @@ function swipedRight(event) {
 }
 //#endregion
 
-//#region Floating Scroll Button
-function updateScrollButtonVisibility() {
-    const messagesElement = messagesContainer.querySelectorAll('.message');
-    if (messagesElement.length > 0) {
-        const lastMessage = messagesElement[messagesElement.length - 1];
-
-        if (!isScrollable(messagesContainer)) {
-            shouldShowScrollButton.value = false;
-            return;
-        }
-
-        // Calculate the bottom position of the last message relative to the container
-        const lastMessageBottom = lastMessage.offsetTop + lastMessage.offsetHeight;
-        const scrollBottom = messagesContainer.scrollTop + messagesContainer.offsetHeight;
-
-        // Determine if the scroll position is within 20% of the bottom of the container
-        const threshold = messagesContainer.scrollHeight - (messagesContainer.offsetHeight * 0.2);
-
-        if (lastMessageBottom > messagesContainer.offsetHeight && scrollBottom < threshold) {
-            shouldShowScrollButton.value = true;
-        } else {
-            shouldShowScrollButton.value = false;
-        }
-    }
-}
-
-function isScrollable(element) {
-    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
-}
-//#endregion
-
 //#region Utils
 const refs = {
     selectedModel,
@@ -581,34 +494,9 @@ function handleGlobalClick(event) {
 }
 
 const sidebarContentContainer = ref(null);
-const initialWidth = ref(0);
-const initialMouseX = ref(0);
+// const initialWidth = ref(0);
+// const initialMouseX = ref(0);
 
-function handleDoubleClick() {
-    const currentWidth = sidebarContentContainer.value.offsetWidth;
-    if (currentWidth === 0) {
-        sidebarContentContainer.value.style.width = '420px';
-    } else {
-        sidebarContentContainer.value.style.width = '0px';
-    }
-}
-
-function startResize(event) {
-    initialWidth.value = sidebarContentContainer.value.offsetWidth;
-    initialMouseX.value = event.clientX;
-    document.addEventListener("mousemove", resize);
-    document.addEventListener("mouseup", stopResize);
-}
-
-function resize(event) {
-    const deltaX = event.clientX - initialMouseX.value;
-    sidebarContentContainer.value.style.width = `${initialWidth.value + deltaX}px`;
-}
-
-function stopResize() {
-    document.removeEventListener("mousemove", resize);
-    document.removeEventListener("mouseup", stopResize);
-}
 
 async function editConversationTitle(oldConversation, newConversationTitle) {
     const updatedConversationsList = await editConversationTitleInManagement(conversations.value, oldConversation, newConversationTitle);
@@ -659,11 +547,9 @@ onMounted(() => {
     sidebarContentContainer.value.style.width = '420px';
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4o";
 
-    determineModelDisplayName(selectedModel.value);
+    modelDisplayName.value = determineModelDisplayName(selectedModel.value);
     selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
 
-    messagesContainer = document.querySelector('.messages');
-    messagesContainer.addEventListener('scroll', updateScrollButtonVisibility);
     document.addEventListener('click', handleGlobalClick);
 });
 
@@ -723,7 +609,8 @@ onMounted(() => {
                     @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
                     @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
                     :showConversationOptions="showConversationOptions" />
-                <div id="resize-handle" class="resize-handle" @mousedown="startResize" @dblclick="handleDoubleClick">
+                <div id="resize-handle" class="resize-handle"
+                    @dblclick="() => handleDoubleClick(sidebarContentContainer)">
                 </div>
             </div>
             <div class="chat-container">
@@ -750,7 +637,7 @@ onMounted(() => {
                         </div>
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
-                            @send-message="async (event) => await sendMessage(event, userText, messages, selectedModel, claudeSliderValue, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUI, addMessage, saveMessagesHandler)"
+                            @send-message="async (event) => await sendMessage(event, userText, messages, selectedModel, claudeSliderValue, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUIWrapper, addMessage, saveMessagesHandler)"
                             @vision-prompt="visionimageUploadClick" @upload-context="importFileClick"
                             @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
