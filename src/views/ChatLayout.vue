@@ -4,11 +4,11 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { loadConversationTitles, loadStoredConversations, fetchGPTResponseStream, generateDALLEImage } from '@/libs/gpt-api-access';
-import { fetchClaudeConversationTitle, streamClaudeResponse } from '@/libs/claude-api-access';
+import { fetchClaudeConversationTitle } from '@/libs/claude-api-access';
 import { getConversationTitleFromGPT, showToast, removeAPIEndpoints } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
-import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
+import { getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
 import {
     deleteConversation,
     handleExportConversations,
@@ -20,6 +20,7 @@ import {
     editPreviousMessage as EditPreviousMessageValue,
     editConversationTitle as editConversationTitleInManagement
 } from '@/libs/conversations-management';
+import { sendMessage } from '@/libs/message-sending';
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
@@ -31,8 +32,6 @@ const shouldShowScrollButton = ref(false);
 const isAnalyzingImage = ref(false);
 const userText = ref('');
 const isLoading = ref(false);
-const isUsingLocalModel = ref(false);
-const isGeneratingImage = ref(false);
 const hasFilterText = ref(false);
 const selectedModel = ref(localStorage.getItem("selectedModel") || "gpt-4o");
 const isSidebarOpen = ref(false);
@@ -307,59 +306,6 @@ function handlePurgeConversations() {
 //#endregion
 
 //#region Messages Handling
-async function sendMessage(event) {
-    try {
-        const messageText = userText.value.trim();
-
-        if (userText.value.trim().length === 0) {
-            showToast("Please Enter a Prompt First");
-            return;
-        }
-
-        addMessage("user", messageText);
-
-        if (selectedModel.value.indexOf("claude") !== -1) {
-            await sendClaudeMessage(messageText);
-            return;
-        }
-
-        userText.value = "";
-
-        if (!messageText || messageText === "" || isLoading.value || isGeneratingImage.value) {
-            return;
-        }
-
-        if (messageText.toLowerCase().startsWith("image::")) {
-            await sendImagePrompt(messageText);
-            return;
-        }
-
-        if (messageText.toLowerCase().startsWith("vision::")) {
-            await sendVisionPrompt();
-            return;
-        }
-
-        if (selectedModel.value.indexOf('web-llm') !== -1) {
-            await sendBrowserModelMessage(messageText);
-            return;
-        }
-
-        await sendGPTMessage(messageText);
-    }
-    finally {
-        await saveMessagesHandler();
-    }
-}
-
-async function sendBrowserModelMessage() {
-    userText.value = ""
-    isLoading.value = true;
-
-    await sendBrowserLoadedModelMessage(messages.value, updateUI);
-
-    isLoading.value = false;
-}
-
 async function addMessage(role, message) {
     setSystemPrompt(messages.value, systemPrompt.value);
 
@@ -375,52 +321,6 @@ async function addMessage(role, message) {
         role: role,
         content: message
     });
-}
-
-
-async function sendGPTMessage() {
-    userText.value = ""
-    isLoading.value = true;
-
-    try {
-        abortController.value = new AbortController();
-
-        if (selectedModel.value.indexOf("open-ai-format") !== -1) {
-
-            localModelName.value = localStorage.getItem('localModelName') || '';
-            localSliderValue.value = localStorage.getItem('local-attitude') || 0.6;
-            localModelEndpoint.value = localStorage.getItem('localModelEndpoint') || '';
-
-            await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText);
-        }
-        else {
-            await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText);
-        }
-
-        isLoading.value = false;
-
-    } catch (error) {
-        console.error("Error sending message:", error);
-    }
-}
-
-async function sendClaudeMessage(messageText) {
-    if (messageText.startsWith("vision::")) {
-        isLoading.value = true;
-
-        await sendVisionPrompt();
-        ;
-        isLoading.value = false;
-        return;
-    }
-
-    isLoading.value = true;
-
-    abortController.value = new AbortController();
-
-    await streamClaudeResponse(messages.value, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
-
-    isLoading.value = false;
 }
 
 function handleDeleteMessage(content) {
@@ -478,32 +378,6 @@ async function EditPreviousMessage(oldContent, newContent) {
     isLoading.value = false;
     saveMessagesHandler();
 }
-
-async function sendImagePrompt(imagePrompt) {
-    isGeneratingImage.value = true;
-
-    userText.value = "";
-
-    const response = await generateDALLEImage(imagePrompt.toLowerCase().split("image::")[1]);
-
-    let imageURLStrings = `${imagePrompt.toLowerCase().split("image::")[1]} \n\n`;
-
-    for (const image of response.data) {
-        imageURLStrings += `![${imagePrompt.toLowerCase().split("image::")[1]}](${image.url}) \n`;
-    }
-
-    addMessage('assistant', imageURLStrings);
-
-    isGeneratingImage.value = false;
-}
-
-async function sendVisionPrompt() {
-    isAnalyzingImage.value = true;
-
-    document.getElementById('imageInput').click();
-
-    userText.value = "";
-}
 //#endregion
 
 //#region Image Processing
@@ -528,7 +402,6 @@ async function imageInputChanged(event) {
     saveMessagesHandler();
 
     isLoading.value = false;
-    isAnalyzingImage.value = false;
 }
 
 async function processImage(file, fileType) {
@@ -544,10 +417,9 @@ async function visionimageUploadClick() {
     }
 
     userText.value = 'vision:: ' + userText.value;
-    await sendMessage();
-};
-//#endregion
-
+    await sendMessage(null, userText.value, messages.value, selectedModel.value, claudeSliderValue.value, sliderValue.value, localModelName.value, localSliderValue.value, localModelEndpoint.value, updateUI, addMessage, saveMessagesHandler);
+    //#endregion
+}
 //#region File/Upload Handling
 async function uploadFileContentsToCoversation(event, element) {
     const file = event.target.files[0];
@@ -569,7 +441,6 @@ async function uploadFileContentsToCoversation(event, element) {
 
     await reader.readAsText(file);
 }
-
 
 function uploadFile(event, element) {
     const file = event.target.files[0];
@@ -876,13 +747,12 @@ onMounted(() => {
                             <span>
                                 <ChevronDown :strokeWidth="3" />
                             </span>
-
                         </div>
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
-                            @send-message="sendMessage" @vision-prompt="visionimageUploadClick"
-                            @upload-context="importFileClick" @update:userInput="updateUserText"
-                            @swipe-left="swipedLeft" @swipe-right="swipedRight" />
+                            @send-message="async (event) => await sendMessage(event, userText, messages, selectedModel, claudeSliderValue, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUI, addMessage, saveMessagesHandler)"
+                            @vision-prompt="visionimageUploadClick" @upload-context="importFileClick"
+                            @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
             </div>

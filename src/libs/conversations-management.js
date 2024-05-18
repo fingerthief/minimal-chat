@@ -148,7 +148,7 @@ export async function editPreviousMessage(conversations, messages, oldContent, n
             response = await fetchLocalModelResponseStream(regenMessages, localSliderValue, localModelName, localModelEndpoint, updateUI, abortController.value, streamedMessageText, false);
         }
 
-        baseMessages = [...regenMessages, { role: 'assistant', content: response }, ...messagesAfter.slice()];
+        baseMessages = [...regenMessages, { role: 'assistant', content: response }, ...messagesAfter];
         baseMessages = createUniqueMessagesWithIds(baseMessages);
     }
     return { conversations, baseMessages };
