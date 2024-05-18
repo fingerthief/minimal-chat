@@ -25,8 +25,8 @@ export function handleExportSettings(props, exportSettingsToFile) {
 }
 
 export function exportSettingsToFile(settingsData) {
-    const filename = "minimal-chat-settings.json";
-    const text = JSON.stringify(settingsData, null, 2);  // Pretty print JSON
+    const filename = 'minimal-chat-settings.json';
+    const text = JSON.stringify(settingsData, null, 2); // Pretty print JSON
 
     let element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));

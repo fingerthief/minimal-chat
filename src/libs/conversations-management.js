@@ -1,31 +1,31 @@
-import { fetchGPTResponseStream } from "./gpt-api-access";
-import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from "./open-ai-api-standard-access";
-import { streamClaudeResponse, fetchClaudeConversationTitle } from "./claude-api-access";
-import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle } from "./web-llm-access";
-import { getConversationTitleFromGPT } from "@/libs/utils";
+import { fetchGPTResponseStream } from './gpt-api-access';
+import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from './open-ai-api-standard-access';
+import { streamClaudeResponse, fetchClaudeConversationTitle } from './claude-api-access';
+import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle } from './web-llm-access';
+import { getConversationTitleFromGPT } from '@/libs/utils';
 
 export async function createNewConversationWithTitle(messages, selectedModel, localModelName, localModelEndpoint, sliderValue) {
-    if (selectedModel.indexOf("claude") !== -1) {
+    if (selectedModel.indexOf('claude') !== -1) {
         return await fetchClaudeConversationTitle(messages);
     }
 
-    if (selectedModel.indexOf("open-ai-format") !== -1) {
+    if (selectedModel.indexOf('open-ai-format') !== -1) {
         return await getConversationTitleFromLocalModel(messages, localModelName, localModelEndpoint);
     }
 
-    if (selectedModel.indexOf("gpt") !== -1) {
+    if (selectedModel.indexOf('gpt') !== -1) {
         return await getConversationTitleFromGPT(messages, selectedModel, sliderValue);
     }
 
-    if (selectedModel.indexOf("web-llm") !== -1) {
+    if (selectedModel.indexOf('web-llm') !== -1) {
         return await getBrowserLoadedModelConversationTitle(messages);
     }
 
-    return "Error Generating Title";
+    return 'Error Generating Title';
 }
 
 export function createConversation(conversations, title, messages) {
-    const maxId = conversations.length > 0 ? Math.max(...conversations.map(c => c.id)) : 0;
+    const maxId = conversations.length > 0 ? Math.max(...conversations.map((c) => c.id)) : 0;
     const newId = maxId + 1;
 
     const newConversation = {
@@ -39,7 +39,7 @@ export function createConversation(conversations, title, messages) {
 }
 
 export function updateConversation(conversations, id, updatedConversation) {
-    const index = conversations.findIndex(conversation => conversation.id === id);
+    const index = conversations.findIndex((conversation) => conversation.id === id);
     if (index !== -1) {
         conversations[index] = { ...conversations[index], ...updatedConversation };
     }
@@ -47,7 +47,7 @@ export function updateConversation(conversations, id, updatedConversation) {
 }
 
 export function deleteConversation(conversations, id) {
-    return conversations.filter(conversation => conversation.id !== id);
+    return conversations.filter((conversation) => conversation.id !== id);
 }
 
 // conversations-management.js
@@ -56,7 +56,13 @@ export async function saveMessages(conversations, selectedConversation, messages
     const updatedConversation = selectedConversation;
 
     if (!selectedConversation || !selectedConversation === null) {
-        const title = await createNewConversationWithTitle(messages, localStorage.getItem("selectedModel") || "gpt-4o", localStorage.getItem("localModelName") || "", localStorage.getItem("localModelEndpoint") || "", localStorage.getItem("gpt-attitude") || 50);
+        const title = await createNewConversationWithTitle(
+            messages,
+            localStorage.getItem('selectedModel') || 'gpt-4o',
+            localStorage.getItem('localModelName') || '',
+            localStorage.getItem('localModelEndpoint') || '',
+            localStorage.getItem('gpt-attitude') || 50
+        );
         const uniqueMessages = createUniqueMessagesWithIds(messages);
 
         const updatedConversations = createConversation(conversations, title, uniqueMessages);
@@ -68,7 +74,7 @@ export async function saveMessages(conversations, selectedConversation, messages
         lastLoadedConversationId = updatedConversations[updatedConversations.length - 1].id;
         localStorage.setItem('lastConversationId', lastLoadedConversationId);
 
-        localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
+        localStorage.setItem('gpt-conversations', JSON.stringify(conversations));
         selectedConversation = conversations[conversations.length - 1];
         return { conversations, messages, selectedConversation, lastLoadedConversationId };
     }
@@ -79,7 +85,7 @@ export async function saveMessages(conversations, selectedConversation, messages
 
     conversations = result;
 
-    localStorage.setItem("gpt-conversations", JSON.stringify(conversations));
+    localStorage.setItem('gpt-conversations', JSON.stringify(conversations));
     return { conversations, messages, selectedConversation, lastLoadedConversationId };
 }
 
@@ -88,16 +94,16 @@ export function selectConversation(conversations, conversationId, messages, last
         return { conversations, messages, selectedConversation: null, lastLoadedConversationId };
     }
 
-    const conversation = conversations.find(c => c.id === conversationId);
+    const conversation = conversations.find((c) => c.id === conversationId);
 
     if (conversation) {
         lastLoadedConversationId = conversationId;
         localStorage.setItem('lastConversationId', lastLoadedConversationId);
 
-        let maxId = messages.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
+        let maxId = messages.reduce((max, message) => (message.id ? Math.max(max, message.id) : max), 0);
 
         // Process each message to ensure it has a unique ID
-        const processedMessages = conversation.messageHistory.map(message => {
+        const processedMessages = conversation.messageHistory.map((message) => {
             if (!message.id) {
                 maxId++; // Increment maxId to ensure a unique ID
                 return { ...message, id: maxId }; // Assign the new ID
@@ -108,16 +114,29 @@ export function selectConversation(conversations, conversationId, messages, last
         messages = processedMessages;
         return { conversations, messages, selectedConversation: conversation, lastLoadedConversationId, showConversationOptions: false };
     } else {
-        showToast("Conversations ID not found");
+        showToast('Conversations ID not found');
         console.error('Conversation with ID ' + conversationId + ' not found.');
         return { conversations, messages, selectedConversation: null, lastLoadedConversationId };
     }
 }
 
-export async function regenerateMessageResponse(conversations, messages, content, sliderValue, selectedModel, localSliderValue, localModelName, localModelEndpoint, claudeSliderValue, updateUI, abortController, streamedMessageText) {
+export async function regenerateMessageResponse(
+    conversations,
+    messages,
+    content,
+    sliderValue,
+    selectedModel,
+    localSliderValue,
+    localModelName,
+    localModelEndpoint,
+    claudeSliderValue,
+    updateUI,
+    abortController,
+    streamedMessageText
+) {
     let baseMessages = messages.value.slice();
 
-    const messageIndex = baseMessages.findIndex(message => message.content === content && message.role === 'user');
+    const messageIndex = baseMessages.findIndex((message) => message.content === content && message.role === 'user');
 
     if (messageIndex !== -1) {
         const regenMessages = baseMessages.slice(0, messageIndex + 1);
@@ -126,13 +145,13 @@ export async function regenerateMessageResponse(conversations, messages, content
 
         messages.value = [...regenMessages];
 
-        let response = "";
+        let response = '';
 
-        if (selectedModel.indexOf("gpt") !== -1) {
+        if (selectedModel.indexOf('gpt') !== -1) {
             response = await fetchGPTResponseStream(regenMessages, sliderValue, selectedModel, updateUI, abortController.value, streamedMessageText, false);
-        } else if (selectedModel.indexOf("web-llm") !== -1) {
+        } else if (selectedModel.indexOf('web-llm') !== -1) {
             response = await sendBrowserLoadedModelMessage(regenMessages, updateUI);
-        } else if (selectedModel.indexOf("claude") !== -1) {
+        } else if (selectedModel.indexOf('claude') !== -1) {
             response = await streamClaudeResponse(regenMessages, selectedModel, claudeSliderValue, updateUI, abortController.value, streamedMessageText, false);
         } else {
             response = await fetchLocalModelResponseStream(regenMessages, localSliderValue, localModelName, localModelEndpoint, updateUI, abortController.value, streamedMessageText, false);
@@ -145,10 +164,24 @@ export async function regenerateMessageResponse(conversations, messages, content
     return { conversations, baseMessages };
 }
 
-export async function editPreviousMessage(conversations, messages, oldContent, newContent, sliderValue, selectedModel, localSliderValue, localModelName, localModelEndpoint, claudeSliderValue, updateUI, abortController, streamedMessageText) {
+export async function editPreviousMessage(
+    conversations,
+    messages,
+    oldContent,
+    newContent,
+    sliderValue,
+    selectedModel,
+    localSliderValue,
+    localModelName,
+    localModelEndpoint,
+    claudeSliderValue,
+    updateUI,
+    abortController,
+    streamedMessageText
+) {
     let baseMessages = messages.value.slice();
 
-    const messageIndex = baseMessages.findIndex(message => message.content === oldContent.content && message.role === 'user');
+    const messageIndex = baseMessages.findIndex((message) => message.content === oldContent.content && message.role === 'user');
 
     if (messageIndex !== -1) {
         const regenMessages = baseMessages.slice(0, messageIndex + 1);
@@ -159,10 +192,10 @@ export async function editPreviousMessage(conversations, messages, oldContent, n
 
         messages.value = [...regenMessages];
 
-        let response = "";
-        if (selectedModel.indexOf("gpt") !== -1) {
+        let response = '';
+        if (selectedModel.indexOf('gpt') !== -1) {
             response = await fetchGPTResponseStream(regenMessages, sliderValue, selectedModel, updateUI, abortController.value, streamedMessageText, false);
-        } else if (selectedModel.indexOf("claude") !== -1) {
+        } else if (selectedModel.indexOf('claude') !== -1) {
             response = await streamClaudeResponse(regenMessages, selectedModel, claudeSliderValue, updateUI, abortController.value, streamedMessageText, false);
         } else {
             response = await fetchLocalModelResponseStream(regenMessages, localSliderValue, localModelName, localModelEndpoint, updateUI, abortController.value, streamedMessageText, false);
@@ -177,7 +210,7 @@ export async function editPreviousMessage(conversations, messages, oldContent, n
 export async function editConversationTitle(conversations, oldConversation, newConversationTitle) {
     const updatedConversation = {
         ...oldConversation,
-        title: newConversationTitle,
+        title: newConversationTitle
     };
 
     const updatedConversationsList = await updateConversation(conversations, oldConversation.id, updatedConversation);
@@ -186,8 +219,8 @@ export async function editConversationTitle(conversations, oldConversation, newC
 }
 
 export function handleExportConversations() {
-    const filename = "conversations.json";
-    const text = localStorage.getItem("gpt-conversations")
+    const filename = 'conversations.json';
+    const text = localStorage.getItem('gpt-conversations');
 
     let element = document.createElement('a');
 
@@ -203,7 +236,7 @@ export function handleExportConversations() {
 
 export function setSystemPrompt(messages, prompt) {
     // Find the index of the existing system prompt (if any)
-    const systemPromptIndex = messages.findIndex(message => message.role === 'system');
+    const systemPromptIndex = messages.findIndex((message) => message.role === 'system');
 
     if (systemPromptIndex === 0) {
         // Trim the prompt and check if it is empty
@@ -229,7 +262,7 @@ export function setSystemPrompt(messages, prompt) {
 }
 
 export function deleteMessageFromHistory(messages, content) {
-    const messageIndex = messages.findIndex(message => message.content === content && message.role === 'user');
+    const messageIndex = messages.findIndex((message) => message.content === content && message.role === 'user');
 
     if (messageIndex !== -1) {
         // Use a single slice operation to create the new messages array
@@ -240,10 +273,10 @@ export function deleteMessageFromHistory(messages, content) {
 }
 
 export function createUniqueMessagesWithIds(messages) {
-    let maxId = messages.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
+    let maxId = messages.reduce((max, message) => (message.id ? Math.max(max, message.id) : max), 0);
 
     // Process each message to ensure it has a unique ID
-    return messages.map(message => {
+    return messages.map((message) => {
         if (!message.id) {
             maxId++; // Increment maxId to ensure a unique ID
             return { ...message, id: maxId }; // Assign the new ID

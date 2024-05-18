@@ -1,29 +1,29 @@
 /* eslint-disable no-unused-vars */
-import { showToast, sleep, parseStreamResponseChunk } from "./utils";
+import { showToast, sleep, parseStreamResponseChunk } from './utils';
 
 let localStreamRetryCount = 0;
 export async function fetchLocalModelResponseStream(conversation, attitude, model, localModelEndpoint, updateUiFunction, abortController, streamedMessageText, autoScrollToBottom = true) {
     const gptMessagesOnly = filterLocalMessages(conversation);
 
-    let tempMessages = gptMessagesOnly.map(message => ({
+    let tempMessages = gptMessagesOnly.map((message) => ({
         role: message.role,
         content: message.content
     }));
 
     const requestOptions = {
-        method: "POST",
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("localModelKey") || "No Key Provided"}`,
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('localModelKey') || 'No Key Provided'}`
         },
         body: JSON.stringify({
             model: model,
             stream: true,
             messages: tempMessages,
             temperature: parseFloat(attitude),
-            max_tokens: parseInt(localStorage.getItem("maxTokens")),
-            top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
-            repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
+            max_tokens: parseInt(localStorage.getItem('maxTokens')),
+            top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+            repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0)
         }),
         signal: abortController.signal
     };
@@ -41,7 +41,7 @@ export async function fetchLocalModelResponseStream(conversation, attitude, mode
             return streamedMessageText.value;
         }
 
-        console.error("Error fetching Custom Model response:", error);
+        console.error('Error fetching Custom Model response:', error);
         showToast(`Stream Request Failed.`);
         return streamedMessageText.value;
     }
@@ -53,21 +53,21 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
         model: model,
         messages: [
             {
-                role: "user",
+                role: 'user',
                 content: visionMessages
             }
         ],
         max_tokens: 4096,
-        top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
-        repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
+        top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+        repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0)
     };
 
     try {
         const response = await fetch(localModelEndpoint + `/v1/chat/completions`, {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`
             },
             body: JSON.stringify(payload)
         });
@@ -77,9 +77,7 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
         localVisionRetryCount = 0;
 
         return data.choices[0].message.content;
-    }
-    catch (error) {
-
+    } catch (error) {
         if (localVisionRetryCount < 3) {
             localVisionRetryCount++;
 
@@ -94,22 +92,22 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
 
 let imageGenerationRetryCount = 0;
 export async function customModelImageGeneration(conversation, localModelEndpoint, model) {
-    let storedApiKey = localStorage.getItem("localModelKey");
+    let storedApiKey = localStorage.getItem('localModelKey');
 
     try {
         const response = await fetch(`${localModelEndpoint}/v1/images/generations`, {
-            method: "POST",
+            method: 'POST',
             model: model,
-            quality: "hd",
+            quality: 'hd',
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${storedApiKey || 'Missing API Key'}`
             },
             body: JSON.stringify({
                 prompt: conversation,
-                n: (parseInt(localStorage.getItem("selectedDallEImageCount")) || 2),
-                size: localStorage.getItem("selectedDallEImageResolution") || "256x256",
-            }),
+                n: parseInt(localStorage.getItem('selectedDallEImageCount')) || 2,
+                size: localStorage.getItem('selectedDallEImageResolution') || '256x256'
+            })
         });
 
         const result = await response.json();
@@ -132,26 +130,25 @@ export async function customModelImageGeneration(conversation, localModelEndpoin
         }
 
         showToast(`Retry Attempts Failed for customModelImageGeneration Request.`);
-        console.error("Error fetching image generation response:", error);
-        return "An error generating Custom Model Image.";
+        console.error('Error fetching image generation response:', error);
+        return 'An error generating Custom Model Image.';
     }
 }
-
 
 let retryCount = 0;
 export async function getConversationTitleFromLocalModel(messages, model, localModelEndpoint) {
     try {
         const apiKey = document.getElementById('api-key');
-        apiKey.value = localStorage.getItem("gptKey");
+        apiKey.value = localStorage.getItem('gptKey');
 
         let tempMessages = messages.slice(0);
-        tempMessages.push({ role: 'user', content: "Summarize my inital request or greeting in 5 words or less." });
+        tempMessages.push({ role: 'user', content: 'Summarize my inital request or greeting in 5 words or less.' });
 
         const requestOptions = {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("localModelKey") || "No Key Provided"}`,
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('localModelKey') || 'No Key Provided'}`
             },
             body: JSON.stringify({
                 model: model,
@@ -159,9 +156,9 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
                 messages: tempMessages,
                 temperature: 0.25,
                 max_tokens: 32,
-                top_P: parseFloat(localStorage.getItem("top_P") || 1.0),
-                repetition_penalty: parseFloat(localStorage.getItem("repetitionPenalty") || 1.0)
-            }),
+                top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+                repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0)
+            })
         };
 
         const response = await fetch(localModelEndpoint + `/v1/chat/completions`, requestOptions);
@@ -171,59 +168,58 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
         localStreamRetryCount = 0;
         return result;
     } catch (error) {
-
         if (retryCount < 3) {
             retryCount++;
             await getConversationTitleFromLocalModel(messages, model, localModelEndpoint);
         }
 
-        console.error("Error fetching Local Model response:", error);
-        return "An error occurred while generating conversaton title.";
+        console.error('Error fetching Local Model response:', error);
+        return 'An error occurred while generating conversaton title.';
     }
 }
 
 export async function getOpenAICompatibleAvailableModels(localModelEndpoint) {
     try {
-        const storedApiKey = localStorage.getItem("localModelKey");
+        const storedApiKey = localStorage.getItem('localModelKey');
 
         const response = await fetch(`${localModelEndpoint}/v1/models`, {
-            method: "GET",
+            method: 'GET',
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${storedApiKey || 'Missing API Key'}`,
-            },
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${storedApiKey || 'Missing API Key'}`
+            }
         });
 
         const data = await response.json();
 
         if (data?.data) {
-            return data.data.map(model => model.id);
+            return data.data.map((model) => model.id);
         }
 
         if (Array.isArray(data)) {
-            return data.map(model => model.id);
+            return data.map((model) => model.id);
         }
 
-        showToast("Error fetching models, double check the API endpoint configured");
-        console.error("Error fetching available models:", data);
+        showToast('Error fetching models, double check the API endpoint configured');
+        console.error('Error fetching available models:', data);
         return [];
     } catch (error) {
-        showToast("Error fetching models, double check the API endpoint configured");
-        console.error("Error fetching available models:", error);
+        showToast('Error fetching models, double check the API endpoint configured');
+        console.error('Error fetching available models:', error);
         return [];
     }
 }
 
 async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
-    let decodedResult = "";
+    let decodedResult = '';
 
     const reader = await response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
+    const decoder = new TextDecoder('utf-8');
     while (true) {
         const { done, value } = await reader.read();
         if (done) {
-            return decodedResult
-        };
+            return decodedResult;
+        }
         const chunk = decoder.decode(value);
         const parsedLines = parseStreamResponseChunk(chunk);
         for (const parsedLine of parsedLines) {
@@ -242,12 +238,10 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
 }
 
 function filterLocalMessages(conversation) {
-    let lastMessageContent = "";
-    return conversation.filter(message => {
-        const isGPT = !message.content.trim().toLowerCase().startsWith("image::") &&
-            !lastMessageContent.startsWith("image::");
+    let lastMessageContent = '';
+    return conversation.filter((message) => {
+        const isGPT = !message.content.trim().toLowerCase().startsWith('image::') && !lastMessageContent.startsWith('image::');
         lastMessageContent = message.content.trim().toLowerCase();
         return isGPT;
     });
 }
-

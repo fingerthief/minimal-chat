@@ -2,21 +2,21 @@
 
 a,
 .green {
-  text-decoration: none;
-  color: #00bd7e;
-  transition: 0.4s;
-  padding: 3px;
+    text-decoration: none;
+    color: #00bd7e;
+    transition: 0.4s;
+    padding: 3px;
 }
 
 @media (hover: hover) {
-  a:hover {
-    background-color: #00bd7e33;
-  }
+    a:hover {
+        background-color: #00bd7e33;
+    }
 }
 
 #app {
-  min-width: 20vw;
-  width: 100vw;
-  font-weight: normal;
-  z-index: 0;
+    min-width: 20vw;
+    width: 100vw;
+    font-weight: normal;
+    z-index: 0;
 }

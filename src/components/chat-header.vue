@@ -25,9 +25,7 @@ const modelTypes = [
 ];
 
 const visibleModelLinks = computed(() => {
-    return modelTypes.filter(modelType =>
-        props.selectedModel.includes(modelType.name)
-    );
+    return modelTypes.filter((modelType) => props.selectedModel.includes(modelType.name));
 });
 
 function toggleSidebar() {
@@ -51,8 +49,7 @@ function onShowConversationsClick() {
 
 <template>
     <div class="header box">
-        <a v-for="modelType in visibleModelLinks" :key="modelType.name"
-            href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
+        <a v-for="modelType in visibleModelLinks" :key="modelType.name" href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
             {{ modelType.display }}
         </a>
         <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
@@ -97,7 +94,6 @@ $shadow-offset-y: 1px;
 $shadow-blur-radius: 2px;
 $shadow-spread-radius: 0px;
 
-
 .control {
     margin-bottom: 15px;
     padding-bottom: 15px;
@@ -119,10 +115,11 @@ $shadow-spread-radius: 0px;
     outline: none;
     max-width: fit-content;
 
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
 
     .select-dropdown {
-
         select {
             appearance: none;
             color: whitesmoke;
@@ -136,7 +133,9 @@ $shadow-spread-radius: 0px;
             max-width: 80%;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition:
+                background-color 0.3s ease,
+                transform 0.2s ease;
 
             &:hover {
                 background-color: #262627;
@@ -166,7 +165,6 @@ $shadow-spread-radius: 0px;
 
 .saved-conversations--visible {
     display: flex;
-
 }
 
 .box {
@@ -225,7 +223,9 @@ $shadow-spread-radius: 0px;
     float: right;
     position: relative;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
 
     &:hover {
         transform: scale(1.15);
@@ -235,7 +235,6 @@ $shadow-spread-radius: 0px;
         display: inline;
     }
 }
-
 
 .settings-btn {
     position: absolute;
@@ -248,7 +247,9 @@ $shadow-spread-radius: 0px;
     outline: none;
     display: none;
 
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
 
     &:hover {
         transform: scale(1.15);
@@ -265,7 +266,9 @@ $shadow-spread-radius: 0px;
     right: 55px;
     cursor: pointer;
     color: $icon-color;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
     display: none;
 
     &:hover {
@@ -301,7 +304,9 @@ $shadow-spread-radius: 0px;
     color: $icon-color;
     display: none;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition:
+        background-color 0.3s ease,
+        transform 0.2s ease;
 
     &:hover {
         transform: scale(1.15);
@@ -313,7 +318,7 @@ $shadow-spread-radius: 0px;
 }
 
 .clearfix::after {
-    content: "";
+    content: '';
     clear: both;
     display: table;
 }
@@ -323,7 +328,6 @@ $shadow-spread-radius: 0px;
     margin-bottom: 10px;
     padding: 5px 10px;
 }
-
 
 .no-style-link {
     text-decoration: none;

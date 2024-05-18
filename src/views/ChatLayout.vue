@@ -5,15 +5,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { loadConversationTitles, loadStoredConversations } from '@/libs/gpt-api-access';
 
-import {
-    showToast,
-    removeAPIEndpoints,
-    determineModelDisplayName,
-    unloadModel,
-    updateUI,
-    handleDoubleClick,
-    startResize
-} from '@/libs/utils';
+import { showToast, removeAPIEndpoints, determineModelDisplayName, unloadModel, updateUI, handleDoubleClick, startResize } from '@/libs/utils';
 import { analyzeImage } from '@/libs/image-analysis';
 import {
     deleteConversation,
@@ -38,36 +30,36 @@ const shouldShowScrollButton = ref(false);
 const userText = ref('');
 const isLoading = ref(false);
 const hasFilterText = ref(false);
-const selectedModel = ref(localStorage.getItem("selectedModel") || "gpt-4o");
+const selectedModel = ref(localStorage.getItem('selectedModel') || 'gpt-4o');
 const isSidebarOpen = ref(false);
 const showConversationOptions = ref(false);
 const messages = ref([]);
-const streamedMessageText = ref("");
-const modelDisplayName = ref("Unknown");
+const streamedMessageText = ref('');
+const modelDisplayName = ref('Unknown');
 
-const localModelKey = ref(localStorage.getItem("localModelKey") || '')
-const localModelName = ref(localStorage.getItem("localModelName") || '');
-const localModelEndpoint = ref(removeAPIEndpoints(localStorage.getItem("localModelEndpoint") || ''));
-const localSliderValue = ref(parseFloat(localStorage.getItem("local-attitude")) || 0.6);
-const gptKey = ref(localStorage.getItem("gptKey") || '');
-const sliderValue = ref(parseInt(localStorage.getItem("gpt-attitude")) || 50);
-const claudeKey = ref(localStorage.getItem("claudeKey") || '');
-const claudeSliderValue = ref(parseInt(localStorage.getItem("claude-attitude")) || 50);
-const selectedDallEImageCount = ref(parseInt(localStorage.getItem("selectedDallEImageCount")) || 1);
-const selectedDallEImageResolution = ref(localStorage.getItem("selectedDallEImageResolution") || '256x256');
-const selectedAutoSaveOption = ref(localStorage.getItem("selectedAutoSaveOption") || true);
+const localModelKey = ref(localStorage.getItem('localModelKey') || '');
+const localModelName = ref(localStorage.getItem('localModelName') || '');
+const localModelEndpoint = ref(removeAPIEndpoints(localStorage.getItem('localModelEndpoint') || ''));
+const localSliderValue = ref(parseFloat(localStorage.getItem('local-attitude')) || 0.6);
+const gptKey = ref(localStorage.getItem('gptKey') || '');
+const sliderValue = ref(parseInt(localStorage.getItem('gpt-attitude')) || 50);
+const claudeKey = ref(localStorage.getItem('claudeKey') || '');
+const claudeSliderValue = ref(parseInt(localStorage.getItem('claude-attitude')) || 50);
+const selectedDallEImageCount = ref(parseInt(localStorage.getItem('selectedDallEImageCount')) || 1);
+const selectedDallEImageResolution = ref(localStorage.getItem('selectedDallEImageResolution') || '256x256');
+const selectedAutoSaveOption = ref(localStorage.getItem('selectedAutoSaveOption') || true);
 
-const browserModelSelection = ref(localStorage.getItem("browserModelSelection") || "Llama-3-8B-Instruct-q4f16_1-1k");
+const browserModelSelection = ref(localStorage.getItem('browserModelSelection') || 'Llama-3-8B-Instruct-q4f16_1-1k');
 
-const maxTokens = ref(parseInt(localStorage.getItem("maxTokens")) || -1);
-const top_P = ref(parseFloat(localStorage.getItem("top_P")) || 1.0);
-const repetitionPenalty = ref(parseFloat(localStorage.getItem("repetitionPenalty")) || 1.0);
+const maxTokens = ref(parseInt(localStorage.getItem('maxTokens')) || -1);
+const top_P = ref(parseFloat(localStorage.getItem('top_P')) || 1.0);
+const repetitionPenalty = ref(parseFloat(localStorage.getItem('repetitionPenalty')) || 1.0);
 
-const systemPrompt = ref(localStorage.getItem("systemPrompt") || "");
+const systemPrompt = ref(localStorage.getItem('systemPrompt') || '');
 
 const conversations = ref(loadConversationTitles());
 const storedConversations = ref(loadStoredConversations());
-const lastLoadedConversationId = ref(parseInt(localStorage.getItem("lastConversationId")) || 0);
+const lastLoadedConversationId = ref(parseInt(localStorage.getItem('lastConversationId')) || 0);
 const selectedConversation = ref(conversations.value[0]);
 const abortController = ref(null);
 
@@ -88,19 +80,19 @@ watch(selectedModel, (newValue) => {
     const modelSettings = {
         [MODEL_TYPES.OPEN_AI_FORMAT]: {
             useLocalModel: true,
-            modelDisplayName: "Custom Model"
+            modelDisplayName: 'Custom Model'
         },
         [MODEL_TYPES.CLAUDE]: {
             useLocalModel: false,
-            modelDisplayName: "Claude"
+            modelDisplayName: 'Claude'
         },
         [MODEL_TYPES.GPT]: {
             useLocalModel: false,
-            modelDisplayName: "GPT"
+            modelDisplayName: 'GPT'
         },
         [MODEL_TYPES.WEB_LLM]: {
             useLocalModel: false,
-            modelDisplayName: "Local Browser Model"
+            modelDisplayName: 'Local Browser Model'
         }
     };
 
@@ -108,7 +100,7 @@ watch(selectedModel, (newValue) => {
         useLocalModel: false,
         isUsingLocalModel: false,
 
-        modelDisplayName: "Unknown"
+        modelDisplayName: 'Unknown'
     };
 
     const settings = Object.keys(MODEL_TYPES).reduce((acc, key) => {
@@ -118,7 +110,7 @@ watch(selectedModel, (newValue) => {
         return acc;
     }, defaultSettings);
 
-    if (settings.modelDisplayName !== "Local Browser Model") {
+    if (settings.modelDisplayName !== 'Local Browser Model') {
         unloadModel(engine);
     }
     try {
@@ -196,16 +188,11 @@ function deleteCurrentConversation() {
         selectConversationHandler(conversations.value[conversations.value.length - 1].id);
     }
 
-    localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
+    localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
 }
 
 async function saveMessagesHandler() {
-    const result = await saveMessages(
-        conversations.value,
-        selectedConversation.value,
-        messages.value,
-        lastLoadedConversationId.value
-    );
+    const result = await saveMessages(conversations.value, selectedConversation.value, messages.value, lastLoadedConversationId.value);
 
     conversations.value = result.conversations;
     messages.value = result.messages;
@@ -214,13 +201,7 @@ async function saveMessagesHandler() {
 }
 
 function selectConversationHandler(conversationId) {
-    const result = selectConversation(
-        conversations.value,
-        conversationId,
-        messages.value,
-        lastLoadedConversationId.value,
-        showToast
-    );
+    const result = selectConversation(conversations.value, conversationId, messages.value, lastLoadedConversationId.value, showToast);
 
     conversations.value = result.conversations;
     messages.value = result.messages;
@@ -233,7 +214,7 @@ async function startNewConversation() {
     selectedConversation.value = null;
     messages.value = [];
 
-    showToast("Conversation Saved");
+    showToast('Conversation Saved');
 }
 
 function handleImportConversations() {
@@ -241,11 +222,11 @@ function handleImportConversations() {
 }
 
 function handlePurgeConversations() {
-    localStorage.setItem("gpt-conversations", "");
+    localStorage.setItem('gpt-conversations', '');
     messages.value = [];
     conversations.value = [];
     storedConversations.value = [];
-    showToast("All Conversations Deleted.");
+    showToast('All Conversations Deleted.');
 }
 //#endregion
 
@@ -341,7 +322,7 @@ async function imageInputChanged(event) {
 
     let visionResponse = await processImage(file, fileType);
 
-    addMessage("assistant", visionResponse);
+    addMessage('assistant', visionResponse);
 
     saveMessagesHandler();
 
@@ -349,19 +330,32 @@ async function imageInputChanged(event) {
 }
 
 async function processImage(file, fileType) {
-    userText.value = "";
+    userText.value = '';
 
     return await analyzeImage(file, fileType, messages.value, selectedModel.value, localModelName.value, localModelEndpoint.value);
 }
 
 async function visionimageUploadClick() {
     if (userText.value.trim().length === 0) {
-        showToast("Please Enter a Prompt First");
+        showToast('Please Enter a Prompt First');
         return;
     }
 
     userText.value = 'vision:: ' + userText.value;
-    await sendMessage(null, userText.value, messages.value, selectedModel.value, claudeSliderValue.value, sliderValue.value, localModelName.value, localSliderValue.value, localModelEndpoint.value, updateUIWrapper, addMessage, saveMessagesHandler);
+    await sendMessage(
+        null,
+        userText.value,
+        messages.value,
+        selectedModel.value,
+        claudeSliderValue.value,
+        sliderValue.value,
+        localModelName.value,
+        localSliderValue.value,
+        localModelEndpoint.value,
+        updateUIWrapper,
+        addMessage,
+        saveMessagesHandler
+    );
     //#endregion
 }
 //#region File/Upload Handling
@@ -374,12 +368,12 @@ async function uploadFileContentsToCoversation(event, element) {
         const contents = e.target.result;
 
         if (file.type.startsWith('image/')) {
-            showToast("Cannot add images to context currently.");
+            showToast('Cannot add images to context currently.');
         } else {
             // The uploaded file is not an image
-            addMessage('user', userText.value + " " + contents);
-            addMessage('assistant', "Context added");
-            showToast("Context Added");
+            addMessage('user', userText.value + ' ' + contents);
+            addMessage('assistant', 'Context added');
+            showToast('Context Added');
         }
     };
 
@@ -397,18 +391,18 @@ function uploadFile(event, element) {
         try {
             const parsedContents = JSON.parse(contents);
 
-            if (!parsedContents.some(item => item.id)) {
-                console.log("Invalid file format");
-                showToast("Error importing conversations");
+            if (!parsedContents.some((item) => item.id)) {
+                console.log('Invalid file format');
+                showToast('Error importing conversations');
                 return;
             }
 
             localStorage.setItem('gpt-conversations', contents);
             conversations.value = parsedContents;
             selectConversationHandler(conversations.value[0].id);
-            showToast("Import successful!");
+            showToast('Import successful!');
         } catch (err) {
-            console.log("Bad file detected");
+            console.log('Bad file detected');
         }
     };
 
@@ -464,10 +458,9 @@ const updateSetting = (field, value) => {
 };
 
 function abortStream() {
-
-    if (engine !== undefined && selectedModel.value.indexOf("web-llm") !== -1) {
+    if (engine !== undefined && selectedModel.value.indexOf('web-llm') !== -1) {
         engine.interruptGenerate();
-        showToast("Aborted response stream");
+        showToast('Aborted response stream');
         return;
     }
 
@@ -497,19 +490,17 @@ const sidebarContentContainer = ref(null);
 // const initialWidth = ref(0);
 // const initialMouseX = ref(0);
 
-
 async function editConversationTitle(oldConversation, newConversationTitle) {
     const updatedConversationsList = await editConversationTitleInManagement(conversations.value, oldConversation, newConversationTitle);
 
     if (updatedConversationsList) {
         conversations.value = updatedConversationsList;
 
-        localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
+        localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
 
-        showToast("Title Updated");
-
+        showToast('Title Updated');
     } else {
-        showToast("Failed to update title");
+        showToast('Failed to update title');
     }
 }
 
@@ -522,7 +513,7 @@ onUnmounted(() => {
 });
 
 function convertConversations(oldConversations) {
-    return oldConversations.map(oldConversation => ({
+    return oldConversations.map((oldConversation) => ({
         id: oldConversation.id,
         title: oldConversation?.conversation?.title,
         messageHistory: oldConversation?.conversation?.messageHistory
@@ -531,38 +522,36 @@ function convertConversations(oldConversations) {
 //#endregion
 
 onMounted(() => {
-
     //temporary converter so any users of the old conversation system will be auto
     //converted to the new conversation template. Will remove after a period of time.
     if (!localStorage.getItem('hasConvertedConversations')) {
         let oldConversationsStyle = loadConversationTitles();
 
-        localStorage.setItem("gpt-conversations", JSON.stringify(convertConversations(oldConversationsStyle)));
+        localStorage.setItem('gpt-conversations', JSON.stringify(convertConversations(oldConversationsStyle)));
         conversations.value = loadConversationTitles();
 
         localStorage.setItem('hasConvertedConversations', true);
     }
 
-    sidebarContentContainer.value = document.querySelector(".sidebar-conversations");
+    sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
     sidebarContentContainer.value.style.width = '420px';
-    selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4o";
+    selectedModel.value = localStorage.getItem('selectedModel') || 'gpt-4o';
 
     modelDisplayName.value = determineModelDisplayName(selectedModel.value);
     selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
 
     document.addEventListener('click', handleGlobalClick);
 });
-
 </script>
 
 <template>
     <!-- File Upload -->
     <div id="fileUploadDiv">
-        <input type="file" id="fileUpload" style="display: none;" @change="uploadFile">
-        <input type="file" id="fileImportUpload" style="display: none;" @change="uploadFileContentsToCoversation">
-        <div @click="openFileSelector" style="display: none;">Upload File</div>
-        <div @click="openFileImportSelector" style="display: none;">Import File</div>
-        <input id="imageInput" @change="imageInputChanged" style="display: none;" type="file">
+        <input type="file" id="fileUpload" style="display: none" @change="uploadFile" />
+        <input type="file" id="fileImportUpload" style="display: none" @change="uploadFileContentsToCoversation" />
+        <div @click="openFileSelector" style="display: none">Upload File</div>
+        <div @click="openFileImportSelector" style="display: none">Import File</div>
+        <input id="imageInput" @change="imageInputChanged" style="display: none" type="file" />
     </div>
     <div class="app-body">
         <!-- App Container -->
@@ -601,7 +590,7 @@ onMounted(() => {
             </div>
             <!-- Conversations Sidebar -->
             <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
-                :class="{ 'open': showConversationOptions }">
+                :class="{ open: showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
                     @toggle-sidebar="showConversations" @load-conversation="selectConversationHandler"
                     :selectedConversationItem="selectedConversation" @new-conversation="startNewConversation"
@@ -610,8 +599,7 @@ onMounted(() => {
                     @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
                     :showConversationOptions="showConversationOptions" />
                 <div id="resize-handle" class="resize-handle"
-                    @dblclick="() => handleDoubleClick(sidebarContentContainer)">
-                </div>
+                    @dblclick="() => handleDoubleClick(sidebarContentContainer)"></div>
             </div>
             <div class="chat-container">
                 <div class="container">
@@ -637,8 +625,22 @@ onMounted(() => {
                         </div>
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
-                            @send-message="async (event) => await sendMessage(event, userText, messages, selectedModel, claudeSliderValue, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUIWrapper, addMessage, saveMessagesHandler)"
-                            @vision-prompt="visionimageUploadClick" @upload-context="importFileClick"
+                            @send-message="async (event) =>
+                                    await sendMessage(
+                                        event,
+                                        userText,
+                                        messages,
+                                        selectedModel,
+                                        claudeSliderValue,
+                                        sliderValue,
+                                        localModelName,
+                                        localSliderValue,
+                                        localModelEndpoint,
+                                        updateUIWrapper,
+                                        addMessage,
+                                        saveMessagesHandler
+                                    )
+                                " @vision-prompt="visionimageUploadClick" @upload-context="importFileClick"
                             @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
@@ -763,10 +765,12 @@ button {
 }
 
 .hover-increase-size {
-    transition: background-color 0.3s ease, transform 0.1s ease;
+    transition:
+        background-color 0.3s ease,
+        transform 0.1s ease;
 
     &:hover {
-        transform: scale(1.20);
+        transform: scale(1.2);
     }
 }
 
@@ -948,7 +952,7 @@ pre {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     background-color: $overlay-bg-color;
     z-index: 0;
     transition: opacity 0.3s ease-in-out;
