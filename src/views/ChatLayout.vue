@@ -1,4 +1,4 @@
-<!-- eslint-disable no-unused-vars -->
+// ChatLayout.vue
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
@@ -9,7 +9,18 @@ import { getConversationTitleFromGPT, showToast, removeAPIEndpoints } from '@/li
 import { analyzeImage } from '@/libs/image-analysis';
 import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '@/libs/open-ai-api-standard-access';
 import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle, engine, loadNewModel } from '@/libs/web-llm-access';
-import { updateConversation, deleteConversation, createConversation } from '@/libs/conversations-management';
+import {
+    updateConversation,
+    deleteConversation,
+    handleExportConversations,
+    setSystemPrompt,
+    deleteMessageFromHistory,
+    saveMessages,
+    selectConversation,
+    regenerateMessageResponse,
+    editPreviousMessage as EditPreviousMessageValue,
+    editConversationTitle as editConversationTitleInManagement
+} from '@/libs/conversations-management';
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
@@ -107,7 +118,6 @@ watch(selectedModel, (newValue) => {
         modelDisplayName.value = 'Local Browser Model';
     }
 
-
     // Apply settings
     try {
         localStorage.setItem('useLocalModel', useLocalModel);
@@ -120,112 +130,45 @@ watch(selectedModel, (newValue) => {
     }
 });
 
+const watchAndStore = (ref, key, transform = (val) => val) => {
+    watch(ref, (newValue) => {
+        localStorage.setItem(key, transform(newValue));
+    });
+};
+
+// Simple watchers
+watchAndStore(localModelKey, 'localModelKey');
+watchAndStore(systemPrompt, 'systemPrompt');
+watchAndStore(maxTokens, 'maxTokens');
+watchAndStore(top_P, 'top_P');
+watchAndStore(repetitionPenalty, 'repetitionPenalty');
+watchAndStore(localModelName, 'localModelName');
+watchAndStore(localSliderValue, 'local-attitude');
+watchAndStore(gptKey, 'gptKey');
+watchAndStore(sliderValue, 'gpt-attitude');
+watchAndStore(claudeKey, 'claudeKey');
+watchAndStore(claudeSliderValue, 'claude-attitude');
+watchAndStore(selectedDallEImageCount, 'selectedDallEImageCount');
+watchAndStore(selectedDallEImageResolution, 'selectedDallEImageResolution');
+watchAndStore(selectedAutoSaveOption, 'selectedAutoSaveOption');
+
+// Watchers with transformations
+watchAndStore(localModelEndpoint, 'localModelEndpoint', removeAPIEndpoints);
+
+// Watcher with additional logic
+watch(browserModelSelection, async (newValue) => {
+    localStorage.setItem('browserModelSelection', newValue);
+    modelDisplayName.value = newValue;
+    isLoading.value = true;
+    await loadNewModel(newValue, updateUI);
+    isLoading.value = false;
+});
+//#endregion watchers
+
 function unloadModel() {
     if (engine !== undefined) {
         engine.unload();
     }
-}
-
-watch(localModelKey, (newValue) => {
-    localStorage.setItem('localModelKey', newValue);
-});
-
-watch(systemPrompt, (newValue) => {
-    localStorage.setItem('systemPrompt', newValue);
-});
-
-watch(maxTokens, (newValue) => {
-    localStorage.setItem('maxTokens', newValue);
-});
-
-watch(browserModelSelection, async (newValue) => {
-    localStorage.setItem('browserModelSelection', newValue);
-
-    modelDisplayName.value = browserModelSelection.value;
-
-    isLoading.value = true;
-
-    await loadNewModel(newValue, updateUI);
-
-    isLoading.value = false;
-});
-
-watch(top_P, (newValue) => {
-    localStorage.setItem('top_P', newValue);
-});
-
-watch(repetitionPenalty, (newValue) => {
-    localStorage.setItem('repetitionPenalty', newValue);
-});
-
-watch(localModelName, (newValue) => {
-    localStorage.setItem('localModelName', newValue);
-});
-
-watch(localModelEndpoint, (newValue) => {
-    const apiSafeURL = removeAPIEndpoints(newValue);
-    localStorage.setItem('localModelEndpoint', apiSafeURL);
-});
-
-watch(localSliderValue, (newValue) => {
-    localStorage.setItem('local-attitude', newValue);
-});
-
-watch(gptKey, (newValue) => {
-    localStorage.setItem('gptKey', newValue);
-});
-
-watch(sliderValue, (newValue) => {
-    localStorage.setItem('gpt-attitude', newValue);
-});
-
-watch(claudeKey, (newValue) => {
-    localStorage.setItem('claudeKey', newValue);
-});
-
-watch(claudeSliderValue, (newValue) => {
-    localStorage.setItem('claude-attitude', newValue);
-});
-
-watch(selectedDallEImageCount, (newValue) => {
-    localStorage.setItem('selectedDallEImageCount', newValue);
-});
-
-watch(selectedDallEImageResolution, (newValue) => {
-    localStorage.setItem('selectedDallEImageResolution', newValue);
-});
-
-watch(selectedAutoSaveOption, (newValue) => {
-    localStorage.setItem('selectedAutoSaveOption', newValue);
-});
-//#endregion watchers
-
-async function setSystemPrompt(prompt) {
-    // Find the index of the existing system prompt (if any)
-    const systemPromptIndex = messages.value.findIndex(message => message.role === 'system');
-
-    if (systemPromptIndex === 0) {
-        // Trim the prompt and check if it is empty
-        if (prompt.trim() === '') {
-            // Remove the system entry from the messages ref if the prompt is an empty string
-            messages.value.shift();
-            return;
-        }
-
-        messages.value[0].content = prompt;
-        return;
-    }
-
-    if (prompt.trim() === '') {
-        return; //Do not add an empty system prompt
-    }
-
-    // Add a new system prompt at the beginning of the messages
-    messages.value.unshift({
-        role: 'system',
-        content: prompt
-    });
-
 }
 
 //#region UI Updates
@@ -283,19 +226,6 @@ function showConversations() {
     showConversationOptions.value = !showConversationOptions.value;
 }
 
-function createUniqueMessagesWithIds() {
-    let maxId = messages.value.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
-
-    // Process each message to ensure it has a unique ID
-    return messages.value.map(message => {
-        if (!message.id) {
-            maxId++; // Increment maxId to ensure a unique ID
-            return { ...message, id: maxId }; // Assign the new ID
-        }
-        return message;
-    });
-}
-
 function deleteCurrentConversation() {
     const updatedConversations = deleteConversation(conversations.value, lastLoadedConversationId.value);
 
@@ -304,74 +234,41 @@ function deleteCurrentConversation() {
     messages.value = [];
 
     if (conversations.value.length > 0) {
-        selectConversation(conversations.value[conversations.value.length - 1].id);
+        selectConversationHandler(conversations.value[conversations.value.length - 1].id);
     }
 
     localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
 }
 
-async function saveMessages() {
-    streamedMessageText.value = "";
+async function saveMessagesHandler() {
+    const result = await saveMessages(
+        conversations.value,
+        selectedConversation.value,
+        messages.value,
+        createNewConversationWithTitle,
+        lastLoadedConversationId.value
+    );
 
-    const updatedConversation = selectedConversation.value;
-
-    if (!selectedConversation.value || !selectedConversation.value === null) {
-        const title = await createNewConversationWithTitle();
-
-        const uniqueMessages = createUniqueMessagesWithIds();
-
-        const updatedConversations = createConversation(conversations.value, title, uniqueMessages);
-
-        messages.value = [...uniqueMessages];
-
-        conversations.value = updatedConversations;
-
-        lastLoadedConversationId.value = updatedConversations[updatedConversations.length - 1].id;
-        localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
-
-        localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
-        selectedConversation.value = conversations.value[conversations.value.length - 1];
-        return;
-    }
-
-    updatedConversation.messageHistory = messages.value
-
-    const result = updateConversation(conversations.value, updatedConversation.id, updatedConversation);
-
-    conversations.value = result;
-
-    localStorage.setItem("gpt-conversations", JSON.stringify(conversations.value));
+    conversations.value = result.conversations;
+    messages.value = result.messages;
+    selectedConversation.value = result.selectedConversation;
+    lastLoadedConversationId.value = result.lastLoadedConversationId;
 }
 
-function selectConversation(conversationId) {
-    if (!conversations.value.length) {
-        return;
-    }
+function selectConversationHandler(conversationId) {
+    const result = selectConversation(
+        conversations.value,
+        conversationId,
+        messages.value,
+        lastLoadedConversationId.value,
+        showToast
+    );
 
-    const conversation = conversations.value.find(c => c.id === conversationId);
-
-    if (conversation) {
-        lastLoadedConversationId.value = conversationId;
-        localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
-
-        let maxId = messages.value.reduce((max, message) => message.id ? Math.max(max, message.id) : max, 0);
-
-        // Process each message to ensure it has a unique ID
-        const processedMessages = conversation.messageHistory.map(message => {
-            if (!message.id) {
-                maxId++; // Increment maxId to ensure a unique ID
-                return { ...message, id: maxId }; // Assign the new ID
-            }
-            return message;
-        });
-
-        messages.value = processedMessages;
-        selectedConversation.value = conversation;
-        showConversationOptions.value = false;
-    } else {
-        showToast("Conversations ID not found");
-        console.error('Conversation with ID ' + conversationId + ' not found.');
-    }
+    conversations.value = result.conversations;
+    messages.value = result.messages;
+    selectedConversation.value = result.selectedConversation;
+    lastLoadedConversationId.value = result.lastLoadedConversationId;
+    showConversationOptions.value = result.showConversationOptions;
 }
 
 async function startNewConversation() {
@@ -382,45 +279,27 @@ async function startNewConversation() {
 }
 
 async function createNewConversationWithTitle() {
-    let title = "";
-
     if (isClaudeEnabled.value) {
-        title = await fetchClaudeConversationTitle(messages.value.slice(0));
+        return await fetchClaudeConversationTitle(messages.value.slice(0));
     }
 
     if (selectedModel.value.indexOf("open-ai-format") !== -1) {
-        title = await getConversationTitleFromLocalModel(messages.value.slice(0), localModelName.value, localModelEndpoint.value);
+        return await getConversationTitleFromLocalModel(messages.value.slice(0), localModelName.value, localModelEndpoint.value);
     }
 
     if (selectedModel.value.indexOf("gpt") !== -1) {
-        title = await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
+        return await getConversationTitleFromGPT(messages.value.slice(0), selectedModel.value, sliderValue.value);
     }
 
     if (selectedModel.value.indexOf("web-llm") !== -1) {
-        title = await getBrowserLoadedModelConversationTitle(messages.value.slice(0));
+        return await getBrowserLoadedModelConversationTitle(messages.value.slice(0));
     }
 
-    return title;
+    return "Error Generating Title";
 }
 
 function handleImportConversations() {
     openFileSelector();
-}
-
-function handleExportConversations() {
-    const filename = "conversations.json";
-    const text = localStorage.getItem("gpt-conversations")
-
-    let element = document.createElement('a');
-
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
 }
 
 function handlePurgeConversations() {
@@ -433,7 +312,6 @@ function handlePurgeConversations() {
 //#endregion
 
 //#region Messages Handling
-let lastMessageText;
 async function sendMessage(event) {
     try {
         const messageText = userText.value.trim();
@@ -443,11 +321,8 @@ async function sendMessage(event) {
             return;
         }
 
-        lastMessageText = messageText;
-
         if (selectedModel.value.indexOf("claude") !== -1) {
             await sendClaudeMessage(messageText);
-            streamedMessageText.value = "";
             return;
         }
 
@@ -472,31 +347,27 @@ async function sendMessage(event) {
 
         if (selectedModel.value.indexOf('web-llm') !== -1) {
             await sendBrowserModelMessage(messageText);
-            streamedMessageText.value = "";
             return;
         }
 
         await sendGPTMessage(messageText);
     }
     finally {
-        streamedMessageText.value = "";
-        await saveMessages();
+        await saveMessagesHandler();
     }
 }
 
-async function sendBrowserModelMessage(message) {
-    userText.value = "";
-
-    streamedMessageText.value = "";
+async function sendBrowserModelMessage() {
+    userText.value = ""
     isLoading.value = true;
 
-    let response = await sendBrowserLoadedModelMessage(messages.value, updateUI);
+    await sendBrowserLoadedModelMessage(messages.value, updateUI);
 
     isLoading.value = false;
 }
 
 async function addMessage(role, message) {
-    setSystemPrompt(systemPrompt.value);
+    setSystemPrompt(messages.value, systemPrompt.value);
 
     // Find the highest existing message ID in the messages array
     const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
@@ -513,15 +384,12 @@ async function addMessage(role, message) {
 }
 
 
-async function sendGPTMessage(message) {
-    userText.value = "";
-
-    streamedMessageText.value = "";
+async function sendGPTMessage() {
+    userText.value = ""
     isLoading.value = true;
 
     try {
         abortController.value = new AbortController();
-        let response;
 
         if (selectedModel.value.indexOf("open-ai-format") !== -1) {
 
@@ -529,10 +397,10 @@ async function sendGPTMessage(message) {
             localSliderValue.value = localStorage.getItem('local-attitude') || 0.6;
             localModelEndpoint.value = localStorage.getItem('localModelEndpoint') || '';
 
-            response = await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText);
+            await fetchLocalModelResponseStream(messages.value, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText);
         }
         else {
-            response = await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText);
+            await fetchGPTResponseStream(messages.value, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText);
         }
 
         isLoading.value = false;
@@ -546,123 +414,77 @@ async function sendClaudeMessage(messageText) {
     if (messageText.toLowerCase().startsWith("vision::")) {
         addMessage("user", messageText);
 
-        isAnalyzingImage.value = true;
+        isClaudeEnabled.value = true;
+        isLoading.value = true;
 
-        document.getElementById('imageInput').click();
-        return;
-    }
-
-    streamedMessageText.value = "";
-    isClaudeEnabled.value = true;
-    isLoading.value = true;
-
-    abortController.value = new AbortController();
-
-    addMessage("user", messageText);
-
-    const response = await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
-
-    addMessage("assistant", response);
-
-    isLoading.value = false;
-}
-
-async function regenerateMessageReponse(content) {
-    isLoading.value = true;
-
-    setSystemPrompt(systemPrompt.value);
-
-    const messageIndex = messages.value.findIndex(message => message.content === content && message.role === 'user');
-
-    if (messageIndex !== -1) {
-        streamedMessageText.value = "";
-
-        const regenMessages = messages.value.slice(0, messageIndex + 1);
-        const messagesAfter = messages.value.slice(messageIndex + 2); // This line remains the same
         abortController.value = new AbortController();
 
-        // Assign messages.value to regenMessages before regenerating the response
-        messages.value = regenMessages;
+        await streamClaudeResponse(messages.value.slice(0), selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText);
 
-        let response = "";
-
-        if (selectedModel.value.indexOf("gpt") !== -1) {
-            response = await fetchGPTResponseStream(regenMessages, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText, false);
-        }
-        else if (selectedModel.value.indexOf("web-llm") !== -1) {
-            response = await sendBrowserLoadedModelMessage(regenMessages, updateUI);
-        }
-        else if (isClaudeEnabled.value) {
-            response = await streamClaudeResponse(regenMessages, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText, false);
-        }
-        else {
-            response = await fetchLocalModelResponseStream(regenMessages, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText, false);
-        }
-
-        messages.value[messageIndex + 1].content = response;
-
-        // Append messagesAfter to the current messages value
-        messages.value = [...messages.value, ...messagesAfter];
+        isLoading.value = false;
     }
+}
+
+function handleDeleteMessage(content) {
+    messages.value = deleteMessageFromHistory(messages.value, content);
+    saveMessagesHandler(); // Optionally save the updated messages
+}
+
+async function regenerateMessageResponseHandler(content) {
+    isLoading.value = true;
+    setSystemPrompt(messages.value, systemPrompt.value);
+
+    const result = await regenerateMessageResponse(
+        conversations.value,
+        messages,
+        content,
+        sliderValue.value,
+        selectedModel.value,
+        localSliderValue.value,
+        localModelName.value,
+        localModelEndpoint.value,
+        claudeSliderValue.value,
+        updateUI,
+        abortController,
+        streamedMessageText,
+        isClaudeEnabled.value
+    );
+
     isLoading.value = false;
+    messages.value = result.baseMessages;
+    selectedConversation.value.messageHistory = messages.value;
+    saveMessagesHandler();
 }
 
 async function EditPreviousMessage(oldContent, newContent) {
     isLoading.value = true;
-    const messageIndex = messages.value.findIndex(message => message.content === oldContent.content && message.role === 'user');
+    setSystemPrompt(messages.value, systemPrompt.value);
 
-    if (messageIndex !== -1) {
-        streamedMessageText.value = "";
+    const result = await EditPreviousMessageValue(
+        conversations.value,
+        messages,
+        oldContent,
+        newContent,
+        sliderValue.value,
+        selectedModel.value,
+        localSliderValue.value,
+        localModelName.value,
+        localModelEndpoint.value,
+        claudeSliderValue.value,
+        updateUI,
+        abortController,
+        streamedMessageText,
+        isClaudeEnabled.value
+    );
 
-        const regenMessages = messages.value.slice(0, messageIndex + 1);
-        const messagesAfter = messages.value.slice(messageIndex + 2); // This line remains the same
-        abortController.value = new AbortController();
-
-        // Replace the last message content property in regenMessages with the value of userText
-        regenMessages[regenMessages.length - 1].content = newContent;
-
-        // Assign messages.value to regenMessages before regenerating the response
-        messages.value = regenMessages;
-
-        let response = "";
-
-        if (selectedModel.value.indexOf("gpt") !== -1) {
-            response = await fetchGPTResponseStream(regenMessages, sliderValue.value, selectedModel.value, updateUI, abortController.value, streamedMessageText, false);
-        }
-        else if (isClaudeEnabled.value) {
-            response = await streamClaudeResponse(regenMessages, selectedModel.value, claudeSliderValue.value, updateUI, abortController.value, streamedMessageText, false);
-        }
-        else {
-            response = await fetchLocalModelResponseStream(regenMessages, localSliderValue.value, localModelName.value, localModelEndpoint.value, updateUI, abortController.value, streamedMessageText, false);
-        }
-
-        addMessage("assistant", response);
-
-        messages.value[messageIndex + 1].content = response;
-
-        // Append messagesAfter to the current messages value
-        messages.value = [...messages.value, ...messagesAfter];
-    }
+    messages.value = [...result.baseMessages];
+    selectedConversation.value.messageHistory = messages.value;
     isLoading.value = false;
-}
-
-
-async function deleteMessageFromHistory(content) {
-    const messageIndex = messages.value.findIndex(message => message.content === content && message.role === 'user');
-
-    if (messageIndex !== -1) {
-        streamedMessageText.value = "";
-
-        const beforeMessages = messages.value.slice(0, messageIndex);
-        const messagesAfter = messages.value.slice(messageIndex + 2); // This line remains the same
-
-        messages.value = [...beforeMessages, ...messagesAfter];
-    }
+    saveMessagesHandler();
 }
 
 async function sendImagePrompt(imagePrompt) {
     isGeneratingImage.value = true;
-    streamedMessageText.value = "";
 
     userText.value = "";
 
@@ -679,9 +501,8 @@ async function sendImagePrompt(imagePrompt) {
     isGeneratingImage.value = false;
 }
 
-async function sendVisionPrompt(message) {
+async function sendVisionPrompt() {
     isAnalyzingImage.value = true;
-    streamedMessageText.value = "";
 
     document.getElementById('imageInput').click();
 
@@ -725,8 +546,6 @@ async function visionimageUploadClick() {
     userText.value = 'vision:: ' + userText.value;
     await sendMessage();
 };
-
-
 //#endregion
 
 //#region File/Upload Handling
@@ -771,7 +590,7 @@ function uploadFile(event, element) {
 
             localStorage.setItem('gpt-conversations', contents);
             conversations.value = parsedContents;
-            selectConversation(conversations.value[0].id);
+            selectConversationHandler(conversations.value[0].id);
             showToast("Import successful!");
         } catch (err) {
             console.log("Bad file detected");
@@ -921,12 +740,7 @@ function stopResize() {
 }
 
 async function editConversationTitle(oldConversation, newConversationTitle) {
-    const updatedConversation = {
-        ...oldConversation,
-        title: newConversationTitle,
-    };
-
-    const updatedConversationsList = await updateConversation(conversations.value, oldConversation.id, updatedConversation);
+    const updatedConversationsList = await editConversationTitleInManagement(conversations.value, oldConversation, newConversationTitle);
 
     if (updatedConversationsList) {
         conversations.value = updatedConversationsList;
@@ -975,12 +789,13 @@ onMounted(() => {
     sidebarContentContainer.value.style.width = '420px';
     selectedModel.value = localStorage.getItem("selectedModel") || "gpt-4-turbo";
     determineModelDisplayName(selectedModel.value);
-    selectConversation(lastLoadedConversationId.value || conversations.value[0]?.id);
+    selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
 
     messagesContainer = document.querySelector('.messages');
     messagesContainer.addEventListener('scroll', updateScrollButtonVisibility);
     document.addEventListener('click', handleGlobalClick);
 });
+
 </script>
 
 <template>
@@ -1031,7 +846,7 @@ onMounted(() => {
             <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
                 :class="{ 'open': showConversationOptions }">
                 <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
-                    @toggle-sidebar="showConversations" @load-conversation="selectConversation"
+                    @toggle-sidebar="showConversations" @load-conversation="selectConversationHandler"
                     :selectedConversationItem="selectedConversation" @new-conversation="startNewConversation"
                     @edit-conversation-title="editConversationTitle" @import-conversations="handleImportConversations"
                     @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
@@ -1054,8 +869,8 @@ onMounted(() => {
                                 :isClaudeEnabled="isClaudeEnabled" :isUsingLocalModel="isUsingLocalModel"
                                 :isAnalyzingImage="isAnalyzingImage" :streamedMessageText="streamedMessageText"
                                 :isGeneratingImage="isGeneratingImage" :modelDisplayName="modelDisplayName"
-                                @regenerate-response="regenerateMessageReponse"
-                                @delete-response="deleteMessageFromHistory" @edit-message="EditPreviousMessage" />
+                                @regenerate-response="regenerateMessageResponseHandler"
+                                @delete-response="handleDeleteMessage" @edit-message="EditPreviousMessage" />
                         </div>
                         <!-- Floating button to quick scroll to the bottom of the page -->
                         <div class="floating-button scroll" id="scroll-button" @click="null"
@@ -1077,6 +892,8 @@ onMounted(() => {
         </div>
     </div>
 </template>
+
+
 
 <style lang="scss">
 $icon-color: rgb(187, 187, 187);

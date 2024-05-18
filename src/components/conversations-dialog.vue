@@ -138,7 +138,7 @@ function purgeConversations() {
                             &nbsp;{{ conversation.title }}
                         </span>
                         <br><br>
-                        <span>
+                        <span v-if="!conversation.isEditing">
                             <Database :size="13" />
                             &nbsp;
                             {{ conversationCharacterCount(conversation) }} Tokens
