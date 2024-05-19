@@ -3,7 +3,6 @@
 import { ref } from 'vue';
 import { streamClaudeResponse } from '@/libs/claude-api-access';
 import { showToast } from '@/libs/utils';
-import { analyzeImage } from '@/libs/image-analysis';
 import { sendBrowserLoadedModelMessage } from '@/libs/web-llm-access';
 import { fetchLocalModelResponseStream } from './open-ai-api-standard-access';
 import { fetchGPTResponseStream, generateDALLEImage } from './gpt-api-access';
@@ -23,7 +22,8 @@ export async function sendMessage(
     localModelEndpoint,
     updateUI,
     addMessage,
-    saveMessagesHandler
+    saveMessagesHandler,
+    imageInputElement
 ) {
     try {
         const messageText = userText.trim();
@@ -36,7 +36,7 @@ export async function sendMessage(
         addMessage('user', messageText);
 
         if (selectedModel.indexOf('claude') !== -1) {
-            await sendClaudeMessage(messageText, messages, selectedModel, claudeSliderValue, updateUI);
+            await sendClaudeMessage(messageText, messages, selectedModel, claudeSliderValue, updateUI, imageInputElement);
             return;
         }
 
@@ -54,7 +54,7 @@ export async function sendMessage(
         }
 
         if (messageText.toLowerCase().startsWith('vision::')) {
-            await sendVisionPrompt();
+            await sendVisionPrompt(imageInputElement);
             return;
         }
 
@@ -70,11 +70,11 @@ export async function sendMessage(
     }
 }
 
-export async function sendClaudeMessage(messageText, messages, selectedModel, claudeSliderValue, updateUI) {
+export async function sendClaudeMessage(messageText, messages, selectedModel, claudeSliderValue, updateUI, imageInputElement) {
     if (messageText.startsWith('vision::')) {
         isLoading.value = true;
 
-        await sendVisionPrompt();
+        await sendVisionPrompt(imageInputElement);
         isLoading.value = false;
         return;
     }
@@ -106,8 +106,8 @@ export async function sendBrowserModelMessage(messages, updateUI) {
     await sendBrowserLoadedModelMessage(messages, updateUI);
 }
 
-export async function sendVisionPrompt() {
-    document.getElementById('imageInput').click();
+export async function sendVisionPrompt(imageInputElement) {
+    imageInputElement.click();
 }
 
 export async function sendImagePrompt(imagePrompt, addMessage) {
@@ -120,4 +120,28 @@ export async function sendImagePrompt(imagePrompt, addMessage) {
     }
 
     addMessage('assistant', imageURLStrings);
+}
+
+export async function visionimageUploadClick(userText, messages, selectedModel, claudeSliderValue, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUIWrapper, addMessage, saveMessagesHandler, imageInput) {
+    if (userText.value.trim().length === 0) {
+        showToast('Please Enter a Prompt First');
+        return;
+    }
+
+    userText.value = 'vision:: ' + userText.value;
+    await sendMessage(
+        null,
+        userText.value,
+        messages.value,
+        selectedModel.value,
+        claudeSliderValue.value,
+        sliderValue.value,
+        localModelName.value,
+        localSliderValue.value,
+        localModelEndpoint.value,
+        updateUIWrapper,
+        addMessage,
+        saveMessagesHandler,
+        imageInput.value
+    );
 }
