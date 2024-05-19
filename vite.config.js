@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import VueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
-import { compression } from 'vite-plugin-compression2'
+import { compression } from 'vite-plugin-compression2';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,7 +16,13 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 8000000
       }
     }),
-    compression({ algorithm: 'brotliCompress', threshold: 512 })
+    compression({
+      algorithm: 'brotliCompress',
+      threshold: 0, // Compress all files, no size threshold
+      compressionOptions: {
+        level: 11, // Maximum compression level for Brotli
+      }
+    }),
   ],
   resolve: {
     alias: {
@@ -36,6 +42,52 @@ export default defineConfig({
       },
       format: {
         comments: false // Remove comments
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('vue')) {
+              return 'vue';
+            }
+            if (id.includes('vue-router')) {
+              return 'vue-router';
+            }
+            if (id.includes('vuex')) {
+              return 'vuex';
+            }
+            if (id.includes('lodash')) {
+              return 'lodash';
+            }
+            // Further split other node_modules packages
+            const modules = ['axios', 'moment', 'chart.js', '@mlc-ai', 'web-llm']; // Add more packages as needed
+            for (const module of modules) {
+              if (id.includes(module)) {
+                return module;
+              }
+            }
+            return 'vendor';
+          }
+          // Split components into separate chunks
+          if (id.includes('/src/components/')) {
+            const dirs = id.split('/');
+            const name = dirs[dirs.length - 2];
+            return `component-${name}`;
+          }
+
+          if (id.includes('/src/views/')) {
+            const dirs = id.split('/');
+            const name = dirs[dirs.length - 2];
+            return `view-${name}`;
+          }
+
+          if (id.includes('/src/libs/')) {
+            const dirs = id.split('/');
+            const name = dirs[dirs.length - 2];
+            return `lib-${name}`;
+          }
+        }
       }
     },
     target: 'esnext', // Target modern browsers for smaller bundle size
