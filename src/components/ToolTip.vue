@@ -16,13 +16,13 @@ const createTooltip = () => {
         if (!tippyInstance) {
             tippyInstance = tippy(target, {
                 content: tooltipElement.value,
-                placement: 'top',
+                placement: 'bottom',
                 trigger: 'mouseenter focus',
                 appendTo: document.body,
                 arrow: true,
                 animation: 'shift-away-subtle',
-                interactive: true,
-                hideOnClick: false
+                interactive: false,
+                hideOnClick: true
             });
         }
     }
