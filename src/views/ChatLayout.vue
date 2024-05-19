@@ -24,6 +24,7 @@ import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
 import settingsDialog from '@/components/settings-dialog.vue';
 import conversationsDialog from '@/components/conversations-dialog.vue';
+import { engine, loadNewModel } from '@/libs/web-llm-access';
 
 //#region Refs
 const shouldShowScrollButton = ref(false);
@@ -62,8 +63,6 @@ const storedConversations = ref(loadStoredConversations());
 const lastLoadedConversationId = ref(parseInt(localStorage.getItem('lastConversationId')) || 0);
 const selectedConversation = ref(conversations.value[0]);
 const abortController = ref(null);
-
-let messagesContainer;
 
 //#endregion
 
@@ -626,20 +625,20 @@ onMounted(() => {
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
                             @send-message="async (event) =>
-                                    await sendMessage(
-                                        event,
-                                        userText,
-                                        messages,
-                                        selectedModel,
-                                        claudeSliderValue,
-                                        sliderValue,
-                                        localModelName,
-                                        localSliderValue,
-                                        localModelEndpoint,
-                                        updateUIWrapper,
-                                        addMessage,
-                                        saveMessagesHandler
-                                    )
+                                await sendMessage(
+                                    event,
+                                    userText,
+                                    messages,
+                                    selectedModel,
+                                    claudeSliderValue,
+                                    sliderValue,
+                                    localModelName,
+                                    localSliderValue,
+                                    localModelEndpoint,
+                                    updateUIWrapper,
+                                    addMessage,
+                                    saveMessagesHandler
+                                )
                                 " @vision-prompt="visionimageUploadClick" @upload-context="importFileClick"
                             @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
