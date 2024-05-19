@@ -44,52 +44,6 @@ export default defineConfig({
         comments: false // Remove comments
       }
     },
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('vue')) {
-              return 'vue';
-            }
-            if (id.includes('vue-router')) {
-              return 'vue-router';
-            }
-            if (id.includes('vuex')) {
-              return 'vuex';
-            }
-            if (id.includes('lodash')) {
-              return 'lodash';
-            }
-            // Further split other node_modules packages
-            const modules = ['axios', 'moment', 'chart.js', '@mlc-ai', 'web-llm']; // Add more packages as needed
-            for (const module of modules) {
-              if (id.includes(module)) {
-                return module;
-              }
-            }
-            return 'vendor';
-          }
-          // Split components into separate chunks
-          if (id.includes('/src/components/')) {
-            const dirs = id.split('/');
-            const name = dirs[dirs.length - 2];
-            return `component-${name}`;
-          }
-
-          if (id.includes('/src/views/')) {
-            const dirs = id.split('/');
-            const name = dirs[dirs.length - 2];
-            return `view-${name}`;
-          }
-
-          if (id.includes('/src/libs/')) {
-            const dirs = id.split('/');
-            const name = dirs[dirs.length - 2];
-            return `lib-${name}`;
-          }
-        }
-      }
-    },
     target: 'esnext', // Target modern browsers for smaller bundle size
     cssCodeSplit: true, // Enable CSS code splitting
     sourcemap: false, // Disable source maps for production build

@@ -78,7 +78,7 @@ watch(selectedModel, (newValue) => {
 
     const modelSettings = {
         [MODEL_TYPES.OPEN_AI_FORMAT]: {
-            useLocalModel: true,
+            useLocalModel: false,
             modelDisplayName: 'Custom Model'
         },
         [MODEL_TYPES.CLAUDE]: {
@@ -91,7 +91,7 @@ watch(selectedModel, (newValue) => {
         },
         [MODEL_TYPES.WEB_LLM]: {
             useLocalModel: false,
-            modelDisplayName: 'Local Browser Model'
+            modelDisplayName: 'WebGPU Model'
         }
     };
 
@@ -109,7 +109,7 @@ watch(selectedModel, (newValue) => {
         return acc;
     }, defaultSettings);
 
-    if (settings.modelDisplayName !== 'Local Browser Model') {
+    if (settings.modelDisplayName !== 'WebGPU Model') {
         unloadModel(engine);
     }
     try {
@@ -120,6 +120,7 @@ watch(selectedModel, (newValue) => {
         console.error('Error updating settings:', error);
     }
 });
+
 const watchAndStore = (ref, key, transform = (val) => val) => {
     watch(ref, (newValue) => {
         localStorage.setItem(key, transform(newValue));
@@ -332,6 +333,27 @@ async function processImage(file, fileType) {
     userText.value = '';
 
     return await analyzeImage(file, fileType, messages.value, selectedModel.value, localModelName.value, localModelEndpoint.value);
+}
+
+async function handleMessageSending() {
+    isLoading.value = true;
+
+    await sendMessage(
+        event,
+        userText.value,
+        messages.value,
+        selectedModel.value,
+        claudeSliderValue.value,
+        sliderValue.value,
+        localModelName.value,
+        localSliderValue.value,
+        localModelEndpoint.value,
+        updateUIWrapper,
+        addMessage,
+        saveMessagesHandler
+    );
+
+    isLoading.value = false;
 }
 
 async function visionimageUploadClick() {
@@ -624,23 +646,9 @@ onMounted(() => {
                         </div>
                         <!-- User Input -->
                         <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
-                            @send-message="async (event) =>
-                                await sendMessage(
-                                    event,
-                                    userText,
-                                    messages,
-                                    selectedModel,
-                                    claudeSliderValue,
-                                    sliderValue,
-                                    localModelName,
-                                    localSliderValue,
-                                    localModelEndpoint,
-                                    updateUIWrapper,
-                                    addMessage,
-                                    saveMessagesHandler
-                                )
-                                " @vision-prompt="visionimageUploadClick" @upload-context="importFileClick"
-                            @update:userInput="updateUserText" @swipe-left="swipedLeft" @swipe-right="swipedRight" />
+                            @send-message="handleMessageSending" @vision-prompt="visionimageUploadClick"
+                            @upload-context="importFileClick" @update:userInput="updateUserText"
+                            @swipe-left="swipedLeft" @swipe-right="swipedRight" />
                     </div>
                 </div>
             </div>
