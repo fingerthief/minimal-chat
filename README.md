@@ -84,7 +84,7 @@ Yes, MinimalChat is open-source and free to use. However, you'll need to provide
 
 Yes! If you use LM Studio to locally host a LLM Model, you can connect and chat with any model that returns a response in the OpenAI Response format standard.
 
-You can even load a full model into your browser directly and run interact with it all within MinimalChat. After the model is initally downloaded and cached the first time it can be used without an internet connection.
+You can even load a full model into your browser directly and run interact with it all within MinimalChat. After the model is initially downloaded and cached the first time it can be used without an internet connection.
 
 ### Are my conversations secure and private?
 
