@@ -67,7 +67,7 @@ const selectedDallEImageCount = ref(parseInt(localStorage.getItem('selectedDallE
 const selectedDallEImageResolution = ref(localStorage.getItem('selectedDallEImageResolution') || '256x256');
 const selectedAutoSaveOption = ref(localStorage.getItem('selectedAutoSaveOption') || true);
 
-const browserModelSelection = ref(localStorage.getItem('browserModelSelection') || 'Llama-3-8B-Instruct-q4f16_1-1k');
+const browserModelSelection = ref(localStorage.getItem('browserModelSelection') || undefined);
 
 const maxTokens = ref(parseInt(localStorage.getItem('maxTokens')) || -1);
 const top_P = ref(parseFloat(localStorage.getItem('top_P')) || 1.0);
@@ -132,6 +132,10 @@ refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));
 watchAndStore(localModelEndpoint, 'localModelEndpoint', removeAPIEndpoints);
 
 watch(browserModelSelection, async (newValue) => {
+  if (browserModelSelection.value === undefined || !selectedModel.value.includes("web-llm")) {
+    return;
+  }
+
   localStorage.setItem('browserModelSelection', newValue);
   modelDisplayName.value = newValue;
   isLoading.value = true;
@@ -451,13 +455,10 @@ onMounted(() => {
 <template>
   <!-- File Upload -->
   <div id="fileUploadDiv">
-    <input type="file" id="fileUpload" style="display: none" @change="(event) => uploadFile(event, conversations, selectConversationHandler)" />
-    <input
-      type="file"
-      id="fileImportUpload"
-      style="display: none"
-      @change="(event) => uploadFileContentsToCoversation(event, userText, addMessage)"
-    />
+    <input type="file" id="fileUpload" style="display: none"
+      @change="(event) => uploadFile(event, conversations, selectConversationHandler)" />
+    <input type="file" id="fileImportUpload" style="display: none"
+      @change="(event) => uploadFileContentsToCoversation(event, userText, addMessage)" />
     <div @click="openFileSelector" style="display: none">Upload File</div>
     <div @click="importFileClick" style="display: none">Import File</div>
     <input id="imageInput" ref="imageInput" @change="imageInputChangedHandler" style="display: none" type="file" />
@@ -470,110 +471,70 @@ onMounted(() => {
 
       <!-- Settings Sidebar -->
       <div class="sidebar-common sidebar-left" id="settings-dialog" :class="{ open: isSidebarOpen }">
-        <settingsDialog
-          :isSidebarOpen="isSidebarOpen"
-          :selectedModel="selectedModel"
-          :localModelName="localModelName"
-          :localModelEndpoint="localModelEndpoint"
-          :localSliderValue="localSliderValue"
-          :gptKey="gptKey"
-          :sliderValue="sliderValue"
-          :claudeKey="claudeKey"
-          :claudeSliderValue="claudeSliderValue"
-          :browserModelSelection="browserModelSelection"
-          :selectedDallEImageCount="selectedDallEImageCount"
-          :selectedDallEImageResolution="selectedDallEImageResolution"
-          :selectedAutoSaveOption="selectedAutoSaveOption"
-          :maxTokens="maxTokens"
-          :top_P="top_P"
-          :repetitionPenalty="repetitionPenalty"
-          :localModelKey="localModelKey"
-          :systemPrompt="systemPrompt"
-          @update:systemPrompt="updateSetting('systemPrompt', $event)"
+        <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel" :localModelName="localModelName"
+          :localModelEndpoint="localModelEndpoint" :localSliderValue="localSliderValue" :gptKey="gptKey"
+          :sliderValue="sliderValue" :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
+          :browserModelSelection="browserModelSelection" :selectedDallEImageCount="selectedDallEImageCount"
+          :selectedDallEImageResolution="selectedDallEImageResolution" :selectedAutoSaveOption="selectedAutoSaveOption"
+          :maxTokens="maxTokens" :top_P="top_P" :repetitionPenalty="repetitionPenalty" :localModelKey="localModelKey"
+          :systemPrompt="systemPrompt" @update:systemPrompt="updateSetting('systemPrompt', $event)"
           @update:maxTokens="updateSetting('maxTokens', $event)"
           @update:browserModelSelection="updateSetting('browserModelSelection', $event)"
           @update:repetitionPenalty="updateSetting('repetitionPenalty', $event)"
-          @update:top_P="updateSetting('top_P', $event)"
-          @update:model="updateSetting('selectedModel', $event)"
+          @update:top_P="updateSetting('top_P', $event)" @update:model="updateSetting('selectedModel', $event)"
           @update:localModelName="updateSetting('localModelName', $event)"
           @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"
           @update:localModelKey="updateSetting('localModelKey', $event)"
           @update:localSliderValue="updateSetting('localSliderValue', $event)"
-          @update:gptKey="updateSetting('gptKey', $event)"
-          @update:sliderValue="updateSetting('sliderValue', $event)"
+          @update:gptKey="updateSetting('gptKey', $event)" @update:sliderValue="updateSetting('sliderValue', $event)"
           @update:claudeKey="updateSetting('claudeKey', $event)"
           @update:claudeSliderValue="updateSetting('claudeSliderValue', $event)"
           @update:selectedDallEImageCount="updateSetting('selectedDallEImageCount', $event)"
           @update:selectedDallEImageResolution="updateSetting('selectedDallEImageResolution', $event)"
           @update:selectedAutoSaveOption="updateSetting('selectedAutoSaveOption', $event)"
-          @toggle-sidebar="toggleSidebar"
-        />
+          @toggle-sidebar="toggleSidebar" />
       </div>
 
       <!-- Conversations Sidebar -->
-      <div class="sidebar-conversations sidebar-right" id="conversations-dialog" :class="{ open: showConversationOptions }">
-        <conversationsDialog
-          :isSidebarOpen="isSidebarOpen"
-          :conversations="conversations"
-          @toggle-sidebar="showConversations"
-          @load-conversation="selectConversationHandler"
-          :selectedConversationItem="selectedConversation"
-          @new-conversation="startNewConversation"
-          @edit-conversation-title="editConversationTitle"
-          @import-conversations="handleImportConversations"
-          @export-conversations="handleExportConversations"
-          @purge-conversations="handlePurgeConversations"
-          @delete-current-conversation="deleteCurrentConversation"
-          @open-settings="toggleSidebar"
-          :showConversationOptions="showConversationOptions"
-        />
-        <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)"></div>
+      <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
+        :class="{ open: showConversationOptions }">
+        <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
+          @toggle-sidebar="showConversations" @load-conversation="selectConversationHandler"
+          :selectedConversationItem="selectedConversation" @new-conversation="startNewConversation"
+          @edit-conversation-title="editConversationTitle" @import-conversations="handleImportConversations"
+          @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
+          @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
+          :showConversationOptions="showConversationOptions" />
+        <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
+        </div>
       </div>
 
       <div class="chat-container">
         <div class="container">
           <div class="chat">
             <!-- Header -->
-            <chatHeader
-              :selectedModel="selectedModel"
-              :isSidebarOpen="isSidebarOpen"
-              :storedConversations="storedConversations"
-              @toggle-sidebar="toggleSidebar"
-              @delete-conversation="deleteCurrentConversation"
-              @toggle-conversations="showConversations"
-              @new-conversation="startNewConversation"
-              @change-model="onModelChange"
-            />
+            <chatHeader :selectedModel="selectedModel" :isSidebarOpen="isSidebarOpen"
+              :storedConversations="storedConversations" @toggle-sidebar="toggleSidebar"
+              @delete-conversation="deleteCurrentConversation" @toggle-conversations="showConversations"
+              @new-conversation="startNewConversation" @change-model="onModelChange" />
             <!-- Messages -->
             <div class="messages">
-              <messageItem
-                :hasFilterText="hasFilterText"
-                :messages="messages"
-                :isLoading="isLoading"
-                :modelDisplayName="modelDisplayName"
-                @regenerate-response="regenerateMessageResponseHandler"
-                @delete-response="handleDeleteMessage"
-                @edit-message="EditPreviousMessage"
-              />
+              <messageItem :hasFilterText="hasFilterText" :messages="messages" :isLoading="isLoading"
+                :modelDisplayName="modelDisplayName" @regenerate-response="regenerateMessageResponseHandler"
+                @delete-response="handleDeleteMessage" @edit-message="EditPreviousMessage" />
             </div>
             <!-- Floating button to quick scroll to the bottom of the page -->
-            <div class="floating-button scroll" id="scroll-button" @click="null" :class="{ show: shouldShowScrollButton }">
+            <div class="floating-button scroll" id="scroll-button" @click="null"
+              :class="{ show: shouldShowScrollButton }">
               <span>
                 <ChevronDown :strokeWidth="3" />
               </span>
             </div>
             <!-- User Input -->
-            <chatInput
-              :userInput="userText"
-              :isLoading="isLoading"
-              @abort-stream="abortStream"
-              @send-message="handleMessageSending"
-              @vision-prompt="visionimageUploadClickHandler"
-              @upload-context="importFileClick"
-              @update:userInput="updateUserText"
-              @swipe-left="swipedLeft"
-              @swipe-right="swipedRight"
-            />
+            <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
+              @send-message="handleMessageSending" @vision-prompt="visionimageUploadClickHandler"
+              @upload-context="importFileClick" @update:userInput="updateUserText" @swipe-left="swipedLeft"
+              @swipe-right="swipedRight" />
           </div>
         </div>
       </div>

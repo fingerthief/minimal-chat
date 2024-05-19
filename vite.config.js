@@ -22,7 +22,7 @@ export default defineConfig({
       compressionOptions: {
         level: 11, // Maximum compression level for Brotli
       }
-    }),
+    })
   ],
   resolve: {
     alias: {
@@ -48,6 +48,15 @@ export default defineConfig({
     cssCodeSplit: true, // Enable CSS code splitting
     sourcemap: false, // Disable source maps for production build
     brotliSize: true, // Enable Brotli size reporting
-    chunkSizeWarningLimit: 500 // Increase chunk size warning limit
+    chunkSizeWarningLimit: 500, // Increase chunk size warning limit
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        }
+      }
+    }
   }
 });
