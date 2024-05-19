@@ -55,7 +55,7 @@ export function deleteConversation(conversations, id) {
 export async function saveMessages(conversations, selectedConversation, messages, lastLoadedConversationId) {
   const updatedConversation = selectedConversation;
 
-  if (!selectedConversation || !selectedConversation === null) {
+  if (!selectedConversation || !selectedConversation === null || !conversations.length) {
     const title = await createNewConversationWithTitle(
       messages,
       localStorage.getItem('selectedModel') || 'gpt-4o',
