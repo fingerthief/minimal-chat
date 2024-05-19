@@ -2,8 +2,8 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import VueDevTools from 'vite-plugin-vue-devtools';
-import viteCompression from 'vite-plugin-compression';
 import { VitePWA } from 'vite-plugin-pwa';
+import { compression } from 'vite-plugin-compression2'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,10 +16,7 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 8000000
       }
     }),
-    viteCompression({
-      threshold: 512,
-      algorithm: 'brotliCompress', // Use Brotli compression for better compression ratio
-    })
+    compression({ algorithm: 'brotliCompress', threshold: 512 })
   ],
   resolve: {
     alias: {
