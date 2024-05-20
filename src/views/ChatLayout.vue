@@ -1,10 +1,10 @@
 // ChatLayout.vue
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
-import { loadConversationTitles, loadStoredConversations } from '@/libs/gpt-api-access';
-import { showToast, removeAPIEndpoints, determineModelDisplayName, unloadModel, updateUI, handleDoubleClick } from '@/libs/utils';
+import { loadConversationTitles } from '@/libs/gpt-api-access';
+import { showToast, determineModelDisplayName, updateUI, handleDoubleClick } from '@/libs/utils';
 import {
   deleteConversation,
   handleExportConversations,
@@ -23,126 +23,42 @@ import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
 import settingsDialog from '@/components/settings-dialog.vue';
 import conversationsDialog from '@/components/conversations-dialog.vue';
-import { engine, loadNewModel } from '@/libs/web-llm-access';
-
-//#region Constants
-const MODEL_TYPES = {
-  OPEN_AI_FORMAT: 'open-ai-format',
-  CLAUDE: 'claude',
-  GPT: 'gpt',
-  WEB_LLM: 'web-llm',
-};
-
-const modelSettings = {
-  [MODEL_TYPES.OPEN_AI_FORMAT]: { useLocalModel: false, modelDisplayName: 'Custom Model' },
-  [MODEL_TYPES.CLAUDE]: { useLocalModel: false, modelDisplayName: 'Claude' },
-  [MODEL_TYPES.GPT]: { useLocalModel: false, modelDisplayName: 'GPT' },
-  [MODEL_TYPES.WEB_LLM]: { useLocalModel: false, modelDisplayName: 'WebGPU Model' },
-};
-
-const defaultSettings = { useLocalModel: false, isUsingLocalModel: false, modelDisplayName: 'Unknown' };
-//#endregion
-
-//#region Refs
-const shouldShowScrollButton = ref(false);
-const userText = ref('');
-const isLoading = ref(false);
-const hasFilterText = ref(false);
-const selectedModel = ref(localStorage.getItem('selectedModel') || 'gpt-4o');
-const isSidebarOpen = ref(false);
-const showConversationOptions = ref(false);
-const messages = ref([]);
-const streamedMessageText = ref('');
-const modelDisplayName = ref('Unknown');
-
-const localModelKey = ref(localStorage.getItem('localModelKey') || '');
-const localModelName = ref(localStorage.getItem('localModelName') || '');
-const localModelEndpoint = ref(removeAPIEndpoints(localStorage.getItem('localModelEndpoint') || ''));
-const localSliderValue = ref(parseFloat(localStorage.getItem('local-attitude')) || 0.6);
-const gptKey = ref(localStorage.getItem('gptKey') || '');
-const sliderValue = ref(parseInt(localStorage.getItem('gpt-attitude')) || 50);
-const claudeKey = ref(localStorage.getItem('claudeKey') || '');
-const claudeSliderValue = ref(parseInt(localStorage.getItem('claude-attitude')) || 50);
-const selectedDallEImageCount = ref(parseInt(localStorage.getItem('selectedDallEImageCount')) || 1);
-const selectedDallEImageResolution = ref(localStorage.getItem('selectedDallEImageResolution') || '256x256');
-const selectedAutoSaveOption = ref(localStorage.getItem('selectedAutoSaveOption') || true);
-
-const browserModelSelection = ref(localStorage.getItem('browserModelSelection') || undefined);
-
-const maxTokens = ref(parseInt(localStorage.getItem('maxTokens')) || -1);
-const top_P = ref(parseFloat(localStorage.getItem('top_P')) || 1.0);
-const repetitionPenalty = ref(parseFloat(localStorage.getItem('repetitionPenalty')) || 1.0);
-
-const systemPrompt = ref(localStorage.getItem('systemPrompt') || '');
-
-const conversations = ref(loadConversationTitles());
-const storedConversations = ref(loadStoredConversations());
-const lastLoadedConversationId = ref(parseInt(localStorage.getItem('lastConversationId')) || 0);
-const selectedConversation = ref(conversations.value[0]);
-const abortController = ref(null);
-const imageInput = ref(null);
-//#endregion
-
-//#region Watchers
-watch(selectedModel, (newValue) => {
-  const settings = Object.keys(MODEL_TYPES).reduce((acc, key) => {
-    if (newValue.includes(MODEL_TYPES[key])) {
-      return modelSettings[MODEL_TYPES[key]];
-    }
-    return acc;
-  }, defaultSettings);
-
-  if (settings.modelDisplayName !== 'WebGPU Model') {
-    unloadModel(engine);
-  }
-  try {
-    localStorage.setItem('useLocalModel', settings.useLocalModel);
-    localStorage.setItem('selectedModel', newValue);
-    modelDisplayName.value = settings.modelDisplayName;
-  } catch (error) {
-    console.error('Error updating settings:', error);
-  }
-});
-
-const watchAndStore = (ref, key, transform = (val) => val) => {
-  watch(ref, (newValue) => {
-    localStorage.setItem(key, transform(newValue));
-  });
-};
-
-const refsToWatch = [
-  { ref: localModelKey, key: 'localModelKey' },
-  { ref: systemPrompt, key: 'systemPrompt' },
-  { ref: maxTokens, key: 'maxTokens' },
-  { ref: top_P, key: 'top_P' },
-  { ref: repetitionPenalty, key: 'repetitionPenalty' },
-  { ref: localModelName, key: 'localModelName' },
-  { ref: localSliderValue, key: 'local-attitude' },
-  { ref: gptKey, key: 'gptKey' },
-  { ref: sliderValue, key: 'gpt-attitude' },
-  { ref: claudeKey, key: 'claudeKey' },
-  { ref: claudeSliderValue, key: 'claude-attitude' },
-  { ref: selectedDallEImageCount, key: 'selectedDallEImageCount' },
-  { ref: selectedDallEImageResolution, key: 'selectedDallEImageResolution' },
-  { ref: selectedAutoSaveOption, key: 'selectedAutoSaveOption' },
-];
-
-refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));
-
-watchAndStore(localModelEndpoint, 'localModelEndpoint', removeAPIEndpoints);
-
-watch(browserModelSelection, async (newValue) => {
-  if (browserModelSelection.value === undefined || !selectedModel.value.includes("web-llm")) {
-    return;
-  }
-
-  localStorage.setItem('browserModelSelection', newValue);
-  modelDisplayName.value = newValue;
-  isLoading.value = true;
-  await loadNewModel(newValue, updateUIWrapper);
-  isLoading.value = false;
-});
-//#endregion
+import { engine } from '@/libs/web-llm-access';
+import {
+  shouldShowScrollButton,
+  userText,
+  isLoading,
+  hasFilterText,
+  selectedModel,
+  isSidebarOpen,
+  showConversationOptions,
+  messages,
+  streamedMessageText,
+  modelDisplayName,
+  localModelKey,
+  localModelName,
+  localModelEndpoint,
+  localSliderValue,
+  gptKey,
+  sliderValue,
+  claudeKey,
+  claudeSliderValue,
+  selectedDallEImageCount,
+  selectedDallEImageResolution,
+  selectedAutoSaveOption,
+  browserModelSelection,
+  maxTokens,
+  top_P,
+  repetitionPenalty,
+  systemPrompt,
+  conversations,
+  storedConversations,
+  lastLoadedConversationId,
+  selectedConversation,
+  abortController,
+  imageInput,
+} from '@/libs/state';
+import { setupWatchers } from '@/libs/watchers';
 
 //#region UI Updates
 const updateUserText = (newText) => {
@@ -449,6 +365,7 @@ onMounted(() => {
   modelDisplayName.value = determineModelDisplayName(selectedModel.value);
   selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
   document.addEventListener('click', handleGlobalClick);
+  setupWatchers();
 });
 </script>
 
