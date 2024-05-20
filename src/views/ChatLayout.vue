@@ -3,18 +3,13 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
-import { loadConversationTitles } from '@/libs/gpt-api-access';
 import { showToast, determineModelDisplayName, updateUI, handleDoubleClick } from '@/libs/utils';
 import {
-  deleteConversation,
-  handleExportConversations,
   setSystemPrompt,
   deleteMessageFromHistory,
-  saveMessages,
-  selectConversation,
   regenerateMessageResponse,
   editPreviousMessage as EditPreviousMessageValue,
-  editConversationTitle as editConversationTitleInManagement,
+  handleExportConversations
 } from '@/libs/conversations-management';
 import { uploadFileContentsToCoversation, uploadFile, imageInputChanged } from '@/libs/file-processing';
 import { sendMessage, visionimageUploadClick } from '@/libs/message-processing';
@@ -51,14 +46,11 @@ import {
   top_P,
   repetitionPenalty,
   systemPrompt,
-  conversations,
-  storedConversations,
-  lastLoadedConversationId,
-  selectedConversation,
   abortController,
   imageInput,
 } from '@/libs/state';
 import { setupWatchers } from '@/libs/watchers';
+import { useConversations } from '@/libs/useConversations';
 
 //#region UI Updates
 const updateUserText = (newText) => {
@@ -76,42 +68,16 @@ function toggleSidebar() {
 //#endregion
 
 //#region Conversation Handling
-function showConversations() {
-  event.stopPropagation();
-  showConversationOptions.value = !showConversationOptions.value;
-}
-
-function deleteCurrentConversation() {
-  const updatedConversations = deleteConversation(conversations.value, lastLoadedConversationId.value);
-
-  conversations.value = updatedConversations;
-  messages.value = [];
-
-  if (conversations.value.length > 0) {
-    selectConversationHandler(conversations.value[conversations.value.length - 1].id);
-  }
-
-  localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-}
-
-async function saveMessagesHandler() {
-  const result = await saveMessages(conversations.value, selectedConversation.value, messages.value, lastLoadedConversationId.value);
-
-  conversations.value = result.conversations;
-  messages.value = result.messages;
-  selectedConversation.value = result.selectedConversation;
-  lastLoadedConversationId.value = result.lastLoadedConversationId;
-}
-
-function selectConversationHandler(conversationId) {
-  const result = selectConversation(conversations.value, conversationId, messages.value, lastLoadedConversationId.value, showToast);
-
-  conversations.value = result.conversations;
-  messages.value = result.messages;
-  selectedConversation.value = result.selectedConversation;
-  lastLoadedConversationId.value = result.lastLoadedConversationId;
-  showConversationOptions.value = result.showConversationOptions;
-}
+const {
+  conversations,
+  storedConversations,
+  lastLoadedConversationId,
+  selectedConversation,
+  deleteCurrentConversation,
+  saveMessagesHandler,
+  selectConversationHandler,
+  editConversationTitle,
+} = useConversations();
 
 async function startNewConversation() {
   selectedConversation.value = null;
@@ -130,6 +96,11 @@ function handlePurgeConversations() {
   conversations.value = [];
   storedConversations.value = [];
   showToast('All Conversations Deleted.');
+}
+
+function showConversations() {
+  event.stopPropagation();
+  showConversationOptions.value = !showConversationOptions.value;
 }
 //#endregion
 
@@ -201,7 +172,11 @@ async function EditPreviousMessage(oldContent, newContent) {
 
 async function handleMessageSending() {
   isLoading.value = true;
+  await processMessageSending();
+  isLoading.value = false;
+}
 
+async function processMessageSending() {
   await sendMessage(
     event,
     userText.value,
@@ -217,8 +192,6 @@ async function handleMessageSending() {
     saveMessagesHandler,
     imageInput.value
   );
-
-  isLoading.value = false;
 }
 
 async function visionimageUploadClickHandler() {
@@ -305,6 +278,10 @@ function abortStream() {
     isLoading.value = false;
   }
 }
+
+async function onModelChange(newModel) {
+  selectedModel.value = newModel;
+}
 //#endregion
 
 //#region Global Click Handling
@@ -321,22 +298,6 @@ function handleGlobalClick(event) {
 }
 
 const sidebarContentContainer = ref(null);
-
-async function editConversationTitle(oldConversation, newConversationTitle) {
-  const updatedConversationsList = await editConversationTitleInManagement(conversations.value, oldConversation, newConversationTitle);
-
-  if (updatedConversationsList) {
-    conversations.value = updatedConversationsList;
-    localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-    showToast('Title Updated');
-  } else {
-    showToast('Failed to update title');
-  }
-}
-
-async function onModelChange(newModel) {
-  selectedModel.value = newModel;
-}
 
 onUnmounted(() => {
   document.removeEventListener('click', handleGlobalClick);
@@ -458,6 +419,7 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
 
 <style lang="scss">
 $icon-color: rgb(187, 187, 187);
