@@ -1,3 +1,5 @@
+import { selectedModel } from "../state-management/state";
+
 export function handleExportSettings(props, exportSettingsToFile) {
   const settingsData = {
     isSidebarOpen: props.isSidebarOpen,
@@ -46,6 +48,8 @@ export function handleImportSettings(event, importSettings) {
     reader.onload = function (e) {
       const settingsData = JSON.parse(e.target.result);
       importSettings(settingsData);
+
+      selectedModel.value = "gpt-4o";
     };
     reader.readAsText(file);
   }
