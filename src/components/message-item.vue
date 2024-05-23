@@ -10,6 +10,13 @@ import ToolTip from './ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
+import {
+  isLoading, messages, systemPrompt, selectedModel, userText, claudeSliderValue, sliderValue, localModelName,
+  localSliderValue, localModelEndpoint, imageInput, conversations, abortController, streamedMessageText, selectedConversation
+} from '@/libs/state-management/state';
+import { setSystemPrompt, regenerateMessageResponse, editPreviousMessage, deleteMessageFromHistory } from '@/libs/conversation-management/conversations-management';
+import { updateUIWrapper } from '@/libs/utils/general-utils';
 
 const props = defineProps({
   messages: Array,
@@ -65,11 +72,33 @@ const editMessage = (message) => {
   });
 };
 
-const saveEditedMessage = (message, event) => {
+const saveEditedMessage = async (message, event) => {
   message.isEditing = false;
   const updatedContent = event.target.innerText.trim();
   if (updatedContent !== initialMessage.content.trim()) {
-    emit('edit-message', initialMessage, updatedContent);
+    isLoading.value = true;
+    setSystemPrompt(messages.value, systemPrompt.value);
+
+    const result = await editPreviousMessage(
+      conversations.value,
+      messages,
+      initialMessage,
+      updatedContent,
+      sliderValue.value,
+      selectedModel.value,
+      localSliderValue.value,
+      localModelName.value,
+      localModelEndpoint.value,
+      claudeSliderValue.value,
+      updateUIWrapper,
+      abortController,
+      streamedMessageText
+    );
+
+    messages.value = [...result.baseMessages];
+    selectedConversation.value.messageHistory = messages.value;
+    isLoading.value = false;
+    saveMessagesHandler();
   }
 };
 
@@ -92,6 +121,35 @@ watch(
   { deep: true }
 );
 
+async function regenerateMessage(content) {
+  isLoading.value = true;
+  setSystemPrompt(messages.value, systemPrompt.value);
+
+  const result = await regenerateMessageResponse(
+    conversations.value,
+    messages,
+    content,
+    sliderValue.value,
+    selectedModel.value,
+    localSliderValue.value,
+    localModelName.value,
+    localModelEndpoint.value,
+    claudeSliderValue.value,
+    updateUIWrapper,
+    abortController,
+    streamedMessageText
+  );
+
+  isLoading.value = false;
+  messages.value = result.baseMessages;
+  selectedConversation.value.messageHistory = messages.value;
+  saveMessagesHandler();
+}
+
+async function deleteMessage(content) {
+  messages.value = deleteMessageFromHistory(messages.value, content);
+  saveMessagesHandler();
+}
 </script>
 
 <template>
@@ -103,10 +161,10 @@ watch(
           <div class="message-header">
             <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + item.id" :size="18"
               :class="{ loading: isLoading && loadingIcon === item.id }"
-              @click.stop="$emit('regenerate-response', item.content), startLoading(item.id)" />
+              @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
             <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + item.id" :size="18"
-              @click.stop="$emit('delete-response', item.content), startLoading(item.id)" />
+              @click.stop="deleteMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
             <div class="label" @click="copyText(item)" :id="'message-label-' + item.id">
               {{ item.role === 'user' ? 'User' : modelDisplayName }}

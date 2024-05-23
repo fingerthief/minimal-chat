@@ -3,16 +3,11 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
-import { showToast, determineModelDisplayName, updateUI, handleDoubleClick, swipedLeft, swipedRight } from '@/libs/utils/general-utils';
+import { showToast, determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
 import {
-  setSystemPrompt,
-  deleteMessageFromHistory,
-  regenerateMessageResponse,
-  editPreviousMessage as EditPreviousMessageValue,
   handleExportConversations
 } from '@/libs/conversation-management/conversations-management';
 import { uploadFileContentsToCoversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
-import { sendMessage, visionimageUploadClick } from '@/libs/conversation-management/message-processing';
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
@@ -48,18 +43,17 @@ import {
   systemPrompt,
   abortController,
   imageInput,
+  lastLoadedConversationId,
+  conversations
 } from '@/libs/state-management/state';
 import { setupWatchers } from '@/libs/state-management/watchers';
-import { useConversations } from '@/libs/conversation-management/useConversations';
+import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
+import { addMessage } from '@/libs/conversation-management/message-processing';
 
 //#region UI Updates
 const updateUserText = (newText) => {
   userText.value = newText;
 };
-
-function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = true) {
-  updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
-}
 
 function toggleSidebar() {
   event.stopPropagation();
@@ -68,147 +62,14 @@ function toggleSidebar() {
 //#endregion
 
 //#region Conversation Handling
-const {
-  conversations,
-  storedConversations,
-  lastLoadedConversationId,
-  selectedConversation,
-  deleteCurrentConversation,
-  saveMessagesHandler,
-  selectConversationHandler,
-  editConversationTitle,
-} = useConversations();
-
-async function startNewConversation() {
-  selectedConversation.value = null;
-  messages.value = [];
-
-  showToast('Conversation Saved');
-}
-
 function handleImportConversations() {
   openFileSelector();
 }
 
-function handlePurgeConversations() {
-  localStorage.setItem('gpt-conversations', '');
-  messages.value = [];
-  conversations.value = [];
-  storedConversations.value = [];
-  showToast('All Conversations Deleted.');
-}
 
 function showConversations() {
   event.stopPropagation();
   showConversationOptions.value = !showConversationOptions.value;
-}
-//#endregion
-
-//#region Messages Handling
-async function addMessage(role, message) {
-  setSystemPrompt(messages.value, systemPrompt.value);
-
-  const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
-  const newMessageId = maxId + 1;
-
-  messages.value.push({ id: newMessageId, role, content: message });
-}
-
-function handleDeleteMessage(content) {
-  messages.value = deleteMessageFromHistory(messages.value, content);
-  saveMessagesHandler();
-}
-
-async function regenerateMessageResponseHandler(content) {
-  isLoading.value = true;
-  setSystemPrompt(messages.value, systemPrompt.value);
-
-  const result = await regenerateMessageResponse(
-    conversations.value,
-    messages,
-    content,
-    sliderValue.value,
-    selectedModel.value,
-    localSliderValue.value,
-    localModelName.value,
-    localModelEndpoint.value,
-    claudeSliderValue.value,
-    updateUIWrapper,
-    abortController,
-    streamedMessageText
-  );
-
-  isLoading.value = false;
-  messages.value = result.baseMessages;
-  selectedConversation.value.messageHistory = messages.value;
-  saveMessagesHandler();
-}
-
-async function EditPreviousMessage(oldContent, newContent) {
-  isLoading.value = true;
-  setSystemPrompt(messages.value, systemPrompt.value);
-
-  const result = await EditPreviousMessageValue(
-    conversations.value,
-    messages,
-    oldContent,
-    newContent,
-    sliderValue.value,
-    selectedModel.value,
-    localSliderValue.value,
-    localModelName.value,
-    localModelEndpoint.value,
-    claudeSliderValue.value,
-    updateUIWrapper,
-    abortController,
-    streamedMessageText
-  );
-
-  messages.value = [...result.baseMessages];
-  selectedConversation.value.messageHistory = messages.value;
-  isLoading.value = false;
-  saveMessagesHandler();
-}
-
-async function handleMessageSending() {
-  isLoading.value = true;
-  await processMessageSending();
-  isLoading.value = false;
-}
-
-async function processMessageSending() {
-  await sendMessage(
-    event,
-    userText.value,
-    messages.value,
-    selectedModel.value,
-    claudeSliderValue.value,
-    sliderValue.value,
-    localModelName.value,
-    localSliderValue.value,
-    localModelEndpoint.value,
-    updateUIWrapper,
-    addMessage,
-    saveMessagesHandler,
-    imageInput.value
-  );
-}
-
-async function visionimageUploadClickHandler() {
-  await visionimageUploadClick(
-    userText,
-    messages,
-    selectedModel,
-    claudeSliderValue,
-    sliderValue,
-    localModelName,
-    localSliderValue,
-    localModelEndpoint,
-    updateUIWrapper,
-    addMessage,
-    saveMessagesHandler,
-    imageInput
-  );
 }
 //#endregion
 
@@ -354,8 +215,7 @@ onMounted(() => {
           :selectedConversationItem="selectedConversation" @new-conversation="startNewConversation"
           @edit-conversation-title="editConversationTitle" @import-conversations="handleImportConversations"
           @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
-          @delete-current-conversation="deleteCurrentConversation" @open-settings="toggleSidebar"
-          :showConversationOptions="showConversationOptions" />
+          @open-settings="toggleSidebar" :showConversationOptions="showConversationOptions" />
         <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
         </div>
       </div>
@@ -382,10 +242,8 @@ onMounted(() => {
               </span>
             </div>
             <!-- User Input -->
-            <chatInput :userInput="userText" :isLoading="isLoading" @abort-stream="abortStream"
-              @send-message="handleMessageSending" @vision-prompt="visionimageUploadClickHandler"
-              @upload-context="importFileClick" @update:userInput="updateUserText" @swipe-left="swipedLeft"
-              @swipe-right="swipedRight" />
+            <chatInput :userInput="userText" @abort-stream="abortStream" @upload-context="importFileClick"
+              @update:userInput="updateUserText" />
           </div>
         </div>
       </div>

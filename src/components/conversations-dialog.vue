@@ -2,20 +2,11 @@
 import { onMounted, ref, computed, nextTick } from 'vue';
 import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
-
-const props = defineProps({
-  isSidebarOpen: Boolean,
-  conversations: Array,
-  selectedConversationItem: Object,
-  showConversationOptions: Boolean,
-});
-
+import { conversations, selectedConversation, showConversationOptions, isSidebarOpen, messages, lastLoadedConversationId, storedConversations } from '@/libs/state-management/state';
+import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
+import { showToast } from '@/libs/utils/general-utils';
+import { selectConversation } from '@/libs/conversation-management/conversations-management';
 const loadedConversation = ref({});
-
-const selectedConversation = computed(() => {
-  return props.conversations.find((conversation) => conversation.id === props.selectedConversationItem?.id);
-});
-
 const conversationCharacterCount = (conversation) => {
   if (conversation) {
     const messageHistory = conversation.messageHistory;
@@ -32,7 +23,7 @@ const conversationCharacterCount = (conversation) => {
 
 onMounted(() => {
   const lastConversationId = parseInt(localStorage.getItem('lastConversationId')) || 0;
-  const lastConversation = props.conversations.find((conversation) => conversation.id === lastConversationId);
+  const lastConversation = conversations.value.find((conversation) => conversation.id === lastConversationId);
 
   // Only set loadedConversation if the conversation exists
   if (lastConversation) {
@@ -48,20 +39,13 @@ onMounted(() => {
 });
 
 const emit = defineEmits([
-  'toggle-sidebar',
-  'load-conversation',
-  'new-conversation',
   'import-conversations',
   'export-conversations',
-  'purge-conversations',
-  'delete-current-conversation',
-  'open-settings',
-  'edit-conversation-title',
 ]);
 
 let initialConversation = '';
 
-const editConversationTitle = (conversation) => {
+const onEditConversationTitle = (conversation) => {
   if (conversation.isEditing) {
     return;
   }
@@ -72,7 +56,7 @@ const editConversationTitle = (conversation) => {
     initialConversation = conversation;
 
     nextTick(() => {
-      const messageContent = document.getElementById(`conversation-${props.conversations.indexOf(conversation)}`);
+      const messageContent = document.getElementById(`conversation-${conversations.value.indexOf(conversation)}`);
       if (messageContent) {
         messageContent.focus();
       }
@@ -85,17 +69,22 @@ const saveEditedConversationTitle = (conversation, event) => {
   const updatedContent = event.target.innerText.trim();
 
   if (updatedContent !== initialConversation.title.trim()) {
-    emit('edit-conversation-title', initialConversation, updatedContent);
+    editConversationTitle(initialConversation, updatedContent);
   }
 };
 
 async function loadSelectedConversation(conversation) {
   loadedConversation.value = conversation;
-  emit('load-conversation', conversation.id);
+  selectConversation(conversations.value, conversation.id, messages.value, lastLoadedConversationId.value, showToast);
+  selectedConversation.value = conversation;
+  messages.value = conversation.messageHistory
 }
 
-function startNewConversation() {
-  emit('new-conversation');
+async function startNewConversation() {
+  selectedConversation.value = null;
+  messages.value = [];
+
+  showToast('Conversation Saved');
 }
 
 function importConversations() {
@@ -111,7 +100,12 @@ function purgeConversations() {
     return;
   }
 
-  emit('purge-conversations');
+  localStorage.setItem('gpt-conversations', '');
+  messages.value = [];
+  conversations.value = [];
+  storedConversations.value = [];
+
+  showToast('All Conversations Deleted.');
 }
 </script>
 
@@ -131,17 +125,11 @@ function purgeConversations() {
     <div class="sidebar-content-container">
       <div class="scrollable-list">
         <ul>
-          <li
-            v-for="(conversation, index) in props.conversations"
-            :key="index"
-            :id="'conversation-' + index"
-            :contenteditable="conversation.isEditing"
-            @click="loadSelectedConversation(conversation)"
-            @dblclick="editConversationTitle(conversation)"
-            @blur="saveEditedConversationTitle(conversation, $event)"
-            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }"
-          >
-            <Pencil :id="'pencil-' + index" :size="13" @click.stop="editConversationTitle(conversation)" />
+          <li v-for="(conversation, index) in conversations" :key="index" :id="'conversation-' + index"
+            :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
+            @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
+            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }">
+            <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
             <span> &nbsp;{{ conversation.title }} </span>
             <br /><br />
@@ -163,19 +151,19 @@ function purgeConversations() {
               <span class="new-text">Start New Conversation</span>
             </span>
           </li>
-          <li class="new-conversation-option--delete" @click="$emit('delete-current-conversation')">
+          <li class="new-conversation-option--delete" @click="deleteCurrentConversation">
             <span class="delete-icon">
               <MessageSquareX :stroke-width="1.5" />
               <span class="delete-text">Delete Current Conversation</span>
             </span>
           </li>
-          <li v-if="!props.showConversationOptions" class="new-conversation-option--settings" @click="$emit('open-settings')">
+          <li v-if="!showConversationOptions" class="new-conversation-option--settings" @click="$emit('open-settings')">
             <span class="settings-icon">
               <Settings :stroke-width="1.5" />
               <span class="settings-text">Settings</span>
             </span>
           </li>
-          <li v-if="props.showConversationOptions" class="new-conversation-option--settings" @click="$emit('toggle-sidebar')">
+          <li v-if="showConversationOptions" class="new-conversation-option--settings" @click="$emit('toggle-sidebar')">
             <span class="settings-icon">
               <Settings :stroke-width="1.5" />
               <span class="settings-text">Close</span>

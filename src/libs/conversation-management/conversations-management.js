@@ -3,6 +3,7 @@ import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } fro
 import { streamClaudeResponse, fetchClaudeConversationTitle } from '../api-access/claude-api-access';
 import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle } from '../api-access/web-llm-access';
 import { getConversationTitleFromGPT } from '@/libs/utils/general-utils';
+import { conversations, messages, selectedConversation, lastLoadedConversationId } from '../state-management/state';
 
 export async function createNewConversationWithTitle(messages, selectedModel, localModelName, localModelEndpoint, sliderValue) {
   if (selectedModel.indexOf('claude') !== -1) {
@@ -52,41 +53,40 @@ export function deleteConversation(conversations, id) {
 
 // conversations-management.js
 
-export async function saveMessages(conversations, selectedConversation, messages, lastLoadedConversationId) {
-  const updatedConversation = selectedConversation;
+export async function saveMessages() {
+  const updatedConversation = selectedConversation.value;
 
-  if (!selectedConversation || !selectedConversation === null || !conversations.length) {
+  if (!selectedConversation || selectedConversation.value === null || !conversations.value.length) {
     const title = await createNewConversationWithTitle(
-      messages,
+      messages.value,
       localStorage.getItem('selectedModel') || 'gpt-4o',
       localStorage.getItem('localModelName') || '',
       localStorage.getItem('localModelEndpoint') || '',
       localStorage.getItem('gpt-attitude') || 50
     );
-    const uniqueMessages = createUniqueMessagesWithIds(messages);
+    const uniqueMessages = createUniqueMessagesWithIds(messages.value);
 
-    const updatedConversations = createConversation(conversations, title, uniqueMessages);
+    const updatedConversations = createConversation(conversations.value, title, uniqueMessages);
 
-    messages = [...uniqueMessages];
+    messages.value = [...uniqueMessages];
 
-    conversations = updatedConversations;
+    conversations.value = [...updatedConversations];
 
-    lastLoadedConversationId = updatedConversations[updatedConversations.length - 1].id;
-    localStorage.setItem('lastConversationId', lastLoadedConversationId);
+    lastLoadedConversationId.value = updatedConversations[updatedConversations.length - 1].id;
+    localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
 
-    localStorage.setItem('gpt-conversations', JSON.stringify(conversations));
-    selectedConversation = conversations[conversations.length - 1];
-    return { conversations, messages, selectedConversation, lastLoadedConversationId };
+    localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+    selectedConversation.value = conversations.value[conversations.value.length - 1];
+    return;
   }
 
-  updatedConversation.messageHistory = messages;
+  updatedConversation.messageHistory = [...messages.value];
 
-  const result = updateConversation(conversations, updatedConversation.id, updatedConversation);
+  const result = updateConversation(conversations.value, updatedConversation.id, updatedConversation);
 
-  conversations = result;
+  conversations.value = result;
 
-  localStorage.setItem('gpt-conversations', JSON.stringify(conversations));
-  return { conversations, messages, selectedConversation, lastLoadedConversationId };
+  localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
 }
 
 export function selectConversation(conversations, conversationId, messages, lastLoadedConversationId, showToast) {
@@ -111,7 +111,8 @@ export function selectConversation(conversations, conversationId, messages, last
       return message;
     });
 
-    messages = processedMessages;
+    messages = [...processedMessages];
+
     return { conversations, messages, selectedConversation: conversation, lastLoadedConversationId, showConversationOptions: false };
   } else {
     showToast('Conversations ID not found');

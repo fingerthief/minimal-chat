@@ -3,11 +3,18 @@ import { ref, watch, defineEmits } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import 'swiped-events';
+import { swipedLeft, swipedRight, updateUI } from '@/libs/utils/general-utils';
+import {
+  isLoading, messages, systemPrompt, selectedModel, userText, claudeSliderValue, sliderValue, localModelName,
+  localSliderValue, localModelEndpoint, imageInput
+} from '@/libs/state-management/state';
+import { sendMessage, visionimageUploadClick } from '@/libs/conversation-management/message-processing';
+import { setSystemPrompt } from '@/libs/conversation-management/conversations-management';
+import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 
 // Define props and emits
 const props = defineProps({
   userInput: String,
-  isLoading: Boolean,
 });
 
 const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt', 'upload-context']);
@@ -22,21 +29,45 @@ watch(localUserInput, (newVal) => {
 });
 
 // Methods
-const sendMessage = () => {
+async function sendNewMessage() {
+  isLoading.value = true;
   localUserInput.value = '';
-  emit('send-message');
+
+  await sendMessage(
+    event,
+    userText.value,
+    messages.value,
+    selectedModel.value,
+    claudeSliderValue.value,
+    sliderValue.value,
+    localModelName.value,
+    localSliderValue.value,
+    localModelEndpoint.value,
+    updateUIWrapper,
+    addMessage,
+    saveMessagesHandler,
+    imageInput.value
+  );
+
   autoResize();
-};
-
-function swipedLeft() {
-  emit('swipe-left');
+  isLoading.value = false;
 }
 
-function swipedRight() {
-  emit('swipe-right');
+async function addMessage(role, message) {
+  setSystemPrompt(messages.value, systemPrompt.value);
+
+  const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
+  const newMessageId = maxId + 1;
+
+  messages.value.push({ id: newMessageId, role, content: message });
 }
 
-const autoResize = () => {
+function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = true) {
+  updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
+}
+
+
+function autoResize() {
   if (!localUserInput.value || localUserInput.value.trim() === '') {
     userInputRef.value.style.height = '30px';
     return;
@@ -44,9 +75,9 @@ const autoResize = () => {
 
   userInputRef.value.style.height = 'auto';
   userInputRef.value.style.height = `${userInputRef.value.scrollHeight - 15}px`;
-};
+}
 
-const handleKeyDown = (event) => {
+function handleKeyDown(event) {
   if (event.key === 'Enter' && !event.shiftKey) {
     if (event.ctrlKey) {
       event.preventDefault();
@@ -57,36 +88,50 @@ const handleKeyDown = (event) => {
       autoResize();
     } else {
       event.preventDefault(); // Prevent the default Enter behavior
-      sendMessage();
+      sendNewMessage();
     }
   }
-};
+}
 
-const visionImageUploadClick = () => {
-  emit('vision-prompt');
+async function visionImageUploadClickHandler() {
+  await visionimageUploadClick(
+    userText,
+    messages,
+    selectedModel,
+    claudeSliderValue,
+    sliderValue,
+    localModelName,
+    localSliderValue,
+    localModelEndpoint,
+    updateUIWrapper,
+    addMessage,
+    saveMessagesHandler,
+    imageInput
+  );
   localUserInput.value = '';
-};
+}
 
-const importFileUploadClick = () => {
+function importFileUploadClick() {
   emit('upload-context');
   localUserInput.value = '';
-};
+}
 
 async function abortStream() {
   emit('abort-stream');
 }
+
 </script>
 
 <template>
-  <form @submit.prevent="sendMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
+  <form @submit.prevent="sendNewMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
     <div class="input-container">
       <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
-        :class="{ 'loading-border': props.isLoading }" @input="autoResize" @focus="autoResize" @blur="autoResize"
+        :class="{ 'loading-border': isLoading }" @input="autoResize" @focus="autoResize" @blur="autoResize"
         @keydown="handleKeyDown" placeholder="Enter a prompt"></textarea>
       <div class="icons">
         <ToolTip :targetId="'imageButton'"> Upload image for vision processing </ToolTip>
-        <div class="image-button" id="imageButton" @click="visionImageUploadClick">
+        <div class="image-button" id="imageButton" @click="visionImageUploadClickHandler">
           <span>
             <ImageUp />
           </span>
@@ -97,11 +142,11 @@ async function abortStream() {
             <Upload />
           </span>
         </div>
-        <div class="send-button" @click="props.isLoading ? abortStream() : sendMessage()">
-          <span class="stop-button" v-if="props.isLoading">
+        <div class="send-button" @click="isLoading ? abortStream() : sendNewMessage()">
+          <span class="stop-button" v-if="isLoading">
             <CircleStop />
           </span>
-          <span v-if="!props.isLoading">
+          <span v-if="!isLoading">
             <SquareArrowUp />
           </span>
         </div>

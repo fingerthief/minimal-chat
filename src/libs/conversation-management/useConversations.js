@@ -7,7 +7,44 @@ import {
     selectConversation,
     editConversationTitle as editConversationTitleInManagement,
 } from '@/libs/conversation-management/conversations-management';
-import { messages, showConversationOptions } from '@/libs/state-management/state';
+import { messages, showConversationOptions, conversations, selectedConversation, lastLoadedConversationId } from '@/libs/state-management/state';
+
+export async function saveMessagesHandler() {
+    await saveMessages();
+}
+
+export function deleteCurrentConversation() {
+    const updatedConversations = deleteConversation(conversations.value, lastLoadedConversationId.value);
+    conversations.value = updatedConversations;
+    messages.value = [];
+
+    if (conversations.value.length > 0) {
+        selectConversationHandler(conversations.value[conversations.value.length - 1].id);
+    }
+
+    localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+}
+
+export function selectConversationHandler(conversationId) {
+    const result = selectConversation(conversations.value, conversationId, messages.value, lastLoadedConversationId.value, showToast);
+    conversations.value = result.conversations;
+    messages.value = result.messages;
+    selectedConversation.value = result.selectedConversation;
+    lastLoadedConversationId.value = result.lastLoadedConversationId;
+    showConversationOptions.value = result.showConversationOptions;
+}
+
+
+export async function editConversationTitle(oldConversation, newConversationTitle) {
+    const updatedConversationsList = await editConversationTitleInManagement(conversations.value, oldConversation, newConversationTitle);
+    if (updatedConversationsList) {
+        conversations.value = updatedConversationsList;
+        localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+        showToast('Title Updated');
+    } else {
+        showToast('Failed to update title');
+    }
+}
 
 export function useConversations() {
     const conversations = ref(loadConversationTitles());
