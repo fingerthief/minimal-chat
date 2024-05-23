@@ -134,6 +134,8 @@ If you have any questions, feedback, or suggestions, feel free to reach out to u
 
 - [GitHub Issues](https://github.com/fingerthief/minimal-chat/issues)
 
+- Add me on Discord for questions, ideas or issues Username: `fingerthief#0453`
+
 ---
 
 **Thank you for using MinimalChat!**
