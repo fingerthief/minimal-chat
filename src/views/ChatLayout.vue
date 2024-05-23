@@ -15,7 +15,6 @@ import {
   shouldShowScrollButton,
   userText,
   isLoading,
-  hasFilterText,
   selectedModel,
   isSidebarOpen,
   showConversationOptions,
@@ -31,18 +30,13 @@ import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
 import { addMessage } from '@/libs/conversation-management/message-processing';
 
-//#region Conversation Handling
+const sidebarContentContainer = ref(null);
+
+//#region File/Upload Handling
 function handleImportConversations() {
   openFileSelector();
 }
 
-function showConversations(event) {
-  event.stopPropagation();
-  showConversationOptions.value = !showConversationOptions.value;
-}
-//#endregion
-
-//#region File/Upload Handling
 function importFileClick() {
   document.getElementById('fileImportUpload').click();
 }
@@ -53,12 +47,6 @@ function openFileSelector() {
 
 async function imageInputChangedHandler(event) {
   await imageInputChanged(event, userText, messages, selectedModel, localModelName, localModelEndpoint, addMessage, saveMessagesHandler, isLoading);
-}
-//#endregion
-
-//#region Model Handling
-async function onModelChange(newModel) {
-  selectedModel.value = newModel;
 }
 //#endregion
 
@@ -77,8 +65,6 @@ function handleGlobalClick(event) {
 //#endregion
 
 //#region Lifecycle Hooks
-const sidebarContentContainer = ref(null);
-
 onUnmounted(() => {
   document.removeEventListener('click', handleGlobalClick);
 });
@@ -102,13 +88,10 @@ onMounted(() => {
 <template>
   <!-- File Upload -->
   <div id="fileUploadDiv">
-    <input type="file" id="fileUpload" style="display: none" @change="(event) => uploadFile(event, conversations, selectConversationHandler)" />
-    <input
-      type="file"
-      id="fileImportUpload"
-      style="display: none"
-      @change="(event) => uploadFileContentsToCoversation(event, userText, addMessage)"
-    />
+    <input type="file" id="fileUpload" style="display: none"
+      @change="(event) => uploadFile(event, conversations, selectConversationHandler)" />
+    <input type="file" id="fileImportUpload" style="display: none"
+      @change="(event) => uploadFileContentsToCoversation(event, userText, addMessage)" />
     <div @click="openFileSelector" style="display: none">Upload File</div>
     <div @click="importFileClick" style="display: none">Import File</div>
     <input id="imageInput" ref="imageInput" @change="imageInputChangedHandler" style="display: none" type="file" />
@@ -125,45 +108,33 @@ onMounted(() => {
       </div>
 
       <!-- Conversations Sidebar -->
-      <div class="sidebar-conversations sidebar-right" id="conversations-dialog" :class="{ open: showConversationOptions }">
-        <conversationsDialog @import-conversations="handleImportConversations" @export-conversations="handleExportConversations" />
-        <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)"></div>
+      <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
+        :class="{ open: showConversationOptions }">
+        <conversationsDialog @import-conversations="handleImportConversations"
+          @export-conversations="handleExportConversations" />
+        <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
+        </div>
       </div>
 
       <div class="chat-container">
         <div class="container">
           <div class="chat">
             <!-- Header -->
-            <chatHeader
-              :selectedModel="selectedModel"
-              :isSidebarOpen="isSidebarOpen"
-              :storedConversations="storedConversations"
-              @toggle-sidebar="toggleSidebar"
-              @delete-conversation="deleteCurrentConversation"
-              @toggle-conversations="showConversations"
-              @new-conversation="startNewConversation"
-              @change-model="onModelChange"
-            />
+            <chatHeader :storedConversations="storedConversations" />
             <!-- Messages -->
             <div class="messages">
-              <messageItem
-                :hasFilterText="hasFilterText"
-                :messages="messages"
-                :isLoading="isLoading"
-                :modelDisplayName="modelDisplayName"
-                @regenerate-response="regenerateMessageResponseHandler"
-                @delete-response="handleDeleteMessage"
-                @edit-message="EditPreviousMessage"
-              />
+              <messageItem />
             </div>
             <!-- Floating button to quick scroll to the bottom of the page -->
-            <div class="floating-button scroll" id="scroll-button" @click="null" :class="{ show: shouldShowScrollButton }">
+            <div class="floating-button scroll" id="scroll-button" @click="null"
+              :class="{ show: shouldShowScrollButton }">
               <span>
                 <ChevronDown :strokeWidth="3" />
               </span>
             </div>
             <!-- User Input -->
-            <chatInput :userInput="userText" @abort-stream="abortStream" @upload-context="importFileClick" @update:userInput="updateUserText" />
+            <chatInput :userInput="userText" @abort-stream="abortStream" @upload-context="importFileClick"
+              @update:userInput="updateUserText" />
           </div>
         </div>
       </div>

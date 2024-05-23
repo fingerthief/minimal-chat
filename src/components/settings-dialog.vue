@@ -301,31 +301,22 @@ function updateRepetitionSliderValue(value) {
           </div>
           <div class="control select-dropdown">
             <label for="auto-save-conversations">Auto Save Conversations:</label>
-            <select id="auto-save-conversations" :value="selectedAutoSaveOption" @change="update('selectedAutoSaveOption', $event.target.value)">
+            <select id="auto-save-conversations" :value="selectedAutoSaveOption"
+              @change="update('selectedAutoSaveOption', $event.target.value)">
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
           </div>
           <div class="system-prompt-container">
-            <InputField
-              labelText="System Prompt:"
-              inputId="system-prompt"
-              :value="systemPrompt"
-              @update:value="update('systemPrompt', $event)"
-              :isSecret="false"
-              :isMultiline="true"
-              :placeholderText="'Enter the system prompt if applicable.'"
-            />
+            <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
+              @update:value="update('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
+              :placeholderText="'Enter the system prompt if applicable.'" />
           </div>
           <div class="saved-system-prompts">
             <h4>Saved System Prompts:</h4>
             <ul>
-              <li
-                v-for="(prompt, index) in systemPrompts"
-                :key="index"
-                :class="{ selected: index === selectedSystemPromptIndex }"
-                @click="selectSystemPrompt(index)"
-              >
+              <li v-for="(prompt, index) in systemPrompts" :key="index"
+                :class="{ selected: index === selectedSystemPromptIndex }" @click="selectSystemPrompt(index)">
                 {{ prompt }}
                 <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteSystemPrompt(index)" />
               </li>
@@ -341,12 +332,14 @@ function updateRepetitionSliderValue(value) {
         </h3>
         <div v-show="isBrowserModelConfigOpen" class="control select-dropdown">
           <label for="localModelsSelection">Model To Load In Browser:</label>
-          <select id="localModelsSelection" :value="browserModelSelection" @change="update('browserModelSelection', $event.target.value)">
+          <select id="localModelsSelection" :value="browserModelSelection"
+            @change="update('browserModelSelection', $event.target.value)">
             <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
             <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 1k Context (~4.6gb VRAM)</option>
             <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 1k Context (~5.2gb VRAM)</option>
             <option value="Llama-2-7b-chat-hf-q4f16_1">Llama-2-7b-chat-hf-q4f16 (~6.8gb VRAM)</option>
-            <option value="TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k">TinyLlama-1.1B-Chat-v0.4-q4f32 1k Context (~1.0gb VRAM)</option>
+            <option value="TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k">TinyLlama-1.1B-Chat-v0.4-q4f32 1k Context (~1.0gb VRAM)
+            </option>
             <option value="TinyLlama-1.1B-Chat-v0.4-q0f32">TinyLlama-1.1B-Chat-v0.4-q0f32 (~5.3gb VRAM)</option>
             <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2 (~6.1gb VRAM)</option>
             <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)</option>
@@ -364,91 +357,56 @@ function updateRepetitionSliderValue(value) {
           <span class="indicator">{{ isLocalConfigOpen ? '-' : '+' }}</span>
         </h3>
         <div v-show="isLocalConfigOpen" class="control-grid">
-          <InputField
-            v-show="showLocalConfig"
-            :isSecret="false"
-            labelText="API Endpoint:"
-            :placeholderText="'Enter the base API Endpoint URL'"
-            inputId="local-model-endpoint"
-            :value="localModelEndpoint"
-            @update:value="update('localModelEndpoint', $event)"
-          />
+          <InputField v-show="showLocalConfig" :isSecret="false" labelText="API Endpoint:"
+            :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
+            :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
           <div class="control select-dropdown">
             <label for="custom-model-selector">Models Available:</label>
-            <select id="custom-model-selector" :value="localModelName" @change="update('localModelName', $event.target.value)">
+            <select id="custom-model-selector" :value="localModelName"
+              @change="update('localModelName', $event.target.value)">
               <option v-for="model in availableModels" :key="model" :value="model">{{ model }}</option>
             </select>
           </div>
-          <InputField
-            v-show="showLocalConfig"
-            :isSecret="true"
-            labelText="API Key:"
-            :placeholderText="'Enter the API key if applicable'"
-            inputId="local-model-key"
-            :value="localModelKey"
-            @update:value="update('localModelKey', $event)"
-          />
-          <InputField
-            v-show="showLocalConfig"
-            labelText="Max Tokens:"
-            :isSecret="false"
-            :placeholderText="'Enter the max token limit if applicable'"
-            inputId="max-tokens"
-            :value="maxTokens.toString()"
-            @update:value="update('maxTokens', $event)"
-          />
-          <InputField
-            v-show="showLocalConfig || showBrowserModelConfig"
-            labelText="Temperature (0.0-2.0):"
-            :isSecret="false"
-            :placeholderText="'Enter the temperature value for the model.'"
-            inputId="localSliderValue"
-            :value="localSliderValue.toString()"
-            @update:value="update('localSliderValue', $event)"
-          />
+          <InputField v-show="showLocalConfig" :isSecret="true" labelText="API Key:"
+            :placeholderText="'Enter the API key if applicable'" inputId="local-model-key" :value="localModelKey"
+            @update:value="update('localModelKey', $event)" />
+          <InputField v-show="showLocalConfig" labelText="Max Tokens:" :isSecret="false"
+            :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
+            :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
+          <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Temperature (0.0-2.0):"
+            :isSecret="false" :placeholderText="'Enter the temperature value for the model.'" inputId="localSliderValue"
+            :value="localSliderValue.toString()" @update:value="update('localSliderValue', $event)" />
           <div class="slider-container">
             <span>Serious</span>
-            <input type="range" min="0" max="2" step="0.01" :value="localSliderValue" @input="updateLocalSliderValue($event.target.value)" />
+            <input type="range" min="0" max="2" step="0.01" :value="localSliderValue"
+              @input="updateLocalSliderValue($event.target.value)" />
             <span>Creative</span>
           </div>
-          <InputField
-            v-show="showLocalConfig || showBrowserModelConfig"
-            labelText="Top_P Value (0.0-1.0):"
-            :isSecret="false"
-            :placeholderText="'Enter the top_P value if applicable'"
-            inputId="top_P"
-            :value="top_P.toString()"
-            @update:value="update('top_P', $event)"
-          />
+          <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Top_P Value (0.0-1.0):"
+            :isSecret="false" :placeholderText="'Enter the top_P value if applicable'" inputId="top_P"
+            :value="top_P.toString()" @update:value="update('top_P', $event)" />
           <div class="slider-container">
             <span>Lower</span>
-            <input type="range" min="0" max="1" step="0.01" :value="top_P" @input="updateTopPSliderValue($event.target.value)" />
+            <input type="range" min="0" max="1" step="0.01" :value="top_P"
+              @input="updateTopPSliderValue($event.target.value)" />
             <span>Higher</span>
           </div>
-          <InputField
-            v-show="showLocalConfig || showBrowserModelConfig"
-            labelText="Repetition Penalty (0.0-2.0):"
-            :isSecret="false"
-            :placeholderText="'Enter the repetition penalty value if applicable'"
-            inputId="repetitionPenalty"
-            :value="repetitionPenalty.toString()"
-            @update:value="update('repetitionPenalty', $event)"
-          />
+          <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Repetition Penalty (0.0-2.0):"
+            :isSecret="false" :placeholderText="'Enter the repetition penalty value if applicable'"
+            inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
+            @update:value="update('repetitionPenalty', $event)" />
           <div class="slider-container">
             <span>Less</span>
-            <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty" @input="updateRepetitionSliderValue($event.target.value)" />
+            <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
+              @input="updateRepetitionSliderValue($event.target.value)" />
             <span>More</span>
           </div>
         </div>
         <div class="saved-custom-configs">
           <h4>Saved Custom Configs:</h4>
           <ul>
-            <li
-              v-for="(config, index) in customConfigs"
-              :key="index"
-              :class="{ selected: index === selectedCustomConfigIndex }"
-              @click="selectCustomConfig(index)"
-            >
+            <li v-for="(config, index) in customConfigs" :key="index"
+              :class="{ selected: index === selectedCustomConfigIndex }" @click="selectCustomConfig(index)">
               {{ config.endpoint }}
               <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteCustomConfig(index)" />
             </li>
@@ -462,17 +420,12 @@ function updateRepetitionSliderValue(value) {
           <span class="indicator">{{ isGPTConfigOpen ? '-' : '+' }}</span>
         </h3>
         <div v-show="isGPTConfigOpen" class="control-grid">
-          <InputField
-            :labelText="'API Key'"
-            :isSecret="true"
-            :placeholderText="'Enter the API Key'"
-            inputId="api-key"
-            :value="gptKey"
-            @update:value="update('gptKey', $event)"
-          />
+          <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'" inputId="api-key"
+            :value="gptKey" @update:value="update('gptKey', $event)" />
           <div class="slider-container">
             <span>Serious</span>
-            <input type="range" min="0" max="100" :value="sliderValue" @blur="update('sliderValue', $event.target.value)" />
+            <input type="range" min="0" max="100" :value="sliderValue"
+              @blur="update('sliderValue', $event.target.value)" />
             <span>Creative</span>
           </div>
         </div>
@@ -484,17 +437,12 @@ function updateRepetitionSliderValue(value) {
           <span class="indicator">{{ isClaudeConfigOpen ? '-' : '+' }}</span>
         </h3>
         <div v-show="isClaudeConfigOpen" class="control-grid">
-          <InputField
-            :labelText="'API Key'"
-            :isSecret="true"
-            :placeholderText="'Enter the API Key'"
-            inputId="claude-api-key"
-            :value="claudeKey"
-            @update:value="update('claudeKey', $event)"
-          />
+          <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
+            inputId="claude-api-key" :value="claudeKey" @update:value="update('claudeKey', $event)" />
           <div class="slider-container">
             <span>Serious</span>
-            <input type="range" min="0" max="100" :value="claudeSliderValue" @blur="update('claudeSliderValue', $event.target.value)" />
+            <input type="range" min="0" max="100" :value="claudeSliderValue"
+              @blur="update('claudeSliderValue', $event.target.value)" />
             <span>Creative</span>
           </div>
         </div>
@@ -508,17 +456,15 @@ function updateRepetitionSliderValue(value) {
         <div v-show="isDALLEConfigOpen" class="control-grid">
           <div class="control select-dropdown">
             <label for="dalle-image-count">DALL-E Image Count:</label>
-            <select id="dalle-image-count" :value="selectedDallEImageCount" @change="update('selectedDallEImageCount', $event.target.value)">
+            <select id="dalle-image-count" :value="selectedDallEImageCount"
+              @change="update('selectedDallEImageCount', $event.target.value)">
               <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
             </select>
           </div>
           <div class="control select-dropdown">
             <label for="dalle-image-resolution">Image Resolution:</label>
-            <select
-              id="dalle-image-resolution"
-              :value="selectedDallEImageResolution"
-              @change="update('selectedDallEImageResolution', $event.target.value)"
-            >
+            <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
+              @change="update('selectedDallEImageResolution', $event.target.value)">
               <option value="256x256">256x256</option>
               <option value="512x512">512x512</option>
               <option value="1024x1024">1024x1024</option>
@@ -535,66 +481,61 @@ function updateRepetitionSliderValue(value) {
           <h4>
             Manage Settings
             <p class="config-info">
-              Export your current settings to a JSON file for backup or to easily set up the application on another device. You can also import
+              Export your current settings to a JSON file for backup or to easily set up the application on another
+              device. You can also import
               settings from a JSON file.
             </p>
           </h4>
 
           <div class="settings-list">
-            <div
-              class="settings-item-button"
-              @click="
-                handleExportSettings(
-                  {
-                    shouldShowScrollButton,
-                    userText,
-                    isLoading,
-                    hasFilterText,
-                    selectedModel,
-                    isSidebarOpen,
-                    showConversationOptions,
-                    messages,
-                    streamedMessageText,
-                    modelDisplayName,
-                    localModelKey,
-                    localModelName,
-                    localModelEndpoint,
-                    localSliderValue,
-                    gptKey,
-                    sliderValue,
-                    claudeKey,
-                    claudeSliderValue,
-                    selectedDallEImageCount,
-                    selectedDallEImageResolution,
-                    selectedAutoSaveOption,
-                    browserModelSelection,
-                    maxTokens,
-                    top_P,
-                    repetitionPenalty,
-                    systemPrompt,
-                    conversations,
-                    storedConversations,
-                    lastLoadedConversationId,
-                    selectedConversation,
-                    abortController,
-                    imageInput,
-                  },
-                  exportSettingsToFile
-                )
-              "
-            >
+            <div class="settings-item-button" @click="
+              handleExportSettings(
+                {
+                  shouldShowScrollButton,
+                  userText,
+                  isLoading,
+                  hasFilterText,
+                  selectedModel,
+                  isSidebarOpen,
+                  showConversationOptions,
+                  messages,
+                  streamedMessageText,
+                  modelDisplayName,
+                  localModelKey,
+                  localModelName,
+                  localModelEndpoint,
+                  localSliderValue,
+                  gptKey,
+                  sliderValue,
+                  claudeKey,
+                  claudeSliderValue,
+                  selectedDallEImageCount,
+                  selectedDallEImageResolution,
+                  selectedAutoSaveOption,
+                  browserModelSelection,
+                  maxTokens,
+                  top_P,
+                  repetitionPenalty,
+                  systemPrompt,
+                  conversations,
+                  storedConversations,
+                  lastLoadedConversationId,
+                  selectedConversation,
+                  abortController,
+                  imageInput,
+                },
+                exportSettingsToFile
+              )
+              ">
               <span class="action-text">Export Settings</span>
               <Download :stroke-width="1.5" />
             </div>
             <label class="settings-item-button">
               <span class="action-text">Import Settings</span>
               <Upload :stroke-width="1.5" />
-              <input
-                type="file"
-                accept=".json"
+              <input type="file" accept=".json"
                 @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))"
-                style="display: none"
-              />
+                style="display: none" />
             </label>
           </div>
         </div>
@@ -838,6 +779,8 @@ $bottom-panel-border-color: #5f4575cf;
       background-color: $primary-bg-color;
       border-radius: 4px;
       margin-bottom: 8px;
+      max-height: 6vh;
+      overflow: hidden;
 
       &.selected {
         background-color: $highlight-bg-color;

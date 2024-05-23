@@ -6,10 +6,10 @@ import {
   conversations,
   selectedConversation,
   showConversationOptions,
-  isSidebarOpen,
   messages,
   lastLoadedConversationId,
   storedConversations,
+  isSidebarOpen,
 } from '@/libs/state-management/state';
 import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
@@ -125,6 +125,13 @@ function toggleSidebar() {
   event.stopPropagation();
   isSidebarOpen.value = !isSidebarOpen.value;
 }
+
+function toggleConversations() {
+  event.stopPropagation();
+  showConversationOptions.value = !showConversationOptions.value;
+}
+
+
 </script>
 <template>
   <div class="resize-container">
@@ -142,16 +149,10 @@ function toggleSidebar() {
     <div class="sidebar-content-container">
       <div class="scrollable-list">
         <ul>
-          <li
-            v-for="(conversation, index) in conversations"
-            :key="index"
-            :id="'conversation-' + index"
-            :contenteditable="conversation.isEditing"
-            @click="loadSelectedConversation(conversation)"
-            @dblclick="onEditConversationTitle(conversation)"
-            @blur="saveEditedConversationTitle(conversation, $event)"
-            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }"
-          >
+          <li v-for="(conversation, index) in conversations" :key="index" :id="'conversation-' + index"
+            :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
+            @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
+            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }">
             <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
             <span> &nbsp;{{ conversation.title }} </span>
@@ -186,7 +187,7 @@ function toggleSidebar() {
               <span class="settings-text">Settings</span>
             </span>
           </li>
-          <li v-if="showConversationOptions" class="new-conversation-option--settings" @click="toggleSidebar">
+          <li v-if="showConversationOptions" class="new-conversation-option--settings" @click="toggleConversations">
             <span class="settings-icon">
               <Settings :stroke-width="1.5" />
               <span class="settings-text">Close</span>
