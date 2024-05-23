@@ -13,16 +13,10 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import {
   isLoading, messages, systemPrompt, selectedModel, userText, claudeSliderValue, sliderValue, localModelName,
-  localSliderValue, localModelEndpoint, imageInput, conversations, abortController, streamedMessageText, selectedConversation
+  localSliderValue, localModelEndpoint, imageInput, conversations, abortController, streamedMessageText, selectedConversation, modelDisplayName
 } from '@/libs/state-management/state';
 import { setSystemPrompt, regenerateMessageResponse, editPreviousMessage, deleteMessageFromHistory } from '@/libs/conversation-management/conversations-management';
 import { updateUIWrapper } from '@/libs/utils/general-utils';
-
-const props = defineProps({
-  messages: Array,
-  isLoading: Boolean,
-  modelDisplayName: String,
-});
 
 const emit = defineEmits(['regenerate-response', 'delete-response', 'edit-message']);
 const loadingIcon = ref(-1);
@@ -102,7 +96,7 @@ const saveEditedMessage = async (message, event) => {
   }
 };
 
-const filteredMessages = computed(() => props.messages.filter((message) => message.role !== 'system'));
+const filteredMessages = computed(() => messages.value.filter((message) => message.role !== 'system'));
 
 const messageList = ref(null);
 const scroller = ref(null);

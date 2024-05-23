@@ -1,4 +1,3 @@
-<!-- settings-dialog.vue -->
 <script setup>
 import { RefreshCcw, Download, Upload, Trash2, Save } from 'lucide-vue-next';
 import InputField from './InputField.vue';
@@ -6,33 +5,45 @@ import { ref, watch, onMounted } from 'vue';
 import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/settings-utils';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
+import {
+  shouldShowScrollButton,
+  userText,
+  isLoading,
+  hasFilterText,
+  selectedModel,
+  isSidebarOpen,
+  showConversationOptions,
+  messages,
+  streamedMessageText,
+  modelDisplayName,
+  localModelKey,
+  localModelName,
+  localModelEndpoint,
+  localSliderValue,
+  gptKey,
+  sliderValue,
+  claudeKey,
+  claudeSliderValue,
+  selectedDallEImageCount,
+  selectedDallEImageResolution,
+  selectedAutoSaveOption,
+  browserModelSelection,
+  maxTokens,
+  top_P,
+  repetitionPenalty,
+  systemPrompt,
+  conversations,
+  storedConversations,
+  lastLoadedConversationId,
+  selectedConversation,
+  abortController,
+  imageInput
+} from '@/libs/state-management/state'; // Import the state
 
-const props = defineProps({
-  isSidebarOpen: Boolean,
-  selectedModel: String,
-  localModelName: String,
-  localModelEndpoint: String,
-  localModelKey: String,
-  huggingFaceEndpoint: String,
-  localSliderValue: Number,
-  gptKey: String,
-  sliderValue: Number,
-  claudeKey: String,
-  claudeSliderValue: Number,
-  selectedDallEImageCount: Number,
-  selectedDallEImageResolution: String,
-  selectedAutoSaveOption: String,
-  browserModelSelection: String,
-  maxTokens: Number,
-  top_P: Number,
-  repetitionPenalty: Number,
-  systemPrompt: String,
-});
-
-const showGPTConfig = ref(props.selectedModel.indexOf('gpt') !== -1);
-const showLocalConfig = ref(props.selectedModel.indexOf('open-ai-format') !== -1);
-const showClaudeConfig = ref(props.selectedModel.indexOf('claude') !== -1);
-const showBrowserModelConfig = ref(props.selectedModel.indexOf('web-llm') !== -1);
+const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
+const showLocalConfig = ref(selectedModel.value.indexOf('open-ai-format') !== -1);
+const showClaudeConfig = ref(selectedModel.value.indexOf('claude') !== -1);
+const showBrowserModelConfig = ref(selectedModel.value.indexOf('web-llm') !== -1);
 
 // New visibility states for collapsible config sections
 const isGeneralConfigOpen = ref(true);
@@ -43,33 +54,12 @@ const isDALLEConfigOpen = ref(true);
 const isClaudeConfigOpen = ref(true);
 const isImportExportConfigOpen = ref(true);
 
-const emit = defineEmits([
-  'update:repetitionPenalty',
-  'update:maxTokens',
-  'update:top_P',
-  'update:model',
-  'update:localModelName',
-  'update:localModelKey',
-  'update:localModelEndpoint',
-  'update:localSliderValue',
-  'update:gptKey',
-  'update:sliderValue',
-  'update:claudeKey',
-  'update:claudeSliderValue',
-  'update:selectedDallEImageCount',
-  'update:selectedDallEImageResolution',
-  'update:selectedAutoSaveOption',
-  'update:browserModelSelection',
-  'toggle-sidebar',
-  'update:systemPrompt',
-]);
-
 const availableModels = ref([]);
 
 const fetchAvailableModels = async () => {
   try {
-    if (props.localModelEndpoint.trim() !== '') {
-      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
+    if (localModelEndpoint.value.trim() !== '') {
+      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
       availableModels.value = models;
     }
   } catch (error) {
@@ -78,12 +68,12 @@ const fetchAvailableModels = async () => {
 };
 
 watch(
-  () => [props.localModelKey, props.selectedModel],
+  () => [localModelKey.value, selectedModel.value],
   () => {
-    if (props.selectedModel === 'open-ai-format') {
+    if (selectedModel.value === 'open-ai-format') {
       fetchAvailableModels();
 
-      if (customConfigs.value.length === 0 && props.localModelEndpoint.trim() !== '') {
+      if (customConfigs.value.length === 0 && localModelEndpoint.value.trim() !== '') {
         saveCustomConfig();
       }
     }
@@ -115,25 +105,25 @@ const deleteSystemPrompt = (index) => {
 
 const selectSystemPrompt = (index) => {
   selectedSystemPromptIndex.value = index;
-  update('systemPrompt', systemPrompts.value[index]);
+  systemPrompt.value = systemPrompts.value[index];
 };
 
 const customConfigs = ref([]);
 const selectedCustomConfigIndex = ref(null);
 
 const saveCustomConfig = () => {
-  if (props.localModelEndpoint.trim() === '') {
+  if (localModelEndpoint.value.trim() === '') {
     return;
   }
 
   const newConfig = {
-    endpoint: props.localModelEndpoint,
-    apiKey: props.localModelKey,
-    modelName: props.localModelName, // Include the last selected model name
-    maxTokens: props.maxTokens,
-    temperature: props.localSliderValue,
-    top_P: props.top_P,
-    repetitionPenalty: props.repetitionPenalty,
+    endpoint: localModelEndpoint.value,
+    apiKey: localModelKey.value,
+    modelName: localModelName.value, // Include the last selected model name
+    maxTokens: maxTokens.value,
+    temperature: localSliderValue.value,
+    top_P: top_P.value,
+    repetitionPenalty: repetitionPenalty.value,
   };
 
   const existingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === newConfig.endpoint);
@@ -158,13 +148,13 @@ const deleteCustomConfig = (index) => {
 const selectCustomConfig = (index) => {
   selectedCustomConfigIndex.value = index;
   const config = customConfigs.value[index];
-  update('localModelEndpoint', config.endpoint);
-  update('localModelKey', config.apiKey);
-  update('localModelName', config.modelName);
-  update('maxTokens', config.maxTokens);
-  update('localSliderValue', config.temperature);
-  update('top_P', config.top_P);
-  update('repetitionPenalty', config.repetitionPenalty);
+  localModelEndpoint.value = config.endpoint;
+  localModelKey.value = config.apiKey;
+  localModelName.value = config.modelName;
+  maxTokens.value = config.maxTokens;
+  localSliderValue.value = config.temperature;
+  top_P.value = config.top_P;
+  repetitionPenalty.value = config.repetitionPenalty;
 
   // Update the selected model to match the newly updated model name
   const modelSelector = document.getElementById('custom-model-selector');
@@ -178,14 +168,14 @@ const selectCustomConfig = (index) => {
 };
 
 onMounted(() => {
-  if (props.selectedModel === 'open-ai-format') {
+  if (selectedModel.value === 'open-ai-format') {
     fetchAvailableModels();
   }
 
   const storedSystemPrompts = localStorage.getItem('system-prompts');
   if (storedSystemPrompts) {
     systemPrompts.value = JSON.parse(storedSystemPrompts);
-    const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === props.systemPrompt);
+    const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === systemPrompt.value);
     if (savedPromptIndex !== -1) {
       selectedSystemPromptIndex.value = savedPromptIndex;
     }
@@ -196,18 +186,18 @@ onMounted(() => {
     customConfigs.value = JSON.parse(storedCustomConfigs);
 
     if (customConfigs.value.length > 0) {
-      const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === props.localModelEndpoint);
+      const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === localModelEndpoint.value);
 
       if (matchingConfigIndex !== -1) {
         selectedCustomConfigIndex.value = matchingConfigIndex;
         const config = customConfigs.value[matchingConfigIndex];
-        update('localModelEndpoint', config.endpoint);
-        update('localModelKey', config.apiKey);
-        update('localModelName', config.modelName);
-        update('maxTokens', config.maxTokens);
-        update('localSliderValue', config.temperature);
-        update('top_P', config.top_P);
-        update('repetitionPenalty', config.repetitionPenalty);
+        localModelEndpoint.value = config.endpoint;
+        localModelKey.value = config.apiKey;
+        localModelName.value = config.modelName;
+        maxTokens.value = config.maxTokens;
+        localSliderValue.value = config.temperature;
+        top_P.value = config.top_P;
+        repetitionPenalty.value = config.repetitionPenalty;
 
         selectCustomConfig(selectedCustomConfigIndex.value);
       }
@@ -225,16 +215,24 @@ const update = (field, value) => {
     showLocalConfig.value = value.indexOf('open-ai-format') !== -1;
     showClaudeConfig.value = value.indexOf('claude') !== -1;
     showBrowserModelConfig.value = value.indexOf('web-llm') !== -1;
+    selectedModel.value = value;
+    return;
   }
 
   if (field === 'systemPrompt') {
-    emit(`update:${field}`, value);
+    systemPrompt.value = value;
     saveSystemPrompt(value);
     return;
   }
 
   if (['localModelName', 'localSliderValue', 'top_P', 'repetitionPenalty', 'maxTokens', 'localModelEndpoint', 'localModelKey'].includes(field)) {
-    emit(`update:${field}`, value);
+    if (field === 'localModelName') localModelName.value = value;
+    if (field === 'localSliderValue') localSliderValue.value = value;
+    if (field === 'top_P') top_P.value = value;
+    if (field === 'repetitionPenalty') repetitionPenalty.value = value;
+    if (field === 'maxTokens') maxTokens.value = value;
+    if (field === 'localModelEndpoint') localModelEndpoint.value = value;
+    if (field === 'localModelKey') localModelKey.value = value;
 
     if (selectedCustomConfigIndex.value !== null) {
       saveCustomConfig();
@@ -242,7 +240,14 @@ const update = (field, value) => {
     return;
   }
 
-  emit(`update:${field}`, value);
+  if (field === 'selectedAutoSaveOption') selectedAutoSaveOption.value = value;
+  if (field === 'browserModelSelection') browserModelSelection.value = value;
+  if (field === 'gptKey') gptKey.value = value;
+  if (field === 'sliderValue') sliderValue.value = value;
+  if (field === 'claudeKey') claudeKey.value = value;
+  if (field === 'claudeSliderValue') claudeSliderValue.value = value;
+  if (field === 'selectedDallEImageCount') selectedDallEImageCount.value = value;
+  if (field === 'selectedDallEImageResolution') selectedDallEImageResolution.value = value;
 };
 
 function reloadPage() {
@@ -250,7 +255,7 @@ function reloadPage() {
 }
 
 function toggleSidebar() {
-  emit('toggle-sidebar');
+  isSidebarOpen.value = !isSidebarOpen.value;
 }
 
 const updateLocalSliderValue = (value) => {
@@ -485,7 +490,8 @@ const updateRepetitionSliderValue = (value) => {
           </h4>
 
           <div class="settings-list">
-            <div class="settings-item-button" @click="handleExportSettings(props, exportSettingsToFile)">
+            <div class="settings-item-button"
+              @click="handleExportSettings({ shouldShowScrollButton, userText, isLoading, hasFilterText, selectedModel, isSidebarOpen, showConversationOptions, messages, streamedMessageText, modelDisplayName, localModelKey, localModelName, localModelEndpoint, localSliderValue, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution, selectedAutoSaveOption, browserModelSelection, maxTokens, top_P, repetitionPenalty, systemPrompt, conversations, storedConversations, lastLoadedConversationId, selectedConversation, abortController, imageInput }, exportSettingsToFile)">
               <span class="action-text">Export Settings</span>
               <Download :stroke-width="1.5" />
             </div>

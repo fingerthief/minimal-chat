@@ -3,7 +3,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
-import { showToast, determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
+import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
 import {
   handleExportConversations
 } from '@/libs/conversation-management/conversations-management';
@@ -13,7 +13,6 @@ import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
 import settingsDialog from '@/components/settings-dialog.vue';
 import conversationsDialog from '@/components/conversations-dialog.vue';
-import { engine } from '@/libs/api-access/web-llm-access';
 import {
   shouldShowScrollButton,
   userText,
@@ -23,25 +22,9 @@ import {
   isSidebarOpen,
   showConversationOptions,
   messages,
-  streamedMessageText,
   modelDisplayName,
-  localModelKey,
   localModelName,
   localModelEndpoint,
-  localSliderValue,
-  gptKey,
-  sliderValue,
-  claudeKey,
-  claudeSliderValue,
-  selectedDallEImageCount,
-  selectedDallEImageResolution,
-  selectedAutoSaveOption,
-  browserModelSelection,
-  maxTokens,
-  top_P,
-  repetitionPenalty,
-  systemPrompt,
-  abortController,
   imageInput,
   lastLoadedConversationId,
   conversations
@@ -88,46 +71,6 @@ async function imageInputChangedHandler(event) {
 //#endregion
 
 //#region Utils
-const refs = {
-  selectedModel,
-  localModelName,
-  localModelEndpoint,
-  localSliderValue,
-  gptKey,
-  sliderValue,
-  claudeKey,
-  claudeSliderValue,
-  selectedDallEImageCount,
-  selectedDallEImageResolution,
-  selectedAutoSaveOption,
-  maxTokens,
-  top_P,
-  repetitionPenalty,
-  browserModelSelection,
-  localModelKey,
-  systemPrompt,
-};
-
-const updateSetting = (field, value) => {
-  if (field in refs) {
-    refs[field].value = value;
-  }
-};
-
-function abortStream() {
-  if (engine !== undefined && selectedModel.value.includes('web-llm')) {
-    engine.interruptGenerate();
-    showToast('Aborted response stream');
-    return;
-  }
-
-  if (abortController.value) {
-    abortController.value.abort();
-    abortController.value = null;
-    isLoading.value = false;
-  }
-}
-
 async function onModelChange(newModel) {
   selectedModel.value = newModel;
 }
@@ -156,9 +99,13 @@ onUnmounted(() => {
 onMounted(() => {
   sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
   sidebarContentContainer.value.style.width = '420px';
+
   selectedModel.value = localStorage.getItem('selectedModel') || 'gpt-4o';
+
   modelDisplayName.value = determineModelDisplayName(selectedModel.value);
+
   selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
+
   document.addEventListener('click', handleGlobalClick);
   setupWatchers();
 });
@@ -183,39 +130,14 @@ onMounted(() => {
 
       <!-- Settings Sidebar -->
       <div class="sidebar-common sidebar-left" id="settings-dialog" :class="{ open: isSidebarOpen }">
-        <settingsDialog :isSidebarOpen="isSidebarOpen" :selectedModel="selectedModel" :localModelName="localModelName"
-          :localModelEndpoint="localModelEndpoint" :localSliderValue="localSliderValue" :gptKey="gptKey"
-          :sliderValue="sliderValue" :claudeKey="claudeKey" :claudeSliderValue="claudeSliderValue"
-          :browserModelSelection="browserModelSelection" :selectedDallEImageCount="selectedDallEImageCount"
-          :selectedDallEImageResolution="selectedDallEImageResolution" :selectedAutoSaveOption="selectedAutoSaveOption"
-          :maxTokens="maxTokens" :top_P="top_P" :repetitionPenalty="repetitionPenalty" :localModelKey="localModelKey"
-          :systemPrompt="systemPrompt" @update:systemPrompt="updateSetting('systemPrompt', $event)"
-          @update:maxTokens="updateSetting('maxTokens', $event)"
-          @update:browserModelSelection="updateSetting('browserModelSelection', $event)"
-          @update:repetitionPenalty="updateSetting('repetitionPenalty', $event)"
-          @update:top_P="updateSetting('top_P', $event)" @update:model="updateSetting('selectedModel', $event)"
-          @update:localModelName="updateSetting('localModelName', $event)"
-          @update:localModelEndpoint="updateSetting('localModelEndpoint', $event)"
-          @update:localModelKey="updateSetting('localModelKey', $event)"
-          @update:localSliderValue="updateSetting('localSliderValue', $event)"
-          @update:gptKey="updateSetting('gptKey', $event)" @update:sliderValue="updateSetting('sliderValue', $event)"
-          @update:claudeKey="updateSetting('claudeKey', $event)"
-          @update:claudeSliderValue="updateSetting('claudeSliderValue', $event)"
-          @update:selectedDallEImageCount="updateSetting('selectedDallEImageCount', $event)"
-          @update:selectedDallEImageResolution="updateSetting('selectedDallEImageResolution', $event)"
-          @update:selectedAutoSaveOption="updateSetting('selectedAutoSaveOption', $event)"
-          @toggle-sidebar="toggleSidebar" />
+        <settingsDialog />
       </div>
 
       <!-- Conversations Sidebar -->
       <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
         :class="{ open: showConversationOptions }">
-        <conversationsDialog :isSidebarOpen="isSidebarOpen" :conversations="conversations"
-          @toggle-sidebar="showConversations" @load-conversation="selectConversationHandler"
-          :selectedConversationItem="selectedConversation" @new-conversation="startNewConversation"
-          @edit-conversation-title="editConversationTitle" @import-conversations="handleImportConversations"
-          @export-conversations="handleExportConversations" @purge-conversations="handlePurgeConversations"
-          @open-settings="toggleSidebar" :showConversationOptions="showConversationOptions" />
+        <conversationsDialog @import-conversations="handleImportConversations"
+          @export-conversations="handleExportConversations" />
         <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
         </div>
       </div>

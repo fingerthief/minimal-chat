@@ -3,15 +3,15 @@ import { ref, watch, defineEmits } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import 'swiped-events';
-import { swipedLeft, swipedRight, updateUI } from '@/libs/utils/general-utils';
+import { swipedLeft, swipedRight, updateUI, showToast } from '@/libs/utils/general-utils';
 import {
   isLoading, messages, systemPrompt, selectedModel, userText, claudeSliderValue, sliderValue, localModelName,
-  localSliderValue, localModelEndpoint, imageInput
+  localSliderValue, localModelEndpoint, imageInput, abortController
 } from '@/libs/state-management/state';
 import { sendMessage, visionimageUploadClick } from '@/libs/conversation-management/message-processing';
 import { setSystemPrompt } from '@/libs/conversation-management/conversations-management';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
-
+import { engine } from '@/libs/api-access/web-llm-access';
 // Define props and emits
 const props = defineProps({
   userInput: String,
@@ -117,7 +117,17 @@ function importFileUploadClick() {
 }
 
 async function abortStream() {
-  emit('abort-stream');
+  if (engine !== undefined && selectedModel.value.includes('web-llm')) {
+    engine.interruptGenerate();
+    showToast('Aborted response stream');
+    return;
+  }
+
+  if (abortController.value) {
+    abortController.value.abort();
+    abortController.value = null;
+    isLoading.value = false;
+  }
 }
 
 </script>

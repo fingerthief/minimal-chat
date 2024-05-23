@@ -107,6 +107,11 @@ function purgeConversations() {
 
   showToast('All Conversations Deleted.');
 }
+
+function toggleSidebar() {
+  event.stopPropagation();
+  isSidebarOpen.value = !isSidebarOpen.value;
+}
 </script>
 
 <template>
@@ -157,13 +162,13 @@ function purgeConversations() {
               <span class="delete-text">Delete Current Conversation</span>
             </span>
           </li>
-          <li v-if="!showConversationOptions" class="new-conversation-option--settings" @click="$emit('open-settings')">
+          <li v-if="!showConversationOptions" class="new-conversation-option--settings" @click="toggleSidebar">
             <span class="settings-icon">
               <Settings :stroke-width="1.5" />
               <span class="settings-text">Settings</span>
             </span>
           </li>
-          <li v-if="showConversationOptions" class="new-conversation-option--settings" @click="$emit('toggle-sidebar')">
+          <li v-if="showConversationOptions" class="new-conversation-option--settings" @click="toggleSidebar">
             <span class="settings-icon">
               <Settings :stroke-width="1.5" />
               <span class="settings-text">Close</span>
