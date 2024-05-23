@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.1.3-blue)
+![Version](https://img.shields.io/badge/version-6.1.4-blue)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fingerthief/minimal-chat/firebase-hosting-merge.yml)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
@@ -133,6 +133,8 @@ MinimalChat is licensed under the MIT License. See [LICENSE](LICENSE) for more i
 If you have any questions, feedback, or suggestions, feel free to reach out to us:
 
 - [GitHub Issues](https://github.com/fingerthief/minimal-chat/issues)
+
+- Add me on Discord for questions, ideas or issues Username: `fingerthief#0453`
 
 ---
 

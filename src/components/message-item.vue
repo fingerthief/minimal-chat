@@ -1,26 +1,44 @@
-<!-- eslint-disable no-undef -->
-<!-- eslint-disable no-empty -->
 <script setup>
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
 import { RefreshCcw, Trash } from 'lucide-vue-next';
-import { defineEmits, ref, nextTick, computed, watch } from 'vue';
+import { ref, nextTick, computed, watch } from 'vue';
 import '/node_modules/highlight.js/scss/github-dark-dimmed.scss';
 import ToolTip from './ToolTip.vue';
-import { showToast } from '@/libs/utils';
+import { showToast } from '@/libs/utils/general-utils';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
+import {
+  isLoading,
+  messages,
+  systemPrompt,
+  selectedModel,
+  sliderValue,
+  localModelName,
+  localSliderValue,
+  localModelEndpoint,
+  conversations,
+  abortController,
+  streamedMessageText,
+  selectedConversation,
+  modelDisplayName,
+} from '@/libs/state-management/state';
+import {
+  setSystemPrompt,
+  regenerateMessageResponse,
+  editPreviousMessage,
+  deleteMessageFromHistory,
+} from '@/libs/conversation-management/conversations-management';
+import { updateUIWrapper } from '@/libs/utils/general-utils';
 
-const props = defineProps({
-  messages: Array,
-  isLoading: Boolean,
-  modelDisplayName: String,
-});
-
-const emit = defineEmits(['regenerate-response', 'delete-response', 'edit-message']);
+// Refs
 const loadingIcon = ref(-1);
+const messageList = ref(null);
+const scroller = ref(null);
 
-const formatMessage = (content) => {
+// Utility functions
+function formatMessage(content) {
   const md = new MarkdownIt({
     highlight: (str, lang) => {
       try {
@@ -36,11 +54,13 @@ const formatMessage = (content) => {
     .replace(/\n\s*<\/(ul|li)>/g, ' </$1>')
     .replace(/\n/g, '<br>')
     .replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
-};
+}
 
-const messageClass = (role) => (role === 'user' ? 'user message' : 'gpt message');
+function messageClass(role) {
+  return role === 'user' ? 'user message' : 'gpt message';
+}
 
-const copyText = (message) => {
+function copyText(message) {
   navigator.clipboard
     .writeText(message.content)
     .then(() => {
@@ -50,12 +70,16 @@ const copyText = (message) => {
     .catch((error) => {
       console.error('Failed to copy content: ', error);
     });
-};
+}
 
-const startLoading = (id) => (loadingIcon.value = id);
+function startLoading(id) {
+  loadingIcon.value = id;
+}
 
+// Message editing
 let initialMessage = '';
-const editMessage = (message) => {
+
+function editMessage(message) {
   if (message.role !== 'user' || message.isEditing) return;
   message.isEditing = true;
   initialMessage = message;
@@ -63,26 +87,47 @@ const editMessage = (message) => {
     const messageContent = document.getElementById(`message-${message.id}`);
     if (messageContent) messageContent.focus();
   });
-};
+}
 
-const saveEditedMessage = (message, event) => {
+async function saveEditedMessage(message, event) {
   message.isEditing = false;
   const updatedContent = event.target.innerText.trim();
   if (updatedContent !== initialMessage.content.trim()) {
-    emit('edit-message', initialMessage, updatedContent);
+    isLoading.value = true;
+    setSystemPrompt(messages.value, systemPrompt.value);
+
+    const result = await editPreviousMessage(
+      conversations.value,
+      messages,
+      initialMessage,
+      updatedContent,
+      sliderValue.value,
+      selectedModel.value,
+      localSliderValue.value,
+      localModelName.value,
+      localModelEndpoint.value,
+      updateUIWrapper,
+      abortController,
+      streamedMessageText
+    );
+
+    messages.value = [...result.baseMessages];
+    selectedConversation.value.messageHistory = messages.value;
+    isLoading.value = false;
+    saveMessagesHandler();
   }
-};
+}
 
-const filteredMessages = computed(() => props.messages.filter((message) => message.role !== 'system'));
+// Message filtering
+const filteredMessages = computed(() => messages.value.filter((message) => message.role !== 'system'));
 
-const messageList = ref(null);
-const scroller = ref(null);
-const scrollToBottom = async () => {
+// Scrolling
+async function scrollToBottom() {
   if (scroller.value && messageList.value) {
     await nextTick();
     scroller.value.scrollToItem(filteredMessages.value.length);
   }
-};
+}
 
 watch(
   () => [filteredMessages],
@@ -91,6 +136,36 @@ watch(
   },
   { deep: true }
 );
+
+// Message actions
+async function regenerateMessage(content) {
+  isLoading.value = true;
+  setSystemPrompt(messages.value, systemPrompt.value);
+
+  const result = await regenerateMessageResponse(
+    conversations.value,
+    messages,
+    content,
+    sliderValue.value,
+    selectedModel.value,
+    localSliderValue.value,
+    localModelName.value,
+    localModelEndpoint.value,
+    updateUIWrapper,
+    abortController,
+    streamedMessageText
+  );
+
+  isLoading.value = false;
+  messages.value = result.baseMessages;
+  selectedConversation.value.messageHistory = messages.value;
+  saveMessagesHandler();
+}
+
+async function deleteMessage(content) {
+  messages.value = deleteMessageFromHistory(messages.value, content);
+  saveMessagesHandler();
+}
 </script>
 
 <template>
@@ -114,7 +189,7 @@ watch(
               :id="'message-refresh-' + item.id"
               :size="18"
               :class="{ loading: isLoading && loadingIcon === item.id }"
-              @click.stop="$emit('regenerate-response', item.content), startLoading(item.id)"
+              @click.stop="regenerateMessage(item.content), startLoading(item.id)"
             />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
             <Trash
@@ -122,7 +197,7 @@ watch(
               class="icon delete-icon"
               :id="'message-trash-' + item.id"
               :size="18"
-              @click.stop="$emit('delete-response', item.content), startLoading(item.id)"
+              @click.stop="deleteMessage(item.content), startLoading(item.id)"
             />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
             <div class="label" @click="copyText(item)" :id="'message-label-' + item.id">

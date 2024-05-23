@@ -1,6 +1,7 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-
+import { isSidebarOpen, showConversationOptions, messages } from '../state-management/state';
+import { addMessage } from '../conversation-management/message-processing';
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -147,6 +148,9 @@ export function unloadModel(engine) {
 }
 
 // utils.js
+export function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = true) {
+  updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
+}
 
 export function updateUI(content, messages, addMessage, autoScrollBottom = true, appendTextValue = true) {
   const lastMessage = messages[messages.length - 1];
@@ -217,4 +221,26 @@ export function resize(event, sidebarContentContainer, initialWidth, initialMous
 export function stopResize() {
   document.removeEventListener('mousemove', resize);
   document.removeEventListener('mouseup', stopResize);
+}
+
+export function swipedLeft(event) {
+  isSidebarOpen.value = false;
+  showConversationOptions.value = !showConversationOptions.value;
+}
+
+export function swipedRight(event) {
+  showConversationOptions.value = false;
+  isSidebarOpen.value = !isSidebarOpen.value;
+}
+
+export function handleGlobalClick(event) {
+  const settingsDialogElement = document.getElementById('settings-dialog');
+  const conversationsDialogElement = document.getElementById('conversations-dialog');
+
+  if (settingsDialogElement && !settingsDialogElement.contains(event.target) && isSidebarOpen.value) {
+    isSidebarOpen.value = false;
+  }
+  if (conversationsDialogElement && !conversationsDialogElement.contains(event.target) && showConversationOptions.value) {
+    showConversationOptions.value = false;
+  }
 }

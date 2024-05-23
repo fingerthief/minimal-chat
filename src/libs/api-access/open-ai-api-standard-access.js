@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { showToast, sleep, parseStreamResponseChunk } from './utils';
+import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
 
 let localStreamRetryCount = 0;
 export async function fetchLocalModelResponseStream(

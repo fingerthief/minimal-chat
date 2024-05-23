@@ -3,15 +3,11 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { Menu, ArchiveX, MessagesSquare, Github, MessageSquarePlus } from 'lucide-vue-next';
+import { deleteCurrentConversation } from '@/libs/conversation-management/useConversations';
+import { isSidebarOpen, showConversationOptions, selectedModel } from '@/libs/state-management/state';
 
 // Define props
 const props = defineProps({
-  selectedModel: {
-    type: String,
-    required: true,
-  },
-  isSidebarOpen: Boolean,
-  showConversationOptions: Boolean,
   storedConversations: Array,
 });
 
@@ -25,15 +21,12 @@ const modelTypes = [
 ];
 
 const visibleModelLinks = computed(() => {
-  return modelTypes.filter((modelType) => props.selectedModel.includes(modelType.name));
+  return modelTypes.filter((modelType) => selectedModel.value.includes(modelType.name));
 });
 
 function toggleSidebar() {
-  emit('toggle-sidebar');
-}
-
-function deleteCurrentConversation() {
-  emit('delete-conversation');
+  event.stopPropagation();
+  isSidebarOpen.value = !isSidebarOpen.value;
 }
 
 function clearMessages() {
@@ -42,20 +35,19 @@ function clearMessages() {
 }
 
 function onShowConversationsClick() {
-  // Implement showing conversations logic
-  emit('toggle-conversations');
+  event.stopPropagation();
+  showConversationOptions.value = !showConversationOptions.value;
+}
+
+async function onModelChange(newModel) {
+  selectedModel.value = newModel.target.value;
 }
 </script>
 
 <template>
   <div class="header box">
-    <a
-      v-for="modelType in visibleModelLinks"
-      :key="modelType.name"
-      href="https://github.com/fingerthief/minimal-chat"
-      target="_blank"
-      class="no-style-link"
-    >
+    <a v-for="modelType in visibleModelLinks" :key="modelType.name" href="https://github.com/fingerthief/minimal-chat"
+      target="_blank" class="no-style-link">
       {{ modelType.display }}
     </a>
     <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
@@ -64,7 +56,7 @@ function onShowConversationsClick() {
     <div class="models-dropdown">
       <div class="control select-dropdown">
         <label for="model-selector"></label>
-        <select id="model-selector" :value="selectedModel" @change="$emit('change-model', $event.target.value)">
+        <select id="model-selector" :value="selectedModel" @change="onModelChange">
           <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
           <option value="gpt-4-turbo">GPT-4 Turbo</option>
           <option value="gpt-4o">GPT-4 Omni</option>

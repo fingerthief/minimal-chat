@@ -1,4 +1,4 @@
-import { showToast, sleep, parseStreamResponseChunk } from './utils';
+import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
 
 const numberOfRetryAttemptsAllowed = 5;
 

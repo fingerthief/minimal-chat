@@ -1,7 +1,7 @@
 // file-processing.js
 
-import { showToast } from '@/libs/utils';
-import { analyzeImage } from '@/libs/image-analysis';
+import { showToast } from '@/libs/utils/general-utils';
+import { analyzeImage } from '@/libs/file-processing/image-analysis';
 
 export async function uploadFileContentsToCoversation(event, userText, addMessage) {
   const file = event.target.files[0];

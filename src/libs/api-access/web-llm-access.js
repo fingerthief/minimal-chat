@@ -1,5 +1,5 @@
 import * as webllm from '@mlc-ai/web-llm';
-import { showToast } from './utils';
+import { showToast } from '../utils/general-utils';
 
 export let engine = undefined;
 

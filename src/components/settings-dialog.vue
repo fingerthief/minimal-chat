@@ -1,40 +1,50 @@
-<!-- settings-dialog.vue -->
 <script setup>
-import { RefreshCcw, Download, Upload, Trash2, Save } from 'lucide-vue-next';
+import { RefreshCcw, Download, Upload, Trash2 } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
-import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/settings-utils';
-import { getOpenAICompatibleAvailableModels } from '@/libs/open-ai-api-standard-access';
-import { removeAPIEndpoints, showToast } from '@/libs/utils';
+import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/utils/settings-utils';
+import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
+import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
+import {
+  shouldShowScrollButton,
+  userText,
+  isLoading,
+  hasFilterText,
+  selectedModel,
+  isSidebarOpen,
+  showConversationOptions,
+  messages,
+  streamedMessageText,
+  modelDisplayName,
+  localModelKey,
+  localModelName,
+  localModelEndpoint,
+  localSliderValue,
+  gptKey,
+  sliderValue,
+  claudeKey,
+  claudeSliderValue,
+  selectedDallEImageCount,
+  selectedDallEImageResolution,
+  selectedAutoSaveOption,
+  browserModelSelection,
+  maxTokens,
+  top_P,
+  repetitionPenalty,
+  systemPrompt,
+  conversations,
+  storedConversations,
+  lastLoadedConversationId,
+  selectedConversation,
+  abortController,
+  imageInput,
+} from '@/libs/state-management/state'; // Import the state
 
-const props = defineProps({
-  isSidebarOpen: Boolean,
-  selectedModel: String,
-  localModelName: String,
-  localModelEndpoint: String,
-  localModelKey: String,
-  huggingFaceEndpoint: String,
-  localSliderValue: Number,
-  gptKey: String,
-  sliderValue: Number,
-  claudeKey: String,
-  claudeSliderValue: Number,
-  selectedDallEImageCount: Number,
-  selectedDallEImageResolution: String,
-  selectedAutoSaveOption: String,
-  browserModelSelection: String,
-  maxTokens: Number,
-  top_P: Number,
-  repetitionPenalty: Number,
-  systemPrompt: String,
-});
-
-const showGPTConfig = ref(props.selectedModel.indexOf('gpt') !== -1);
-const showLocalConfig = ref(props.selectedModel.indexOf('open-ai-format') !== -1);
-const showClaudeConfig = ref(props.selectedModel.indexOf('claude') !== -1);
-const showBrowserModelConfig = ref(props.selectedModel.indexOf('web-llm') !== -1);
-
-// New visibility states for collapsible config sections
+// Visibility states for collapsible config sections
+const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
+const showLocalConfig = ref(selectedModel.value.indexOf('open-ai-format') !== -1);
+const showClaudeConfig = ref(selectedModel.value.indexOf('claude') !== -1);
+const showBrowserModelConfig = ref(selectedModel.value.indexOf('web-llm') !== -1);
 const isGeneralConfigOpen = ref(true);
 const isBrowserModelConfigOpen = ref(true);
 const isLocalConfigOpen = ref(true);
@@ -43,57 +53,39 @@ const isDALLEConfigOpen = ref(true);
 const isClaudeConfigOpen = ref(true);
 const isImportExportConfigOpen = ref(true);
 
-const emit = defineEmits([
-  'update:repetitionPenalty',
-  'update:maxTokens',
-  'update:top_P',
-  'update:model',
-  'update:localModelName',
-  'update:localModelKey',
-  'update:localModelEndpoint',
-  'update:localSliderValue',
-  'update:gptKey',
-  'update:sliderValue',
-  'update:claudeKey',
-  'update:claudeSliderValue',
-  'update:selectedDallEImageCount',
-  'update:selectedDallEImageResolution',
-  'update:selectedAutoSaveOption',
-  'update:browserModelSelection',
-  'toggle-sidebar',
-  'update:systemPrompt',
-]);
-
+// Available models
 const availableModels = ref([]);
 
-const fetchAvailableModels = async () => {
+async function fetchAvailableModels() {
   try {
-    if (props.localModelEndpoint.trim() !== '') {
-      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(props.localModelEndpoint));
+    if (localModelEndpoint.value.trim() !== '') {
+      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
       availableModels.value = models;
     }
   } catch (error) {
     console.error('Error fetching available models:', error);
   }
-};
+}
 
+// Watchers
 watch(
-  () => [props.localModelKey, props.selectedModel],
+  () => [localModelKey.value, selectedModel.value],
   () => {
-    if (props.selectedModel === 'open-ai-format') {
+    if (selectedModel.value === 'open-ai-format') {
       fetchAvailableModels();
 
-      if (customConfigs.value.length === 0 && props.localModelEndpoint.trim() !== '') {
+      if (customConfigs.value.length === 0 && localModelEndpoint.value.trim() !== '') {
         saveCustomConfig();
       }
     }
   }
 );
 
+// System Prompts
 const systemPrompts = ref([]);
 const selectedSystemPromptIndex = ref(null);
 
-const saveSystemPrompt = (prompt) => {
+function saveSystemPrompt(prompt) {
   if (prompt !== '') {
     const trimmedPrompt = prompt.trim();
     if (!systemPrompts.value.includes(trimmedPrompt)) {
@@ -105,35 +97,34 @@ const saveSystemPrompt = (prompt) => {
   } else {
     selectedSystemPromptIndex.value = -1;
   }
-};
-
-const deleteSystemPrompt = (index) => {
+}
+function deleteSystemPrompt(index) {
   systemPrompts.value.splice(index, 1);
   localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
   showToast('Deleted System Prompt');
-};
-
-const selectSystemPrompt = (index) => {
+}
+function selectSystemPrompt(index) {
   selectedSystemPromptIndex.value = index;
-  update('systemPrompt', systemPrompts.value[index]);
-};
+  systemPrompt.value = systemPrompts.value[index];
+}
 
+// Custom Configs
 const customConfigs = ref([]);
 const selectedCustomConfigIndex = ref(null);
 
-const saveCustomConfig = () => {
-  if (props.localModelEndpoint.trim() === '') {
+function saveCustomConfig() {
+  if (localModelEndpoint.value.trim() === '') {
     return;
   }
 
   const newConfig = {
-    endpoint: props.localModelEndpoint,
-    apiKey: props.localModelKey,
-    modelName: props.localModelName, // Include the last selected model name
-    maxTokens: props.maxTokens,
-    temperature: props.localSliderValue,
-    top_P: props.top_P,
-    repetitionPenalty: props.repetitionPenalty,
+    endpoint: localModelEndpoint.value,
+    apiKey: localModelKey.value,
+    modelName: localModelName.value,
+    maxTokens: maxTokens.value,
+    temperature: localSliderValue.value,
+    top_P: top_P.value,
+    repetitionPenalty: repetitionPenalty.value,
   };
 
   const existingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === newConfig.endpoint);
@@ -147,26 +138,23 @@ const saveCustomConfig = () => {
   }
 
   localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
-};
-
-const deleteCustomConfig = (index) => {
+}
+function deleteCustomConfig(index) {
   customConfigs.value.splice(index, 1);
   localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
   showToast('Deleted Custom Config');
-};
-
-const selectCustomConfig = (index) => {
+}
+function selectCustomConfig(index) {
   selectedCustomConfigIndex.value = index;
   const config = customConfigs.value[index];
-  update('localModelEndpoint', config.endpoint);
-  update('localModelKey', config.apiKey);
-  update('localModelName', config.modelName);
-  update('maxTokens', config.maxTokens);
-  update('localSliderValue', config.temperature);
-  update('top_P', config.top_P);
-  update('repetitionPenalty', config.repetitionPenalty);
+  localModelEndpoint.value = config.endpoint;
+  localModelKey.value = config.apiKey;
+  localModelName.value = config.modelName;
+  maxTokens.value = config.maxTokens;
+  localSliderValue.value = config.temperature;
+  top_P.value = config.top_P;
+  repetitionPenalty.value = config.repetitionPenalty;
 
-  // Update the selected model to match the newly updated model name
   const modelSelector = document.getElementById('custom-model-selector');
   if (modelSelector) {
     const options = Array.from(modelSelector.options);
@@ -175,17 +163,18 @@ const selectCustomConfig = (index) => {
       modelSelector.value = matchingOption.value;
     }
   }
-};
+}
 
+// Lifecycle hooks
 onMounted(() => {
-  if (props.selectedModel === 'open-ai-format') {
+  if (selectedModel.value === 'open-ai-format') {
     fetchAvailableModels();
   }
 
   const storedSystemPrompts = localStorage.getItem('system-prompts');
   if (storedSystemPrompts) {
     systemPrompts.value = JSON.parse(storedSystemPrompts);
-    const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === props.systemPrompt);
+    const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === systemPrompt.value);
     if (savedPromptIndex !== -1) {
       selectedSystemPromptIndex.value = savedPromptIndex;
     }
@@ -196,18 +185,18 @@ onMounted(() => {
     customConfigs.value = JSON.parse(storedCustomConfigs);
 
     if (customConfigs.value.length > 0) {
-      const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === props.localModelEndpoint);
+      const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === localModelEndpoint.value);
 
       if (matchingConfigIndex !== -1) {
         selectedCustomConfigIndex.value = matchingConfigIndex;
         const config = customConfigs.value[matchingConfigIndex];
-        update('localModelEndpoint', config.endpoint);
-        update('localModelKey', config.apiKey);
-        update('localModelName', config.modelName);
-        update('maxTokens', config.maxTokens);
-        update('localSliderValue', config.temperature);
-        update('top_P', config.top_P);
-        update('repetitionPenalty', config.repetitionPenalty);
+        localModelEndpoint.value = config.endpoint;
+        localModelKey.value = config.apiKey;
+        localModelName.value = config.modelName;
+        maxTokens.value = config.maxTokens;
+        localSliderValue.value = config.temperature;
+        top_P.value = config.top_P;
+        repetitionPenalty.value = config.repetitionPenalty;
 
         selectCustomConfig(selectedCustomConfigIndex.value);
       }
@@ -219,22 +208,31 @@ onMounted(() => {
   }
 });
 
-const update = (field, value) => {
+// Update function
+function update(field, value) {
   if (field === 'model') {
     showGPTConfig.value = value.indexOf('gpt') !== -1;
     showLocalConfig.value = value.indexOf('open-ai-format') !== -1;
     showClaudeConfig.value = value.indexOf('claude') !== -1;
     showBrowserModelConfig.value = value.indexOf('web-llm') !== -1;
+    selectedModel.value = value;
+    return;
   }
 
   if (field === 'systemPrompt') {
-    emit(`update:${field}`, value);
+    systemPrompt.value = value;
     saveSystemPrompt(value);
     return;
   }
 
   if (['localModelName', 'localSliderValue', 'top_P', 'repetitionPenalty', 'maxTokens', 'localModelEndpoint', 'localModelKey'].includes(field)) {
-    emit(`update:${field}`, value);
+    if (field === 'localModelName') localModelName.value = value;
+    if (field === 'localSliderValue') localSliderValue.value = value;
+    if (field === 'top_P') top_P.value = value;
+    if (field === 'repetitionPenalty') repetitionPenalty.value = value;
+    if (field === 'maxTokens') maxTokens.value = value;
+    if (field === 'localModelEndpoint') localModelEndpoint.value = value;
+    if (field === 'localModelKey') localModelKey.value = value;
 
     if (selectedCustomConfigIndex.value !== null) {
       saveCustomConfig();
@@ -242,28 +240,33 @@ const update = (field, value) => {
     return;
   }
 
-  emit(`update:${field}`, value);
-};
+  if (field === 'selectedAutoSaveOption') selectedAutoSaveOption.value = value;
+  if (field === 'browserModelSelection') browserModelSelection.value = value;
+  if (field === 'gptKey') gptKey.value = value;
+  if (field === 'sliderValue') sliderValue.value = value;
+  if (field === 'claudeKey') claudeKey.value = value;
+  if (field === 'claudeSliderValue') claudeSliderValue.value = value;
+  if (field === 'selectedDallEImageCount') selectedDallEImageCount.value = value;
+  if (field === 'selectedDallEImageResolution') selectedDallEImageResolution.value = value;
+}
 
+// Utility functions
 function reloadPage() {
   window.location.reload();
 }
 
 function toggleSidebar() {
-  emit('toggle-sidebar');
+  isSidebarOpen.value = !isSidebarOpen.value;
 }
-
-const updateLocalSliderValue = (value) => {
+function updateLocalSliderValue(value) {
   update('localSliderValue', parseFloat(value));
-};
-
-const updateTopPSliderValue = (value) => {
+}
+function updateTopPSliderValue(value) {
   update('top_P', parseFloat(value));
-};
-
-const updateRepetitionSliderValue = (value) => {
+}
+function updateRepetitionSliderValue(value) {
   update('repetitionPenalty', parseFloat(value));
-};
+}
 </script>
 
 <template>
@@ -273,7 +276,7 @@ const updateRepetitionSliderValue = (value) => {
         <span @click="reloadPage">
           <RefreshCcw :size="23" :stroke-width="2" />
         </span>
-        Settings | V6.1.3
+        Settings | V6.1.4
       </h2>
     </div>
     <div class="sidebar-content-container">
@@ -298,31 +301,22 @@ const updateRepetitionSliderValue = (value) => {
           </div>
           <div class="control select-dropdown">
             <label for="auto-save-conversations">Auto Save Conversations:</label>
-            <select id="auto-save-conversations" :value="selectedAutoSaveOption" @change="update('selectedAutoSaveOption', $event.target.value)">
+            <select id="auto-save-conversations" :value="selectedAutoSaveOption"
+              @change="update('selectedAutoSaveOption', $event.target.value)">
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
           </div>
           <div class="system-prompt-container">
-            <InputField
-              labelText="System Prompt:"
-              inputId="system-prompt"
-              :value="systemPrompt"
-              @update:value="update('systemPrompt', $event)"
-              :isSecret="false"
-              :isMultiline="true"
-              :placeholderText="'Enter the system prompt if applicable.'"
-            />
+            <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
+              @update:value="update('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
+              :placeholderText="'Enter the system prompt if applicable.'" />
           </div>
           <div class="saved-system-prompts">
             <h4>Saved System Prompts:</h4>
             <ul>
-              <li
-                v-for="(prompt, index) in systemPrompts"
-                :key="index"
-                :class="{ selected: index === selectedSystemPromptIndex }"
-                @click="selectSystemPrompt(index)"
-              >
+              <li v-for="(prompt, index) in systemPrompts" :key="index"
+                :class="{ selected: index === selectedSystemPromptIndex }" @click="selectSystemPrompt(index)">
                 {{ prompt }}
                 <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteSystemPrompt(index)" />
               </li>
@@ -338,12 +332,14 @@ const updateRepetitionSliderValue = (value) => {
         </h3>
         <div v-show="isBrowserModelConfigOpen" class="control select-dropdown">
           <label for="localModelsSelection">Model To Load In Browser:</label>
-          <select id="localModelsSelection" :value="browserModelSelection" @change="update('browserModelSelection', $event.target.value)">
+          <select id="localModelsSelection" :value="browserModelSelection"
+            @change="update('browserModelSelection', $event.target.value)">
             <option value="Llama-3-8B-Instruct-q4f32_1">Llama-3-8B-Instruct-q4f32 (~6.1gb VRAM)</option>
             <option value="Llama-3-8B-Instruct-q4f16_1-1k">Llama-3-8B-Instruct-q4f16 1k Context (~4.6gb VRAM)</option>
             <option value="Llama-3-8B-Instruct-q4f32_1-1k">Llama-3-8B-Instruct-q4f32 1k Context (~5.2gb VRAM)</option>
             <option value="Llama-2-7b-chat-hf-q4f16_1">Llama-2-7b-chat-hf-q4f16 (~6.8gb VRAM)</option>
-            <option value="TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k">TinyLlama-1.1B-Chat-v0.4-q4f32 1k Context (~1.0gb VRAM)</option>
+            <option value="TinyLlama-1.1B-Chat-v0.4-q4f32_1-1k">TinyLlama-1.1B-Chat-v0.4-q4f32 1k Context (~1.0gb VRAM)
+            </option>
             <option value="TinyLlama-1.1B-Chat-v0.4-q0f32">TinyLlama-1.1B-Chat-v0.4-q0f32 (~5.3gb VRAM)</option>
             <option value="Mistral-7B-Instruct-v0.2-q4f16_1">Mistral-7B-Instruct-v0.2 (~6.1gb VRAM)</option>
             <option value="OpenHermes-2.5-Mistral-7B-q4f16_1">OpenHermes-2.5-Mistral-7B (~6.1gb VRAM)</option>
@@ -361,91 +357,56 @@ const updateRepetitionSliderValue = (value) => {
           <span class="indicator">{{ isLocalConfigOpen ? '-' : '+' }}</span>
         </h3>
         <div v-show="isLocalConfigOpen" class="control-grid">
-          <InputField
-            v-show="showLocalConfig"
-            :isSecret="false"
-            labelText="API Endpoint:"
-            :placeholderText="'Enter the base API Endpoint URL'"
-            inputId="local-model-endpoint"
-            :value="localModelEndpoint"
-            @update:value="update('localModelEndpoint', $event)"
-          />
+          <InputField v-show="showLocalConfig" :isSecret="false" labelText="API Endpoint:"
+            :placeholderText="'Enter the base API Endpoint URL'" inputId="local-model-endpoint"
+            :value="localModelEndpoint" @update:value="update('localModelEndpoint', $event)" />
           <div class="control select-dropdown">
             <label for="custom-model-selector">Models Available:</label>
-            <select id="custom-model-selector" :value="localModelName" @change="update('localModelName', $event.target.value)">
+            <select id="custom-model-selector" :value="localModelName"
+              @change="update('localModelName', $event.target.value)">
               <option v-for="model in availableModels" :key="model" :value="model">{{ model }}</option>
             </select>
           </div>
-          <InputField
-            v-show="showLocalConfig"
-            :isSecret="true"
-            labelText="API Key:"
-            :placeholderText="'Enter the API key if applicable'"
-            inputId="local-model-key"
-            :value="localModelKey"
-            @update:value="update('localModelKey', $event)"
-          />
-          <InputField
-            v-show="showLocalConfig"
-            labelText="Max Tokens:"
-            :isSecret="false"
-            :placeholderText="'Enter the max token limit if applicable'"
-            inputId="max-tokens"
-            :value="maxTokens.toString()"
-            @update:value="update('maxTokens', $event)"
-          />
-          <InputField
-            v-show="showLocalConfig || showBrowserModelConfig"
-            labelText="Temperature (0.0-2.0):"
-            :isSecret="false"
-            :placeholderText="'Enter the temperature value for the model.'"
-            inputId="localSliderValue"
-            :value="localSliderValue.toString()"
-            @update:value="update('localSliderValue', $event)"
-          />
+          <InputField v-show="showLocalConfig" :isSecret="true" labelText="API Key:"
+            :placeholderText="'Enter the API key if applicable'" inputId="local-model-key" :value="localModelKey"
+            @update:value="update('localModelKey', $event)" />
+          <InputField v-show="showLocalConfig" labelText="Max Tokens:" :isSecret="false"
+            :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
+            :value="maxTokens.toString()" @update:value="update('maxTokens', $event)" />
+          <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Temperature (0.0-2.0):"
+            :isSecret="false" :placeholderText="'Enter the temperature value for the model.'" inputId="localSliderValue"
+            :value="localSliderValue.toString()" @update:value="update('localSliderValue', $event)" />
           <div class="slider-container">
             <span>Serious</span>
-            <input type="range" min="0" max="2" step="0.01" :value="localSliderValue" @input="updateLocalSliderValue($event.target.value)" />
+            <input type="range" min="0" max="2" step="0.01" :value="localSliderValue"
+              @input="updateLocalSliderValue($event.target.value)" />
             <span>Creative</span>
           </div>
-          <InputField
-            v-show="showLocalConfig || showBrowserModelConfig"
-            labelText="Top_P Value (0.0-1.0):"
-            :isSecret="false"
-            :placeholderText="'Enter the top_P value if applicable'"
-            inputId="top_P"
-            :value="top_P.toString()"
-            @update:value="update('top_P', $event)"
-          />
+          <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Top_P Value (0.0-1.0):"
+            :isSecret="false" :placeholderText="'Enter the top_P value if applicable'" inputId="top_P"
+            :value="top_P.toString()" @update:value="update('top_P', $event)" />
           <div class="slider-container">
             <span>Lower</span>
-            <input type="range" min="0" max="1" step="0.01" :value="top_P" @input="updateTopPSliderValue($event.target.value)" />
+            <input type="range" min="0" max="1" step="0.01" :value="top_P"
+              @input="updateTopPSliderValue($event.target.value)" />
             <span>Higher</span>
           </div>
-          <InputField
-            v-show="showLocalConfig || showBrowserModelConfig"
-            labelText="Repetition Penalty (0.0-2.0):"
-            :isSecret="false"
-            :placeholderText="'Enter the repetition penalty value if applicable'"
-            inputId="repetitionPenalty"
-            :value="repetitionPenalty.toString()"
-            @update:value="update('repetitionPenalty', $event)"
-          />
+          <InputField v-show="showLocalConfig || showBrowserModelConfig" labelText="Repetition Penalty (0.0-2.0):"
+            :isSecret="false" :placeholderText="'Enter the repetition penalty value if applicable'"
+            inputId="repetitionPenalty" :value="repetitionPenalty.toString()"
+            @update:value="update('repetitionPenalty', $event)" />
           <div class="slider-container">
             <span>Less</span>
-            <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty" @input="updateRepetitionSliderValue($event.target.value)" />
+            <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
+              @input="updateRepetitionSliderValue($event.target.value)" />
             <span>More</span>
           </div>
         </div>
         <div class="saved-custom-configs">
           <h4>Saved Custom Configs:</h4>
           <ul>
-            <li
-              v-for="(config, index) in customConfigs"
-              :key="index"
-              :class="{ selected: index === selectedCustomConfigIndex }"
-              @click="selectCustomConfig(index)"
-            >
+            <li v-for="(config, index) in customConfigs" :key="index"
+              :class="{ selected: index === selectedCustomConfigIndex }" @click="selectCustomConfig(index)">
               {{ config.endpoint }}
               <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteCustomConfig(index)" />
             </li>
@@ -459,17 +420,12 @@ const updateRepetitionSliderValue = (value) => {
           <span class="indicator">{{ isGPTConfigOpen ? '-' : '+' }}</span>
         </h3>
         <div v-show="isGPTConfigOpen" class="control-grid">
-          <InputField
-            :labelText="'API Key'"
-            :isSecret="true"
-            :placeholderText="'Enter the API Key'"
-            inputId="api-key"
-            :value="gptKey"
-            @update:value="update('gptKey', $event)"
-          />
+          <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'" inputId="api-key"
+            :value="gptKey" @update:value="update('gptKey', $event)" />
           <div class="slider-container">
             <span>Serious</span>
-            <input type="range" min="0" max="100" :value="sliderValue" @blur="update('sliderValue', $event.target.value)" />
+            <input type="range" min="0" max="100" :value="sliderValue"
+              @blur="update('sliderValue', $event.target.value)" />
             <span>Creative</span>
           </div>
         </div>
@@ -481,17 +437,12 @@ const updateRepetitionSliderValue = (value) => {
           <span class="indicator">{{ isClaudeConfigOpen ? '-' : '+' }}</span>
         </h3>
         <div v-show="isClaudeConfigOpen" class="control-grid">
-          <InputField
-            :labelText="'API Key'"
-            :isSecret="true"
-            :placeholderText="'Enter the API Key'"
-            inputId="claude-api-key"
-            :value="claudeKey"
-            @update:value="update('claudeKey', $event)"
-          />
+          <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
+            inputId="claude-api-key" :value="claudeKey" @update:value="update('claudeKey', $event)" />
           <div class="slider-container">
             <span>Serious</span>
-            <input type="range" min="0" max="100" :value="claudeSliderValue" @blur="update('claudeSliderValue', $event.target.value)" />
+            <input type="range" min="0" max="100" :value="claudeSliderValue"
+              @blur="update('claudeSliderValue', $event.target.value)" />
             <span>Creative</span>
           </div>
         </div>
@@ -505,17 +456,15 @@ const updateRepetitionSliderValue = (value) => {
         <div v-show="isDALLEConfigOpen" class="control-grid">
           <div class="control select-dropdown">
             <label for="dalle-image-count">DALL-E Image Count:</label>
-            <select id="dalle-image-count" :value="selectedDallEImageCount" @change="update('selectedDallEImageCount', $event.target.value)">
+            <select id="dalle-image-count" :value="selectedDallEImageCount"
+              @change="update('selectedDallEImageCount', $event.target.value)">
               <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
             </select>
           </div>
           <div class="control select-dropdown">
             <label for="dalle-image-resolution">Image Resolution:</label>
-            <select
-              id="dalle-image-resolution"
-              :value="selectedDallEImageResolution"
-              @change="update('selectedDallEImageResolution', $event.target.value)"
-            >
+            <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
+              @change="update('selectedDallEImageResolution', $event.target.value)">
               <option value="256x256">256x256</option>
               <option value="512x512">512x512</option>
               <option value="1024x1024">1024x1024</option>
@@ -532,25 +481,61 @@ const updateRepetitionSliderValue = (value) => {
           <h4>
             Manage Settings
             <p class="config-info">
-              Export your current settings to a JSON file for backup or to easily set up the application on another device. You can also import
+              Export your current settings to a JSON file for backup or to easily set up the application on another
+              device. You can also import
               settings from a JSON file.
             </p>
           </h4>
 
           <div class="settings-list">
-            <div class="settings-item-button" @click="handleExportSettings(props, exportSettingsToFile)">
+            <div class="settings-item-button" @click="
+              handleExportSettings(
+                {
+                  shouldShowScrollButton,
+                  userText,
+                  isLoading,
+                  hasFilterText,
+                  selectedModel,
+                  isSidebarOpen,
+                  showConversationOptions,
+                  messages,
+                  streamedMessageText,
+                  modelDisplayName,
+                  localModelKey,
+                  localModelName,
+                  localModelEndpoint,
+                  localSliderValue,
+                  gptKey,
+                  sliderValue,
+                  claudeKey,
+                  claudeSliderValue,
+                  selectedDallEImageCount,
+                  selectedDallEImageResolution,
+                  selectedAutoSaveOption,
+                  browserModelSelection,
+                  maxTokens,
+                  top_P,
+                  repetitionPenalty,
+                  systemPrompt,
+                  conversations,
+                  storedConversations,
+                  lastLoadedConversationId,
+                  selectedConversation,
+                  abortController,
+                  imageInput,
+                },
+                exportSettingsToFile
+              )
+              ">
               <span class="action-text">Export Settings</span>
               <Download :stroke-width="1.5" />
             </div>
             <label class="settings-item-button">
               <span class="action-text">Import Settings</span>
               <Upload :stroke-width="1.5" />
-              <input
-                type="file"
-                accept=".json"
+              <input type="file" accept=".json"
                 @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))"
-                style="display: none"
-              />
+                style="display: none" />
             </label>
           </div>
         </div>
@@ -794,6 +779,8 @@ $bottom-panel-border-color: #5f4575cf;
       background-color: $primary-bg-color;
       border-radius: 4px;
       margin-bottom: 8px;
+      max-height: 6vh;
+      overflow: hidden;
 
       &.selected {
         background-color: $highlight-bg-color;
