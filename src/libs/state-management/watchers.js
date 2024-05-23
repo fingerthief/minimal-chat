@@ -1,8 +1,8 @@
 // watchers.js
 import { watch } from 'vue';
-import { unloadModel, removeAPIEndpoints } from '@/libs/utils';
-import { engine, loadNewModel } from '@/libs/web-llm-access';
-import { modelSettings, MODEL_TYPES, defaultSettings } from '@/libs/constants';
+import { unloadModel, removeAPIEndpoints } from '@/libs/utils/general-utils';
+import { engine, loadNewModel } from '@/libs/api-access/web-llm-access';
+import { modelSettings, MODEL_TYPES, defaultSettings } from '@/libs/utils/constants';
 import {
     selectedModel,
     modelDisplayName,
@@ -23,7 +23,7 @@ import {
     selectedDallEImageResolution,
     selectedAutoSaveOption,
     localModelEndpoint,
-} from '@/libs/state';
+} from '@/libs/state-management/state';
 
 export function setupWatchers() {
     watch(selectedModel, (newValue) => {

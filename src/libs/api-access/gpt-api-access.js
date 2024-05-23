@@ -1,4 +1,4 @@
-import { showToast, sleep, parseStreamResponseChunk } from './utils';
+import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
 
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;

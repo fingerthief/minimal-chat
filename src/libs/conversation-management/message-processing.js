@@ -1,12 +1,13 @@
 // message-sending.js
 
 import { ref } from 'vue';
-import { streamClaudeResponse } from '@/libs/claude-api-access';
-import { showToast } from '@/libs/utils';
-import { sendBrowserLoadedModelMessage } from '@/libs/web-llm-access';
-import { fetchLocalModelResponseStream } from './open-ai-api-standard-access';
-import { fetchGPTResponseStream, generateDALLEImage } from './gpt-api-access';
-
+import { streamClaudeResponse } from '@/libs/api-access/claude-api-access';
+import { showToast } from '@/libs/utils/general-utils';
+import { sendBrowserLoadedModelMessage } from '@/libs/api-access/web-llm-access';
+import { fetchLocalModelResponseStream } from '../api-access/open-ai-api-standard-access';
+import { fetchGPTResponseStream, generateDALLEImage } from '../api-access/gpt-api-access';
+import { setSystemPrompt } from './conversations-management';
+import { systemPrompt, messages } from '../state-management/state';
 const isLoading = ref(false);
 const abortController = ref(null);
 
@@ -105,6 +106,16 @@ export async function sendGPTMessage(messages, selectedModel, sliderValue, local
 export async function sendBrowserModelMessage(messages, updateUI) {
   await sendBrowserLoadedModelMessage(messages, updateUI);
 }
+
+export async function addMessage(role, message) {
+  setSystemPrompt(messages.value, systemPrompt.value);
+
+  const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
+  const newMessageId = maxId + 1;
+
+  messages.value.push({ id: newMessageId, role, content: message });
+}
+
 
 export async function sendVisionPrompt(imageInputElement) {
   imageInputElement.click();

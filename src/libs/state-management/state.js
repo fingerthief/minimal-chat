@@ -1,7 +1,7 @@
 // state.js
 import { ref } from 'vue';
-import { loadConversationTitles, loadStoredConversations } from '@/libs/gpt-api-access';
-import { removeAPIEndpoints } from '@/libs/utils';
+import { loadConversationTitles, loadStoredConversations } from '@/libs/api-access/gpt-api-access';
+import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 
 export const shouldShowScrollButton = ref(false);
 export const userText = ref('');

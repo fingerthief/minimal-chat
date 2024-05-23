@@ -1,8 +1,8 @@
-import { fetchGPTResponseStream } from './gpt-api-access';
-import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from './open-ai-api-standard-access';
-import { streamClaudeResponse, fetchClaudeConversationTitle } from './claude-api-access';
-import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle } from './web-llm-access';
-import { getConversationTitleFromGPT } from '@/libs/utils';
+import { fetchGPTResponseStream } from '../api-access/gpt-api-access';
+import { fetchLocalModelResponseStream, getConversationTitleFromLocalModel } from '../api-access/open-ai-api-standard-access';
+import { streamClaudeResponse, fetchClaudeConversationTitle } from '../api-access/claude-api-access';
+import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle } from '../api-access/web-llm-access';
+import { getConversationTitleFromGPT } from '@/libs/utils/general-utils';
 
 export async function createNewConversationWithTitle(messages, selectedModel, localModelName, localModelEndpoint, sliderValue) {
   if (selectedModel.indexOf('claude') !== -1) {

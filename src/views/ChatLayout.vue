@@ -3,22 +3,22 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
-import { showToast, determineModelDisplayName, updateUI, handleDoubleClick } from '@/libs/utils';
+import { showToast, determineModelDisplayName, updateUI, handleDoubleClick, swipedLeft, swipedRight } from '@/libs/utils/general-utils';
 import {
   setSystemPrompt,
   deleteMessageFromHistory,
   regenerateMessageResponse,
   editPreviousMessage as EditPreviousMessageValue,
   handleExportConversations
-} from '@/libs/conversations-management';
-import { uploadFileContentsToCoversation, uploadFile, imageInputChanged } from '@/libs/file-processing';
-import { sendMessage, visionimageUploadClick } from '@/libs/message-processing';
+} from '@/libs/conversation-management/conversations-management';
+import { uploadFileContentsToCoversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
+import { sendMessage, visionimageUploadClick } from '@/libs/conversation-management/message-processing';
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
 import chatHeader from '@/components/chat-header.vue';
 import settingsDialog from '@/components/settings-dialog.vue';
 import conversationsDialog from '@/components/conversations-dialog.vue';
-import { engine } from '@/libs/web-llm-access';
+import { engine } from '@/libs/api-access/web-llm-access';
 import {
   shouldShowScrollButton,
   userText,
@@ -48,9 +48,9 @@ import {
   systemPrompt,
   abortController,
   imageInput,
-} from '@/libs/state';
-import { setupWatchers } from '@/libs/watchers';
-import { useConversations } from '@/libs/useConversations';
+} from '@/libs/state-management/state';
+import { setupWatchers } from '@/libs/state-management/watchers';
+import { useConversations } from '@/libs/conversation-management/useConversations';
 
 //#region UI Updates
 const updateUserText = (newText) => {
@@ -226,18 +226,6 @@ async function imageInputChangedHandler(event) {
 }
 //#endregion
 
-//#region Swipe Events
-function swipedLeft(event) {
-  isSidebarOpen.value = false;
-  showConversationOptions.value = !showConversationOptions.value;
-}
-
-function swipedRight(event) {
-  showConversationOptions.value = false;
-  isSidebarOpen.value = !isSidebarOpen.value;
-}
-//#endregion
-
 //#region Utils
 const refs = {
   selectedModel,
@@ -302,24 +290,9 @@ const sidebarContentContainer = ref(null);
 onUnmounted(() => {
   document.removeEventListener('click', handleGlobalClick);
 });
-
-function convertConversations(oldConversations) {
-  return oldConversations.map((oldConversation) => ({
-    id: oldConversation.id,
-    title: oldConversation?.conversation?.title,
-    messageHistory: oldConversation?.conversation?.messageHistory,
-  }));
-}
 //#endregion
 
 onMounted(() => {
-  if (!localStorage.getItem('hasConvertedConversations')) {
-    let oldConversationsStyle = loadConversationTitles();
-    localStorage.setItem('gpt-conversations', JSON.stringify(convertConversations(oldConversationsStyle)));
-    conversations.value = loadConversationTitles();
-    localStorage.setItem('hasConvertedConversations', true);
-  }
-
   sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
   sidebarContentContainer.value.style.width = '420px';
   selectedModel.value = localStorage.getItem('selectedModel') || 'gpt-4o';

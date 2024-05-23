@@ -1,13 +1,13 @@
 import { ref } from 'vue';
-import { loadConversationTitles, loadStoredConversations } from '@/libs/gpt-api-access';
-import { showToast } from '@/libs/utils';
+import { loadConversationTitles, loadStoredConversations } from '@/libs/api-access/gpt-api-access';
+import { showToast } from '@/libs/utils/general-utils';
 import {
     deleteConversation,
     saveMessages,
     selectConversation,
     editConversationTitle as editConversationTitleInManagement,
-} from '@/libs/conversations-management';
-import { messages, showConversationOptions } from '@/libs/state';
+} from '@/libs/conversation-management/conversations-management';
+import { messages, showConversationOptions } from '@/libs/state-management/state';
 
 export function useConversations() {
     const conversations = ref(loadConversationTitles());

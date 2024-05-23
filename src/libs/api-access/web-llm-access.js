@@ -1,5 +1,5 @@
 import * as webllm from '@mlc-ai/web-llm';
-import { showToast } from './utils';
+import { showToast } from '../utils/general-utils';
 
 export let engine = undefined;
 
@@ -67,7 +67,7 @@ export async function sendBrowserLoadedModelMessage(messages, updateUI) {
 }
 
 export async function getBrowserLoadedModelConversationTitle(messages) {
-  const initProgressCallback = (report) => {};
+  const initProgressCallback = (report) => { };
 
   const selectedModel = localStorage.getItem('browserModelSelection');
 
