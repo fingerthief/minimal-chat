@@ -1,5 +1,10 @@
 name: Changelog Generator
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+
 jobs:
   changelog:
     name: Chanegelog Generator
@@ -8,4 +13,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: etcdigital/pull-request-changelog@master
         with:
-          token: ${{ secrets.TOKEN_TEST }}
+          token: ${{ secrets.GITHUB_TOKEN }}
