@@ -1,8 +1,8 @@
 <script setup>
-import { RefreshCcw, Download, Upload, Trash2, Save } from 'lucide-vue-next';
+import { RefreshCcw, Download, Upload, Trash2 } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
-import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/settings-utils';
+import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/utils/settings-utils';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import {
@@ -40,12 +40,11 @@ import {
   imageInput
 } from '@/libs/state-management/state'; // Import the state
 
+// Visibility states for collapsible config sections
 const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
 const showLocalConfig = ref(selectedModel.value.indexOf('open-ai-format') !== -1);
 const showClaudeConfig = ref(selectedModel.value.indexOf('claude') !== -1);
 const showBrowserModelConfig = ref(selectedModel.value.indexOf('web-llm') !== -1);
-
-// New visibility states for collapsible config sections
 const isGeneralConfigOpen = ref(true);
 const isBrowserModelConfigOpen = ref(true);
 const isLocalConfigOpen = ref(true);
@@ -54,9 +53,10 @@ const isDALLEConfigOpen = ref(true);
 const isClaudeConfigOpen = ref(true);
 const isImportExportConfigOpen = ref(true);
 
+// Available models
 const availableModels = ref([]);
 
-const fetchAvailableModels = async () => {
+async function fetchAvailableModels() {
   try {
     if (localModelEndpoint.value.trim() !== '') {
       const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
@@ -65,8 +65,9 @@ const fetchAvailableModels = async () => {
   } catch (error) {
     console.error('Error fetching available models:', error);
   }
-};
+}
 
+// Watchers
 watch(
   () => [localModelKey.value, selectedModel.value],
   () => {
@@ -80,10 +81,11 @@ watch(
   }
 );
 
+// System Prompts
 const systemPrompts = ref([]);
 const selectedSystemPromptIndex = ref(null);
 
-const saveSystemPrompt = (prompt) => {
+function saveSystemPrompt(prompt) {
   if (prompt !== '') {
     const trimmedPrompt = prompt.trim();
     if (!systemPrompts.value.includes(trimmedPrompt)) {
@@ -95,23 +97,22 @@ const saveSystemPrompt = (prompt) => {
   } else {
     selectedSystemPromptIndex.value = -1;
   }
-};
-
-const deleteSystemPrompt = (index) => {
+}
+function deleteSystemPrompt(index) {
   systemPrompts.value.splice(index, 1);
   localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
   showToast('Deleted System Prompt');
-};
-
-const selectSystemPrompt = (index) => {
+}
+function selectSystemPrompt(index) {
   selectedSystemPromptIndex.value = index;
   systemPrompt.value = systemPrompts.value[index];
-};
+}
 
+// Custom Configs
 const customConfigs = ref([]);
 const selectedCustomConfigIndex = ref(null);
 
-const saveCustomConfig = () => {
+function saveCustomConfig() {
   if (localModelEndpoint.value.trim() === '') {
     return;
   }
@@ -119,7 +120,7 @@ const saveCustomConfig = () => {
   const newConfig = {
     endpoint: localModelEndpoint.value,
     apiKey: localModelKey.value,
-    modelName: localModelName.value, // Include the last selected model name
+    modelName: localModelName.value,
     maxTokens: maxTokens.value,
     temperature: localSliderValue.value,
     top_P: top_P.value,
@@ -137,15 +138,13 @@ const saveCustomConfig = () => {
   }
 
   localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
-};
-
-const deleteCustomConfig = (index) => {
+}
+function deleteCustomConfig(index) {
   customConfigs.value.splice(index, 1);
   localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
   showToast('Deleted Custom Config');
-};
-
-const selectCustomConfig = (index) => {
+}
+function selectCustomConfig(index) {
   selectedCustomConfigIndex.value = index;
   const config = customConfigs.value[index];
   localModelEndpoint.value = config.endpoint;
@@ -156,7 +155,6 @@ const selectCustomConfig = (index) => {
   top_P.value = config.top_P;
   repetitionPenalty.value = config.repetitionPenalty;
 
-  // Update the selected model to match the newly updated model name
   const modelSelector = document.getElementById('custom-model-selector');
   if (modelSelector) {
     const options = Array.from(modelSelector.options);
@@ -165,8 +163,9 @@ const selectCustomConfig = (index) => {
       modelSelector.value = matchingOption.value;
     }
   }
-};
+}
 
+// Lifecycle hooks
 onMounted(() => {
   if (selectedModel.value === 'open-ai-format') {
     fetchAvailableModels();
@@ -209,7 +208,8 @@ onMounted(() => {
   }
 });
 
-const update = (field, value) => {
+// Update function
+function update(field, value) {
   if (field === 'model') {
     showGPTConfig.value = value.indexOf('gpt') !== -1;
     showLocalConfig.value = value.indexOf('open-ai-format') !== -1;
@@ -248,8 +248,9 @@ const update = (field, value) => {
   if (field === 'claudeSliderValue') claudeSliderValue.value = value;
   if (field === 'selectedDallEImageCount') selectedDallEImageCount.value = value;
   if (field === 'selectedDallEImageResolution') selectedDallEImageResolution.value = value;
-};
+}
 
+// Utility functions
 function reloadPage() {
   window.location.reload();
 }
@@ -257,18 +258,15 @@ function reloadPage() {
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value;
 }
-
-const updateLocalSliderValue = (value) => {
+function updateLocalSliderValue(value) {
   update('localSliderValue', parseFloat(value));
-};
-
-const updateTopPSliderValue = (value) => {
+}
+function updateTopPSliderValue(value) {
   update('top_P', parseFloat(value));
-};
-
-const updateRepetitionSliderValue = (value) => {
+}
+function updateRepetitionSliderValue(value) {
   update('repetitionPenalty', parseFloat(value));
-};
+}
 </script>
 
 <template>
@@ -278,7 +276,7 @@ const updateRepetitionSliderValue = (value) => {
         <span @click="reloadPage">
           <RefreshCcw :size="23" :stroke-width="2" />
         </span>
-        Settings | V6.1.3
+        Settings | V6.1.4
       </h2>
     </div>
     <div class="sidebar-content-container">

@@ -6,24 +6,38 @@ import { conversations, selectedConversation, showConversationOptions, isSidebar
 import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
 import { selectConversation } from '@/libs/conversation-management/conversations-management';
+
+// State
 const loadedConversation = ref({});
-const conversationCharacterCount = (conversation) => {
+let initialConversation = '';
+
+// Emits
+const emit = defineEmits([
+  'import-conversations',
+  'export-conversations',
+]);
+
+// Helper Functions
+function conversationCharacterCount(conversation) {
   if (conversation) {
     const messageHistory = conversation.messageHistory;
     let totalCharacters = 0;
 
-    messageHistory.forEach((message) => {
+    for (let message of messageHistory) {
       totalCharacters += message.content.length;
-    });
+    }
 
-    return totalCharacters / 4; //rough estimation of characters to tokens
+    return totalCharacters / 4; // Rough estimation of characters to tokens
   }
   return 0;
-};
+}
 
-onMounted(() => {
+// Lifecycle Hooks
+onMounted(function () {
   const lastConversationId = parseInt(localStorage.getItem('lastConversationId')) || 0;
-  const lastConversation = conversations.value.find((conversation) => conversation.id === lastConversationId);
+  const lastConversation = conversations.value.find(function (conversation) {
+    return conversation.id === lastConversationId;
+  });
 
   // Only set loadedConversation if the conversation exists
   if (lastConversation) {
@@ -38,14 +52,8 @@ onMounted(() => {
   }
 });
 
-const emit = defineEmits([
-  'import-conversations',
-  'export-conversations',
-]);
-
-let initialConversation = '';
-
-const onEditConversationTitle = (conversation) => {
+// Event Handlers
+function onEditConversationTitle(conversation) {
   if (conversation.isEditing) {
     return;
   }
@@ -55,29 +63,29 @@ const onEditConversationTitle = (conversation) => {
   if (conversation.isEditing) {
     initialConversation = conversation;
 
-    nextTick(() => {
+    nextTick(function () {
       const messageContent = document.getElementById(`conversation-${conversations.value.indexOf(conversation)}`);
       if (messageContent) {
         messageContent.focus();
       }
     });
   }
-};
+}
 
-const saveEditedConversationTitle = (conversation, event) => {
+function saveEditedConversationTitle(conversation, event) {
   conversation.isEditing = false;
   const updatedContent = event.target.innerText.trim();
 
   if (updatedContent !== initialConversation.title.trim()) {
     editConversationTitle(initialConversation, updatedContent);
   }
-};
+}
 
 async function loadSelectedConversation(conversation) {
   loadedConversation.value = conversation;
   selectConversation(conversations.value, conversation.id, messages.value, lastLoadedConversationId.value, showToast);
   selectedConversation.value = conversation;
-  messages.value = conversation.messageHistory
+  messages.value = conversation.messageHistory;
 }
 
 async function startNewConversation() {
@@ -113,7 +121,6 @@ function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value;
 }
 </script>
-
 <template>
   <div class="resize-container">
     <div class="settings-header">

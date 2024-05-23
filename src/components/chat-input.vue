@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, defineEmits } from 'vue';
+import { ref, defineEmits } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import 'swiped-events';
@@ -12,30 +12,20 @@ import { sendMessage, visionimageUploadClick } from '@/libs/conversation-managem
 import { setSystemPrompt } from '@/libs/conversation-management/conversations-management';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { engine } from '@/libs/api-access/web-llm-access';
-// Define props and emits
-const props = defineProps({
-  userInput: String,
-});
-
+// Define emits
 const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt', 'upload-context']);
 // Local reactive state
-const localUserInput = ref(props.userInput);
-
 const userInputRef = ref(null);
 
-// Watch for changes in localUserInput and emit an event
-watch(localUserInput, (newVal) => {
-  emit('update:userInput', newVal);
-});
-
-// Methods
+// Methods for message handling
 async function sendNewMessage() {
   isLoading.value = true;
-  localUserInput.value = '';
+  const messagePrompt = userText.value;
+  userText.value = "";
 
   await sendMessage(
     event,
-    userText.value,
+    messagePrompt,
     messages.value,
     selectedModel.value,
     claudeSliderValue.value,
@@ -66,9 +56,9 @@ function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = tru
   updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
 }
 
-
+// Methods for UI interactions
 function autoResize() {
-  if (!localUserInput.value || localUserInput.value.trim() === '') {
+  if (!userText.value || userText.value.trim() === '') {
     userInputRef.value.style.height = '30px';
     return;
   }
@@ -82,8 +72,8 @@ function handleKeyDown(event) {
     if (event.ctrlKey) {
       event.preventDefault();
       const cursorPosition = event.target.selectionStart;
-      const text = localUserInput.value;
-      localUserInput.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
+      const text = userText.value;
+      userText.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
       userInputRef.value.selectionStart = userInputRef.value.selectionEnd = cursorPosition + 1;
       autoResize();
     } else {
@@ -93,6 +83,7 @@ function handleKeyDown(event) {
   }
 }
 
+// Methods for handling uploads and aborting streams
 async function visionImageUploadClickHandler() {
   await visionimageUploadClick(
     userText,
@@ -108,12 +99,12 @@ async function visionImageUploadClickHandler() {
     saveMessagesHandler,
     imageInput
   );
-  localUserInput.value = '';
+  userText.value = '';
 }
 
 function importFileUploadClick() {
   emit('upload-context');
-  localUserInput.value = '';
+  userText.value = '';
 }
 
 async function abortStream() {
@@ -129,14 +120,13 @@ async function abortStream() {
     isLoading.value = false;
   }
 }
-
 </script>
 
 <template>
   <form @submit.prevent="sendNewMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
     <div class="input-container">
-      <textarea class="user-input-text" id="user-input" rows="1" v-model="localUserInput" ref="userInputRef"
+      <textarea class="user-input-text" id="user-input" rows="1" v-model="userText" ref="userInputRef"
         :class="{ 'loading-border': isLoading }" @input="autoResize" @focus="autoResize" @blur="autoResize"
         @keydown="handleKeyDown" placeholder="Enter a prompt"></textarea>
       <div class="icons">

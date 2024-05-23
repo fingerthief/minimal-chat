@@ -4,9 +4,7 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
-import {
-  handleExportConversations
-} from '@/libs/conversation-management/conversations-management';
+import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
 import { uploadFileContentsToCoversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
 import messageItem from '@/components/message-item.vue';
 import chatInput from '@/components/chat-input.vue';
@@ -33,24 +31,12 @@ import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
 import { addMessage } from '@/libs/conversation-management/message-processing';
 
-//#region UI Updates
-const updateUserText = (newText) => {
-  userText.value = newText;
-};
-
-function toggleSidebar() {
-  event.stopPropagation();
-  isSidebarOpen.value = !isSidebarOpen.value;
-}
-//#endregion
-
 //#region Conversation Handling
 function handleImportConversations() {
   openFileSelector();
 }
 
-
-function showConversations() {
+function showConversations(event) {
   event.stopPropagation();
   showConversationOptions.value = !showConversationOptions.value;
 }
@@ -70,13 +56,13 @@ async function imageInputChangedHandler(event) {
 }
 //#endregion
 
-//#region Utils
+//#region Model Handling
 async function onModelChange(newModel) {
   selectedModel.value = newModel;
 }
 //#endregion
 
-//#region Global Click Handling
+//#region Global Event Handling
 function handleGlobalClick(event) {
   const settingsDialogElement = document.getElementById('settings-dialog');
   const conversationsDialogElement = document.getElementById('conversations-dialog');
@@ -88,15 +74,17 @@ function handleGlobalClick(event) {
     showConversationOptions.value = false;
   }
 }
+//#endregion
 
+//#region Lifecycle Hooks
 const sidebarContentContainer = ref(null);
 
 onUnmounted(() => {
   document.removeEventListener('click', handleGlobalClick);
 });
-//#endregion
 
 onMounted(() => {
+  setupWatchers();
   sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
   sidebarContentContainer.value.style.width = '420px';
 
@@ -107,8 +95,8 @@ onMounted(() => {
   selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
 
   document.addEventListener('click', handleGlobalClick);
-  setupWatchers();
 });
+//#endregion
 </script>
 
 <template>

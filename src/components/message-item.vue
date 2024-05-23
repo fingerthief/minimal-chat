@@ -1,10 +1,8 @@
-<!-- eslint-disable no-undef -->
-<!-- eslint-disable no-empty -->
 <script setup>
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
 import { RefreshCcw, Trash } from 'lucide-vue-next';
-import { defineEmits, ref, nextTick, computed, watch } from 'vue';
+import { ref, nextTick, computed, watch } from 'vue';
 import '/node_modules/highlight.js/scss/github-dark-dimmed.scss';
 import ToolTip from './ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
@@ -12,16 +10,19 @@ import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import {
-  isLoading, messages, systemPrompt, selectedModel, userText, claudeSliderValue, sliderValue, localModelName,
-  localSliderValue, localModelEndpoint, imageInput, conversations, abortController, streamedMessageText, selectedConversation, modelDisplayName
+  isLoading, messages, systemPrompt, selectedModel, sliderValue, localModelName,
+  localSliderValue, localModelEndpoint, conversations, abortController, streamedMessageText, selectedConversation, modelDisplayName
 } from '@/libs/state-management/state';
 import { setSystemPrompt, regenerateMessageResponse, editPreviousMessage, deleteMessageFromHistory } from '@/libs/conversation-management/conversations-management';
 import { updateUIWrapper } from '@/libs/utils/general-utils';
 
-const emit = defineEmits(['regenerate-response', 'delete-response', 'edit-message']);
+// Refs
 const loadingIcon = ref(-1);
+const messageList = ref(null);
+const scroller = ref(null);
 
-const formatMessage = (content) => {
+// Utility functions
+function formatMessage(content) {
   const md = new MarkdownIt({
     highlight: (str, lang) => {
       try {
@@ -37,11 +38,13 @@ const formatMessage = (content) => {
     .replace(/\n\s*<\/(ul|li)>/g, ' </$1>')
     .replace(/\n/g, '<br>')
     .replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
-};
+}
 
-const messageClass = (role) => (role === 'user' ? 'user message' : 'gpt message');
+function messageClass(role) {
+  return role === 'user' ? 'user message' : 'gpt message';
+}
 
-const copyText = (message) => {
+function copyText(message) {
   navigator.clipboard
     .writeText(message.content)
     .then(() => {
@@ -51,12 +54,16 @@ const copyText = (message) => {
     .catch((error) => {
       console.error('Failed to copy content: ', error);
     });
-};
+}
 
-const startLoading = (id) => (loadingIcon.value = id);
+function startLoading(id) {
+  loadingIcon.value = id;
+}
 
+// Message editing
 let initialMessage = '';
-const editMessage = (message) => {
+
+function editMessage(message) {
   if (message.role !== 'user' || message.isEditing) return;
   message.isEditing = true;
   initialMessage = message;
@@ -64,9 +71,9 @@ const editMessage = (message) => {
     const messageContent = document.getElementById(`message-${message.id}`);
     if (messageContent) messageContent.focus();
   });
-};
+}
 
-const saveEditedMessage = async (message, event) => {
+async function saveEditedMessage(message, event) {
   message.isEditing = false;
   const updatedContent = event.target.innerText.trim();
   if (updatedContent !== initialMessage.content.trim()) {
@@ -83,7 +90,6 @@ const saveEditedMessage = async (message, event) => {
       localSliderValue.value,
       localModelName.value,
       localModelEndpoint.value,
-      claudeSliderValue.value,
       updateUIWrapper,
       abortController,
       streamedMessageText
@@ -94,18 +100,18 @@ const saveEditedMessage = async (message, event) => {
     isLoading.value = false;
     saveMessagesHandler();
   }
-};
+}
 
+// Message filtering
 const filteredMessages = computed(() => messages.value.filter((message) => message.role !== 'system'));
 
-const messageList = ref(null);
-const scroller = ref(null);
-const scrollToBottom = async () => {
+// Scrolling
+async function scrollToBottom() {
   if (scroller.value && messageList.value) {
     await nextTick();
     scroller.value.scrollToItem(filteredMessages.value.length);
   }
-};
+}
 
 watch(
   () => [filteredMessages],
@@ -115,6 +121,7 @@ watch(
   { deep: true }
 );
 
+// Message actions
 async function regenerateMessage(content) {
   isLoading.value = true;
   setSystemPrompt(messages.value, systemPrompt.value);
@@ -128,7 +135,6 @@ async function regenerateMessage(content) {
     localSliderValue.value,
     localModelName.value,
     localModelEndpoint.value,
-    claudeSliderValue.value,
     updateUIWrapper,
     abortController,
     streamedMessageText
