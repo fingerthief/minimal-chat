@@ -5,8 +5,18 @@ import ToolTip from './ToolTip.vue';
 import 'swiped-events';
 import { swipedLeft, swipedRight, updateUI, showToast } from '@/libs/utils/general-utils';
 import {
-  isLoading, messages, systemPrompt, selectedModel, userText, claudeSliderValue, sliderValue, localModelName,
-  localSliderValue, localModelEndpoint, imageInput, abortController
+  isLoading,
+  messages,
+  systemPrompt,
+  selectedModel,
+  userText,
+  claudeSliderValue,
+  sliderValue,
+  localModelName,
+  localSliderValue,
+  localModelEndpoint,
+  imageInput,
+  abortController,
 } from '@/libs/state-management/state';
 import { sendMessage, visionimageUploadClick } from '@/libs/conversation-management/message-processing';
 import { setSystemPrompt } from '@/libs/conversation-management/conversations-management';
@@ -21,7 +31,7 @@ const userInputRef = ref(null);
 async function sendNewMessage() {
   isLoading.value = true;
   const messagePrompt = userText.value;
-  userText.value = "";
+  userText.value = '';
 
   await sendMessage(
     event,
@@ -123,12 +133,29 @@ async function abortStream() {
 </script>
 
 <template>
-  <form @submit.prevent="sendNewMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
-    data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
+  <form
+    @submit.prevent="sendNewMessage"
+    id="chat-form"
+    @swiped-left="swipedLeft"
+    @swiped-right="swipedRight"
+    data-swipe-threshold="15"
+    data-swipe-unit="vw"
+    data-swipe-timeout="250"
+  >
     <div class="input-container">
-      <textarea class="user-input-text" id="user-input" rows="1" v-model="userText" ref="userInputRef"
-        :class="{ 'loading-border': isLoading }" @input="autoResize" @focus="autoResize" @blur="autoResize"
-        @keydown="handleKeyDown" placeholder="Enter a prompt"></textarea>
+      <textarea
+        class="user-input-text"
+        id="user-input"
+        rows="1"
+        v-model="userText"
+        ref="userInputRef"
+        :class="{ 'loading-border': isLoading }"
+        @input="autoResize"
+        @focus="autoResize"
+        @blur="autoResize"
+        @keydown="handleKeyDown"
+        placeholder="Enter a prompt"
+      ></textarea>
       <div class="icons">
         <ToolTip :targetId="'imageButton'"> Upload image for vision processing </ToolTip>
         <div class="image-button" id="imageButton" @click="visionImageUploadClickHandler">

@@ -2,7 +2,15 @@
 import { onMounted, ref, computed, nextTick } from 'vue';
 import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
-import { conversations, selectedConversation, showConversationOptions, isSidebarOpen, messages, lastLoadedConversationId, storedConversations } from '@/libs/state-management/state';
+import {
+  conversations,
+  selectedConversation,
+  showConversationOptions,
+  isSidebarOpen,
+  messages,
+  lastLoadedConversationId,
+  storedConversations,
+} from '@/libs/state-management/state';
 import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
 import { selectConversation } from '@/libs/conversation-management/conversations-management';
@@ -12,10 +20,7 @@ const loadedConversation = ref({});
 let initialConversation = '';
 
 // Emits
-const emit = defineEmits([
-  'import-conversations',
-  'export-conversations',
-]);
+const emit = defineEmits(['import-conversations', 'export-conversations']);
 
 // Helper Functions
 function conversationCharacterCount(conversation) {
@@ -137,10 +142,16 @@ function toggleSidebar() {
     <div class="sidebar-content-container">
       <div class="scrollable-list">
         <ul>
-          <li v-for="(conversation, index) in conversations" :key="index" :id="'conversation-' + index"
-            :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
-            @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
-            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }">
+          <li
+            v-for="(conversation, index) in conversations"
+            :key="index"
+            :id="'conversation-' + index"
+            :contenteditable="conversation.isEditing"
+            @click="loadSelectedConversation(conversation)"
+            @dblclick="onEditConversationTitle(conversation)"
+            @blur="saveEditedConversationTitle(conversation, $event)"
+            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }"
+          >
             <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
             <span> &nbsp;{{ conversation.title }} </span>

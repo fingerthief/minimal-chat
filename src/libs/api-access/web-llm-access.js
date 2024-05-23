@@ -67,7 +67,7 @@ export async function sendBrowserLoadedModelMessage(messages, updateUI) {
 }
 
 export async function getBrowserLoadedModelConversationTitle(messages) {
-  const initProgressCallback = (report) => { };
+  const initProgressCallback = (report) => {};
 
   const selectedModel = localStorage.getItem('browserModelSelection');
 

@@ -26,11 +26,16 @@ function emitUpdate(event) {
     <!-- Render the label if labelText is provided -->
     <label :for="props.inputId" v-if="props.labelText">{{ props.labelText }}</label>
     <!-- Conditionally render input or textarea based on isMultiline -->
-    <input v-if="!props.isMultiline" :id="props.inputId" :value="props.value" @blur="emitUpdate"
-      :type="props.isSecret ? 'password' : props.type" :placeholder="props.placeholderText"
-      :autocomplete="props.isSecret ? 'off' : 'on'" />
-    <textarea v-else :id="props.inputId" :value="props.value" @blur="emitUpdate" :placeholder="props.placeholderText"
-      rows="4"></textarea>
+    <input
+      v-if="!props.isMultiline"
+      :id="props.inputId"
+      :value="props.value"
+      @blur="emitUpdate"
+      :type="props.isSecret ? 'password' : props.type"
+      :placeholder="props.placeholderText"
+      :autocomplete="props.isSecret ? 'off' : 'on'"
+    />
+    <textarea v-else :id="props.inputId" :value="props.value" @blur="emitUpdate" :placeholder="props.placeholderText" rows="4"></textarea>
   </div>
 </template>
 

@@ -116,7 +116,6 @@ export async function addMessage(role, message) {
   messages.value.push({ id: newMessageId, role, content: message });
 }
 
-
 export async function sendVisionPrompt(imageInputElement) {
   imageInputElement.click();
 }
