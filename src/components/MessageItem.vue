@@ -31,7 +31,6 @@ import {
   deleteMessageFromHistory,
 } from '@/libs/conversation-management/conversations-management';
 import { updateUIWrapper } from '@/libs/utils/general-utils';
-
 // Refs
 const loadingIcon = ref(-1);
 const messageList = ref(null);

@@ -14,7 +14,7 @@ import {
 import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
 import { selectConversation } from '@/libs/conversation-management/conversations-management';
-
+import { vAutoAnimate } from '@formkit/auto-animate';
 // State
 const loadedConversation = ref({});
 let initialConversation = '';
@@ -148,7 +148,7 @@ function toggleConversations() {
     </div>
     <div class="sidebar-content-container">
       <div class="scrollable-list">
-        <ul>
+        <ul v-auto-animate>
           <li v-for="(conversation, index) in conversations" :key="index" :id="'conversation-' + index"
             :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
             @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
