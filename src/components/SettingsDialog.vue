@@ -2,7 +2,13 @@
 import { RefreshCcw, Download, Upload, Trash2 } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
-import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/utils/settings-utils';
+import {
+  handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings, customConfigs,
+  selectedCustomConfigIndex,
+  saveCustomConfig,
+  deleteCustomConfig,
+  selectCustomConfig
+} from '@/libs/utils/settings-utils';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import {
@@ -109,60 +115,16 @@ function selectSystemPrompt(index) {
 }
 
 // Custom Configs
-const customConfigs = ref([]);
-const selectedCustomConfigIndex = ref(null);
-
-function saveCustomConfig() {
-  if (localModelEndpoint.value.trim() === '') {
-    return;
-  }
-
-  const newConfig = {
-    endpoint: localModelEndpoint.value,
-    apiKey: localModelKey.value,
-    modelName: localModelName.value,
-    maxTokens: maxTokens.value,
-    temperature: localSliderValue.value,
-    top_P: top_P.value,
-    repetitionPenalty: repetitionPenalty.value,
-  };
-
-  const existingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === newConfig.endpoint);
-
-  if (existingConfigIndex !== -1) {
-    customConfigs.value[existingConfigIndex] = newConfig;
-  } else {
-    customConfigs.value.push(newConfig);
-    selectedCustomConfigIndex.value = customConfigs.value.length - 1;
-    showToast('Saved New Custom Config');
-  }
-
-  localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
+function handleSaveCustomConfig() {
+  saveCustomConfig(localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty, showToast);
 }
-function deleteCustomConfig(index) {
-  customConfigs.value.splice(index, 1);
-  localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
-  showToast('Deleted Custom Config');
-}
-function selectCustomConfig(index) {
-  selectedCustomConfigIndex.value = index;
-  const config = customConfigs.value[index];
-  localModelEndpoint.value = config.endpoint;
-  localModelKey.value = config.apiKey;
-  localModelName.value = config.modelName;
-  maxTokens.value = config.maxTokens;
-  localSliderValue.value = config.temperature;
-  top_P.value = config.top_P;
-  repetitionPenalty.value = config.repetitionPenalty;
 
-  const modelSelector = document.getElementById('custom-model-selector');
-  if (modelSelector) {
-    const options = Array.from(modelSelector.options);
-    const matchingOption = options.find((option) => option.value === config.modelName);
-    if (matchingOption) {
-      modelSelector.value = matchingOption.value;
-    }
-  }
+function handleDeleteCustomConfig(index) {
+  deleteCustomConfig(index, showToast);
+}
+
+function handleSelectCustomConfig(index) {
+  selectCustomConfig(index, localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty);
 }
 
 // Lifecycle hooks
@@ -198,7 +160,7 @@ onMounted(() => {
         top_P.value = config.top_P;
         repetitionPenalty.value = config.repetitionPenalty;
 
-        selectCustomConfig(selectedCustomConfigIndex.value);
+        handleSelectCustomConfig(selectedCustomConfigIndex.value);
       }
     } else {
       console.log('No saved custom configs found.');
@@ -235,7 +197,7 @@ function update(field, value) {
     if (field === 'localModelKey') localModelKey.value = value;
 
     if (selectedCustomConfigIndex.value !== null) {
-      saveCustomConfig();
+      handleSaveCustomConfig();
     }
     return;
   }
@@ -406,9 +368,9 @@ function updateRepetitionSliderValue(value) {
           <h4>Saved Custom Configs:</h4>
           <ul>
             <li v-for="(config, index) in customConfigs" :key="index"
-              :class="{ selected: index === selectedCustomConfigIndex }" @click="selectCustomConfig(index)">
-              {{ config.endpoint }}
-              <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteCustomConfig(index)" />
+              :class="{ selected: index === selectedCustomConfigIndex }" @click="handleSelectCustomConfig(index)">
+              <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />
+              <span>&nbsp;&nbsp;{{ config.endpoint }}</span>
             </li>
           </ul>
         </div>
@@ -781,6 +743,7 @@ $bottom-panel-border-color: #5f4575cf;
       margin-bottom: 8px;
       max-height: 6vh;
       overflow: hidden;
+      text-align: left;
 
       &.selected {
         background-color: $highlight-bg-color;

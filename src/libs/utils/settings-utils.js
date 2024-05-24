@@ -1,4 +1,63 @@
 import { selectedModel } from "../state-management/state";
+import { ref } from 'vue';
+
+export const customConfigs = ref([]);
+export const selectedCustomConfigIndex = ref(null);
+
+export function saveCustomConfig(localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty, showToast) {
+  if (localModelEndpoint.value.trim() === '') {
+    return;
+  }
+
+  const newConfig = {
+    endpoint: localModelEndpoint.value,
+    apiKey: localModelKey.value,
+    modelName: localModelName.value,
+    maxTokens: maxTokens.value,
+    temperature: localSliderValue.value,
+    top_P: top_P.value,
+    repetitionPenalty: repetitionPenalty.value,
+  };
+
+  const existingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === newConfig.endpoint);
+
+  if (existingConfigIndex !== -1) {
+    customConfigs.value[existingConfigIndex] = newConfig;
+  } else {
+    customConfigs.value.push(newConfig);
+    selectedCustomConfigIndex.value = customConfigs.value.length - 1;
+    showToast('Saved New Custom Config');
+  }
+
+  localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
+}
+
+export function deleteCustomConfig(index, showToast) {
+  customConfigs.value.splice(index, 1);
+  localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
+  showToast('Deleted Custom Config');
+}
+
+export function selectCustomConfig(index, localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty) {
+  selectedCustomConfigIndex.value = index;
+  const config = customConfigs.value[index];
+  localModelEndpoint.value = config.endpoint;
+  localModelKey.value = config.apiKey;
+  localModelName.value = config.modelName;
+  maxTokens.value = config.maxTokens;
+  localSliderValue.value = config.temperature;
+  top_P.value = config.top_P;
+  repetitionPenalty.value = config.repetitionPenalty;
+
+  const modelSelector = document.getElementById('custom-model-selector');
+  if (modelSelector) {
+    const options = Array.from(modelSelector.options);
+    const matchingOption = options.find((option) => option.value === config.modelName);
+    if (matchingOption) {
+      modelSelector.value = matchingOption.value;
+    }
+  }
+}
 
 export function handleExportSettings(props, exportSettingsToFile) {
   const settingsData = {
