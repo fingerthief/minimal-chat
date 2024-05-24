@@ -459,7 +459,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
-$primary-bg-color: #0c1928;
+$primary-bg-color: #212121;
 $secondary-bg-color: #212121;
 $highlight-bg-color: #165951;
 $button-bg-color: #1a5951;
@@ -469,13 +469,13 @@ $delete-hover-color: #ff3333;
 $input-bg-color: #333;
 $input-hover-bg-color: #444;
 $input-focus-bg-color: #222;
-$header-bg-color: #0c1928;
+$header-bg-color: #212121;
 $close-btn-bg-color: #1e1e1e;
 $close-btn-hover-bg-color: #6f383889;
 $close-btn-active-bg-color: #2c3e50;
 $border-color: #1b6a72c4;
 $header-border-color: #583e72b5;
-$bottom-panel-bg-color: #0c1928;
+$bottom-panel-bg-color: #212121;
 $bottom-panel-border-color: #5f4575cf;
 
 .settings-dialog {

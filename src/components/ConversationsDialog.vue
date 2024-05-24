@@ -91,11 +91,15 @@ async function loadSelectedConversation(conversation) {
   selectConversation(conversations.value, conversation.id, messages.value, lastLoadedConversationId.value, showToast);
   selectedConversation.value = conversation;
   messages.value = conversation.messageHistory;
+
+  showConversationOptions.value = false;
 }
 
 async function startNewConversation() {
   selectedConversation.value = null;
   messages.value = [];
+
+  showConversationOptions.value = false;
 
   showToast('Conversation Saved');
 }
@@ -388,7 +392,7 @@ $shadow-color: #252629;
 
   .new-conversation-option {
     text-align: left;
-    background-color: #0d3937;
+    background-color: #0a1e24b0;
     color: #ffffff;
     font-weight: bold;
     border-radius: 5px;
