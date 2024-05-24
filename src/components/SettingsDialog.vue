@@ -184,7 +184,7 @@ onMounted(() => {
         <span @click="reloadPage">
           <RefreshCcw :size="23" :stroke-width="2" />
         </span>
-        Settings | V6.1.4
+        Settings | V6.1.5
       </h2>
     </div>
     <div class="sidebar-content-container">

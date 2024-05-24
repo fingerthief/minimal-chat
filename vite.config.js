@@ -4,9 +4,57 @@ import vue from '@vitejs/plugin-vue';
 import VueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
 import { compression } from 'vite-plugin-compression2';
+import fs from 'fs';
+import path from 'path';
+import sharp from 'sharp';
+
+// Get the directory name in ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Recursive function to get all image files in a directory and its subdirectories
+const getAllImageFiles = (dir) => {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  list.forEach((file) => {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    if (stat && stat.isDirectory()) {
+      results = results.concat(getAllImageFiles(filePath));
+    } else {
+      results.push(filePath);
+    }
+  });
+  return results;
+};
+
+// Function to generate icons array from images directory
+const generateIcons = async () => {
+  const imagesDir = path.resolve(__dirname, 'public/images');
+  const files = getAllImageFiles(imagesDir);
+  const icons = await Promise.all(files.map(async (file) => {
+    try {
+      const metadata = await sharp(file).metadata();
+      const { width, height, format } = metadata;
+      if (width === height && format === 'png') {
+        const icon = {
+          src: path.relative(path.resolve(__dirname, 'public'), file).replace(/\\/g, '/'),
+          sizes: `${width}x${height}`,
+          type: 'image/png'
+        };
+        if (file.includes('maskable')) {
+          icon.purpose = 'maskable';
+        }
+        return icon;
+      }
+    } catch (error) {
+      console.error(`Error processing file ${file}:`, error);
+    }
+  }));
+  return icons.filter(Boolean);
+};
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(async () => ({
   plugins: [
     vue(),
     VueDevTools(),
@@ -15,48 +63,14 @@ export default defineConfig({
       injectRegister: "auto",
       workbox: {
         maximumFileSizeToCacheInBytes: 8000000,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-stylesheets',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\//,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-              },
-            },
-          },
-        ],
       },
       manifest: {
-        name: 'My App',
-        short_name: 'App',
-        description: 'My awesome app',
-        theme_color: '#ffffff',
-        icons: [
-          {
-            src: 'icons/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'icons/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-        ],
+        name: 'MinimalChat',
+        short_name: 'MinimalChat',
+        description: 'A minimal but powerful LLM chat application',
+        theme_color: '#202124',
+        background_color: "#202124",
+        icons: await generateIcons(),
       },
     }),
     compression({
@@ -108,4 +122,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
