@@ -32,6 +32,7 @@ async function sendNewMessage() {
   isLoading.value = true;
   const messagePrompt = userText.value;
   userText.value = '';
+  autoResize();
 
   await sendMessage(
     event,
@@ -49,7 +50,6 @@ async function sendNewMessage() {
     imageInput.value
   );
 
-  autoResize();
   isLoading.value = false;
 }
 
@@ -133,29 +133,12 @@ async function abortStream() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="sendNewMessage"
-    id="chat-form"
-    @swiped-left="swipedLeft"
-    @swiped-right="swipedRight"
-    data-swipe-threshold="15"
-    data-swipe-unit="vw"
-    data-swipe-timeout="250"
-  >
+  <form @submit.prevent="sendNewMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
+    data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
     <div class="input-container">
-      <textarea
-        class="user-input-text"
-        id="user-input"
-        rows="1"
-        v-model="userText"
-        ref="userInputRef"
-        :class="{ 'loading-border': isLoading }"
-        @input="autoResize"
-        @focus="autoResize"
-        @blur="autoResize"
-        @keydown="handleKeyDown"
-        placeholder="Enter a prompt"
-      ></textarea>
+      <textarea class="user-input-text" id="user-input" rows="1" v-model="userText" ref="userInputRef"
+        :class="{ 'loading-border': isLoading }" @input="autoResize" @focus="autoResize" @blur="autoResize"
+        @keydown="handleKeyDown" placeholder="Enter a prompt"></textarea>
       <div class="icons">
         <ToolTip :targetId="'imageButton'"> Upload image for vision processing </ToolTip>
         <div class="image-button" id="imageButton" @click="visionImageUploadClickHandler">
@@ -210,6 +193,7 @@ $icon-color: rgb(187, 187, 187);
     align-items: center;
     position: absolute;
     right: 20px;
+    top: 15px;
   }
 
   .image-button,

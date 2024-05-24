@@ -1,26 +1,164 @@
 import { selectedModel } from "../state-management/state";
+import { ref } from 'vue';
+import { isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
+import { showToast } from "./general-utils";
 
-export function handleExportSettings(props, exportSettingsToFile) {
+export const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
+export const showLocalConfig = ref(selectedModel.value.indexOf('open-ai-format') !== -1);
+export const showClaudeConfig = ref(selectedModel.value.indexOf('claude') !== -1);
+export const showBrowserModelConfig = ref(selectedModel.value.indexOf('web-llm') !== -1);
+
+export function update(field, value) {
+  if (field === 'model') {
+    showGPTConfig.value = value.indexOf('gpt') !== -1;
+    showLocalConfig.value = value.indexOf('open-ai-format') !== -1;
+    showClaudeConfig.value = value.indexOf('claude') !== -1;
+    showBrowserModelConfig.value = value.indexOf('web-llm') !== -1;
+    selectedModel.value = value;
+    return;
+  }
+
+  if (field === 'systemPrompt') {
+    systemPrompt.value = value;
+    saveSystemPrompt(value);
+    return;
+  }
+
+  if (['localModelName', 'localSliderValue', 'top_P', 'repetitionPenalty', 'maxTokens', 'localModelEndpoint', 'localModelKey'].includes(field)) {
+    if (field === 'localModelName') localModelName.value = value;
+    if (field === 'localSliderValue') localSliderValue.value = value;
+    if (field === 'top_P') top_P.value = value;
+    if (field === 'repetitionPenalty') repetitionPenalty.value = value;
+    if (field === 'maxTokens') maxTokens.value = value;
+    if (field === 'localModelEndpoint') localModelEndpoint.value = value;
+    if (field === 'localModelKey') localModelKey.value = value;
+
+    if (selectedCustomConfigIndex.value !== null) {
+      saveCustomConfig();
+    }
+    return;
+  }
+
+  if (field === 'selectedAutoSaveOption') selectedAutoSaveOption.value = value;
+  if (field === 'browserModelSelection') browserModelSelection.value = value;
+  if (field === 'gptKey') gptKey.value = value;
+  if (field === 'sliderValue') sliderValue.value = value;
+  if (field === 'claudeKey') claudeKey.value = value;
+  if (field === 'claudeSliderValue') claudeSliderValue.value = value;
+  if (field === 'selectedDallEImageCount') selectedDallEImageCount.value = value;
+  if (field === 'selectedDallEImageResolution') selectedDallEImageResolution.value = value;
+  if (field === 'customConfigs') customConfigs.value = value;
+  if (field === 'systemPrompts') systemPrompts.value = value;
+}
+
+export const systemPrompts = ref([]);
+export const selectedSystemPromptIndex = ref(null);
+
+export function saveSystemPrompt(prompt) {
+  if (prompt !== '') {
+    const trimmedPrompt = prompt.trim();
+    if (!systemPrompts.value.includes(trimmedPrompt)) {
+      systemPrompts.value.push(trimmedPrompt);
+      localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
+      selectedSystemPromptIndex.value = systemPrompts.value.length - 1;
+      showToast('Added New System Prompt');
+    }
+  } else {
+    selectedSystemPromptIndex.value = -1;
+  }
+}
+
+export function deleteSystemPrompt(index) {
+  systemPrompts.value.splice(index, 1);
+  localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));
+  showToast('Deleted System Prompt');
+}
+
+export function selectSystemPrompt(index) {
+  selectedSystemPromptIndex.value = index;
+  systemPrompt.value = systemPrompts.value[index];
+}
+
+export const customConfigs = ref([]);
+export const selectedCustomConfigIndex = ref(null);
+
+export function saveCustomConfig() {
+  if (localModelEndpoint.value.trim() === '') {
+    return;
+  }
+
+  const newConfig = {
+    endpoint: localModelEndpoint.value,
+    apiKey: localModelKey.value,
+    modelName: localModelName.value,
+    maxTokens: maxTokens.value,
+    temperature: localSliderValue.value,
+    top_P: top_P.value,
+    repetitionPenalty: repetitionPenalty.value,
+  };
+
+  const existingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === newConfig.endpoint);
+
+  if (existingConfigIndex !== -1) {
+    customConfigs.value[existingConfigIndex] = newConfig;
+  } else {
+    customConfigs.value.push(newConfig);
+    selectedCustomConfigIndex.value = customConfigs.value.length - 1;
+    showToast('Saved New Custom Config');
+  }
+
+  localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
+}
+
+export function deleteCustomConfig(index) {
+  customConfigs.value.splice(index, 1);
+  localStorage.setItem('saved-custom-configs', JSON.stringify(customConfigs.value));
+  showToast('Deleted Custom Config');
+}
+
+export function selectCustomConfig(index) {
+  selectedCustomConfigIndex.value = index;
+  const config = customConfigs.value[index];
+  localModelEndpoint.value = config.endpoint;
+  localModelKey.value = config.apiKey;
+  localModelName.value = config.modelName;
+  maxTokens.value = config.maxTokens;
+  localSliderValue.value = config.temperature;
+  top_P.value = config.top_P;
+  repetitionPenalty.value = config.repetitionPenalty;
+
+  const modelSelector = document.getElementById('custom-model-selector');
+  if (modelSelector) {
+    const options = Array.from(modelSelector.options);
+    const matchingOption = options.find((option) => option.value === config.modelName);
+    if (matchingOption) {
+      modelSelector.value = matchingOption.value;
+    }
+  }
+}
+
+export function handleExportSettings() {
   const settingsData = {
-    isSidebarOpen: props.isSidebarOpen,
-    selectedModel: props.selectedModel,
-    localModelName: props.localModelName,
-    localModelEndpoint: props.localModelEndpoint,
-    localModelKey: props.localModelKey,
-    huggingFaceEndpoint: props.huggingFaceEndpoint,
-    localSliderValue: props.localSliderValue,
-    gptKey: props.gptKey,
-    sliderValue: props.sliderValue,
-    claudeKey: props.claudeKey,
-    claudeSliderValue: props.claudeSliderValue,
-    selectedDallEImageCount: props.selectedDallEImageCount,
-    selectedDallEImageResolution: props.selectedDallEImageResolution,
-    selectedAutoSaveOption: props.selectedAutoSaveOption,
-    browserModelSelection: props.browserModelSelection,
-    maxTokens: props.maxTokens,
-    top_P: props.top_P,
-    repetitionPenalty: props.repetitionPenalty,
-    systemPrompt: props.systemPrompt,
+    isSidebarOpen: isSidebarOpen.value,
+    selectedModel: selectedModel.value,
+    localModelName: localModelName.value,
+    localModelEndpoint: localModelEndpoint.value,
+    localModelKey: localModelKey.value,
+    localSliderValue: localSliderValue.value,
+    gptKey: gptKey.value,
+    sliderValue: sliderValue.value,
+    claudeKey: claudeKey.value,
+    claudeSliderValue: claudeSliderValue.value,
+    selectedDallEImageCount: selectedDallEImageCount.value,
+    selectedDallEImageResolution: selectedDallEImageResolution.value,
+    selectedAutoSaveOption: selectedAutoSaveOption.value,
+    browserModelSelection: browserModelSelection.value,
+    maxTokens: maxTokens.value,
+    top_P: top_P.value,
+    repetitionPenalty: repetitionPenalty.value,
+    systemPrompt: systemPrompt.value,
+    customConfigs: customConfigs.value,
+    systemPrompts: systemPrompts.value
   };
 
   exportSettingsToFile(settingsData);
@@ -50,6 +188,7 @@ export function handleImportSettings(event, importSettings) {
       importSettings(settingsData);
 
       selectedModel.value = "gpt-4o";
+      saveCustomConfig();
     };
     reader.readAsText(file);
   }

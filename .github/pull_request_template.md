@@ -1,21 +1,21 @@
-## Summary of Changes
+### Summary
 
 ---
 
-A summary of the changes being made and the general reasoning behind the changes.
+Short summary of the goal of this pull request.
 
-### General Changes List
-
----
-
--   Change 1 address the issue of...
--   Change 2 does...
-
-### Screenshot or GIF if Applicable
+### Key Changes
 
 ---
 
-Add the image or gif here.
+1. **Example Change:**
+   - Did some stuff and things.
+
+### Benefits
+
+---
+
+- short list of the benefits of the changes being made.
 
 ### Auto Generated Notes (Do Not Change)
 

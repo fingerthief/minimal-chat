@@ -146,7 +146,7 @@ onMounted(() => {
 $icon-color: rgb(187, 187, 187);
 $background-color: #1c1c1e;
 $container-bg-color: #212121;
-$sidebar-bg-color: #07161a;
+$sidebar-bg-color: #0c1928;
 $scrollbar-track-color: #665067;
 $scrollbar-thumb-color: #4f3d50;
 $scrollbar-thumb-hover-color: #5d455e;
@@ -402,36 +402,50 @@ pre {
 
   @media (max-width: 600px) {
     position: fixed;
-    transform: translateX(110%);
+    opacity: 0;
+    transform: translateX(110%) scale(0.8);
     border-right: 2px solid $border-color;
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-in-out;
     z-index: 1;
     width: 100vw;
 
     &.open {
+      opacity: 1;
       width: 100vw;
       height: 102vh;
+      transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.15s ease-in-out;
     }
   }
 }
 
 .sidebar-common {
-  width: 35vw;
+  width: 50vw;
   min-width: 25vw;
   max-width: 100vw;
   height: 100vh;
   position: fixed;
   top: 0;
-  transform: translateX(-100%);
+  transform: translateX(-100%) scale(0.8);
+  opacity: 0;
   border-right: 2px solid $border-color;
   z-index: 1;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-in-out;
+  /* Enhanced transition */
 
   @media (max-width: 600px) {
     width: 100vw;
+    transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.15s ease-in-out;
   }
 
   &.sidebar-right {
     right: 0;
-    transform: translateX(100%);
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+
+  &.open {
+    transform: translateX(0) scale(1);
+    opacity: 1;
   }
 }
 
