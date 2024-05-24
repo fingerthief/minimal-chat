@@ -1,6 +1,6 @@
 // watchers.js
 import { watch } from 'vue';
-import { unloadModel, removeAPIEndpoints } from '@/libs/utils/general-utils';
+import { unloadModel, removeAPIEndpoints, updateUIWrapper } from '@/libs/utils/general-utils';
 import { engine, loadNewModel } from '@/libs/api-access/web-llm-access';
 import { modelSettings, MODEL_TYPES, defaultSettings } from '@/libs/utils/constants';
 import {
