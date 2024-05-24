@@ -219,14 +219,14 @@ $shadow-color: #252629;
   position: relative;
   border-bottom: 1px solid #3d3d3d;
   padding: 10px 22px;
-  background-color: #151517;
+  background-color: #0c1928;
   text-align: left;
   white-space: nowrap;
 
   @media (max-width: 600px) {
     border-bottom: 5px solid #3d3d3d;
     padding: 25px 0;
-    background-color: #212121;
+    background-color: #0c1928;
     text-align: center;
   }
 }

@@ -68,8 +68,8 @@ export function setupWatchers() {
     { ref: selectedDallEImageCount, key: 'selectedDallEImageCount' },
     { ref: selectedDallEImageResolution, key: 'selectedDallEImageResolution' },
     { ref: selectedAutoSaveOption, key: 'selectedAutoSaveOption' },
-    { ref: customConfigs, key: 'saved-custom-configs' },
-    { ref: systemPrompts, key: 'system-prompts' },
+    // { ref: customConfigs, key: 'saved-custom-configs' },
+    // { ref: systemPrompts, key: 'system-prompts' },
   ];
 
   refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));

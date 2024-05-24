@@ -146,7 +146,7 @@ onMounted(() => {
 $icon-color: rgb(187, 187, 187);
 $background-color: #1c1c1e;
 $container-bg-color: #212121;
-$sidebar-bg-color: #07161a;
+$sidebar-bg-color: #0c1928;
 $scrollbar-track-color: #665067;
 $scrollbar-thumb-color: #4f3d50;
 $scrollbar-thumb-hover-color: #5d455e;
@@ -415,7 +415,7 @@ pre {
 }
 
 .sidebar-common {
-  width: 35vw;
+  width: 50vw;
   min-width: 25vw;
   max-width: 100vw;
   height: 100vh;
