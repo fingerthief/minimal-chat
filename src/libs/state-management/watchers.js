@@ -24,6 +24,7 @@ import {
   selectedAutoSaveOption,
   localModelEndpoint,
 } from '@/libs/state-management/state';
+import { customConfigs, systemPrompts } from '../utils/settings-utils';
 
 export function setupWatchers() {
   watch(selectedModel, (newValue) => {
@@ -67,6 +68,8 @@ export function setupWatchers() {
     { ref: selectedDallEImageCount, key: 'selectedDallEImageCount' },
     { ref: selectedDallEImageResolution, key: 'selectedDallEImageResolution' },
     { ref: selectedAutoSaveOption, key: 'selectedAutoSaveOption' },
+    { ref: customConfigs, key: 'saved-custom-configs' },
+    { ref: systemPrompts, key: 'system-prompts' },
   ];
 
   refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));
