@@ -63,10 +63,6 @@ export default defineConfig({
       algorithm: 'gzip',
       threshold: 0, // Compress all files, no size threshold
     }),
-    compression({
-      algorithm: 'brotliCompress',
-      threshold: 0, // Compress all files, no size threshold
-    }),
   ],
   resolve: {
     alias: {
@@ -76,14 +72,6 @@ export default defineConfig({
   build: {
     minify: 'terser', // Use Terser for more advanced minification
     terserOptions: {
-      compress: {
-        drop_console: true, // Remove console logs for smaller bundle size
-        drop_debugger: true, // Remove debugger statements
-        ecma: 2020, // Use modern ECMAScript features
-        module: true,
-        toplevel: true,
-        passes: 10, // Multiple passes for better compression
-      },
       format: {
         comments: false, // Remove comments
       },
