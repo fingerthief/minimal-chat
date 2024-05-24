@@ -111,7 +111,7 @@ async function saveEditedMessage(message, event) {
       streamedMessageText
     );
 
-    messages.value = [...result.baseMessages];
+    messages.value = result.baseMessages;
     selectedConversation.value.messageHistory = messages.value;
     isLoading.value = false;
     saveMessagesHandler();
@@ -170,49 +170,26 @@ async function deleteMessage(content) {
 
 <template>
   <div ref="messageList" class="message-list">
-    <DynamicScroller
-      :min-item-size="1200"
-      :buffer="1200"
-      ref="scroller"
-      class="scroller"
-      @emitUpdates="true"
-      :items="filteredMessages"
-      key-field="id"
-      v-slot="{ item, active }"
-    >
+    <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
+      :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
         <div v-if="active" :class="messageClass(item.role)">
           <div class="message-header">
-            <RefreshCcw
-              v-if="item.role === 'user'"
-              class="icon"
-              :id="'message-refresh-' + item.id"
-              :size="18"
+            <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + item.id" :size="18"
               :class="{ loading: isLoading && loadingIcon === item.id }"
-              @click.stop="regenerateMessage(item.content), startLoading(item.id)"
-            />
+              @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
-            <Trash
-              v-if="item.role === 'user'"
-              class="icon delete-icon"
-              :id="'message-trash-' + item.id"
-              :size="18"
-              @click.stop="deleteMessage(item.content), startLoading(item.id)"
-            />
+            <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + item.id" :size="18"
+              @click.stop="deleteMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
             <div class="label" @click="copyText(item)" :id="'message-label-' + item.id">
               {{ item.role === 'user' ? 'User' : modelDisplayName }}
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
           </div>
-          <div
-            class="message-contents"
-            :id="'message-' + item.id"
-            :contenteditable="item.isEditing"
-            @dblclick="editMessage(item)"
-            @blur="saveEditedMessage(item, $event)"
-            v-html="formatMessage(item.content)"
-          ></div>
+          <div class="message-contents" :id="'message-' + item.id" :contenteditable="item.isEditing"
+            @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)" v-html="formatMessage(item.content)">
+          </div>
           <ToolTip v-if="item.role === 'user'" :targetId="'message-' + item.id">Double click to edit message </ToolTip>
         </div>
       </DynamicScrollerItem>

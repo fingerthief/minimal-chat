@@ -68,9 +68,9 @@ export async function saveMessages() {
 
     const updatedConversations = createConversation(conversations.value, title, uniqueMessages);
 
-    messages.value = [...uniqueMessages];
+    messages.value = uniqueMessages;
 
-    conversations.value = [...updatedConversations];
+    conversations.value = updatedConversations;
 
     lastLoadedConversationId.value = updatedConversations[updatedConversations.length - 1].id;
     localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
@@ -80,7 +80,7 @@ export async function saveMessages() {
     return;
   }
 
-  updatedConversation.messageHistory = [...messages.value];
+  updatedConversation.messageHistory = messages.value;
 
   const result = updateConversation(conversations.value, updatedConversation.id, updatedConversation);
 
@@ -111,7 +111,7 @@ export function selectConversation(conversations, conversationId, messages, last
       return message;
     });
 
-    messages = [...processedMessages];
+    messages = processedMessages;
 
     return { conversations, messages, selectedConversation: conversation, lastLoadedConversationId, showConversationOptions: false };
   } else {
@@ -144,7 +144,7 @@ export async function regenerateMessageResponse(
     const messagesAfter = baseMessages.slice(messageIndex + 2);
     abortController.value = new AbortController();
 
-    messages.value = [...regenMessages];
+    messages.value = regenMessages;
 
     let response = '';
 
@@ -176,7 +176,7 @@ export async function regenerateMessageResponse(
     }
 
     // Append the response and any messages that existed after the messageIndex
-    baseMessages = [...regenMessages, { role: 'assistant', content: response }, ...messagesAfter];
+    baseMessages = [...regenMessages, ...messagesAfter];
     baseMessages = createUniqueMessagesWithIds(baseMessages);
   }
   return { conversations, baseMessages };
@@ -208,7 +208,7 @@ export async function editPreviousMessage(
 
     regenMessages[regenMessages.length - 1].content = newContent;
 
-    messages.value = [...regenMessages];
+    messages.value = regenMessages;
 
     let response = '';
     if (selectedModel.indexOf('gpt') !== -1) {
@@ -236,7 +236,7 @@ export async function editPreviousMessage(
       );
     }
 
-    baseMessages = [...regenMessages, { role: 'assistant', content: response }, ...messagesAfter];
+    baseMessages = [...regenMessages, ...messagesAfter];
     baseMessages = createUniqueMessagesWithIds(baseMessages);
   }
   return { conversations, baseMessages };
