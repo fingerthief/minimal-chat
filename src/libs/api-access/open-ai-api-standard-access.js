@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
+import { updateUI } from '../utils/general-utils';
+import { messages } from '../state-management/state';
+import { addMessage } from '../conversation-management/message-processing';
 
 let localStreamRetryCount = 0;
 export async function fetchLocalModelResponseStream(
@@ -47,12 +50,12 @@ export async function fetchLocalModelResponseStream(
   } catch (error) {
     if (error.name === 'AbortError') {
       showToast(`Stream Request Aborted.`);
-      return streamedMessageText.value;
+      return;
     }
 
     console.error('Error fetching Custom Model response:', error);
     showToast(`Stream Request Failed.`);
-    return streamedMessageText.value;
+    return;
   }
 }
 
@@ -239,7 +242,7 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
         decodedResult += content;
 
         if (updateUiFunction) {
-          updateUiFunction(content, autoScrollToBottom);
+          updateUI(content, messages.value, addMessage, autoScrollToBottom);
         }
       }
     }

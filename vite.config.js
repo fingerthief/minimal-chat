@@ -11,23 +11,67 @@ export default defineConfig({
     vue(),
     VueDevTools(),
     VitePWA({
-      registerType: "autoUpdate", injectRegister: "auto",
+      registerType: "autoUpdate",
+      injectRegister: "auto",
       workbox: {
-        maximumFileSizeToCacheInBytes: 8000000
-      }
+        maximumFileSizeToCacheInBytes: 8000000,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\//,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+        ],
+      },
+      manifest: {
+        name: 'My App',
+        short_name: 'App',
+        description: 'My awesome app',
+        theme_color: '#ffffff',
+        icons: [
+          {
+            src: 'icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
+      },
+    }),
+    compression({
+      algorithm: 'gzip',
+      threshold: 0, // Compress all files, no size threshold
     }),
     compression({
       algorithm: 'brotliCompress',
       threshold: 0, // Compress all files, no size threshold
-      compressionOptions: {
-        level: 11, // Maximum compression level for Brotli
-      }
-    })
+    }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
   build: {
     minify: 'terser', // Use Terser for more advanced minification
@@ -38,16 +82,15 @@ export default defineConfig({
         ecma: 2020, // Use modern ECMAScript features
         module: true,
         toplevel: true,
-        passes: 10 // Multiple passes for better compression
+        passes: 10, // Multiple passes for better compression
       },
       format: {
-        comments: false // Remove comments
-      }
+        comments: false, // Remove comments
+      },
     },
     target: 'esnext', // Target modern browsers for smaller bundle size
     cssCodeSplit: true, // Enable CSS code splitting
     sourcemap: false, // Disable source maps for production build
-    brotliSize: true, // Enable Brotli size reporting
     chunkSizeWarningLimit: 500, // Increase chunk size warning limit
     rollupOptions: {
       output: {
@@ -55,8 +98,14 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             return id.toString().split('node_modules/')[1].split('/')[0].toString();
           }
-        }
-      }
-    }
-  }
+          if (id.includes('/src/components/')) {
+            return 'components';
+          }
+          if (id.includes('/src/libs/')) {
+            return 'libs';
+          }
+        },
+      },
+    },
+  },
 });

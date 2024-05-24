@@ -6,11 +6,11 @@ import { ChevronDown } from 'lucide-vue-next';
 import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
 import { uploadFileContentsToCoversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
-import messageItem from '@/components/message-item.vue';
-import chatInput from '@/components/chat-input.vue';
-import chatHeader from '@/components/chat-header.vue';
-import settingsDialog from '@/components/settings-dialog.vue';
-import conversationsDialog from '@/components/conversations-dialog.vue';
+import messageItem from '@/components/MessageItem.vue';
+import chatInput from '@/components/ChatInput.vue';
+import chatHeader from '@/components/ChatHeader.vue';
+import settingsDialog from '@/components/SettingsDialog.vue';
+import conversationsDialog from '@/components/ConversationsDialog.vue';
 import {
   shouldShowScrollButton,
   userText,

@@ -1,5 +1,7 @@
 import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
-
+import { updateUI } from '../utils/general-utils';
+import { messages } from '../state-management/state';
+import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;
 let dalleRetryCount = 0;
@@ -125,12 +127,12 @@ export async function fetchGPTResponseStream(
   } catch (error) {
     if (error.name === 'AbortError') {
       showToast(`Stream Request Aborted.`);
-      return streamedMessageText.value;
+      return;
     }
 
     console.error('Error fetching GPT response:', error);
     showToast(`Stream Request Failed.`);
-    return streamedMessageText.value;
+    return;
   }
 }
 
@@ -155,7 +157,7 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
     } of parsedLines) {
       if (content) {
         decodedResult += content;
-        updateUiFunction(content, autoScrollToBottom);
+        updateUI(content, messages.value, addMessage, autoScrollToBottom);
       }
     }
   }

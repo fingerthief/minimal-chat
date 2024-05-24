@@ -1,11 +1,14 @@
 import * as webllm from '@mlc-ai/web-llm';
 import { showToast } from '../utils/general-utils';
+import { updateUI } from '../utils/general-utils';
+import { messages } from '../state-management/state';
+import { addMessage } from '../conversation-management/message-processing';
 
 export let engine = undefined;
 
-export async function loadNewModel(modelName, updateUI) {
+export async function loadNewModel(modelName, updateUIFunc) {
   const initProgressCallback = (report) => {
-    updateUI(report.text, false, false);
+    showToast(report.text);
   };
 
   if (engine !== undefined) {
@@ -24,9 +27,13 @@ export async function loadNewModel(modelName, updateUI) {
   showToast('Model Loaded');
 }
 
-export async function sendBrowserLoadedModelMessage(messages, updateUI) {
+export async function sendBrowserLoadedModelMessage(messagesTest, updateUIFunc) {
   const initProgressCallback = (report) => {
-    updateUI(report.text, false, false);
+    if (engine === undefined) {
+      showToast(report.text);
+      return;
+    }
+    updateUI(report.text, messages.value, addMessage, false, false);
   };
 
   const selectedModel = localStorage.getItem('browserModelSelection');
@@ -43,7 +50,7 @@ export async function sendBrowserLoadedModelMessage(messages, updateUI) {
     showToast('Model Loaded');
   }
 
-  const filteredMessages = filterMessages(messages);
+  const filteredMessages = filterMessages(messages.value);
 
   const request = {
     stream: true,
@@ -58,16 +65,15 @@ export async function sendBrowserLoadedModelMessage(messages, updateUI) {
     if (chunk.choices[0].delta.content) {
       // Last chunk has undefined content
       message += chunk.choices[0].delta.content;
+      updateUI(chunk.choices[0].delta.content, messages.value, addMessage, true);
     }
-
-    updateUI(message, true, false);
   }
 
   return await engine.getMessage();
 }
 
 export async function getBrowserLoadedModelConversationTitle(messages) {
-  const initProgressCallback = (report) => {};
+  const initProgressCallback = (report) => { };
 
   const selectedModel = localStorage.getItem('browserModelSelection');
 

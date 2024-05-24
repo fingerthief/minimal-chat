@@ -1,4 +1,8 @@
 import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
+import { updateUI } from '../utils/general-utils';
+import { messages } from '../state-management/state';
+import { addMessage } from '../conversation-management/message-processing';
+import { claudeSliderValue } from '../state-management/state';
 
 const numberOfRetryAttemptsAllowed = 5;
 
@@ -146,7 +150,7 @@ export async function streamClaudeResponse(
       body: JSON.stringify({
         system: filteredMessages[0].content,
         messages: tempMessages.slice(1),
-        temperature: attitude * 0.01,
+        temperature: claudeSliderValue.value * 0.01,
         model: model,
         stream: true,
         max_tokens: 4096,
@@ -165,12 +169,12 @@ export async function streamClaudeResponse(
   } catch (error) {
     if (error.name === 'AbortError') {
       showToast(`Stream Request Aborted.`);
-      return streamedMessageText.value;
+      return;
     }
 
     console.error('Error fetching Claude Model response:', error);
     showToast(`Stream Request Failed.`);
-    return streamedMessageText.value;
+    return;
   }
 }
 
@@ -197,7 +201,7 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
     for (const parsedLine of parsedLines) {
       if (parsedLine.delta && parsedLine.delta.text) {
         decodedResult += parsedLine.delta.text;
-        updateUiFunction(parsedLine.delta.text, autoScrollToBottom);
+        updateUI(parsedLine.delta.text, messages.value, addMessage, autoScrollToBottom);
       }
     }
   }
