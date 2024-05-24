@@ -62,7 +62,7 @@ function messageClass(role) {
 
 function copyText(message) {
   navigator.clipboard
-    .writeText(message.content)
+    .writeText(message)
     .then(() => {
       showToast('Copied text!');
       console.log('Content copied to clipboard');
@@ -182,7 +182,7 @@ async function deleteMessage(content) {
             <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + item.id" :size="18"
               @click.stop="deleteMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
-            <div class="label" @click="copyText(item)" :id="'message-label-' + item.id">
+            <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
               {{ item.role === 'user' ? 'User' : modelDisplayName }}
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
