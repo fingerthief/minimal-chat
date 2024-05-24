@@ -193,6 +193,7 @@ $icon-color: rgb(187, 187, 187);
     align-items: center;
     position: absolute;
     right: 20px;
+    top: 15px;
   }
 
   .image-button,
