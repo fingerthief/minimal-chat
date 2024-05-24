@@ -67,8 +67,6 @@ export async function sendBrowserLoadedModelMessage(messagesTest, updateUIFunc) 
       message += chunk.choices[0].delta.content;
       updateUI(chunk.choices[0].delta.content, messages.value, addMessage, true);
     }
-
-
   }
 
   return await engine.getMessage();
