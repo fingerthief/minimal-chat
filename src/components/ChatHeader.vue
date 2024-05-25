@@ -55,8 +55,8 @@ async function onModelChange(newModel) {
     </a>
     <div class="models-dropdown">
       <div class="control select-dropdown">
-        <label for="model-selector"></label>
-        <select id="model-selector" :value="selectedModel" @change="onModelChange">
+        <label for="quick-select-model-selector"></label>
+        <select id="quick-select-model-selector" :value="selectedModel" @change="onModelChange">
           <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
           <option value="gpt-4-turbo">GPT-4 Turbo</option>
           <option value="gpt-4o">GPT-4 Omni</option>

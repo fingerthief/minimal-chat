@@ -14,31 +14,31 @@ export async function runTutortialForNewUser() {
     });
 
     const mobileTutorialSteps = [
-        { popover: { title: 'MinimalChat Tutorial', description: 'Welcome to MinimalChat! Please follow this quick guided tour of the application. It highlights very useful information, features and gesutres!' } },
-        { element: '.settings-btn', popover: { title: 'Configuration Page', description: 'Dive into the configuration page and setup various LLM models and services!' } },
-        { element: '#settings-dialog', popover: { title: 'Swiping to The Right', description: 'Quickly access the Configuration page by swiping to the right from the edge of the screen!', side: "top", align: 'start' } },
-        { element: '#conversations-dialog', popover: { title: 'Swiping to The Left', description: 'Easily access the Conversations Management page by swiping left from the edge of the screen!', side: "top", align: 'start' } },
-        { element: '#message-1', popover: { title: 'Editing Previous Messages', description: 'Double click any user message in the conversation to enter edit mode and regenerate the response!' } },
-        { element: '.gpt .label', popover: { title: 'Quickly Copy Message Text', description: 'Tapping the label of any message will quickly copy the text to your clipboard.' } },
+        { popover: { title: 'MinimalChat Tutorial', description: 'Welcome to MinimalChat! Follow this quick guided tour to learn about the app. It highlights useful information, features, and gestures!' } },
+        { element: '.settings-btn', popover: { title: 'Configuration Page', description: 'Visit the configuration page to set up various LLM models and services!' } },
+        { element: '#settings-dialog', popover: { title: 'Swipe Right', description: 'Access the Configuration page quickly by swiping right from the edge of the screen!', side: "top", align: 'start' } },
+        { element: '#conversations-dialog', popover: { title: 'Swipe Left', description: 'Access the Conversations Management page quickly by swiping left from the edge of the screen!', side: "top", align: 'start' } },
+        { element: '#message-0', popover: { title: 'Edit Previous Messages', description: 'Double-click any user message in the conversation to enter edit mode and regenerate the response!' } },
+        { element: '.gpt .label', popover: { title: 'Copy Message Text', description: 'Tap the label of any message to quickly copy the text to your clipboard.' } },
         { element: '.context-menu', popover: { title: 'Quick Actions Menu', description: 'Long press the messages list to open a quick actions menu for deleting or starting a new conversation.', side: "top", align: 'start' } },
-        { element: '.image-button', popover: { title: 'Initiating Vision Requests', description: 'Initiating a Visions request is as simple as entering your prompt and choosing an image via the image upload button!' } },
-        { element: '.upload-button', popover: { title: 'Upload File(s) to The Conversation Context', description: 'Easily add the contents of valid files (non images etc..) to the current conversations context.' } },
-        { element: '.header-icon', popover: { title: 'Have an idea or issue?', description: 'Clicking the header icon will navigate you to the GitHub repo where you can submit issues or ideas as needed!' } },
-        { popover: { title: 'Assimilation Complete!', description: 'And that\'s it, thanks for sticking around! Dive in and start using the application however you\'d like, happy chatting!' } }
+        { element: '.image-button', popover: { title: 'Initiate Vision Requests', description: 'Start a Vision request by entering your prompt and choosing an image via the upload button!' } },
+        { element: '.upload-button', popover: { title: 'Upload Files', description: 'Easily add the contents of valid files (non-images, etc.) to the current conversation context.' } },
+        { element: '.header-icon', popover: { title: 'Have an Idea or Issue?', description: 'Click the header icon to navigate to the GitHub repo where you can submit issues or ideas!' } },
+        { popover: { title: 'Tutorial Complete!', description: 'Thanks for following the tutorial! Dive in and start using the app however you like. Happy chatting!' } }
     ];
 
     const desktopTutorialSteps = [
-        { popover: { title: 'MinimalChat Walkthrough', description: 'Welcome to MinimalChat! Please follow this quick guided tour of the application. It highlights very useful information, features and gesutres!' } },
-        { element: '.models-dropdown', popover: { title: 'Quick Change Models', description: 'While in the dekstop layout you can quickly switch what model is being used for requests.' } },
-        { element: '.resize-container', popover: { title: 'Conversations Panel', description: 'This is the area that displays saved conversations and the actions for managing them.', side: "top", align: 'start' } },
-        { element: '#conversation-0', popover: { title: 'Editing Conversation Titles', description: 'Double clicking a saved conversation will activate edit mode and allow you to change the conversation title.', side: "top", align: 'start' } },
-        { element: '.settings-icon', popover: { title: 'Configuration Page', description: 'Dive into the configuration page and setup various LLM models and services!' } },
-        { element: '#message-1', popover: { title: 'Editing Previous Messages', description: 'Double click any user message in the conversation to enter edit mode and regenerate the response!' } },
-        { element: '.gpt .label', popover: { title: 'Quickly Copy Message Text', description: 'Tapping the label of any message will quickly copy the text to your clipboard.' } },
-        { element: '.image-button', popover: { title: 'Initiating Vision Requests', description: 'Initiating a Visions request is as simple as entering your prompt and choosing an image via the image upload button!' } },
-        { element: '.upload-button', popover: { title: 'Upload File(s) to The Conversation Context', description: 'Easily add the contents of valid files (non images etc..) to the current conversations context.' } },
-        { element: '.header-icon', popover: { title: 'Have an idea or issue?', description: 'Clicking the header icon will navigate you to the GitHub repo where you can submit issues or ideas as needed!' } },
-        { popover: { title: 'Assimilation Complete!', description: 'And that\'s it, thanks for sticking around! Dive in and start using the application however you\'d like, happy chatting!' } }
+        { popover: { title: 'MinimalChat Walkthrough', description: 'Welcome to MinimalChat! Follow this quick guided tour to learn about the app. It highlights useful information, features, and gestures!' } },
+        { element: '#quick-select-model-selector', popover: { title: 'Quickly Change Models', description: 'In the desktop layout, you can quickly switch the model being used for requests.' } },
+        { element: '.sidebar-conversations', popover: { title: 'Conversations Panel', description: 'This area displays saved conversations and actions for managing them.', side: "top", align: 'start' } },
+        { element: '#conversation-0', popover: { title: 'Edit Conversation Titles', description: 'Double-click a saved conversation to activate edit mode and change the conversation title.', side: "top", align: 'start' } },
+        { element: '.settings-icon', popover: { title: 'Configuration Page', description: 'Visit the configuration page to set up various LLM models and services!' } },
+        { element: '#message-0', popover: { title: 'Edit Previous Messages', description: 'Double-click any user message in the conversation to enter edit mode and regenerate the response!' } },
+        { element: '.gpt .label', popover: { title: 'Copy Message Text', description: 'Tap the label of any message to quickly copy the text to your clipboard.' } },
+        { element: '.image-button', popover: { title: 'Initiate Vision Requests', description: 'Start a Vision request by entering your prompt and choosing an image via the upload button!' } },
+        { element: '.upload-button', popover: { title: 'Upload Files', description: 'Easily add the contents of valid files (non-images, etc.) to the current conversation context.' } },
+        { element: '.header-icon', popover: { title: 'Have an Idea or Issue?', description: 'Click the header icon to navigate to the GitHub repo where you can submit issues or ideas!' } },
+        { popover: { title: 'Tutorial Complete!', description: 'Thanks for following the tutorial! Dive in and start using the app however you like. Happy chatting!' } }
     ];
 
     // Add a temporary placeholder conversation item
