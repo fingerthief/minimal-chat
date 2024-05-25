@@ -1,4 +1,3 @@
-import * as webllm from '@mlc-ai/web-llm';
 import { showToast } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
 import { messages } from '../state-management/state';
@@ -15,6 +14,8 @@ export async function loadNewModel(modelName, updateUIFunc) {
     engine.unload();
     showToast('Model Unloaded');
   }
+
+  const webllm = await import('@mlc-ai/web-llm');
 
   const chatOpts = {
     repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
@@ -39,6 +40,8 @@ export async function sendBrowserLoadedModelMessage(messagesTest, updateUIFunc) 
   const selectedModel = localStorage.getItem('browserModelSelection');
 
   if (engine === undefined) {
+    const webllm = await import('@mlc-ai/web-llm');
+
     const chatOpts = {
       repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
       temperature: parseFloat(localStorage.getItem('local-attitude')) || 0.6,
@@ -78,6 +81,7 @@ export async function getBrowserLoadedModelConversationTitle(messages) {
   const selectedModel = localStorage.getItem('browserModelSelection');
 
   if (engine === undefined) {
+    const webllm = await import('@mlc-ai/web-llm');
     engine = await webllm.CreateEngine(selectedModel, {
       initProgressCallback: initProgressCallback,
     });

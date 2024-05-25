@@ -4,6 +4,8 @@ import vue from '@vitejs/plugin-vue';
 import VueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
 import { compression } from 'vite-plugin-compression2';
+import { createHtmlPlugin } from 'vite-plugin-html';
+import viteImagemin from 'vite-plugin-imagemin';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
@@ -24,6 +26,7 @@ const getAllImageFiles = (dir) => {
       results.push(filePath);
     }
   });
+
   return results;
 };
 
@@ -53,39 +56,146 @@ const generateIcons = async () => {
   return icons.filter(Boolean);
 };
 
+
+const formatTagScreenshots = [
+  {
+    "src": "images/wide-minimal-chat.png",
+    "sizes": "3832x2395",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "Desktop Homescreen of MinimalChat"
+  },
+  {
+    "src": "images/narrow-minimal-chat.png",
+    "sizes": "860x1864",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "Mobile Homescreen of MinimalChat"
+  }
+];
+
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
   plugins: [
     vue(),
+    viteImagemin({
+      gifsicle: {
+        optimizationLevel: 7,
+        interlaced: false,
+      },
+      optipng: {
+        optimizationLevel: 7,
+      },
+      mozjpeg: {
+        quality: 20,
+      },
+      pngquant: {
+        quality: [0.65, 0.9],
+        speed: 4,
+      },
+      svgo: {
+        plugins: [
+          {
+            name: 'removeViewBox',
+          },
+          {
+            name: 'removeEmptyAttrs',
+            active: false,
+          },
+        ],
+      },
+    }),
     VueDevTools(),
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
       workbox: {
         maximumFileSizeToCacheInBytes: 8000000,
+        runtimeCaching: [
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+              expiration: {
+                maxEntries: 150,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /\.(?:woff|woff2|eot|ttf|otf)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fonts',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/api\.yourdomain\.com\/.*\.(json|xml)$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-responses',
+              networkTimeoutSeconds: 10,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 24 * 60 * 60, // 1 day
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
       manifest: {
         name: 'MinimalChat',
         short_name: 'MinimalChat',
-        description: 'A minimal but powerful LLM chat application',
+        description: 'A lightweight yet powerful LLM chat application',
         theme_color: '#202124',
         background_color: "#202124",
         icons: await generateIcons(),
-      },
-    }),
-    compression({
-      algorithm: 'gzip',
-      threshold: 0, // Compress all files, no size threshold
-    }),
-    compression({
-      algorithm: 'brotliCompress',
-      threshold: 0, // Compress all files, no size threshold
-    }),
+        screenshots: formatTagScreenshots,
+        "edge_side_panel": {
+          "preferred_width": 600
+        }
+      }
+    })
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+    }
   },
   build: {
     minify: 'terser', // Use Terser for more advanced minification
@@ -117,6 +227,10 @@ export default defineConfig(async () => ({
           }
           if (id.includes('/src/libs/')) {
             return 'libs';
+          }
+
+          if (id.includes('/src/views/')) {
+            return 'views';
           }
         },
       },
