@@ -14,15 +14,29 @@ export async function saveMessagesHandler() {
 }
 
 export function deleteCurrentConversation() {
-  const updatedConversations = deleteConversation(conversations.value, lastLoadedConversationId.value);
-  conversations.value = updatedConversations;
-  messages.value = [];
-
-  if (conversations.value.length > 0) {
-    selectConversationHandler(conversations.value[conversations.value.length - 1].id);
+  if (!selectedConversation.value) {
+    showToast('No conversation selected');
+    return;
   }
 
-  localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+  const conversationId = selectedConversation.value.id;
+  const conversationIndex = conversations.value.findIndex(convo => convo.id === conversationId);
+
+  if (conversationIndex !== -1) {
+    const conversationElement = document.getElementById(`conversation-${conversationIndex}`);
+
+    if (conversationElement) {
+      conversationElement.classList.add('deleting');
+      setTimeout(() => {
+        conversations.value = conversations.value.filter(convo => convo.id !== conversationId);
+        selectedConversation.value = null;
+        messages.value = [];
+        lastLoadedConversationId.value = null;
+        localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+        showToast('Conversation Deleted');
+      }, 250); // Match the duration of the scaleDown animation
+    }
+  }
 }
 
 export function selectConversationHandler(conversationId) {

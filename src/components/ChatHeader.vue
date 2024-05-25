@@ -71,15 +71,6 @@ async function onModelChange(newModel) {
     <div class="settings-btn" @click="toggleSidebar">
       <Menu :stroke-width="0.5" :size="30" />
     </div>
-    <div class="trash-btn" @click="deleteCurrentConversation">
-      <ArchiveX :stroke-width="0.5" :size="30" />
-    </div>
-    <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
-      <MessagesSquare :stroke-width="0.5" :size="30" />
-    </div>
-    <span class="save-icon" @click="clearMessages">
-      <MessageSquarePlus :stroke-width="0.5" :size="30" />
-    </span>
   </div>
 </template>
 
@@ -186,8 +177,7 @@ $shadow-spread-radius: 0px;
 
     @media (max-width: 600px) {
       background-color: #0a1e24;
-      left: 5%;
-      top: 14%;
+      position: relative;
     }
   }
 }

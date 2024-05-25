@@ -5,6 +5,7 @@ import { RefreshCcw, Trash } from 'lucide-vue-next';
 import { ref, nextTick, computed, watch, onMounted } from 'vue';
 import '/node_modules/highlight.js/scss/github-dark-dimmed.scss';
 import ToolTip from './ToolTip.vue';
+import ContextWindow from './ContextWindow.vue'; // Import the context menu
 import { showToast } from '@/libs/utils/general-utils';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -37,6 +38,7 @@ import 'swiped-events';
 const loadingIcon = ref(-1);
 const messageList = ref(null);
 const scroller = ref(null);
+const contextWindow = ref(null); // Reference to the context menu
 
 onMounted(() => {
 
@@ -172,11 +174,37 @@ async function deleteMessage(content) {
   messages.value = deleteMessageFromHistory(messages.value, content);
   saveMessagesHandler();
 }
+
+// Handle click and hold event
+let holdTimeout = null;
+
+function handleMouseDown(event) {
+  holdTimeout = setTimeout(() => {
+    contextWindow.value.showContextMenu(event);
+  }, 500); // 500ms hold time
+}
+
+function handleMouseUp(event) {
+  clearTimeout(holdTimeout);
+
+  setTimeout(() => {
+    contextWindow.value.hideContextMenu();
+  }, 1000);
+}
+
+// Add a computed property to check the screen width
+const isSmallScreen = computed(() => window.innerWidth <= 600);
+
+// Watch for window resize events to update the computed property
+window.addEventListener('resize', () => {
+  isSmallScreen.value = window.innerWidth <= 600;
+});
 </script>
 
 <template>
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
-    data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
+    @mousedown="handleMouseDown" @mouseup="handleMouseUp" data-swipe-threshold="15" data-swipe-unit="vw"
+    data-swipe-timeout="500">
     <DynamicScroller :min-item-size="50" :buffer="50" ref="scroller" class="scroller" @emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
@@ -201,6 +229,7 @@ async function deleteMessage(content) {
         </div>
       </DynamicScrollerItem>
     </DynamicScroller>
+    <ContextWindow ref="contextWindow" v-if="isSmallScreen" />
   </div>
 </template>
 
@@ -261,6 +290,13 @@ async function deleteMessage(content) {
       margin-top: 20px;
       max-width: 90vw;
       top: -20px;
+      padding: 0px;
+
+      .message-header {
+        justify-content: end;
+        border-bottom: 2px solid #583e72d9;
+        background-color: darken(#2f2d44d9, 8%);
+      }
     }
 
     .message-header {
@@ -285,6 +321,13 @@ async function deleteMessage(content) {
       margin-top: 20px;
       max-width: 90vw;
       display: inline-block;
+      padding: 0px;
+
+      .message-header {
+        justify-content: start;
+        border-bottom: 2px solid #0b6363e5;
+        background-color: darken(#123638e3, 3%);
+      }
     }
 
     .message-header {
@@ -302,7 +345,7 @@ async function deleteMessage(content) {
     align-items: center;
     gap: 8px;
     color: #dadbde;
-    padding: 8px 6px;
+    padding: 3px 6px;
 
     .label {
       color: #dadbde;
