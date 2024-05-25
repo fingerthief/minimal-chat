@@ -179,6 +179,10 @@ async function deleteMessage(content) {
 let holdTimeout = null;
 
 function handleMouseDown(event) {
+  if (!contextWindow.value) {
+    return;
+  }
+
   holdTimeout = setTimeout(() => {
     contextWindow.value.showContextMenu(event);
   }, 500); // 500ms hold time
@@ -186,6 +190,10 @@ function handleMouseDown(event) {
 
 function handleMouseUp(event) {
   clearTimeout(holdTimeout);
+
+  if (!contextWindow.value) {
+    return;
+  }
 
   setTimeout(() => {
     contextWindow.value.hideContextMenu();
@@ -205,7 +213,7 @@ window.addEventListener('resize', () => {
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     @mousedown="handleMouseDown" @mouseup="handleMouseUp" data-swipe-threshold="15" data-swipe-unit="vw"
     data-swipe-timeout="500">
-    <DynamicScroller :min-item-size="50" :buffer="50" ref="scroller" class="scroller" @emitUpdates="true"
+    <DynamicScroller :min-item-size="250" :buffer="400" ref="scroller" class="scroller" @emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
         <div v-if="active" :class="messageClass(item.role)">

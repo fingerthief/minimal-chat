@@ -1,0 +1,81 @@
+/* Class assigned to popover wrapper */
+.driver-popover {
+  background-color: #2b2b2f; /* Background color */
+  color: #f0f0f0; /* Font color */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+}
+
+/* Arrow pointing towards the highlighted element */
+.driver-popover-arrow {
+  color: #066b76; /* Same as popover background color */
+}
+
+/* Title and description */
+.driver-popover-title {
+  color: #f0f0f0; /* Font color */
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.driver-popover-description {
+  color: #f0f0f0; /* Font color */
+  font-size: 14px;
+}
+
+/* Close button displayed on the top right corner */
+.driver-popover-close-btn {
+  background-color: #484646; /* Button background color */
+  color: white !important; /* Font color */
+  border: none;
+  padding: 0px 3px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.driver-popover-close-btn:hover {
+  background-color: #4a4a4c; /* Button hover background color */
+}
+
+/* Footer of the popover displaying progress and navigation buttons */
+.driver-popover-footer button {
+  all: unset;
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 3px 7px;
+  text-decoration: none;
+  text-shadow: 1px 1px 0 #067352;
+  background-color: #067352;
+  color: #f3f3f3;
+  font: 12px / normal sans-serif;
+  cursor: pointer;
+  outline: 0;
+  zoom: 1;
+  line-height: 1.3;
+  border: 1px solid #067352;
+  border-radius: 3px;
+}
+
+.driver-popover-progress-text {
+  color: #f0f0f0; /* Font color */
+  font-size: 14px;
+}
+
+.driver-popover-prev-btn,
+.driver-popover-next-btn {
+  background-color: #06633e; /* Button background color */
+
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.driver-popover-prev-btn:hover,
+.driver-popover-next-btn:hover {
+  background-color: darken(#06633e, 5%); /* Button hover background color */
+}

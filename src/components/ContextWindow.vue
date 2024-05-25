@@ -1,23 +1,33 @@
+<!-- ContextWindow.vue -->
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
-import { messages, selectedConversation } from '@/libs/state-management/state';
+import { messages, selectedConversation, contextMenuOpened } from '@/libs/state-management/state';
 import { showToast } from '@/libs/utils/general-utils';
 import { Trash, SquarePlus } from 'lucide-vue-next';
 
-const visible = ref(false);
 const style = ref({ top: '0px', left: '0px' });
 
 function showContextMenu(event) {
-    style.value = {
-        top: `${event.clientY}px`,
-        left: `${event.clientX - 100}px`
-    };
-    visible.value = true;
+    if (event) {
+        style.value = {
+            top: `${event.clientY}px`,
+            left: `${event.clientX - 100}px`,
+        };
+    } else {
+        const { innerWidth, innerHeight } = window;
+        style.value = {
+            top: `50vh`,  // Adjust 50px based on the approximate height of the context menu
+            left: `${innerWidth}px`, // Adjust 100px based on the approximate width of the context menu
+        };
+    }
+
+    console.log(style.value)
+    contextMenuOpened.value = true;
 }
 
 function hideContextMenu() {
-    visible.value = false;
+    contextMenuOpened.value = false;
 }
 
 function startNewConversation() {
@@ -36,11 +46,29 @@ function deleteCurrentConversationHandler() {
 }
 
 defineExpose({ showContextMenu, hideContextMenu });
+
+onMounted(() => {
+    window.addEventListener('show-context-menu', showContextMenu);
+
+    nextTick(() => {
+        // Code that runs after the DOM has been updated
+        const hasShownUserTutorial = localStorage.getItem('hasShownUserTutorial');
+        if (!hasShownUserTutorial) {
+            const event = new Event('show-context-menu');
+            window.dispatchEvent(event);
+            // localStorage.setItem('hasShownUserTutorial', true);
+        }
+    });
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('show-context-menu', showContextMenu);
+});
 </script>
 
 <template>
     <transition name="context-menu">
-        <div v-if="visible" :style="style" class="context-menu">
+        <div v-if="contextMenuOpened" :style="style" class="context-menu">
             <ul>
                 <li @click="startNewConversation">
                     <SquarePlus :size="14" />&nbsp;&nbsp;New Conversation
@@ -62,6 +90,8 @@ defineExpose({ showContextMenu, hideContextMenu });
     z-index: 1000;
     transform: scale(1);
     transition: transform 0.15s ease;
+    top: 38%;
+    left: 30%;
 }
 
 .context-menu-enter-active,

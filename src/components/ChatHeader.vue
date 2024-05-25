@@ -46,8 +46,8 @@ async function onModelChange(newModel) {
 
 <template>
   <div class="header box">
-    <a v-for="modelType in visibleModelLinks" :key="modelType.name" href="https://github.com/fingerthief/minimal-chat"
-      target="_blank" class="no-style-link">
+    <a v-for="modelType in visibleModelLinks" :key="modelType.name" id="navLink"
+      href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
       {{ modelType.display }}
     </a>
     <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">

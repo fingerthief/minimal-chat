@@ -1,7 +1,7 @@
 // ChatLayout.vue
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, nextTick, computed } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
@@ -25,11 +25,16 @@ import {
   imageInput,
   lastLoadedConversationId,
   conversations,
-  higherContrastMessages
+  higherContrastMessages,
+  contextMenuOpened,
+  selectedConversation
 } from '@/libs/state-management/state';
 import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
 import { addMessage } from '@/libs/conversation-management/message-processing';
+import { runTutortialForNewUser } from '@/libs/utils/tutorial-utils';
+import "driver.js/dist/driver.css";
+import "../assets/tutorial.css";
 
 const sidebarContentContainer = ref(null);
 
@@ -70,7 +75,7 @@ onUnmounted(() => {
   document.removeEventListener('click', handleGlobalClick);
 });
 
-onMounted(() => {
+onMounted(async () => {
   setupWatchers();
   sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
   sidebarContentContainer.value.style.width = '420px';
@@ -98,7 +103,10 @@ onMounted(() => {
       isSidebarOpen.value = false;
     }
   });
+
+  await runTutortialForNewUser();
 });
+
 //#endregion
 </script>
 
