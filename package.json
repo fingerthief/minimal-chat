@@ -23,7 +23,6 @@
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
     "@mlc-ai/web-llm": "^0.2.35",
-    "got": "^14.3.0",
     "highlight.js": "^11.9.0",
     "http-server": "^14.1.1",
     "lucide-vue-next": "^0.368.0",
