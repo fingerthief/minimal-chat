@@ -413,7 +413,6 @@ pre {
       opacity: 1;
       width: 100vw;
       height: 102vh;
-      background-color: #212121;
       transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.15s ease-in-out;
     }
   }

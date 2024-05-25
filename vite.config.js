@@ -3,8 +3,6 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import VueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
-import { compression } from 'vite-plugin-compression2';
-import { createHtmlPlugin } from 'vite-plugin-html';
 import viteImagemin from 'vite-plugin-imagemin';
 import fs from 'fs';
 import path from 'path';
@@ -186,7 +184,7 @@ export default defineConfig(async () => ({
         background_color: "#202124",
         icons: await generateIcons(),
         screenshots: formatTagScreenshots,
-        "edge_side_panel": {
+        edge_side_panel: {
           "preferred_width": 600
         }
       }
@@ -221,16 +219,6 @@ export default defineConfig(async () => ({
         manualChunks(id) {
           if (id.includes('node_modules')) {
             return id.toString().split('node_modules/')[1].split('/')[0].toString();
-          }
-          if (id.includes('/src/components/')) {
-            return 'components';
-          }
-          if (id.includes('/src/libs/')) {
-            return 'libs';
-          }
-
-          if (id.includes('/src/views/')) {
-            return 'views';
           }
         },
       },

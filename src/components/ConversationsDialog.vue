@@ -270,7 +270,7 @@ $shadow-color: #252629;
       display: flex;
       cursor: pointer;
       position: relative;
-      background-color: #0a1e24;
+      background-color: #0d1f25a1;
       border-bottom: 2px solid #26622ab5;
 
       &:hover {
@@ -380,6 +380,7 @@ $shadow-color: #252629;
 .scrollable-list {
   @media (max-width: 600px) {
     height: 68vh;
+    background-color: #0c1928;
   }
 
   max-width: 100%;
