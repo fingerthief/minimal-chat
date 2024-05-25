@@ -1,6 +1,6 @@
 import { selectedModel } from "../state-management/state";
 import { ref } from 'vue';
-import { isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
+import { higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
 import { showToast } from "./general-utils";
 
 export const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
@@ -49,6 +49,7 @@ export function update(field, value) {
   if (field === 'selectedDallEImageResolution') selectedDallEImageResolution.value = value;
   if (field === 'customConfigs') customConfigs.value = value;
   if (field === 'systemPrompts') systemPrompts.value = value;
+  if (field === 'higherContrastMessages') higherContrastMessages.value = value;
 }
 
 export const systemPrompts = ref([]);

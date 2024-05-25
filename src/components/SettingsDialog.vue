@@ -52,7 +52,8 @@ import {
   lastLoadedConversationId,
   selectedConversation,
   abortController,
-  imageInput
+  imageInput,
+  higherContrastMessages
 } from '@/libs/state-management/state'; // Import the state
 
 // Visibility states for collapsible config sections
@@ -219,6 +220,14 @@ onMounted(() => {
             <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
               @update:value="handleUpdate('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
               :placeholderText="'Enter the system prompt if applicable.'" />
+          </div>
+          <div class="control-checkbox">
+            <label for="higher-contrast-messages">
+              Higher Contrast Messages:
+              <input type="checkbox" id="higher-contrast-messages" :checked="higherContrastMessages"
+                @change="handleUpdate('higherContrastMessages', $event.target.checked)" />
+              <span class="slider"></span>
+            </label>
           </div>
           <div class="saved-system-prompts">
             <h4>Saved System Prompts:</h4>
@@ -475,8 +484,61 @@ $close-btn-hover-bg-color: #6f383889;
 $close-btn-active-bg-color: #2c3e50;
 $border-color: #1b6a72c4;
 $header-border-color: #583e72b5;
-$bottom-panel-bg-color: #212121;
+$bottom-panel-bg-color: #0c1928;
 $bottom-panel-border-color: #5f4575cf;
+
+.control-checkbox {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+    position: relative;
+    width: 100%;
+    user-select: none;
+
+    input[type="checkbox"] {
+      opacity: 0;
+      width: 0;
+      height: 0;
+
+      &:checked+.slider:before {
+        transform: translateX(26px);
+      }
+
+      &:checked+.slider {
+        background-color: #1a5951;
+      }
+    }
+
+    .slider {
+      width: 40px;
+      height: 20px;
+      background-color: #ccc;
+      border-radius: 34px;
+      transition: background-color 0.4s;
+      position: relative;
+      margin-left: 10px;
+
+      &:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        border-radius: 50%;
+        transition: transform 0.4s;
+      }
+    }
+  }
+}
 
 .settings-dialog {
   display: flex;
@@ -489,7 +551,7 @@ $bottom-panel-border-color: #5f4575cf;
   flex-grow: 1;
   overflow-y: auto;
   padding: 6px;
-  background-color: #1e1e1e;
+  background-color: #0c1928;
   z-index: 10000;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   scrollbar-width: none;

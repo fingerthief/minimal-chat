@@ -2,7 +2,7 @@
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
 import { RefreshCcw, Trash } from 'lucide-vue-next';
-import { ref, nextTick, computed, watch } from 'vue';
+import { ref, nextTick, computed, watch, onMounted } from 'vue';
 import '/node_modules/highlight.js/scss/github-dark-dimmed.scss';
 import ToolTip from './ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
@@ -23,6 +23,7 @@ import {
   streamedMessageText,
   selectedConversation,
   modelDisplayName,
+  higherContrastMessages
 } from '@/libs/state-management/state';
 import {
   setSystemPrompt,
@@ -30,11 +31,16 @@ import {
   editPreviousMessage,
   deleteMessageFromHistory,
 } from '@/libs/conversation-management/conversations-management';
-import { updateUIWrapper } from '@/libs/utils/general-utils';
+import { updateUIWrapper, swipedLeft, swipedRight } from '@/libs/utils/general-utils';
+import 'swiped-events';
 // Refs
 const loadingIcon = ref(-1);
 const messageList = ref(null);
 const scroller = ref(null);
+
+onMounted(() => {
+
+});
 
 // Utility functions
 function formatMessage(content) {
@@ -56,7 +62,8 @@ function formatMessage(content) {
 }
 
 function messageClass(role) {
-  return role === 'user' ? 'user message' : 'gpt message';
+  higherContrastMessages.value = JSON.parse(localStorage.getItem("higherContrastMessages") || false);
+  return role === 'user' ? 'user message' + (higherContrastMessages.value === true ? ' high-constrast-mode' : '') : 'gpt message' + (higherContrastMessages.value === true ? ' high-constrast-mode' : '');
 }
 
 function copyText(message) {
@@ -168,8 +175,9 @@ async function deleteMessage(content) {
 </script>
 
 <template>
-  <div ref="messageList" class="message-list">
-    <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
+  <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
+    data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
+    <DynamicScroller :min-item-size="50" :buffer="50" ref="scroller" class="scroller" @emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
         <div v-if="active" :class="messageClass(item.role)">
@@ -239,10 +247,21 @@ async function deleteMessage(content) {
   clear: both;
   font-size: 1em;
   line-height: 1.5;
-  max-width: calc(100% - 1rem);
+  max-width: 100vw;
+  margin-top: 20px;
 
   &.user {
     margin-left: auto;
+
+    &.high-constrast-mode {
+      background-color: #2f2d44d9;
+      border-radius: 12px;
+      transition: background-color 0.3s ease;
+      margin-bottom: 20px;
+      margin-top: 20px;
+      max-width: 90vw;
+      top: -20px;
+    }
 
     .message-header {
       justify-content: end;
@@ -256,6 +275,17 @@ async function deleteMessage(content) {
 
   &.gpt {
     margin-right: auto;
+    transition: background-color 0.3s ease;
+
+    &.high-constrast-mode {
+      background-color: #123638e3;
+      border-radius: 12px;
+      transition: background-color 0.3s ease;
+      margin-bottom: 20px;
+      margin-top: 20px;
+      max-width: 90vw;
+      display: inline-block;
+    }
 
     .message-header {
       justify-content: start;

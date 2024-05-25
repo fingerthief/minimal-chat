@@ -13,6 +13,7 @@ export const showConversationOptions = ref(false);
 export const messages = ref([]);
 export const streamedMessageText = ref('');
 export const modelDisplayName = ref('Unknown');
+export const higherContrastMessages = ref(localStorage.getItem("higherContrastMessages") || false);
 
 export const localModelKey = ref(localStorage.getItem('localModelKey') || '');
 export const localModelName = ref(localStorage.getItem('localModelName') || '');
