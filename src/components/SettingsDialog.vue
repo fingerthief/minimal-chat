@@ -184,7 +184,7 @@ onMounted(() => {
         <span @click="reloadPage">
           <RefreshCcw :size="23" :stroke-width="2" />
         </span>
-        Settings | V6.1.4
+        Settings | V6.1.5
       </h2>
     </div>
     <div class="sidebar-content-container">
@@ -460,7 +460,7 @@ onMounted(() => {
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
 $primary-bg-color: #0c1928;
-$secondary-bg-color: #212121;
+$secondary-bg-color: #0c1928;
 $highlight-bg-color: #165951;
 $button-bg-color: #1a5951;
 $button-hover-bg-color: #165951;
@@ -475,7 +475,7 @@ $close-btn-hover-bg-color: #6f383889;
 $close-btn-active-bg-color: #2c3e50;
 $border-color: #1b6a72c4;
 $header-border-color: #583e72b5;
-$bottom-panel-bg-color: #0c1928;
+$bottom-panel-bg-color: #212121;
 $bottom-panel-border-color: #5f4575cf;
 
 .settings-dialog {
