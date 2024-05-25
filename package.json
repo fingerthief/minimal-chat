@@ -50,5 +50,8 @@
     "vite-plugin-pwa": "^0.20.0",
     "vite-plugin-vue-devtools": "^7.0.25",
     "vitest": "^1.4.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }
