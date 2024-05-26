@@ -685,13 +685,11 @@ $bottom-panel-border-color: #5f4575cf;
   border-bottom: 2px solid #725182b5;
   color: white;
   cursor: pointer;
-  width: 100%;
-  font-size: 16px;
+  width: 100vw;
   height: 50px;
+  background-color: #1d1e1ebf;
   font-size: 18px;
   outline: none;
-  transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
-  background-color: #725182b5;
   letter-spacing: 1px;
   /* Subtle shadow */
 
@@ -703,7 +701,6 @@ $bottom-panel-border-color: #5f4575cf;
   }
 
   &:active {
-    background-color: #0e3d34;
     /* Even darker shade for active state */
     transform: translateY(1px);
   }
