@@ -19,6 +19,9 @@ import {
   gptKey,
   claudeKey,
   browserModelSelection,
+  sliderValue,
+  selectedDallEImageCount,
+  selectedDallEImageResolution
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import {
@@ -85,6 +88,10 @@ function getModelLabel(modelValue) {
 
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value;
+}
+
+function updateGptSliderValue(value) {
+  handleUpdate('sliderValue', parseFloat(value));
 }
 
 function updateLocalSliderValue(value) {
@@ -231,6 +238,7 @@ onMounted(() => {
                 </li>
               </ul>
             </div>
+            <br>
             <div class="control select-dropdown">
               <label for="auto-save-conversations">Auto Save Conversations:</label>
               <select id="auto-save-conversations" :value="selectedAutoSaveOption"
@@ -251,9 +259,10 @@ onMounted(() => {
             </div>
             <br>
             <br>
-            <div class="config-section">
-              <h3>
+            <div class="config-section" :class="{ show: isImportExportConfigOpen }">
+              <h3 @click="isImportExportConfigOpen = !isImportExportConfigOpen">
                 Import/Export Configuration
+                <span class="indicator">{{ isImportExportConfigOpen ? '-' : '+' }}</span>
               </h3>
               <div v-show="isImportExportConfigOpen" class="control-grid">
                 <h4>
@@ -265,6 +274,7 @@ onMounted(() => {
                     settings from a JSON file.
                   </p>
                 </h4>
+
                 <div class="settings-list">
                   <div class="settings-item-button" @click="
                     handleExportSettings(
@@ -324,14 +334,47 @@ onMounted(() => {
               <div class="control-grid">
                 <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                   inputId="api-key" :value="gptKey" @update:value="handleUpdate('gptKey', $event)" />
-                <div class="slider-container">
-                  <span>Serious</span>
-                  <input type="range" min="0" max="100" :value="sliderValue"
-                    @blur="handleUpdate('sliderValue', $event.target.value)" />
-                  <span>Creative</span>
+              </div>
+            </div>
+            <br>
+            <div class="flex-container">
+              <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
+                :placeholderText="'Enter the temperature value for the model.'" inputId="gptAttitude"
+                :value="sliderValue" @update:value="handleUpdate('gpt-attitude', $event)" />
+              <div class="slider-container">
+                <span>Serious</span>
+                <input type="range" min="0" max="2" step="0.01" :value="sliderValue"
+                  @input="updateGptSliderValue($event.target.value)" />
+                <span>Creative</span>
+              </div>
+            </div>
+            <br>
+            <br>
+            <div class="config-section" :class="{ show: isDALLEConfigOpen }" v-show="showGPTConfig">
+              <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
+                DALL-E Config
+                <span class="indicator">{{ isDALLEConfigOpen ? '-' : '+' }}</span>
+              </h3>
+              <div v-show="isDALLEConfigOpen" class="control-grid">
+                <div class="control select-dropdown">
+                  <label for="dalle-image-count">DALL-E Image Count:</label>
+                  <select id="dalle-image-count" :value="selectedDallEImageCount"
+                    @change="handleUpdate('selectedDallEImageCount', $event.target.value)">
+                    <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                  </select>
+                </div>
+                <div class="control select-dropdown">
+                  <label for="dalle-image-resolution">Image Resolution:</label>
+                  <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
+                    @change="handleUpdate('selectedDallEImageResolution', $event.target.value)">
+                    <option value="256x256">256x256</option>
+                    <option value="512x512">512x512</option>
+                    <option value="1024x1024">1024x1024</option>
+                  </select>
                 </div>
               </div>
             </div>
+
           </div>
           <div v-if="selectedModel === 'open-ai-format'">
             <div class="control-grid">
@@ -460,6 +503,46 @@ $border-color: #1b6a72c4;
 $header-border-color: #424045b5;
 $bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
+
+.config-section {
+  margin-bottom: 15px;
+
+  h3 {
+    margin-bottom: 15px;
+    background-color: #0e2d2ae6;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  .config-info {
+    font-size: 12px;
+  }
+
+  .control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    transition: max-height 0.3s ease-in-out;
+    overflow: hidden;
+    max-height: 0;
+
+
+    @media (max-width: 600px) {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+
+  &.show .control-grid {
+    max-height: fit-content;
+  }
+}
 
 .control-checkbox {
   display: flex;
@@ -820,7 +903,9 @@ $bottom-panel-border-color: #5f4575cf;
   flex-grow: 1;
   padding: 20px;
   overflow-y: auto;
+  scrollbar-width: none;
   background-color: #1d1e1e;
+  max-height: 59vh;
   overflow-x: hidden;
 
   @media (max-width: 600px) {
@@ -834,6 +919,7 @@ $bottom-panel-border-color: #5f4575cf;
     padding-left: 12px;
     padding-right: 12px;
     max-width: 66vw;
+    max-height: 89vh;
   }
 
   h3 {

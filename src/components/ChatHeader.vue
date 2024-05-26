@@ -18,6 +18,7 @@ const modelTypes = [
   { name: 'gpt', display: 'MinimalGPT' },
   { name: 'open-ai-format', display: 'MinimalCustom' },
   { name: 'web-llm', display: 'MinimalLocal' },
+  { name: 'general', display: 'No Model Selected' },
 ];
 
 const visibleModelLinks = computed(() => {
