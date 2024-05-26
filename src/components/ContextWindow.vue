@@ -9,11 +9,19 @@ import { Trash, SquarePlus } from 'lucide-vue-next';
 const style = ref({ top: '0px', left: '0px' });
 
 function showContextMenu(event) {
+    console.log(event);
     if (event) {
-        style.value = {
-            top: `${event.clientY}px`,
-            left: `${event.clientX}px`,
-        };
+        if (event.touches && event.touches.length > 0) {
+            style.value = {
+                top: `${event.touches[0].clientY}px`,
+                left: `${event.touches[0].clientX}px`,
+            };
+        } else {
+            style.value = {
+                top: `${event.clientY}px`,
+                left: `${event.clientX}px`,
+            };
+        }
     } else {
         const { innerWidth, innerHeight } = window;
         style.value = {
