@@ -63,7 +63,6 @@ onMounted(() => {
         if (!hasShownUserTutorial) {
             const event = new Event('show-context-menu');
             window.dispatchEvent(event);
-            // localStorage.setItem('hasShownUserTutorial', true);
         }
     });
 });

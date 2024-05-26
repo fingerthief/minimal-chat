@@ -487,6 +487,10 @@ pre {
   transition: opacity 0.3s ease-in-out;
   display: block;
 
+  @media (max-width: 600px) {
+    display: none;
+  }
+
   &:not(:empty) {
     display: none;
   }
