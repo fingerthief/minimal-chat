@@ -77,6 +77,15 @@ async function fetchAvailableModels() {
 
 function selectModel(model) {
   selectedModel.value = model;
+
+  // Close all collapsible groups
+  isGPTConfigOpen.value = false;
+  isClaudeConfigOpen.value = false;
+  isGeneralConfigOpen.value = false;
+  isBrowserModelConfigOpen.value = false;
+  isLocalConfigOpen.value = false;
+  isImportExportConfigOpen.value = false;
+
   if (model === 'open-ai-format') {
     fetchAvailableModels();
   }
