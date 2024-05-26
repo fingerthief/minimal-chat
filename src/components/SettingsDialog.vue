@@ -46,9 +46,9 @@ import {
 const isGeneralConfigOpen = ref(true);
 const isBrowserModelConfigOpen = ref(true);
 const isLocalConfigOpen = ref(true);
-const isGPTConfigOpen = ref(true);
+const isGPTConfigOpen = ref(false);
 const isDALLEConfigOpen = ref(true);
-const isClaudeConfigOpen = ref(true);
+const isClaudeConfigOpen = ref(false);
 const isImportExportConfigOpen = ref(true);
 
 const models = [
@@ -218,9 +218,9 @@ onMounted(() => {
           <!-- Collapsible Group for GPT Models -->
           <li @click="isGPTConfigOpen = !isGPTConfigOpen">
             GPT Models
-            <span class="indicator">{{ isGPTConfigOpen ? '-' : '+' }}</span>
+            <span class="indicator">{{ isGPTConfigOpen || selectedModel.includes('gpt') ? '-' : '+' }}</span>
           </li>
-          <ul v-show="isGPTConfigOpen" class="sub-item">
+          <ul v-show="isGPTConfigOpen || selectedModel.includes('gpt')" class="sub-item">
             <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
               :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
               {{ model.label }}
@@ -229,9 +229,9 @@ onMounted(() => {
           <!-- Collapsible Group for Claude Models -->
           <li @click="isClaudeConfigOpen = !isClaudeConfigOpen">
             Claude Models
-            <span class="indicator">{{ isClaudeConfigOpen ? '-' : '+' }}</span>
+            <span class="indicator">{{ isClaudeConfigOpen || selectedModel.includes('claude') ? '-' : '+' }}</span>
           </li>
-          <ul v-show="isClaudeConfigOpen" class="sub-item">
+          <ul v-show="isClaudeConfigOpen || selectedModel.includes('claude')" class="sub-item">
             <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
               :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
               {{ model.label }}
