@@ -229,8 +229,8 @@ $shadow-color: #252629;
   @media (max-width: 600px) {
     border-bottom: 5px solid #3d3d3d;
     padding: 25px 0;
-    background-color: #0c1928;
     text-align: center;
+    background: linear-gradient(-180deg, #11332f, #0c1928);
   }
 }
 
@@ -260,6 +260,10 @@ $shadow-color: #252629;
     flex-direction: column;
     font-size: 14px;
     justify-content: flex-end;
+
+    @media (max-width: 600px) {
+      background-color: #1d1e1e;
+    }
 
     .new-conversation-option {
       text-align: left;
@@ -379,7 +383,7 @@ $shadow-color: #252629;
 .scrollable-list {
   @media (max-width: 600px) {
     height: 68vh;
-    background-color: #0c1928;
+    background-color: #1d1e1e;
   }
 
   max-width: 100%;
