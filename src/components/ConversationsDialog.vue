@@ -220,17 +220,16 @@ $shadow-color: #252629;
   font-size: 15px;
   font-weight: bold;
   position: relative;
-  border-bottom: 1px solid #3d3d3d;
+  border-bottom: 1px solid #0c1928;
   padding: 10px 22px;
   background-color: #0c1928;
   text-align: left;
   white-space: nowrap;
 
   @media (max-width: 600px) {
-    border-bottom: 5px solid #3d3d3d;
+
     padding: 25px 0;
     text-align: center;
-    background: linear-gradient(-180deg, #11332f, #0c1928);
   }
 }
 

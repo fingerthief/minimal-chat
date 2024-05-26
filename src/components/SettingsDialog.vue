@@ -483,8 +483,8 @@ $close-btn-bg-color: #1e1e1e;
 $close-btn-hover-bg-color: #6f383889;
 $close-btn-active-bg-color: #2c3e50;
 $border-color: #1b6a72c4;
-$header-border-color: #583e72b5;
-$bottom-panel-bg-color: #0c1928;
+$header-border-color: #424045b5;
+$bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
 
 .control-checkbox {
@@ -519,9 +519,9 @@ $bottom-panel-border-color: #5f4575cf;
     .slider {
       width: 40px;
       height: 20px;
-      background-color: #ccc;
+      background-color: #494747;
       border-radius: 34px;
-      transition: background-color 0.4s;
+      transition: background-color 0.3s;
       position: relative;
       margin-left: 10px;
 
@@ -534,7 +534,7 @@ $bottom-panel-border-color: #5f4575cf;
         bottom: 4px;
         background-color: white;
         border-radius: 50%;
-        transition: transform 0.4s;
+        transition: transform 0.3s;
       }
     }
   }
@@ -587,12 +587,11 @@ $bottom-panel-border-color: #5f4575cf;
 
   h3 {
     margin-bottom: 15px;
-    background-color: $secondary-bg-color;
+    background-color: #0e2d2ae6;
     font-size: 16px;
     font-weight: bold;
     text-align: left;
     position: relative;
-    border-bottom: 3px solid $border-color;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -637,6 +636,7 @@ $bottom-panel-border-color: #5f4575cf;
     border-radius: 6px;
     cursor: pointer;
     background: $button-bg-color;
+    ;
     flex-direction: column-reverse;
     transition: background 0.3s ease;
 
@@ -654,7 +654,7 @@ $bottom-panel-border-color: #5f4575cf;
   position: relative;
   border-bottom: 5px solid $header-border-color;
   padding: 25px 0;
-  background: linear-gradient(-180deg, #11332f, #0c1928);
+  background-color: #1d1e1e;
   color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -759,7 +759,11 @@ $bottom-panel-border-color: #5f4575cf;
 .bottom-panel {
   padding: 20px;
   background-color: $bottom-panel-bg-color;
-  border-top: 2px solid $bottom-panel-border-color;
+
+
+  @media (min-width: 600px) {
+    display: none;
+  }
 }
 
 .system-prompt-container,
@@ -782,7 +786,7 @@ $bottom-panel-border-color: #5f4575cf;
       display: flex;
       align-items: center;
       padding: 8px;
-      background-color: $primary-bg-color;
+      background-color: $button-bg-color;
       border-radius: 4px;
       margin-bottom: 8px;
       max-height: 6vh;
