@@ -150,8 +150,6 @@ export async function customModelImageGeneration(conversation, localModelEndpoin
 let retryCount = 0;
 export async function getConversationTitleFromLocalModel(messages, model, localModelEndpoint) {
   try {
-    const apiKey = document.getElementById('api-key');
-    apiKey.value = localStorage.getItem('gptKey');
 
     let tempMessages = messages.slice(0);
     tempMessages.push({ role: 'user', content: 'Summarize my inital request or greeting in 5 words or less.' });

@@ -112,7 +112,7 @@ export async function fetchGPTResponseStream(
       model: model,
       stream: true,
       messages: tempMessages,
-      temperature: attitude * 0.01,
+      temperature: attitude,
     }),
     signal: abortController.signal,
   };
