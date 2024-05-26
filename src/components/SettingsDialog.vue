@@ -682,7 +682,8 @@ $bottom-panel-border-color: #5f4575cf;
 .close-btn {
   align-self: flex-end;
   padding: 10px;
-  border-bottom: 2px solid #725182b5;
+  border: none;
+  border-bottom: 1px solid #725182b5;
   color: white;
   cursor: pointer;
   width: 100vw;
