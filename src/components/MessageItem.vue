@@ -188,7 +188,7 @@ function handleMouseDown(event) {
 
   holdTimeout = setTimeout(() => {
     contextWindow.value.showContextMenu(currentEvent); // Use the captured event
-  }, 1000); // 1000ms hold time for mobile
+  }, 500); // 1000ms hold time for mobile
 }
 
 function handleMouseUp(event) {
