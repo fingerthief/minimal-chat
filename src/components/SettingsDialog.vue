@@ -1,5 +1,5 @@
 <script setup>
-import { RefreshCcw, Download, Upload, Trash2 } from 'lucide-vue-next';
+import { RefreshCcw, Download, Upload, Trash2, Settings } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
 import {
@@ -52,7 +52,8 @@ import {
   lastLoadedConversationId,
   selectedConversation,
   abortController,
-  imageInput
+  imageInput,
+  higherContrastMessages
 } from '@/libs/state-management/state'; // Import the state
 
 // Visibility states for collapsible config sections
@@ -219,6 +220,14 @@ onMounted(() => {
             <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
               @update:value="handleUpdate('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
               :placeholderText="'Enter the system prompt if applicable.'" />
+          </div>
+          <div class="control-checkbox">
+            <label for="higher-contrast-messages">
+              Higher Contrast Messages:
+              <input type="checkbox" id="higher-contrast-messages" :checked="higherContrastMessages"
+                @change="handleUpdate('higherContrastMessages', $event.target.checked)" />
+              <span class="slider"></span>
+            </label>
           </div>
           <div class="saved-system-prompts">
             <h4>Saved System Prompts:</h4>
@@ -451,7 +460,9 @@ onMounted(() => {
       </div>
     </div>
     <div class="bottom-panel">
-      <button class="close-btn" @click="toggleSidebar">Close</button>
+      <button class="close-btn" @click="toggleSidebar">
+        <Settings :stroke-width="1.5" :size="20" />&nbsp;Close
+      </button>
     </div>
   </div>
 </template>
@@ -474,9 +485,62 @@ $close-btn-bg-color: #1e1e1e;
 $close-btn-hover-bg-color: #6f383889;
 $close-btn-active-bg-color: #2c3e50;
 $border-color: #1b6a72c4;
-$header-border-color: #583e72b5;
-$bottom-panel-bg-color: #212121;
+$header-border-color: #424045b5;
+$bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
+
+.control-checkbox {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+    position: relative;
+    width: 100%;
+    user-select: none;
+
+    input[type="checkbox"] {
+      opacity: 0;
+      width: 0;
+      height: 0;
+
+      &:checked+.slider:before {
+        transform: translateX(26px);
+      }
+
+      &:checked+.slider {
+        background-color: #1a5951;
+      }
+    }
+
+    .slider {
+      width: 40px;
+      height: 20px;
+      background-color: #494747;
+      border-radius: 34px;
+      transition: background-color 0.3s;
+      position: relative;
+      margin-left: 10px;
+
+      &:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        border-radius: 50%;
+        transition: transform 0.3s;
+      }
+    }
+  }
+}
 
 .settings-dialog {
   display: flex;
@@ -489,7 +553,7 @@ $bottom-panel-border-color: #5f4575cf;
   flex-grow: 1;
   overflow-y: auto;
   padding: 6px;
-  background-color: #1e1e1e;
+  background-color: #1d1e1e;
   z-index: 10000;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   scrollbar-width: none;
@@ -525,12 +589,11 @@ $bottom-panel-border-color: #5f4575cf;
 
   h3 {
     margin-bottom: 15px;
-    background-color: $secondary-bg-color;
+    background-color: #0e2d2ae6;
     font-size: 16px;
     font-weight: bold;
     text-align: left;
     position: relative;
-    border-bottom: 3px solid $border-color;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -575,6 +638,7 @@ $bottom-panel-border-color: #5f4575cf;
     border-radius: 6px;
     cursor: pointer;
     background: $button-bg-color;
+    ;
     flex-direction: column-reverse;
     transition: background 0.3s ease;
 
@@ -585,42 +649,64 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .settings-header {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   text-align: center;
   margin-top: -7px;
   position: relative;
   border-bottom: 5px solid $header-border-color;
   padding: 25px 0;
-  background-color: $header-bg-color;
+  background-color: #1d1e1e;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .reload-icon {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: rotate(360deg);
+    }
+  }
 }
 
 .close-btn {
   align-self: flex-end;
   padding: 10px;
   border: none;
+  border-bottom: 1px solid #725182b5;
   color: white;
   cursor: pointer;
-  width: 100%;
-  font-size: 16px;
-  height: 40px;
+  width: 100vw;
+  height: 50px;
+  background-color: #1d1e1ebf;
+  font-size: 18px;
   outline: none;
-  transition: background-color 0.3s ease;
-  background-color: $close-btn-bg-color;
-  text-transform: uppercase;
   letter-spacing: 1px;
-  font-weight: bold;
-  border-bottom: 3px solid $header-border-color;
+  /* Subtle shadow */
 
   &:hover {
-    background-color: $close-btn-hover-bg-color;
+    background-color: lighten(#202625c2, 2%);
+    /* Slightly darker shade for hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Enhance shadow on hover */
   }
 
   &:active {
-    background-color: $close-btn-active-bg-color;
+    /* Even darker shade for active state */
     transform: translateY(1px);
   }
 }
+
 
 .box {
   box-shadow: 0px 1px 2px 0px $shadow-color;
@@ -666,9 +752,11 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .bottom-panel {
-  padding: 20px;
-  background-color: $bottom-panel-bg-color;
-  border-top: 2px solid $bottom-panel-border-color;
+  background: transparent;
+
+  @media (min-width: 600px) {
+    display: none;
+  }
 }
 
 .system-prompt-container,
@@ -691,7 +779,7 @@ $bottom-panel-border-color: #5f4575cf;
       display: flex;
       align-items: center;
       padding: 8px;
-      background-color: $primary-bg-color;
+      background-color: $button-bg-color;
       border-radius: 4px;
       margin-bottom: 8px;
       max-height: 6vh;
@@ -700,7 +788,7 @@ $bottom-panel-border-color: #5f4575cf;
       cursor: pointer;
 
       &.selected {
-        background-color: $highlight-bg-color;
+        background-color: darken($highlight-bg-color, 8%);
       }
 
       .delete-system-prompt-btn,

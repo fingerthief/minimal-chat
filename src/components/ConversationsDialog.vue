@@ -14,7 +14,6 @@ import {
 import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
 import { selectConversation } from '@/libs/conversation-management/conversations-management';
-import { vAutoAnimate } from '@formkit/auto-animate';
 // State
 const loadedConversation = ref({});
 let initialConversation = '';
@@ -152,7 +151,7 @@ function toggleConversations() {
     </div>
     <div class="sidebar-content-container">
       <div class="scrollable-list">
-        <ul v-auto-animate>
+        <ul>
           <li v-for="(conversation, index) in conversations" :key="index" :id="'conversation-' + index"
             :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
             @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
@@ -221,16 +220,15 @@ $shadow-color: #252629;
   font-size: 15px;
   font-weight: bold;
   position: relative;
-  border-bottom: 1px solid #3d3d3d;
   padding: 10px 22px;
-  background-color: #0c1928;
+  background-color: #1d1e1e;
   text-align: left;
   white-space: nowrap;
+  border-bottom: 5px solid #424045b5;
 
   @media (max-width: 600px) {
-    border-bottom: 5px solid #3d3d3d;
+
     padding: 25px 0;
-    background-color: #0c1928;
     text-align: center;
   }
 }
@@ -261,6 +259,10 @@ $shadow-color: #252629;
     flex-direction: column;
     font-size: 14px;
     justify-content: flex-end;
+
+    @media (max-width: 600px) {
+      background-color: #1d1e1e;
+    }
 
     .new-conversation-option {
       text-align: left;
@@ -380,7 +382,7 @@ $shadow-color: #252629;
 .scrollable-list {
   @media (max-width: 600px) {
     height: 68vh;
-    background-color: #0c1928;
+    background-color: #1d1e1e;
   }
 
   max-width: 100%;
@@ -431,6 +433,8 @@ $shadow-color: #252629;
     border-left: 6px solid #3a3a3a;
     color: #9e9d9d;
     user-select: none;
+    animation: slideIn 0.25s ease-out forwards;
+    /* Add this line */
 
     &[contenteditable='true'] {
       outline: none;
@@ -451,6 +455,40 @@ $shadow-color: #252629;
       border-left: 6px solid #02af75d5;
       color: whitesmoke;
     }
+
+    &.deleting {
+      /* Add this block */
+      animation: scaleDown 0.25s ease-out forwards;
+    }
+  }
+}
+
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(-100%);
+    /* Start off-screen to the left */
+    opacity: 0;
+    /* Optional: Start with 0 opacity */
+  }
+
+  100% {
+    transform: translateX(0);
+    /* End at the original position */
+    opacity: 1;
+    /* Optional: End with full opacity */
+  }
+}
+
+@keyframes scaleDown {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0);
+    opacity: 0;
   }
 }
 </style>

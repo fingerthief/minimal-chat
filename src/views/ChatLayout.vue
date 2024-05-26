@@ -1,7 +1,7 @@
 // ChatLayout.vue
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, nextTick, computed } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
@@ -25,10 +25,16 @@ import {
   imageInput,
   lastLoadedConversationId,
   conversations,
+  higherContrastMessages,
+  contextMenuOpened,
+  selectedConversation
 } from '@/libs/state-management/state';
 import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
 import { addMessage } from '@/libs/conversation-management/message-processing';
+import { runTutortialForNewUser } from '@/libs/utils/tutorial-utils';
+import "driver.js/dist/driver.css";
+import "../assets/tutorial.css";
 
 const sidebarContentContainer = ref(null);
 
@@ -69,7 +75,7 @@ onUnmounted(() => {
   document.removeEventListener('click', handleGlobalClick);
 });
 
-onMounted(() => {
+onMounted(async () => {
   setupWatchers();
   sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
   sidebarContentContainer.value.style.width = '420px';
@@ -77,11 +83,30 @@ onMounted(() => {
   selectedModel.value = localStorage.getItem('selectedModel') || 'gpt-4o';
 
   modelDisplayName.value = determineModelDisplayName(selectedModel.value);
+  higherContrastMessages.value = localStorage.getItem('higherContrastMessages') || false;
+
 
   selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
 
   document.addEventListener('click', handleGlobalClick);
+
+  document.addEventListener('swiped-left', function (e) {
+    if (!e.detail.xStart || !(window.innerWidth - e.detail.xStart <= 100)) {
+      console.log('Swipe did not start at the edge of the right side of the screen');
+      showConversationOptions.value = false;
+    }
+  });
+
+  document.addEventListener('swiped-right', function (e) {
+    if (!e.detail.xStart || e.detail.xStart >= 100) {
+      console.log('Swipe did not start at the edge of the left side of the screen');
+      isSidebarOpen.value = false;
+    }
+  });
+
+  await runTutortialForNewUser();
 });
+
 //#endregion
 </script>
 
@@ -328,6 +353,7 @@ pre {
   padding: 10px;
   border-radius: 12px;
   max-width: 98vw;
+  scrollbar-width: none;
   overflow: auto;
 
   code {
@@ -402,21 +428,20 @@ pre {
 
   @media (max-width: 600px) {
     position: fixed;
-    opacity: 0;
-    transform: translateX(110%) scale(0.8);
+    transform: translateX(110%) scale(0);
     border-right: 2px solid $border-color;
-    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-in-out;
+    transition: transform 0.25s ease-in-out; // Adjusted duration and easing
     z-index: 1;
     width: 100vw;
 
     &.open {
-      opacity: 1;
       width: 100vw;
-      height: 102vh;
-      transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.15s ease-in-out;
+      height: 100vh;
+      transition: transform 0.25s ease-in-out; // Adjusted duration and easing
     }
   }
 }
+
 
 .sidebar-common {
   width: 50vw;
@@ -425,22 +450,20 @@ pre {
   height: 100vh;
   position: fixed;
   top: 0;
-  transform: translateX(-100%) scale(0.8);
-  opacity: 0;
+  transform: translateX(-100%) scale(0);
   border-right: 2px solid $border-color;
   z-index: 1;
-  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-in-out;
+  transition: transform 0.25s ease-in-out; // Adjusted duration and easing
   /* Enhanced transition */
 
   @media (max-width: 600px) {
     width: 100vw;
-    transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.15s ease-in-out;
+    transition: transform 0.25s ease-in-out; // Adjusted duration and easing
   }
 
   &.sidebar-right {
     right: 0;
-    transform: translateX(100%) scale(0.8);
-    opacity: 0;
+    transform: translateX(100%) scale(0.0);
   }
 
   &.open {

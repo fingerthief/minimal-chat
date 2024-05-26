@@ -117,7 +117,7 @@ export function showToast(message) {
     style: {
       background: 'linear-gradient(to right, #0f3b39, #0f3b39)',
     },
-    onClick: function () {}, // Callback after click
+    onClick: function () { }, // Callback after click
   }).showToast();
 }
 

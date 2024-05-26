@@ -46,8 +46,8 @@ async function onModelChange(newModel) {
 
 <template>
   <div class="header box">
-    <a v-for="modelType in visibleModelLinks" :key="modelType.name" href="https://github.com/fingerthief/minimal-chat"
-      target="_blank" class="no-style-link">
+    <a v-for="modelType in visibleModelLinks" :key="modelType.name" id="navLink"
+      href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
       {{ modelType.display }}
     </a>
     <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
@@ -55,8 +55,8 @@ async function onModelChange(newModel) {
     </a>
     <div class="models-dropdown">
       <div class="control select-dropdown">
-        <label for="model-selector"></label>
-        <select id="model-selector" :value="selectedModel" @change="onModelChange">
+        <label for="quick-select-model-selector"></label>
+        <select id="quick-select-model-selector" :value="selectedModel" @change="onModelChange">
           <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
           <option value="gpt-4-turbo">GPT-4 Turbo</option>
           <option value="gpt-4o">GPT-4 Omni</option>
@@ -71,15 +71,6 @@ async function onModelChange(newModel) {
     <div class="settings-btn" @click="toggleSidebar">
       <Menu :stroke-width="0.5" :size="30" />
     </div>
-    <div class="trash-btn" @click="deleteCurrentConversation">
-      <ArchiveX :stroke-width="0.5" :size="30" />
-    </div>
-    <div class="saved-conversations-dropdown" @click="onShowConversationsClick">
-      <MessagesSquare :stroke-width="0.5" :size="30" />
-    </div>
-    <span class="save-icon" @click="clearMessages">
-      <MessageSquarePlus :stroke-width="0.5" :size="30" />
-    </span>
   </div>
 </template>
 
@@ -186,8 +177,7 @@ $shadow-spread-radius: 0px;
 
     @media (max-width: 600px) {
       background-color: #0a1e24;
-      left: 5%;
-      top: 14%;
+      position: relative;
     }
   }
 }

@@ -23,8 +23,8 @@ import {
   selectedDallEImageResolution,
   selectedAutoSaveOption,
   localModelEndpoint,
+  higherContrastMessages
 } from '@/libs/state-management/state';
-import { customConfigs, systemPrompts } from '../utils/settings-utils';
 
 export function setupWatchers() {
   watch(selectedModel, (newValue) => {
@@ -68,6 +68,7 @@ export function setupWatchers() {
     { ref: selectedDallEImageCount, key: 'selectedDallEImageCount' },
     { ref: selectedDallEImageResolution, key: 'selectedDallEImageResolution' },
     { ref: selectedAutoSaveOption, key: 'selectedAutoSaveOption' },
+    { ref: higherContrastMessages, key: 'higherContrastMessages' },
   ];
 
   refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));

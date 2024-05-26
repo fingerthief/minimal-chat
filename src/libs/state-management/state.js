@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { loadConversationTitles, loadStoredConversations } from '@/libs/api-access/gpt-api-access';
 import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 
+export const contextMenuOpened = ref(false);
 export const shouldShowScrollButton = ref(false);
 export const userText = ref('');
 export const isLoading = ref(false);
@@ -13,6 +14,7 @@ export const showConversationOptions = ref(false);
 export const messages = ref([]);
 export const streamedMessageText = ref('');
 export const modelDisplayName = ref('Unknown');
+export const higherContrastMessages = ref(localStorage.getItem("higherContrastMessages") || false);
 
 export const localModelKey = ref(localStorage.getItem('localModelKey') || '');
 export const localModelName = ref(localStorage.getItem('localModelName') || '');
