@@ -207,6 +207,11 @@ onMounted(() => {
             {{ model.label }}
           </li>
         </ul>
+        <div class="close-btn-wrapper">
+          <button class="close-btn" @click="toggleSidebar">
+            <Settings :stroke-width="1.5" :size="20" />&nbsp;Close
+          </button>
+        </div>
       </div>
       <div class="right-panel">
         <div v-if="selectedModel">
@@ -431,11 +436,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div class="bottom-panel">
-      <button class="close-btn" @click="toggleSidebar">
-        <Settings :stroke-width="1.5" :size="20" />&nbsp;Close
-      </button>
-    </div>
   </div>
 </template>
 
@@ -634,8 +634,34 @@ $bottom-panel-border-color: #5f4575cf;
 .settings-dialog {
   display: flex;
   flex-direction: column;
-  height: 96%;
+  max-height: 98vh;
+  min-height: 98vh;
   max-width: 99vw;
+
+
+  .close-btn {
+    align-self: flex-end;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #725182b5;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    height: 50px;
+    background-color: #1d1e1ebf;
+    font-size: 18px;
+    outline: none;
+    letter-spacing: 1px;
+
+    &:hover {
+      background-color: lighten(#202625c2, 2%);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
 
   .flex-container {
     align-items: center;
@@ -706,7 +732,7 @@ $bottom-panel-border-color: #5f4575cf;
 
 .settings-container {
   display: flex;
-  height: calc(100% - 100px);
+  height: 98vh;
 }
 
 .left-panel {
@@ -715,6 +741,10 @@ $bottom-panel-border-color: #5f4575cf;
   border-right: 1px solid #424045b5;
   overflow-y: auto;
   min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 60vh;
 
   @media (max-width: 600px) {
     max-width: 30vw;
@@ -725,11 +755,10 @@ $bottom-panel-border-color: #5f4575cf;
     overflow-x: auto;
     scrollbar-width: none;
     font-size: 12px;
-
     padding-left: 6px;
     padding-right: 6px;
+    height: 92vh;
   }
-
 
   h3 {
     margin-bottom: 15px;
@@ -756,7 +785,36 @@ $bottom-panel-border-color: #5f4575cf;
       }
     }
   }
+
+  .close-btn-wrapper {
+    margin-top: auto;
+  }
+
+  .close-btn {
+    align-self: flex-end;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #725182b5;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    height: 50px;
+    background-color: #1d1e1ebf;
+    font-size: 18px;
+    outline: none;
+    letter-spacing: 1px;
+
+    &:hover {
+      background-color: lighten(#202625c2, 2%);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
 }
+
 
 .right-panel {
   flex-grow: 1;
@@ -824,29 +882,5 @@ $bottom-panel-border-color: #5f4575cf;
 
 .bottom-panel {
   background: transparent;
-}
-
-.close-btn {
-  align-self: flex-end;
-  padding: 10px;
-  border: none;
-  border-bottom: 1px solid #725182b5;
-  color: white;
-  cursor: pointer;
-  width: 100%;
-  height: 50px;
-  background-color: #1d1e1ebf;
-  font-size: 18px;
-  outline: none;
-  letter-spacing: 1px;
-
-  &:hover {
-    background-color: lighten(#202625c2, 2%);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
 }
 </style>
