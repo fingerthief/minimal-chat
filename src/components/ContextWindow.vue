@@ -12,7 +12,7 @@ function showContextMenu(event) {
     if (event) {
         style.value = {
             top: `${event.clientY}px`,
-            left: `${event.clientX - 100}px`,
+            left: `${event.clientX}px`,
         };
     } else {
         const { innerWidth, innerHeight } = window;
@@ -22,7 +22,6 @@ function showContextMenu(event) {
         };
     }
 
-    console.log(style.value)
     contextMenuOpened.value = true;
 }
 

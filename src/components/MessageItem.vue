@@ -24,7 +24,8 @@ import {
   streamedMessageText,
   selectedConversation,
   modelDisplayName,
-  higherContrastMessages
+  higherContrastMessages,
+  contextMenuOpened
 } from '@/libs/state-management/state';
 import {
   setSystemPrompt,
@@ -183,9 +184,11 @@ function handleMouseDown(event) {
     return;
   }
 
+  const currentEvent = event; // Capture the event in a variable
+
   holdTimeout = setTimeout(() => {
-    contextWindow.value.showContextMenu(event);
-  }, 500); // 500ms hold time
+    contextWindow.value.showContextMenu(currentEvent); // Use the captured event
+  }, 1000); // 1000ms hold time for mobile
 }
 
 function handleMouseUp(event) {
@@ -212,7 +215,7 @@ window.addEventListener('resize', () => {
 <template>
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     @mousedown="handleMouseDown" @mouseup="handleMouseUp" data-swipe-threshold="15" data-swipe-unit="vw"
-    data-swipe-timeout="500">
+    data-swipe-timeout="500" @touchstart="handleMouseDown" @touchend="handleMouseUp">
     <DynamicScroller :min-item-size="250" :buffer="400" ref="scroller" class="scroller" @emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
