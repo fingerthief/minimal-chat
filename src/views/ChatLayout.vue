@@ -91,14 +91,14 @@ onMounted(async () => {
   document.addEventListener('click', handleGlobalClick);
 
   document.addEventListener('swiped-left', function (e) {
-    if (!e.detail.xStart || !(window.innerWidth - e.detail.xStart <= 25)) {
+    if (!e.detail.xStart || !(window.innerWidth - e.detail.xStart <= 100)) {
       console.log('Swipe did not start at the edge of the right side of the screen');
       showConversationOptions.value = false;
     }
   });
 
   document.addEventListener('swiped-right', function (e) {
-    if (!e.detail.xStart || e.detail.xStart >= 25) {
+    if (!e.detail.xStart || e.detail.xStart >= 100) {
       console.log('Swipe did not start at the edge of the left side of the screen');
       isSidebarOpen.value = false;
     }
