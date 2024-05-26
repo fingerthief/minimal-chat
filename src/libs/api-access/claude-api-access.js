@@ -150,7 +150,7 @@ export async function streamClaudeResponse(
       body: JSON.stringify({
         system: filteredMessages[0].content,
         messages: tempMessages.slice(1),
-        temperature: claudeSliderValue.value * 0.01,
+        temperature: claudeSliderValue.value,
         model: model,
         stream: true,
         max_tokens: 4096,

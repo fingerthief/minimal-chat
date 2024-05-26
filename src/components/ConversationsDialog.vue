@@ -234,7 +234,7 @@ $shadow-color: #252629;
 }
 
 .bottom-panel {
-  position: fixed;
+  position: sticky;
   bottom: 0;
   left: 0;
   right: 0;
@@ -449,7 +449,7 @@ $shadow-color: #252629;
     }
 
     &.selected {
-      background-color: #171616;
+      background-color: #0f2f31;
       font-weight: bold;
       box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
       border-left: 6px solid #02af75d5;

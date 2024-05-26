@@ -306,7 +306,6 @@ window.addEventListener('resize', () => {
       .message-header {
         justify-content: end;
         border-bottom: 2px solid #583e72d9;
-        background-color: darken(#2f2d44d9, 8%);
       }
     }
 
@@ -337,7 +336,6 @@ window.addEventListener('resize', () => {
       .message-header {
         justify-content: start;
         border-bottom: 2px solid #0b6363e5;
-        background-color: darken(#123638e3, 3%);
       }
     }
 

@@ -59,6 +59,8 @@ export async function runTutortialForNewUser() {
             await nextTick(() => {
                 const driverObj = driver({
                     popoverClass: 'driverjs-theme',
+                    allowClose: false,
+                    stageRadius: 18,
                     showProgress: true,
                     overlayOpacity: 0.75,
                     steps: isSmallScreen.value === true ? mobileTutorialSteps : desktopTutorialSteps,

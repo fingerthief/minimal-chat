@@ -171,7 +171,7 @@ onMounted(async () => {
 $icon-color: rgb(187, 187, 187);
 $background-color: #1c1c1e;
 $container-bg-color: #212121;
-$sidebar-bg-color: #0c1928;
+$sidebar-bg-color: #19191a;
 $scrollbar-track-color: #665067;
 $scrollbar-thumb-color: #4f3d50;
 $scrollbar-thumb-hover-color: #5d455e;
@@ -424,50 +424,60 @@ pre {
   position: inherit;
   height: 99vh;
   width: auto;
-  transform: translateX(-3px);
 
   @media (max-width: 600px) {
     position: fixed;
-    transform: translateX(110%) scale(0);
+    transform: translateX(0%) scale(0);
     border-right: 2px solid $border-color;
-    transition: transform 0.25s ease-in-out; // Adjusted duration and easing
+    transition: transform 0.25s ease-in-out;
     z-index: 1;
     width: 100vw;
 
     &.open {
       width: 100vw;
       height: 100vh;
-      transition: transform 0.25s ease-in-out; // Adjusted duration and easing
+      transition: transform 0.25s ease-in-out;
     }
   }
 }
 
 
 .sidebar-common {
-  width: 50vw;
   min-width: 25vw;
   max-width: 100vw;
-  height: 100vh;
   position: fixed;
-  top: 0;
-  transform: translateX(-100%) scale(0);
+  top: 15%;
+  transform: translateX(0%) scale(0);
   border-right: 2px solid $border-color;
   z-index: 1;
   transition: transform 0.25s ease-in-out; // Adjusted duration and easing
-  /* Enhanced transition */
+  border-radius: 12px;
+  opacity: 1;
+  border: 2px solid #083e35d9;
+  width: 60vw;
+  height: 70vh;
+  top: 15%;
+  font-size: 12px;
 
   @media (max-width: 600px) {
     width: 100vw;
+    height: 100vh;
+    top: 0;
     transition: transform 0.25s ease-in-out; // Adjusted duration and easing
   }
 
   &.sidebar-right {
     right: 0;
-    transform: translateX(100%) scale(0.0);
+    transform: translateX(0%) scale(0.0);
   }
 
+
   &.open {
-    transform: translateX(0) scale(1);
+    @media (min-width: 600px) {
+      transform: translateX(50%) scale(1);
+    }
+
+    transform: translateX(0%) scale(1);
     opacity: 1;
   }
 }
@@ -486,6 +496,10 @@ pre {
   z-index: 0;
   transition: opacity 0.3s ease-in-out;
   display: block;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 
   &:not(:empty) {
     display: none;
