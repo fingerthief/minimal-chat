@@ -21,7 +21,8 @@ import {
   browserModelSelection,
   sliderValue,
   selectedDallEImageCount,
-  selectedDallEImageResolution
+  selectedDallEImageResolution,
+  claudeSliderValue
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import {
@@ -94,8 +95,13 @@ function updateGptSliderValue(value) {
   handleUpdate('sliderValue', parseFloat(value));
 }
 
+
 function updateLocalSliderValue(value) {
   handleUpdate('localSliderValue', parseFloat(value));
+}
+
+function updateClaudeSliderValue(value) {
+  handleUpdate('claudeSliderValue', parseFloat(value));
 }
 
 function updateTopPSliderValue(value) {
@@ -209,8 +215,31 @@ onMounted(() => {
           <li :class="{ selected: selectedModel === 'general-config' }" @click="selectModel('general-config')">
             General Config
           </li>
-          <li v-for="model in models" :key="model.value" :class="{ selected: model.value === selectedModel }"
-            @click="selectModel(model.value)">
+          <!-- Collapsible Group for GPT Models -->
+          <li @click="isGPTConfigOpen = !isGPTConfigOpen">
+            GPT Models
+            <span class="indicator">{{ isGPTConfigOpen ? '-' : '+' }}</span>
+          </li>
+          <ul v-show="isGPTConfigOpen" class="sub-item">
+            <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
+              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+              {{ model.label }}
+            </li>
+          </ul>
+          <!-- Collapsible Group for Claude Models -->
+          <li @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+            Claude Models
+            <span class="indicator">{{ isClaudeConfigOpen ? '-' : '+' }}</span>
+          </li>
+          <ul v-show="isClaudeConfigOpen" class="sub-item">
+            <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
+              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+              {{ model.label }}
+            </li>
+          </ul>
+          <!-- Other Models -->
+          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
+            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
             {{ model.label }}
           </li>
         </ul>
@@ -374,7 +403,6 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-
           </div>
           <div v-if="selectedModel === 'open-ai-format'">
             <div class="control-grid">
@@ -439,7 +467,6 @@ onMounted(() => {
               </div>
             </div>
           </div>
-
           <div v-if="selectedModel === 'web-llm'">
             <div class="control select-dropdown">
               <label for="localModelsSelection">Model To Load In Browser:</label>
@@ -468,11 +495,16 @@ onMounted(() => {
             <div class="control-grid">
               <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                 inputId="claude-api-key" :value="claudeKey" @update:value="handleUpdate('claudeKey', $event)" />
-              <div class="slider-container">
-                <span>Serious</span>
-                <input type="range" min="0" max="100" :value="claudeSliderValue"
-                  @blur="handleUpdate('claudeSliderValue', $event.target.value)" />
-                <span>Creative</span>
+              <div class="flex-container">
+                <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
+                  :placeholderText="'Enter the temperature for the model.'" inputId="claudeSliderValue"
+                  :value="claudeSliderValue.toString()" @update:value="handleUpdate('claudeSliderValue', $event)" />
+                <div class="slider-container">
+                  <span>Serious</span>
+                  <input type="range" min="0" max="2" step="0.01" :value="claudeSliderValue"
+                    @input="updateClaudeSliderValue($event.target.value)" />
+                  <span>Creative</span>
+                </div>
               </div>
             </div>
           </div>
@@ -823,6 +855,7 @@ $bottom-panel-border-color: #5f4575cf;
   padding: 20px;
   border-right: 1px solid #424045b5;
   overflow-y: auto;
+  scrollbar-width: none;
   min-width: 250px;
   display: flex;
   flex-direction: column;
@@ -865,6 +898,20 @@ $bottom-panel-border-color: #5f4575cf;
       &:hover,
       &.selected {
         background-color: #1a5951;
+      }
+    }
+
+    .sub-item {
+      padding-left: 20px;
+
+      li {
+        background-color: darken($highlight-bg-color, 10%);
+        font-size: 14px;
+
+        &:hover,
+        &.selected {
+          background-color: darken($highlight-bg-color, 5%);
+        }
       }
     }
   }
@@ -964,7 +1011,6 @@ $bottom-panel-border-color: #5f4575cf;
     }
   }
 }
-
 
 .bottom-panel {
   background: transparent;
