@@ -1,5 +1,5 @@
 <script setup>
-import { RefreshCcw, Download, Upload, Trash2 } from 'lucide-vue-next';
+import { RefreshCcw, Download, Upload, Trash2, Settings } from 'lucide-vue-next';
 import InputField from './InputField.vue';
 import { ref, watch, onMounted } from 'vue';
 import {
@@ -460,7 +460,9 @@ onMounted(() => {
       </div>
     </div>
     <div class="bottom-panel">
-      <button class="close-btn" @click="toggleSidebar">Close</button>
+      <button class="close-btn" @click="toggleSidebar">
+        <Settings :stroke-width="1.5" :size="20" />&nbsp;Close
+      </button>
     </div>
   </div>
 </template>
@@ -680,22 +682,17 @@ $bottom-panel-border-color: #5f4575cf;
 .close-btn {
   align-self: flex-end;
   padding: 10px;
-  border: none;
+  border-bottom: 2px solid #725182b5;
   color: white;
   cursor: pointer;
   width: 100%;
   font-size: 16px;
-  height: 40px;
+  height: 50px;
+  font-size: 18px;
   outline: none;
   transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
-  background-color: #202625c2;
-  /* Use a solid color */
-  text-transform: uppercase;
+  background-color: #20262500;
   letter-spacing: 1px;
-  font-weight: bold;
-  border-radius: 5px;
-  /* Add rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   /* Subtle shadow */
 
   &:hover {
@@ -757,9 +754,7 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .bottom-panel {
-  padding: 20px;
-  background-color: $bottom-panel-bg-color;
-
+  background: transparent;
 
   @media (min-width: 600px) {
     display: none;
@@ -795,7 +790,7 @@ $bottom-panel-border-color: #5f4575cf;
       cursor: pointer;
 
       &.selected {
-        background-color: $highlight-bg-color;
+        background-color: darken($highlight-bg-color, 8%);
       }
 
       .delete-system-prompt-btn,

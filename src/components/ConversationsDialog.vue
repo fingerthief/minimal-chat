@@ -220,11 +220,11 @@ $shadow-color: #252629;
   font-size: 15px;
   font-weight: bold;
   position: relative;
-  border-bottom: 1px solid #0c1928;
   padding: 10px 22px;
-  background-color: #0c1928;
+  background-color: #1d1e1e;
   text-align: left;
   white-space: nowrap;
+  border-bottom: 5px solid #424045b5;
 
   @media (max-width: 600px) {
 
