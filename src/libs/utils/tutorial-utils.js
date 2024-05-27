@@ -183,7 +183,7 @@ export async function runTutortialForNewUser() {
             await nextTick(() => {
                 const driverObj = driver({
                     popoverClass: 'driverjs-theme',
-                    allowClose: false,
+                    allowClose: true,
                     stageRadius: 18,
                     showProgress: true,
                     overlayOpacity: 0.75,
