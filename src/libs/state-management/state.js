@@ -1,5 +1,5 @@
 // state.js
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { loadConversationTitles, loadStoredConversations } from '@/libs/api-access/gpt-api-access';
 import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 
@@ -42,3 +42,17 @@ export const lastLoadedConversationId = ref(parseInt(localStorage.getItem('lastC
 export const selectedConversation = ref(conversations.value[0]);
 export const abortController = ref(null);
 export const imageInput = ref(null);
+
+// Add a computed property to check the screen width
+export const isSmallScreen = computed(() => window.innerWidth <= 600);
+export const isSidebarVisible = ref(!isSmallScreen.value);
+
+// Watch for window resize events to update the computed property
+window.addEventListener('resize', () => {
+    isSmallScreen.value = window.innerWidth <= 600;
+    if (isSmallScreen.value) {
+        isSidebarVisible.value = false;
+    } else {
+        isSidebarVisible.value = true;
+    }
+});

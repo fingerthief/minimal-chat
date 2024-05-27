@@ -22,7 +22,9 @@ import {
   sliderValue,
   selectedDallEImageCount,
   selectedDallEImageResolution,
-  claudeSliderValue
+  claudeSliderValue,
+  isSmallScreen,
+  isSidebarVisible
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import {
@@ -91,13 +93,14 @@ function selectModel(model) {
   }
 }
 
-function getModelLabel(modelValue) {
-  const model = models.find(m => m.value === modelValue);
-  return model ? model.label : '';
+function toggleSidebar() {
+  isSidebarVisible.value = !isSidebarVisible.value;
 }
 
-function toggleSidebar() {
-  isSidebarOpen.value = !isSidebarOpen.value;
+function handleRightPanelClick() {
+  if (isSmallScreen.value) {
+    isSidebarVisible.value = false;
+  }
 }
 
 function updateGptSliderValue(value) {
@@ -218,7 +221,7 @@ onMounted(() => {
       </h2>
     </div>
     <div class="settings-container">
-      <div class="left-panel">
+      <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
         <h3>Models</h3>
         <ul>
           <li :class="{ selected: selectedModel === 'general-config' }" @click="selectModel('general-config')">
@@ -253,12 +256,15 @@ onMounted(() => {
           </li>
         </ul>
         <div class="close-btn-wrapper">
-          <button class="close-btn" @click="toggleSidebar">
+          <button class="close-btn" @click="() => isSidebarOpen = false">
             <Settings :stroke-width="1.5" :size="20" />&nbsp;Close
           </button>
         </div>
       </div>
-      <div class="right-panel">
+      <div v-show="!isSidebarVisible" class="left-panel-collapsed" @click.stop="toggleSidebar">
+        <span>Model Selection</span>
+      </div>
+      <div class="right-panel" @click="handleRightPanelClick">
         <div v-if="selectedModel">
           <div v-if="selectedModel.includes('general')">
             <div class="system-prompt-container">
@@ -523,6 +529,7 @@ onMounted(() => {
   </div>
 </template>
 
+
 <style lang="scss" scoped>
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
@@ -544,6 +551,55 @@ $border-color: #1b6a72c4;
 $header-border-color: #424045b5;
 $bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(-100%);
+    /* Start off-screen to the left */
+    opacity: 0;
+    /* Optional: Start with 0 opacity */
+  }
+
+  100% {
+    transform: translateX(0);
+    /* End at the original position */
+    opacity: 1;
+    /* Optional: End with full opacity */
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    transform: translateX(0);
+    /* Start off-screen to the left */
+    opacity: 0;
+    /* Optional: Start with 0 opacity */
+  }
+
+  100% {
+    transform: translateX(-100%);
+    /* End at the original position */
+    opacity: 1;
+    /* Optional: End with full opacity */
+  }
+}
+
+.expand-sidebar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $button-bg-color;
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: $button-hover-bg-color;
+  }
+}
 
 .config-section {
   margin-bottom: 15px;
@@ -862,7 +918,10 @@ $bottom-panel-border-color: #5f4575cf;
 .left-panel {
   background-color: #1d1e1e;
   padding: 20px;
-  border-right: 1px solid #424045b5;
+  border-right: 5px solid #424045b5;
+  /* Same width as the right border of the expanded panel */
+  background-color: #1d1e1e;
+  /* Increase the size of the right border */
   overflow-y: auto;
   scrollbar-width: none;
   min-width: 250px;
@@ -870,13 +929,18 @@ $bottom-panel-border-color: #5f4575cf;
   flex-direction: column;
   justify-content: space-between;
   height: 60vh;
+  transition: width 0.3s ease;
+  animation: slideIn 0.25s ease-out backwards;
+  /* Add transition for width */
 
   @media (max-width: 600px) {
+    animation: slideIn 0.15s ease-out forwards backwards;
     max-width: 30vw;
     min-width: 30vw;
     background-color: #1d1e1e;
     padding: 20px;
-    border-right: 1px solid rgba(66, 64, 69, 0.7098039216);
+    border-right: 3px solid #1a5951;
+    /* Increase the size of the right border */
     overflow-x: auto;
     scrollbar-width: none;
     font-size: 12px;
@@ -954,6 +1018,35 @@ $bottom-panel-border-color: #5f4575cf;
   }
 }
 
+.left-panel-collapsed {
+  width: 24px;
+  background-color: rgba(22, 74, 67, 0.91);
+  cursor: pointer;
+  height: 25vh;
+  position: absolute;
+  left: 0;
+  top: 35%;
+  border-right: 5px solid rgba(66, 64, 69, 0.7098039216);
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  animation: slideIn 0.25s ease-in-out backwards;
+
+
+  &:hover {
+    background-color: lighten(rgba(22, 74, 67, 0.91), 5%);
+  }
+}
+
+.left-panel-collapsed span {
+  width: 100%;
+  text-align: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 15px;
+}
 
 .right-panel {
   flex-grow: 1;
@@ -974,8 +1067,9 @@ $bottom-panel-border-color: #5f4575cf;
 
     padding-left: 12px;
     padding-right: 12px;
-    max-width: 66vw;
-    max-height: 89vh;
+    width: 90vw;
+    margin-left: 15px;
+    min-height: 99vh;
   }
 
   h3 {

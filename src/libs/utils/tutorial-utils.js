@@ -1,17 +1,10 @@
-import { messages, conversations, selectedConversation, contextMenuOpened } from "../state-management/state";
+import { isSmallScreen, messages, conversations, selectedConversation, contextMenuOpened } from "../state-management/state";
 import { deleteCurrentConversation } from "../conversation-management/useConversations";
 import { driver } from "driver.js";
 import { nextTick, computed } from "vue";
 
 export async function runTutortialForNewUser() {
     const hasShownUserTutorial = JSON.parse(localStorage.getItem('hasShownUserTutorial') || false);
-
-    const isSmallScreen = computed(() => window.innerWidth <= 600);
-
-    // Watch for window resize events to update the computed property
-    window.addEventListener('resize', () => {
-        isSmallScreen.value = window.innerWidth <= 600;
-    });
 
     const mobileTutorialSteps = [
         { popover: { title: 'MinimalChat Tutorial', description: 'Welcome to MinimalChat! Follow this quick guided tour to learn about the app. It highlights useful information, features, and gestures!' } },

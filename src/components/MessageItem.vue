@@ -25,7 +25,8 @@ import {
   selectedConversation,
   modelDisplayName,
   higherContrastMessages,
-  contextMenuOpened
+  contextMenuOpened,
+  isSmallScreen
 } from '@/libs/state-management/state';
 import {
   setSystemPrompt,
@@ -203,13 +204,6 @@ function handleMouseUp(event) {
   }, 1000);
 }
 
-// Add a computed property to check the screen width
-const isSmallScreen = computed(() => window.innerWidth <= 600);
-
-// Watch for window resize events to update the computed property
-window.addEventListener('resize', () => {
-  isSmallScreen.value = window.innerWidth <= 600;
-});
 </script>
 
 <template>
