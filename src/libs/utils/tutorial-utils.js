@@ -5,6 +5,12 @@ import { nextTick, computed } from "vue";
 import { saveSystemPrompt, systemPrompts } from "./settings-utils";
 
 export async function runTutorialForSettings() {
+    const hasShownUserSettingsTutorial = JSON.parse(localStorage.getItem('hasShownUserSettingsTutorial') || false);
+
+    if (hasShownUserSettingsTutorial) {
+        return;
+    }
+
     systemPrompt.value = "Respond like Dale Gribble";
     saveSystemPrompt('Respond like Dale Gribble');
     selectedModel.value = 'general-config'; // use the general section for walkthrough
@@ -107,7 +113,7 @@ export async function runTutorialForSettings() {
 
 
 
-    const hasShownUserSettingsTutorial = JSON.parse(localStorage.getItem('hasShownUserSettingsTutorial') || false);
+
 
     nextTick(async () => {
         if (!hasShownUserSettingsTutorial) {
