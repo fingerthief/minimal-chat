@@ -43,6 +43,7 @@ import {
   showGPTConfig,
   showLocalConfig
 } from '@/libs/utils/settings-utils';
+import "swiped-events";
 
 // Visibility states for collapsible config sections
 const isGeneralConfigOpen = ref(true);
@@ -166,8 +167,20 @@ function reloadPage() {
   window.location.reload();
 }
 
+function swipedRight(e) {
+  event.stopPropagation();
+  if (!e.detail.xStart || e.detail.xStart >= 100) {
+    console.log('Swipe did not start at the edge of the left side of the screen');
+    isSidebarOpen.value = true;
+    return;
+  }
+
+  isSidebarOpen.value = false;
+}
+
 // Lifecycle hooks
 onMounted(() => {
+
   if (selectedModel.value === 'open-ai-format') {
     fetchAvailableModels();
   }
@@ -211,7 +224,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="settings-dialog">
+  <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
+    @swiped-right="swipedRight">
     <div class="settings-header">
       <h2>
         <span @click="reloadPage">
@@ -262,7 +276,7 @@ onMounted(() => {
         </div>
       </div>
       <div v-show="!isSidebarVisible" class="left-panel-collapsed" @click.stop="toggleSidebar">
-        <span>Model Selection</span>
+        <span>Open Model Selection</span>
       </div>
       <div class="right-panel" @click="handleRightPanelClick">
         <div v-if="selectedModel">
@@ -919,9 +933,7 @@ $bottom-panel-border-color: #5f4575cf;
   background-color: #1d1e1e;
   padding: 20px;
   border-right: 5px solid #424045b5;
-  /* Same width as the right border of the expanded panel */
   background-color: #1d1e1e;
-  /* Increase the size of the right border */
   overflow-y: auto;
   scrollbar-width: none;
   min-width: 250px;
@@ -929,9 +941,8 @@ $bottom-panel-border-color: #5f4575cf;
   flex-direction: column;
   justify-content: space-between;
   height: 60vh;
-  transition: width 0.3s ease;
-  animation: slideIn 0.25s ease-out backwards;
-  /* Add transition for width */
+  transition: width 0.15s ease;
+  animation: slideIn 0.15s ease-out backwards;
 
   @media (max-width: 600px) {
     animation: slideIn 0.15s ease-out forwards backwards;
@@ -940,7 +951,6 @@ $bottom-panel-border-color: #5f4575cf;
     background-color: #1d1e1e;
     padding: 20px;
     border-right: 3px solid #1a5951;
-    /* Increase the size of the right border */
     overflow-x: auto;
     scrollbar-width: none;
     font-size: 12px;
@@ -1026,14 +1036,17 @@ $bottom-panel-border-color: #5f4575cf;
   position: absolute;
   left: 0;
   top: 35%;
+
   border-right: 5px solid rgba(66, 64, 69, 0.7098039216);
   transition: width 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  animation: slideIn 0.25s ease-in-out backwards;
-
+  animation: slideIn 0.15s ease-in-out forwards;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 
   &:hover {
     background-color: lighten(rgba(22, 74, 67, 0.91), 5%);
@@ -1068,7 +1081,6 @@ $bottom-panel-border-color: #5f4575cf;
     padding-left: 12px;
     padding-right: 12px;
     width: 90vw;
-    margin-left: 15px;
     min-height: 99vh;
   }
 
