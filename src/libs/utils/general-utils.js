@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -17,12 +17,10 @@ export function removeAPIEndpoints(url) {
 }
 
 let retryCount = 0;
-export async function getConversationTitleFromGPT(messages, model, sliderValue) {
+export async function getConversationTitleFromGPT(messages2, model, sliderValue2) {
   try {
-    const apiKey = document.getElementById('api-key');
-    apiKey.value = localStorage.getItem('gptKey');
 
-    let tempMessages = messages.map((message) => ({
+    let tempMessages = messages.value.map((message) => ({
       role: message.role,
       content: message.content,
     }));
@@ -31,12 +29,12 @@ export async function getConversationTitleFromGPT(messages, model, sliderValue) 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey.value.trim() || 'Missing API Key'}`,
+        Authorization: `Bearer ${localStorage.getItem('gptKey') || 'Missing API Key'}`,
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: tempMessages,
-        temperature: sliderValue,
+        temperature: sliderValue.value,
       }),
     });
 
