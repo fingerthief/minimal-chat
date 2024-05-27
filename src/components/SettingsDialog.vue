@@ -61,8 +61,8 @@ const models = [
   { label: 'Claude 3 Opus', value: 'claude-3-opus-20240229' },
   { label: 'Claude 3 Sonnet', value: 'claude-3-sonnet-20240229' },
   { label: 'Claude 3 Haiku', value: 'claude-3-haiku-20240307' },
-  { label: 'Custom API Endpoint', value: 'open-ai-format' },
-  { label: 'Local Browser Model', value: 'web-llm' }
+  { label: 'Custom API', value: 'open-ai-format' },
+  { label: 'WebGPU Model', value: 'web-llm' }
 ];
 
 const availableModels = ref([]);
@@ -976,20 +976,34 @@ $bottom-panel-border-color: #5f4575cf;
       color: #fff;
       border-radius: 4px;
       margin-bottom: 8px;
+      border-bottom: 1px solid #1a5951;
       transition: background-color 0.3s;
 
       &:hover,
       &.selected {
-        background-color: #1a5951;
+        background-color: #14423b;
       }
     }
 
     .sub-item {
-      padding-left: 20px;
+      padding-left: 12px;
+
+      @media (max-width: 600px) {
+        padding-left: 6px;
+      }
 
       li {
-        background-color: darken($highlight-bg-color, 10%);
-        font-size: 14px;
+        background-color: darken($highlight-bg-color, 13%);
+
+        border-bottom: 0;
+        padding: 8px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+
+        @media (max-width: 600px) {
+          padding-top: 5px;
+          padding-bottom: 5px;
+        }
 
         &:hover,
         &.selected {
@@ -1059,6 +1073,7 @@ $bottom-panel-border-color: #5f4575cf;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   font-size: 15px;
+  color: rgb(224, 224, 224);
 }
 
 .right-panel {
