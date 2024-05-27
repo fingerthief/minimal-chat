@@ -43,16 +43,10 @@ export const selectedConversation = ref(conversations.value[0]);
 export const abortController = ref(null);
 export const imageInput = ref(null);
 
-// Add a computed property to check the screen width
-export const isSmallScreen = computed(() => window.innerWidth <= 600);
-export const isSidebarVisible = ref(!isSmallScreen.value);
+export const isSmallScreen = ref(window.innerWidth <= 600);
+export const isSidebarVisible = ref(isSmallScreen.value);
 
-// Watch for window resize events to update the computed property
+
 window.addEventListener('resize', () => {
     isSmallScreen.value = window.innerWidth <= 600;
-    if (isSmallScreen.value) {
-        isSidebarVisible.value = false;
-    } else {
-        isSidebarVisible.value = true;
-    }
 });

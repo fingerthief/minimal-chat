@@ -27,6 +27,7 @@ import {
   isSidebarVisible
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
+import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
 import {
   handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings, customConfigs,
   selectedCustomConfigIndex,
@@ -139,6 +140,13 @@ watch(
   }
 );
 
+// Watch for changes in the sidebar's visibility
+watch(isSidebarOpen, (newVal) => {
+  if (newVal) {
+    runTutorialForSettings();
+  }
+});
+
 // System Prompts
 function handleDeleteSystemPrompt(index) {
   deleteSystemPrompt(index, showToast);
@@ -178,9 +186,25 @@ function swipedRight(e) {
   isSidebarOpen.value = false;
 }
 
+const lastTap = ref(0);
+function handleTouchStart(event) {
+  if (!isSmallScreen.value) {
+    return;
+  }
+
+  const currentTime = new Date().getTime();
+  const tapLength = currentTime - lastTap.value;
+
+  console.log(tapLength);
+  if (tapLength < 300 && tapLength > 0) {
+    // Double-tap detected
+    toggleSidebar();
+  }
+  lastTap.value = currentTime;
+}
+
 // Lifecycle hooks
 onMounted(() => {
-
   if (selectedModel.value === 'open-ai-format') {
     fetchAvailableModels();
   }
@@ -231,7 +255,7 @@ onMounted(() => {
         <span @click="reloadPage">
           <RefreshCcw :size="23" :stroke-width="2" />
         </span>
-        Settings | V6.1.6
+        Settings | V6.1.7
       </h2>
     </div>
     <div class="settings-container">
@@ -271,14 +295,14 @@ onMounted(() => {
         </ul>
         <div class="close-btn-wrapper">
           <button class="close-btn" @click="() => isSidebarOpen = false">
-            <Settings :stroke-width="1.5" :size="20" />&nbsp;Close
+            Close
           </button>
         </div>
       </div>
-      <div v-show="!isSidebarVisible" class="left-panel-collapsed" @click.stop="toggleSidebar">
+      <div v-show="!isSidebarVisible && isSmallScreen" class="left-panel-collapsed" @click.stop="toggleSidebar">
         <span>Open Model Selection</span>
       </div>
-      <div class="right-panel" @click="handleRightPanelClick">
+      <div class="right-panel" @touchstart="handleTouchStart">
         <div v-if="selectedModel">
           <div v-if="selectedModel.includes('general')">
             <div class="system-prompt-container">
@@ -620,9 +644,7 @@ $bottom-panel-border-color: #5f4575cf;
 
   h3 {
     margin-bottom: 15px;
-    background-color: #0e2d2ae6;
-    font-size: 16px;
-    font-weight: bold;
+    background-color: #1a4c47e6;
     text-align: left;
     position: relative;
     display: flex;
@@ -832,12 +854,12 @@ $bottom-panel-border-color: #5f4575cf;
   min-height: 98vh;
   max-width: 99vw;
 
-
   .close-btn {
     align-self: flex-end;
     padding: 10px;
+    padding-bottom: 0px;
     border: none;
-    border-bottom: 1px solid #725182b5;
+    border-bottom: 2px solid rgb(88 43 110 / 83%);
     color: white;
     cursor: pointer;
     width: 100%;
@@ -1096,13 +1118,11 @@ $bottom-panel-border-color: #5f4575cf;
     padding-left: 12px;
     padding-right: 12px;
     width: 90vw;
-    min-height: 99vh;
+    min-height: 89vh;
   }
 
   h3 {
     margin-bottom: 15px;
-    font-size: 16px;
-    font-weight: bold;
     color: #fff;
   }
 
