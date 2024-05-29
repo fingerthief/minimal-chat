@@ -165,6 +165,81 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
   return decodedResult;
 }
 
+// TTS function
+export async function fetchTTSResponse(text) {
+  const apiKey = localStorage.getItem('gptKey');
+
+  if (!apiKey) {
+    throw new Error('API key not found');
+  }
+
+  const response = await fetch('https://api.openai.com/v1/audio/speech', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      text,
+      voice: 'alloy' // Default voice, adjust as needed
+    })
+  });
+
+  const jsonResponse = await response.json();
+  if (jsonResponse.error) {
+    throw new Error(jsonResponse.error.message);
+  }
+
+  const audioContent = jsonResponse.audio_content;
+  playAudio(audioContent);
+}
+
+function playAudio(audioContent) {
+  const audioBlob = new Blob([audioContent], { type: 'audio/mpeg' });
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = new Audio(audioUrl);
+  audio.play();
+}
+
+export async function fetchSTTResponse(file) {
+  const apiKey = localStorage.getItem('gptKey');
+
+  if (!apiKey) {
+    throw new Error('API key not found');
+  }
+
+  const formData = new FormData();
+  
+  // Append the file with the appropriate format
+  formData.append('file', new File([file], 'audio.webm', { type: 'audio/webm' }));
+  formData.append('model', 'whisper-1'); // Default model, adjust as needed
+
+  // Add default parameters
+  formData.append('response_format', 'json');
+  formData.append('timestamp_granularities', 'all');
+  formData.append('prompt', 'Transcribe the following audio');
+
+  const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: formData,
+  });
+
+  const jsonResponse = await response.json();
+  if (jsonResponse.error) {
+    throw new Error(jsonResponse.error.message);
+  }
+
+  const content = jsonResponse.text;
+  console.log('fetchSTTResponse - Transcription response:', content);
+
+  // Return the transcribed text
+  return content;
+}
+
+
 function filterGPTMessages(conversation) {
   let lastMessageContent = '';
   return conversation.filter((message) => {
