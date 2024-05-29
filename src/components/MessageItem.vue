@@ -210,7 +210,7 @@ function handleMouseUp(event) {
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     @mousedown="handleMouseDown" @mouseup="handleMouseUp" data-swipe-threshold="15" data-swipe-unit="vw"
     data-swipe-timeout="500" @touchstart="handleMouseDown" @touchend="handleMouseUp">
-    <DynamicScroller :min-item-size="250" :buffer="400" ref="scroller" class="scroller" @emitUpdates="true"
+    <DynamicScroller :min-item-size="250" :buffer="3000" ref="scroller" class="scroller" @emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
         <div v-if="active" :class="messageClass(item.role)">

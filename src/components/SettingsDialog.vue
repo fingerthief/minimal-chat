@@ -644,7 +644,8 @@ $bottom-panel-border-color: #5f4575cf;
 
   h3 {
     margin-bottom: 15px;
-    background-color: #1a4c47e6;
+    background-color: transparent;
+    border-bottom: 4px solid #1a4c47e6;
     text-align: left;
     position: relative;
     display: flex;

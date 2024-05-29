@@ -111,10 +111,6 @@ export async function runTutorialForSettings() {
         }
     ];
 
-
-
-
-
     nextTick(async () => {
         if (!hasShownUserSettingsTutorial) {
             nextTick(async () => {
