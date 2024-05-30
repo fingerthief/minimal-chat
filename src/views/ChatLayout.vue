@@ -450,7 +450,7 @@ pre {
   transform: translateX(0%) scale(0);
   border-right: 2px solid $border-color;
   z-index: 1;
-  transition: transform 0.25s ease-in-out; // Adjusted duration and easing
+  transition: transform 0.25s ease-in-out;
   border-radius: 12px;
   opacity: 1;
   border: 2px solid #083e35d9;
@@ -463,7 +463,7 @@ pre {
     width: 100vw;
     height: 100vh;
     top: 0;
-    transition: transform 0.25s ease-in-out; // Adjusted duration and easing
+    transition: transform 0.25s ease-in-out;
   }
 
   &.sidebar-right {
