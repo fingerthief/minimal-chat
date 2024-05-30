@@ -321,19 +321,7 @@ onUnmounted(() => {
 
 <style scoped>
 .interact-mode {
-  position: absolute;
-  right: calc( -50px );
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  height: 50px;
-  margin-left: 18px;
-  border: 1px solid rgba(112, 112, 112, 0.5294117647);
-  background: #212121;
-  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 .chevron-icon {
   position: absolute;

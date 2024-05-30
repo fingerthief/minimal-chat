@@ -189,18 +189,20 @@ const handleCloseInteractMode = () => {
             <SquareArrowUp />
           </span>
         </div>
-        <ToolTip :targetId="'interactButton'"> Open interact mode (Experimental) </ToolTip>
-        <div class="interact-button" id="interactButton" @click="isInteractModeOpen = !isInteractModeOpen">
-          <span>
-            <Speech />
-          </span>
-        </div>
       </div>
-      <InteractMode 
-        v-if="isInteractModeOpen" 
-        @recognized-sentence="handleRecognizedSentence" 
-        @close-interact-mode="handleCloseInteractMode" 
-      />
+      <div class="interact-mode-container">
+        <div v-if="!isInteractModeOpen">
+          <ToolTip :targetId="'interactButton'"> Interact mode (Experimental) </ToolTip>
+          <div class="interact-button" id="interactButton" @click="isInteractModeOpen = !isInteractModeOpen">
+            <Speech />
+          </div>
+        </div>
+        <InteractMode 
+          v-if="isInteractModeOpen" 
+          @recognized-sentence="handleRecognizedSentence" 
+          @close-interact-mode="handleCloseInteractMode" 
+        />
+      </div>
     </div>
   </form>
 
@@ -217,9 +219,9 @@ $icon-color: rgb(187, 187, 187);
   top: 104%;
 
   @media (max-width: 600px) {
-    max-width: 98vw;
+    max-width: 100vw;
     width: 100%;
-    top: 103%;
+    top: 102%;
   }
 
   .input-container {
@@ -227,6 +229,11 @@ $icon-color: rgb(187, 187, 187);
     align-items: center;
     width: 100%;
     position: relative;
+
+    @media (max-width: 600px) {
+      width: calc(100% - 50px - 0.5rem);
+    }
+
   }
 
   .icons {
@@ -258,6 +265,9 @@ $icon-color: rgb(187, 187, 187);
     &:hover {
       transform: scale(1.3);
     }
+  }
+  .interact-button {
+    margin-left: unset;
   }
 
   #user-input {
@@ -319,7 +329,22 @@ $icon-color: rgb(187, 187, 187);
     }
   }
 }
-
+.interact-mode-container {
+  position: absolute;
+  right: calc( -50px );
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  height: 50px;
+  width: 50px;
+  margin-left: 18px;
+  border: 1px solid rgba(112, 112, 112, 0.5294117647);
+  background: #212121;
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+}
 .interact-toggle-button {
   position: fixed;
   bottom: 10px;
