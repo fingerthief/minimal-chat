@@ -1,7 +1,8 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages, sliderValue } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
+import { fetchTTSResponse } from '../api-access/gpt-api-access';
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -240,5 +241,16 @@ export function handleGlobalClick(event) {
   }
   if (conversationsDialogElement && !conversationsDialogElement.contains(event.target) && showConversationOptions.value) {
     showConversationOptions.value = false;
+  }
+}
+
+export async function handleTextStreamEnd(message) {
+  if (isInteractModeOpen.value) {
+    try {
+      // Call the fetchTTSResponse with "message" and play the result
+      await fetchTTSResponse(message);
+    } catch (error) {
+      console.error('Error with TTS Response:', error);
+    }
   }
 }

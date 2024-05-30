@@ -1,4 +1,4 @@
-import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
+import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
 import { messages } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
@@ -162,6 +162,8 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
     }
   }
 
+  handleTextStreamEnd(decodedResult);
+
   return decodedResult;
 }
 
@@ -180,22 +182,22 @@ export async function fetchTTSResponse(text) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      text,
-      voice: 'alloy' // Default voice, adjust as needed
+      model: 'tts-1', // Adding the model parameter as required
+      input: text,    // Changing 'text' to 'input' as required
+      voice: 'alloy'  // Default voice, adjust as needed
     })
   });
 
-  const jsonResponse = await response.json();
-  if (jsonResponse.error) {
-    throw new Error(jsonResponse.error.message);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error from TTS API: ${errorText}`);
   }
 
-  const audioContent = jsonResponse.audio_content;
-  playAudio(audioContent);
+  const audioBlob = await response.blob(); // Get the audio content as a blob
+  playAudio(audioBlob);
 }
 
-function playAudio(audioContent) {
-  const audioBlob = new Blob([audioContent], { type: 'audio/mpeg' });
+function playAudio(audioBlob) {
   const audioUrl = URL.createObjectURL(audioBlob);
   const audio = new Audio(audioUrl);
   audio.play();
