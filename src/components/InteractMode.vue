@@ -62,6 +62,10 @@ const checkMicrophoneAvailability = async () => {
   }
 };
 
+const checkWebSpeechAPI = () => {
+  return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+};
+
 const startMediaRecorder = (stream) => {
   mediaRecorder.value = new MediaRecorder(stream, { mimeType: 'audio/webm' });
 
@@ -86,9 +90,17 @@ const startRecording = async () => {
   state.value = 'fetching'; // Update state to fetching
   errorMessage.value = null;
 
-  if (!(await checkMicrophoneAvailability())) {
-    alert('Microphone not available or permission denied.');
+  if (!checkWebSpeechAPI()) {
+    errorMessage.value = 'Web Speech API is not supported in this browser.';
     isLoading.value = false;
+    state.value = 'error'; // Update state to error
+    return;
+  }
+
+  if (!(await checkMicrophoneAvailability())) {
+    errorMessage.value = 'Microphone not available or permission denied.';
+    isLoading.value = false;
+    state.value = 'error'; // Update state to error
     return;
   }
 
@@ -244,6 +256,12 @@ const drawAudioWaveform = () => {
 const recognition = ref(null);
 
 onMounted(async () => {
+  if (!checkWebSpeechAPI()) {
+    errorMessage.value = 'Web Speech API is not supported in this browser.';
+    state.value = 'error'; // Update state to error
+    return;
+  }
+
   recognition.value = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.value.continuous = true;
   recognition.value.interimResults = false;
