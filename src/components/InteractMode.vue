@@ -52,6 +52,18 @@ let transitioning = false;
 
 const useWhisper = ref(true); // Toggle for using Whisper or Web Speech API
 
+const supportedMimeTypes = [
+  'audio/wav', // High quality but less supported
+  'audio/mp3', // High quality but not supported in all browsers
+  'audio/mp4', // High quality but limited browser support (mainly Safari)
+  'audio/webm;codecs=opus', // Good quality and widely supported
+  'audio/ogg;codecs=opus', // Good quality but less widely supported
+  'audio/webm', // Good quality and widely supported (default codec)
+  'audio/ogg;codecs=vorbis', // Lower quality but widely supported
+  'audio/ogg', // Lower quality and less widely supported (default codec)
+  'audio/x-matroska' // Lower quality and limited browser support
+];
+
 const checkMicrophoneAvailability = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -66,8 +78,15 @@ const checkWebSpeechAPI = () => {
   return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
 };
 
-const startMediaRecorder = (stream) => {
-  mediaRecorder.value = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+const startMediaRecorder = async (stream) => {
+  const mimeType = getSupportedMimeType();
+  console.log(mimeType);
+  if (!mimeType) {
+    errorMessage.value = 'No supported MIME type found for recording.';
+    return;
+  }
+
+  mediaRecorder.value = new MediaRecorder(stream, { mimeType });
 
   mediaRecorder.value.ondataavailable = (event) => {
     if (event.data.size > 0) {
@@ -76,7 +95,7 @@ const startMediaRecorder = (stream) => {
   };
 
   mediaRecorder.value.onstop = async () => {
-    const blob = new Blob(currentAudioChunks, { type: 'audio/webm' });
+    const blob = new Blob(currentAudioChunks, { type: mimeType });
     currentAudioChunks = [];
 
     if (recognizedSentences.value.length > 0) {
@@ -146,7 +165,7 @@ const monitorAudioStream = (stream) => {
     analyser.getByteFrequencyData(dataArray);
     const rms = Math.sqrt(dataArray.reduce((sum, value) => sum + value * value, 0) / dataArray.length);
     const isSpeech = rms > VAD_THRESHOLD;
-
+    console.log(rms);
     const currentTime = Date.now();
     if (isSpeech) {
       lastSpeechTime = currentTime;
@@ -196,7 +215,8 @@ const downloadAudio = (blob, index) => {
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = url;
-    a.download = `sentence_${index + 1}.webm`;
+    const extension = blob.type.split('/')[1]; // Get the extension from the MIME type
+    a.download = `sentence_${index + 1}.${extension}`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -253,6 +273,16 @@ const drawAudioWaveform = () => {
   }
 };
 
+const getSupportedMimeType = () => {
+  for (const mimeType of supportedMimeTypes) {
+    if (MediaRecorder.isTypeSupported(mimeType)) {
+      return mimeType;
+    }
+  }
+  return null;
+};
+
+
 const recognition = ref(null);
 
 onMounted(async () => {
@@ -302,6 +332,11 @@ onMounted(async () => {
   };
 
   recognition.value.onerror = (event) => {
+    if (event.error == "no-speech") {
+      return; //This prevents the error message for no speech from popping up repeatedly.
+      //Maybe consider a counter here in the future for if no speech is is thrown more than X times we disable interact mode.
+    }
+
     errorMessage.value = `Speech recognition error: ${event.error}`;
     isLoading.value = false;
     state.value = 'error'; // Update state to error
@@ -341,12 +376,14 @@ onUnmounted(() => {
 .interact-mode {
   cursor: pointer;
 }
+
 .chevron-icon {
   position: absolute;
   top: 20px;
   left: 20px;
   cursor: pointer;
 }
+
 .visualizer-container {
   font-weight: 600;
   display: flex;
@@ -356,58 +393,73 @@ onUnmounted(() => {
   height: 50px;
   width: 50px;
 }
+
 .circle-container {
   width: 200px;
   height: 200px;
   position: relative;
   transition: stroke 150ms ease, fill 150ms ease;
 }
+
 circle {
   fill: none;
   stroke-width: 10;
 }
+
 path {
   fill: none;
   stroke-width: 10;
   transition: d 150ms ease;
 }
+
 .listening {
   --circle-visualizer-color: lightblue;
 }
+
 .listening circle,
 .listening path {
   stroke: var(--circle-visualizer-color);
 }
+
 .transcribing {
   --circle-visualizer-color: lightgreen;
 }
+
 .transcribing circle,
 .transcribing path {
   stroke: var(--circle-visualizer-color);
 }
+
 .fetching {
   --circle-visualizer-color: lightcoral;
 }
+
 .fetching circle,
 .fetching path {
   stroke: var(--circle-visualizer-color);
 }
+
 .speaking {
   --circle-visualizer-color: lightgoldenrodyellow;
 }
+
 .speaking circle,
 .speaking path {
   stroke: var(--circle-visualizer-color);
 }
+
 .error {
   --circle-visualizer-color: red;
 }
+
 .error circle,
 .error path {
   stroke: var(--circle-visualizer-color);
 }
-.sentence-list { /** for debugging */
-  display: none; 
+
+.sentence-list {
+  /** for debugging */
+  display: none;
   margin-top: 20px;
   list-style-type: none;
   padding: 0;
@@ -417,6 +469,7 @@ path {
   bottom: 6rem;
   width: 500px;
 }
+
 .sentence-list li {
   display: flex;
   flex-direction: row;
@@ -428,28 +481,34 @@ path {
   margin-bottom: 5px;
   border-radius: 5px;
 }
+
 .sentence-list li p {
   width: 100%;
 }
+
 .sentence-list li button {
   width: calc(50% - 1rem);
 }
-.loading-message { /** for debugging */
+
+.loading-message {
+  /** for debugging */
   display: none;
   margin-top: 20px;
   color: #000;
 }
-.error-message { /** for debugging */
-    margin-top: 20px;
-    position: absolute;
-    color: #fff;
-    background: #850000;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    bottom: 3.5rem;
-    right: 0;
-    font-size: 12px;
-    text-align: center;
-    width: fit-content;
+
+.error-message {
+  /** for debugging */
+  margin-top: 20px;
+  position: absolute;
+  color: #fff;
+  background: #850000;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  bottom: 3.5rem;
+  right: 0;
+  font-size: 12px;
+  text-align: center;
+  width: fit-content;
 }
 </style>

@@ -182,9 +182,11 @@ export async function fetchTTSResponse(text) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'tts-1', // Adding the model parameter as required
+      model: 'tts-1-hd', // Adding the model parameter as required
       input: text,    // Changing 'text' to 'input' as required
-      voice: 'alloy'  // Default voice, adjust as needed
+      voice: 'nova',
+      speed: 1.05
+      // Default voice, adjust as needed
     })
   });
 
@@ -211,7 +213,7 @@ export async function fetchSTTResponse(file) {
   }
 
   const formData = new FormData();
-  
+
   // Append the file with the appropriate format
   formData.append('file', new File([file], 'audio.webm', { type: 'audio/webm' }));
   formData.append('model', 'whisper-1'); // Default model, adjust as needed
