@@ -24,7 +24,9 @@ import {
   selectedDallEImageResolution,
   claudeSliderValue,
   isSmallScreen,
-  isSidebarVisible
+  isSidebarVisible,
+  pushToTalkMode,
+  useWhisper
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
@@ -211,6 +213,7 @@ function showGeneralConfigSection() {
 
 // Lifecycle hooks
 onMounted(() => {
+
   if (selectedModel.value === 'open-ai-format') {
     fetchAvailableModels();
   }
@@ -342,6 +345,26 @@ onMounted(() => {
                 Higher Contrast Messages:
                 <input type="checkbox" id="higher-contrast-messages" :checked="higherContrastMessages"
                   @change="handleUpdate('higherContrastMessages', $event.target.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <br>
+            <br>
+            <div class="control-checkbox">
+              <label for="push-to-talk">
+                Push To Talk Interact Mode:
+                <input type="checkbox" id="push-to-talk" :checked="pushToTalkMode"
+                  @change="handleUpdate('use-push-to-talk', $event.target.checked)" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <br>
+            <br>
+            <div class="control-checkbox">
+              <label for="use-whisper">
+                Use Whisper for Transcriptions:
+                <input type="checkbox" id="use-whisper" :checked="useWhisper"
+                  @change="handleUpdate('use-whisper', $event.target.checked)" />
                 <span class="slider"></span>
               </label>
             </div>

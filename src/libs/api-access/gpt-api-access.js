@@ -1,6 +1,6 @@
 import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
-import { messages } from '../state-management/state';
+import { messages, pushToTalkMode } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;

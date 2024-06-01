@@ -3,6 +3,8 @@ import { ref, computed } from 'vue';
 import { loadConversationTitles, loadStoredConversations } from '@/libs/api-access/gpt-api-access';
 import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 
+export const pushToTalkMode = ref((JSON.parse(localStorage.getItem("use-push-to-talk")) || false));
+export const useWhisper = ref((JSON.parse(localStorage.getItem("use-whisper") || false)));
 export const contextMenuOpened = ref(false);
 export const shouldShowScrollButton = ref(false);
 export const userText = ref('');

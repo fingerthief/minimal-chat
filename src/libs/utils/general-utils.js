@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { fetchTTSResponse } from '../api-access/gpt-api-access';
 export function sleep(ms) {
@@ -251,6 +251,11 @@ export async function handleTextStreamEnd(message) {
       await fetchTTSResponse(message);
     } catch (error) {
       console.error('Error with TTS Response:', error);
+    }
+    finally {
+      if (pushToTalkMode.value) {
+        isInteractModeOpen.value = false;
+      }
     }
   }
 }

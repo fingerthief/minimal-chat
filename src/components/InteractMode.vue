@@ -1,7 +1,7 @@
 <template>
-  <div class="interact-mode" @click="closeInteractMode">
+  <div class="interact-mode" @click="toggleInteractMode">
     <div v-if="isLoading" class="loading-message">Initializing, please wait...</div>
-    <div class="visualizer-container" :class="state" @click="closeInteractMode">
+    <div class="visualizer-container" :class="state">
       <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <mask id="waveMask">
@@ -28,7 +28,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { fetchSTTResponse } from '@/libs/api-access/gpt-api-access'; // Import the fetchSTTResponse function
-import { isInteractModeOpen } from '@/libs/state-management/state';
+import { useWhisper, isInteractModeOpen } from '@/libs/state-management/state';
 
 const emit = defineEmits(['recognized-sentence', 'close-interact-mode']);
 
@@ -45,13 +45,11 @@ let silenceTimer = null;
 let vadStream = null;
 let lastSpeechTime = 0;
 const VAD_THRESHOLD = 10;
-const SILENCE_TIMEOUT = 1000;
+const SILENCE_TIMEOUT = 2000;
 const wavePath = ref('');
 const state = ref('listening');
 let animationInterval = null;
 let transitioning = false;
-
-const useWhisper = ref(true); // Toggle for using Whisper or Web Speech API
 
 const getSupportedMimeType = () => {
   const mimeTypes = [
@@ -171,8 +169,6 @@ const monitorAudioStream = (stream) => {
     analyser.getByteFrequencyData(dataArray);
     const rms = Math.sqrt(dataArray.reduce((sum, value) => sum + value * value, 0) / dataArray.length);
 
-    console.log(`Raw Noise: ${rms} Average RMS Floor: ${noiseFloorAverage}`);
-
     if (noiseFloorSampleCount < INITIAL_SAMPLE_COUNT) {
       noiseFloorSampleCount++;
       noiseFloorSampleTotal += rms;
@@ -181,7 +177,7 @@ const monitorAudioStream = (stream) => {
       return;
     }
 
-    const isSpeech = rms > noiseFloorAverage + VAD_THRESHOLD;
+    const isSpeech = rms > noiseFloorAverage;
     const currentTime = Date.now();
     if (isSpeech && isInteractModeOpen.value) {
       lastSpeechTime = currentTime;
@@ -229,10 +225,15 @@ const stopRecording = () => {
   isRecording.value = false;
 };
 
+
 const playAudio = (blob) => {
   if (blob) {
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
+
+    // Stop recording when audio starts playing
+    stopRecording();
+
     audio.play();
   }
 };
@@ -253,6 +254,16 @@ const downloadAudio = (blob, index) => {
 
 const closeInteractMode = () => {
   emit('close-interact-mode');
+};
+
+const toggleInteractMode = () => {
+  if (isRecording.value) {
+    stopRecording();
+    closeInteractMode();
+  } else {
+
+    startRecording();
+  }
 };
 
 const drawAudioWaveform = () => {
