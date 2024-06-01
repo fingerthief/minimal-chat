@@ -153,9 +153,8 @@ const startRecording = async () => {
 };
 
 let noiseFloorAverage = 0;
-let noiseFloorSampleCount = 0;
-let noiseFloorSampleTotal = 0;
-const INITIAL_SAMPLE_COUNT = 150;
+const NOISE_FLOOR_SAMPLE_WINDOW = 2500;
+let noiseFloorSamples = [];
 const monitorAudioStream = (stream) => {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   const analyser = audioContext.createAnalyser();
@@ -165,17 +164,23 @@ const monitorAudioStream = (stream) => {
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
 
+  const calculateRollingAverage = () => {
+    const total = noiseFloorSamples.reduce((sum, value) => sum + value, 0);
+    return total / noiseFloorSamples.length;
+  };
+
   const checkForSpeech = () => {
     analyser.getByteFrequencyData(dataArray);
     const rms = Math.sqrt(dataArray.reduce((sum, value) => sum + value * value, 0) / dataArray.length);
 
-    if (noiseFloorSampleCount < INITIAL_SAMPLE_COUNT) {
-      noiseFloorSampleCount++;
-      noiseFloorSampleTotal += rms;
-      noiseFloorAverage = noiseFloorSampleTotal / noiseFloorSampleCount;
-      requestAnimationFrame(checkForSpeech);
-      return;
+    if (noiseFloorSamples.length < NOISE_FLOOR_SAMPLE_WINDOW) {
+      noiseFloorSamples.push(rms);
+    } else {
+      noiseFloorSamples.shift();
+      noiseFloorSamples.push(rms);
     }
+
+    noiseFloorAverage = calculateRollingAverage();
 
     const isSpeech = rms > noiseFloorAverage;
     const currentTime = Date.now();
@@ -188,10 +193,6 @@ const monitorAudioStream = (stream) => {
       clearTimeout(silenceTimer);
     } else if (mediaRecorder.value && mediaRecorder.value.state === 'recording' && currentTime - lastSpeechTime > SILENCE_TIMEOUT) {
       mediaRecorder.value.stop();
-    } else {
-      noiseFloorSampleCount++;
-      noiseFloorSampleTotal += rms;
-      noiseFloorAverage = noiseFloorSampleTotal / noiseFloorSampleCount;
     }
 
     if (!isInteractModeOpen.value) {
