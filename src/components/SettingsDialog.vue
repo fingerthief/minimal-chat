@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { RefreshCcw, Settings, Trash2, Download, Upload } from 'lucide-vue-next';
 import InputField from './InputField.vue';
+import ToolTip from './ToolTip.vue';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import {
   selectedModel,
@@ -51,11 +52,12 @@ import "swiped-events";
 // Visibility states for collapsible config sections
 const isGeneralConfigOpen = ref(true);
 const isBrowserModelConfigOpen = ref(true);
-const isLocalConfigOpen = ref(true);
+const isLocalConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
-const isDALLEConfigOpen = ref(true);
+const isDALLEConfigOpen = ref(false);
 const isClaudeConfigOpen = ref(false);
-const isImportExportConfigOpen = ref(true);
+const isImportExportConfigOpen = ref(false);
+const isWhisperConfigSectionOpen = ref(false);
 
 const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
@@ -92,6 +94,7 @@ function selectModel(model) {
   isBrowserModelConfigOpen.value = false;
   isLocalConfigOpen.value = false;
   isImportExportConfigOpen.value = false;
+  isWhisperConfigSectionOpen.value = false;
 
   if (model === 'open-ai-format') {
     fetchAvailableModels();
@@ -259,13 +262,11 @@ onMounted(() => {
 <template>
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
-    <div class="settings-header">
+    <div id="settings-header" class="settings-header">
       <h2>
-        <span @click="reloadPage">
-          <RefreshCcw :size="23" :stroke-width="2" />
-        </span>
-        Settings | V6.1.7
+        Configuration
       </h2>
+      <ToolTip :targetId="'settings-header'"> Current Version: 6.2.0 </ToolTip>
     </div>
     <div class="settings-container">
       <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
@@ -350,26 +351,6 @@ onMounted(() => {
             </div>
             <br>
             <br>
-            <div class="control-checkbox">
-              <label for="push-to-talk">
-                Push To Talk Interact Mode:
-                <input type="checkbox" id="push-to-talk" :checked="pushToTalkMode"
-                  @change="handleUpdate('use-push-to-talk', $event.target.checked)" />
-                <span class="slider"></span>
-              </label>
-            </div>
-            <br>
-            <br>
-            <div class="control-checkbox">
-              <label for="use-whisper">
-                Use Whisper for Transcriptions:
-                <input type="checkbox" id="use-whisper" :checked="useWhisper"
-                  @change="handleUpdate('use-whisper', $event.target.checked)" />
-                <span class="slider"></span>
-              </label>
-            </div>
-            <br>
-            <br>
             <div class="config-section" :class="{ show: isImportExportConfigOpen }">
               <h3 @click="isImportExportConfigOpen = !isImportExportConfigOpen">
                 Import/Export Configuration
@@ -440,9 +421,9 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div v-if="selectedModel.includes('gpt')">
+          <div v-if="selectedModel.includes('gpt') && !showingGeneralConfig">
             <div>
-              <div class="control-grid">
+              <div class=" control-grid">
                 <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                   inputId="api-key" :value="gptKey" @update:value="handleUpdate('gptKey', $event)" />
               </div>
@@ -461,7 +442,33 @@ onMounted(() => {
             </div>
             <br>
             <br>
-            <div class="config-section" :class="{ show: isDALLEConfigOpen }" v-show="showGPTConfig">
+            <div class="config-section" :class="{ show: isWhisperConfigSectionOpen }" v-show="showGPTConfig">
+              <h3 @click="isWhisperConfigSectionOpen = !isWhisperConfigSectionOpen">
+                Interact Mode Configuration
+                <span class="indicator">{{ isWhisperConfigSectionOpen ? '-' : '+' }}</span>
+              </h3>
+              <div v-show="isWhisperConfigSectionOpen" class="control-grid">
+                <div class="control-checkbox">
+                  <label for="push-to-talk">
+                    Push To Talk Mode:
+                    <input type="checkbox" id="push-to-talk" :checked="pushToTalkMode"
+                      @change="handleUpdate('use-push-to-talk', $event.target.checked)" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="control-checkbox">
+                  <label for="use-whisper">
+                    Use Whisper for Transcriptions:
+                    <input type="checkbox" id="use-whisper" :checked="useWhisper"
+                      @change="handleUpdate('use-whisper', $event.target.checked)" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <br>
+            <div class="config-section" :class="{ show: isDALLEConfigOpen }"
+              v-show="showGPTConfig && !showingGeneralConfig">
               <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
                 DALL-E Config
                 <span class="indicator">{{ isDALLEConfigOpen ? '-' : '+' }}</span>
@@ -486,7 +493,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div v-if="selectedModel === 'open-ai-format'">
+          <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
             <div class="control-grid">
               <div v-if="customConfigs.length" class="saved-custom-configs">
                 <h4>Saved Custom Configs</h4>
@@ -549,7 +556,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div v-if="selectedModel === 'web-llm'">
+          <div v-if="selectedModel === 'web-llm' && !showingGeneralConfig">
             <div class="control select-dropdown">
               <label for="localModelsSelection">Model To Load In Browser:</label>
               <select id="localModelsSelection" :value="browserModelSelection"
@@ -573,7 +580,7 @@ onMounted(() => {
               </select>
             </div>
           </div>
-          <div v-if="selectedModel.startsWith('claude-')">
+          <div v-if="selectedModel.startsWith('claude-') && !showingGeneralConfig">
             <div class="control-grid">
               <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                 inputId="claude-api-key" :value="claudeKey" @update:value="handleUpdate('claudeKey', $event)" />
@@ -822,9 +829,11 @@ $bottom-panel-border-color: #5f4575cf;
   ul {
     list-style-type: none;
     padding: 0;
-    max-height: 20vh;
-    overflow: auto;
+    max-height: 15vh;
+    overflow-y: auto;
+    text-overflow: ellipsis;
     scrollbar-width: none;
+    text-wrap: nowrap;
 
     li {
       display: flex;
