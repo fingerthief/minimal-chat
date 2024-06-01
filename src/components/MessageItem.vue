@@ -231,8 +231,8 @@ function handleTripleTap(event) {
 
 <template>
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
-    @touchstart="handleTripleTap" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
-    <DynamicScroller :min-item-size="250" :buffer="3000" ref="scroller" class="scroller" @emitUpdates="true"
+    @touchstart="handleDoubleTap" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
+    <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
         <div v-if="active" :class="messageClass(item.role)">
@@ -303,7 +303,7 @@ function handleTripleTap(event) {
   clear: both;
   font-size: 1em;
   line-height: 1.5;
-  max-width: 100vw;
+  max-width: 60vw;
   margin-top: 20px;
 
   &.user {

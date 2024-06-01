@@ -307,23 +307,33 @@ $icon-color: rgb(187, 187, 187);
   }
 
   .loading-border {
-    animation: pulse 3s infinite;
+    animation: colorful-pulse 2.5s ease-in-out infinite;
   }
 
-  @keyframes pulse {
+  @keyframes colorful-pulse {
     0% {
       border-color: #0b8181c4;
-      box-shadow: 0 0 5px #0b8181c4;
+      box-shadow: 0 0 4px #0b8181c4;
+    }
+
+    25% {
+      border-color: #6a4292e0;
+      box-shadow: 0 0 8px #6a4292d9;
     }
 
     50% {
-      border-color: #6a4292e0;
-      box-shadow: 0 0 10px #6a4292d9;
+      border-color: #d9544fb0;
+      box-shadow: 0 0 12px #d9544fb5;
+    }
+
+    75% {
+      border-color: #f0ac4eb6;
+      box-shadow: 0 0 8px #f0ac4ec3;
     }
 
     100% {
       border-color: #0b8181c4;
-      box-shadow: 0 0 5px #0b8181c4;
+      box-shadow: 0 0 4px #0b8181c4;
     }
   }
 }
