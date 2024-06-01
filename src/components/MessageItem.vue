@@ -26,7 +26,8 @@ import {
   modelDisplayName,
   higherContrastMessages,
   contextMenuOpened,
-  isSmallScreen
+  isSmallScreen,
+  showConversationOptions
 } from '@/libs/state-management/state';
 import {
   setSystemPrompt,
@@ -180,36 +181,57 @@ async function deleteMessage(content) {
 // Handle click and hold event
 let holdTimeout = null;
 
-function handleMouseDown(event) {
+let lastTapTime = 0;
+function handleDoubleTap(event) {
   if (!contextWindow.value) {
     return;
   }
 
-  const currentEvent = event; // Capture the event in a variable
+  const currentTime = new Date().getTime();
+  const tapLength = currentTime - lastTapTime;
 
-  holdTimeout = setTimeout(() => {
-    contextWindow.value.showContextMenu(currentEvent); // Use the captured event
-  }, 500); // 1000ms hold time for mobile
+  if (tapLength < 500 && tapLength > 0) {
+    // Double tap detected
+    contextWindow.value.showContextMenu(event);
+  } else {
+    // Single tap detected
+    lastTapTime = currentTime;
+    contextWindow.value.hideContextMenu();
+  }
 }
 
-function handleMouseUp(event) {
-  clearTimeout(holdTimeout);
+let tapCount = 0;
+function handleTripleTap(event) {
+  const currentTime = new Date().getTime();
+  const tapLength = currentTime - lastTapTime;
 
-  if (!contextWindow.value) {
-    return;
+  if (tapLength < 500 && tapLength > 0) {
+    tapCount++;
+    if (tapCount === 2) {
+      // Double tap detected
+      contextWindow.value.showContextMenu(event);
+      tapCount = 0;
+    } else if (tapCount === 3) {
+      // Triple tap detected
+      contextWindow.value.hideContextMenu();
+      showConversationOptions.value = true;
+      tapCount = 0;
+    }
+  } else {
+    // Single tap detected
+    tapCount = 1;
+    contextWindow.value.hideContextMenu();
+    showConversationOptions.value = false;
   }
 
-  setTimeout(() => {
-    contextWindow.value.hideContextMenu();
-  }, 1000);
+  lastTapTime = currentTime;
 }
 
 </script>
 
 <template>
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
-    @mousedown="handleMouseDown" @mouseup="handleMouseUp" data-swipe-threshold="15" data-swipe-unit="vw"
-    data-swipe-timeout="500" @touchstart="handleMouseDown" @touchend="handleMouseUp">
+    @touchstart="handleTripleTap" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
     <DynamicScroller :min-item-size="250" :buffer="3000" ref="scroller" class="scroller" @emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">

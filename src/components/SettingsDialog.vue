@@ -83,6 +83,7 @@ function selectModel(model) {
   selectedModel.value = model;
 
   // Close all collapsible groups
+  showingGeneralConfig.value = false;
   isGPTConfigOpen.value = false;
   isClaudeConfigOpen.value = false;
   isGeneralConfigOpen.value = false;
@@ -203,6 +204,11 @@ function handleTouchStart(event) {
   lastTap.value = currentTime;
 }
 
+const showingGeneralConfig = ref(false);
+function showGeneralConfigSection() {
+  showingGeneralConfig.value = true;
+}
+
 // Lifecycle hooks
 onMounted(() => {
   if (selectedModel.value === 'open-ai-format') {
@@ -262,7 +268,7 @@ onMounted(() => {
       <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
         <h3>Models</h3>
         <ul>
-          <li :class="{ selected: selectedModel === 'general-config' }" @click="selectModel('general-config')">
+          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
             General Config
           </li>
           <!-- Collapsible Group for GPT Models -->
@@ -304,7 +310,7 @@ onMounted(() => {
       </div>
       <div class="right-panel" @touchstart="handleTouchStart">
         <div v-if="selectedModel">
-          <div v-if="selectedModel.includes('general')">
+          <div v-if="showingGeneralConfig">
             <div class="system-prompt-container">
               <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
                 @update:value="handleUpdate('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
@@ -420,12 +426,12 @@ onMounted(() => {
             </div>
             <br>
             <div class="flex-container">
-              <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
+              <InputField labelText="Temperature (0.0-1.0):" :isSecret="false"
                 :placeholderText="'Enter the temperature value for the model.'" inputId="gptAttitude"
                 :value="sliderValue" @update:value="handleUpdate('gpt-attitude', $event)" />
               <div class="slider-container">
                 <span>Serious</span>
-                <input type="range" min="0" max="2" step="0.01" :value="sliderValue"
+                <input type="range" min="0" max="1" step="0.01" :value="sliderValue"
                   @input="updateGptSliderValue($event.target.value)" />
                 <span>Creative</span>
               </div>
@@ -486,12 +492,12 @@ onMounted(() => {
                 :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
                 :value="maxTokens.toString()" @update:value="handleUpdate('maxTokens', $event)" />
               <div class="flex-container">
-                <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
+                <InputField labelText="Temperature (0.0-1.0):" :isSecret="false"
                   :placeholderText="'Enter the temperature value for the model.'" inputId="localSliderValue"
                   :value="localSliderValue.toString()" @update:value="handleUpdate('localSliderValue', $event)" />
                 <div class="slider-container">
                   <span>Serious</span>
-                  <input type="range" min="0" max="2" step="0.01" :value="localSliderValue"
+                  <input type="range" min="0" max="1" step="0.01" :value="localSliderValue"
                     @input="updateLocalSliderValue($event.target.value)" />
                   <span>Creative</span>
                 </div>
@@ -549,7 +555,7 @@ onMounted(() => {
               <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                 inputId="claude-api-key" :value="claudeKey" @update:value="handleUpdate('claudeKey', $event)" />
               <div class="flex-container">
-                <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
+                <InputField labelText="Temperature (0.0-1.0):" :isSecret="false"
                   :placeholderText="'Enter the temperature for the model.'" inputId="claudeSliderValue"
                   :value="claudeSliderValue.toString()" @update:value="handleUpdate('claudeSliderValue', $event)" />
                 <div class="slider-container">

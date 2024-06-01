@@ -197,11 +197,8 @@ const handleCloseInteractMode = () => {
             <Speech />
           </div>
         </div>
-        <InteractMode 
-          v-if="isInteractModeOpen" 
-          @recognized-sentence="handleRecognizedSentence" 
-          @close-interact-mode="handleCloseInteractMode" 
-        />
+        <InteractMode v-if="isInteractModeOpen" @recognized-sentence="handleRecognizedSentence"
+          @close-interact-mode="handleCloseInteractMode" />
       </div>
     </div>
   </form>
@@ -258,14 +255,15 @@ $icon-color: rgb(187, 187, 187);
     border-radius: 30px;
     justify-content: space-around;
     transition:
-    background-color 0.3s ease,
-    transform 0.2s ease;
+      background-color 0.3s ease,
+      transform 0.2s ease;
     margin-left: 10px;
 
     &:hover {
       transform: scale(1.3);
     }
   }
+
   .interact-button {
     margin-left: unset;
   }
@@ -329,9 +327,10 @@ $icon-color: rgb(187, 187, 187);
     }
   }
 }
+
 .interact-mode-container {
   position: absolute;
-  right: calc( -50px );
+  right: calc(-50px);
   top: 0;
   display: flex;
   flex-direction: column;
@@ -345,6 +344,7 @@ $icon-color: rgb(187, 187, 187);
   background: #212121;
   box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
 }
+
 .interact-toggle-button {
   position: fixed;
   bottom: 10px;
