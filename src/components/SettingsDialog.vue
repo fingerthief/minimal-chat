@@ -432,9 +432,7 @@ onMounted(() => {
             </div>
             <br>
             <div class="flex-container">
-              <InputField labelText="Temperature (0.0-1.0):" :isSecret="false"
-                :placeholderText="'Enter the temperature value for the model.'" inputId="gptAttitude"
-                :value="sliderValue" @update:value="handleUpdate('gpt-attitude', $event)" />
+              <div class="center-text">Temperature: ({{ sliderValue }})</div>
               <div class="slider-container">
                 <span>Serious</span>
                 <input type="range" min="0" max="1" step="0.01" :value="sliderValue"
@@ -452,7 +450,7 @@ onMounted(() => {
               <div v-show="isWhisperConfigSectionOpen" class="control-grid">
                 <div class="control-checkbox">
                   <label for="push-to-talk">
-                    Push To Talk Mode:
+                    Push to Talk Mode:
                     <input type="checkbox" id="push-to-talk" :checked="pushToTalkMode"
                       @change="handleUpdate('use-push-to-talk', $event.target.checked)" />
                     <span class="slider"></span>
@@ -466,7 +464,6 @@ onMounted(() => {
                     <span class="slider"></span>
                   </label>
                 </div>
-                <br>
                 <InputField :isSecret="false" labelText="Audio Speed:"
                   :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
                   inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
@@ -536,9 +533,7 @@ onMounted(() => {
                 :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
                 :value="maxTokens.toString()" @update:value="handleUpdate('maxTokens', $event)" />
               <div class="flex-container">
-                <InputField labelText="Temperature (0.0-1.0):" :isSecret="false"
-                  :placeholderText="'Enter the temperature value for the model.'" inputId="localSliderValue"
-                  :value="localSliderValue.toString()" @update:value="handleUpdate('localSliderValue', $event)" />
+                <div class="center-text">Temperature: ({{ localSliderValue }})</div>
                 <div class="slider-container">
                   <span>Serious</span>
                   <input type="range" min="0" max="1" step="0.01" :value="localSliderValue"
@@ -547,9 +542,7 @@ onMounted(() => {
                 </div>
               </div>
               <div class="flex-container">
-                <InputField labelText="Top_P Value (0.0-1.0):" :isSecret="false"
-                  :placeholderText="'Enter the top_P value if applicable'" inputId="top_P" :value="top_P.toString()"
-                  @update:value="handleUpdate('top_P', $event)" />
+                <div class="center-text">Top_P: ({{ top_P }})</div>
                 <div class="slider-container">
                   <span>Lower</span>
                   <input type="range" min="0" max="1" step="0.01" :value="top_P"
@@ -558,9 +551,7 @@ onMounted(() => {
                 </div>
               </div>
               <div class="flex-container">
-                <InputField labelText="Repetition Penalty (0.0-2.0):" :isSecret="false"
-                  :placeholderText="'Enter the repetition penalty value if applicable'" inputId="repetitionPenalty"
-                  :value="repetitionPenalty.toString()" @update:value="handleUpdate('repetitionPenalty', $event)" />
+                <div class="center-text">Repetition Penalty: ({{ repetitionPenalty }})</div>
                 <div class="slider-container">
                   <span>Less</span>
                   <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
@@ -599,9 +590,7 @@ onMounted(() => {
               <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                 inputId="claude-api-key" :value="claudeKey" @update:value="handleUpdate('claudeKey', $event)" />
               <div class="flex-container">
-                <InputField labelText="Temperature (0.0-1.0):" :isSecret="false"
-                  :placeholderText="'Enter the temperature for the model.'" inputId="claudeSliderValue"
-                  :value="claudeSliderValue.toString()" @update:value="handleUpdate('claudeSliderValue', $event)" />
+                <div class="center-text">Temperature: ({{ claudeSliderValue }})</div>
                 <div class="slider-container">
                   <span>Serious</span>
                   <input type="range" min="0" max="2" step="0.01" :value="claudeSliderValue"
@@ -670,6 +659,11 @@ $bottom-panel-border-color: #5f4575cf;
     opacity: 1;
     /* Optional: End with full opacity */
   }
+}
+
+.center-text {
+  text-align: center;
+  padding-bottom: 6px;
 }
 
 .expand-sidebar-btn {
@@ -1118,10 +1112,10 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .left-panel-collapsed {
-  width: 24px;
+  width: 17px;
   background-color: rgba(22, 74, 67, 0.91);
   cursor: pointer;
-  height: 25vh;
+  height: 18vh;
   position: absolute;
   left: 0;
   top: 35%;
@@ -1147,7 +1141,6 @@ $bottom-panel-border-color: #5f4575cf;
   text-align: center;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 15px;
   color: rgb(224, 224, 224);
 }
 
