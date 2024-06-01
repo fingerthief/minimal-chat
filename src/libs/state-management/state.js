@@ -3,6 +3,12 @@ import { ref, computed } from 'vue';
 import { loadConversationTitles, loadStoredConversations } from '@/libs/api-access/gpt-api-access';
 import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 
+export const pushToTalkMode = ref((JSON.parse(localStorage.getItem("use-push-to-talk")) || false));
+export const useWhisper = ref((JSON.parse(localStorage.getItem("use-whisper") || false)));
+export const audioSpeed = ref((parseFloat(localStorage.getItem("audio-speed")) || 1.0));
+export const ttsModel = ref((localStorage.getItem("tts-model") || 'tts-1'));
+export const whisperTemperature = ref(parseFloat(localStorage.getItem("whisper-temperature") || 0.35));
+
 export const contextMenuOpened = ref(false);
 export const shouldShowScrollButton = ref(false);
 export const userText = ref('');
@@ -22,9 +28,9 @@ export const localModelName = ref(localStorage.getItem('localModelName') || '');
 export const localModelEndpoint = ref(removeAPIEndpoints(localStorage.getItem('localModelEndpoint') || ''));
 export const localSliderValue = ref(parseFloat(localStorage.getItem('local-attitude')) || 0.6);
 export const gptKey = ref(localStorage.getItem('gptKey') || '');
-export const sliderValue = ref(parseInt(localStorage.getItem('gpt-attitude')) || 0.5);
+export const sliderValue = ref(parseFloat(localStorage.getItem('gpt-attitude')) || 0.5);
 export const claudeKey = ref(localStorage.getItem('claudeKey') || '');
-export const claudeSliderValue = ref(parseInt(localStorage.getItem('claude-attitude')) || 0.5);
+export const claudeSliderValue = ref(parseFloat(localStorage.getItem('claude-attitude')) || 0.5);
 export const selectedDallEImageCount = ref(parseInt(localStorage.getItem('selectedDallEImageCount')) || 1);
 export const selectedDallEImageResolution = ref(localStorage.getItem('selectedDallEImageResolution') || '256x256');
 export const selectedAutoSaveOption = ref(localStorage.getItem('selectedAutoSaveOption') || true);

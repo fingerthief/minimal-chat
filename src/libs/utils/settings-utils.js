@@ -1,6 +1,6 @@
 import { selectedModel } from "../state-management/state";
 import { ref } from 'vue';
-import { higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
+import { whisperTemperature, audioSpeed, ttsModel, useWhisper, pushToTalkMode, higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
 import { showToast } from "./general-utils";
 
 export const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
@@ -15,12 +15,14 @@ export function update(field, value) {
     showClaudeConfig.value = value.indexOf('claude') !== -1;
     showBrowserModelConfig.value = value.indexOf('web-llm') !== -1;
     selectedModel.value = value;
+
     return;
   }
 
   if (field === 'systemPrompt') {
     systemPrompt.value = value;
     saveSystemPrompt(value);
+
     return;
   }
 
@@ -36,6 +38,7 @@ export function update(field, value) {
     if (selectedCustomConfigIndex.value !== null) {
       saveCustomConfig();
     }
+
     return;
   }
 
@@ -50,7 +53,13 @@ export function update(field, value) {
   if (field === 'customConfigs') customConfigs.value = value;
   if (field === 'systemPrompts') systemPrompts.value = value;
   if (field === 'higherContrastMessages') higherContrastMessages.value = value;
+  if (field === 'use-push-to-talk') pushToTalkMode.value = value;
+  if (field === 'use-whisper') useWhisper.value = value;
+  if (field === 'audio-speed') audioSpeed.value = value;
+  if (field === 'tts-model') ttsModel.value = value;
+  if (field === 'whisper-temperature') whisperTemperature.value = value;
 }
+
 
 export const systemPrompts = ref([]);
 export const selectedSystemPromptIndex = ref(null);

@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { RefreshCcw, Settings, Trash2, Download, Upload } from 'lucide-vue-next';
 import InputField from './InputField.vue';
+import ToolTip from './ToolTip.vue';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import {
   selectedModel,
@@ -24,7 +25,12 @@ import {
   selectedDallEImageResolution,
   claudeSliderValue,
   isSmallScreen,
-  isSidebarVisible
+  isSidebarVisible,
+  pushToTalkMode,
+  useWhisper,
+  audioSpeed,
+  ttsModel,
+  whisperTemperature
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
@@ -49,11 +55,12 @@ import "swiped-events";
 // Visibility states for collapsible config sections
 const isGeneralConfigOpen = ref(true);
 const isBrowserModelConfigOpen = ref(true);
-const isLocalConfigOpen = ref(true);
+const isLocalConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
-const isDALLEConfigOpen = ref(true);
+const isDALLEConfigOpen = ref(false);
 const isClaudeConfigOpen = ref(false);
-const isImportExportConfigOpen = ref(true);
+const isImportExportConfigOpen = ref(false);
+const isWhisperConfigSectionOpen = ref(false);
 
 const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
@@ -83,12 +90,14 @@ function selectModel(model) {
   selectedModel.value = model;
 
   // Close all collapsible groups
+  showingGeneralConfig.value = false;
   isGPTConfigOpen.value = false;
   isClaudeConfigOpen.value = false;
   isGeneralConfigOpen.value = false;
   isBrowserModelConfigOpen.value = false;
   isLocalConfigOpen.value = false;
   isImportExportConfigOpen.value = false;
+  isWhisperConfigSectionOpen.value = false;
 
   if (model === 'open-ai-format') {
     fetchAvailableModels();
@@ -109,6 +118,9 @@ function updateGptSliderValue(value) {
   handleUpdate('sliderValue', parseFloat(value));
 }
 
+function updateWhisperSlider(value) {
+  handleUpdate('whisper-temperature', parseFloat(value));
+}
 
 function updateLocalSliderValue(value) {
   handleUpdate('localSliderValue', parseFloat(value));
@@ -203,8 +215,14 @@ function handleTouchStart(event) {
   lastTap.value = currentTime;
 }
 
+const showingGeneralConfig = ref(false);
+function showGeneralConfigSection() {
+  showingGeneralConfig.value = true;
+}
+
 // Lifecycle hooks
 onMounted(() => {
+
   if (selectedModel.value === 'open-ai-format') {
     fetchAvailableModels();
   }
@@ -250,19 +268,17 @@ onMounted(() => {
 <template>
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
-    <div class="settings-header">
+    <div id="settings-header" class="settings-header">
       <h2>
-        <span @click="reloadPage">
-          <RefreshCcw :size="23" :stroke-width="2" />
-        </span>
-        Settings | V6.1.7
+        Configuration
       </h2>
+      <ToolTip :targetId="'settings-header'"> Current Version: 6.2.0 </ToolTip>
     </div>
     <div class="settings-container">
       <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
         <h3>Models</h3>
         <ul>
-          <li :class="{ selected: selectedModel === 'general-config' }" @click="selectModel('general-config')">
+          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
             General Config
           </li>
           <!-- Collapsible Group for GPT Models -->
@@ -304,7 +320,7 @@ onMounted(() => {
       </div>
       <div class="right-panel" @touchstart="handleTouchStart">
         <div v-if="selectedModel">
-          <div v-if="selectedModel.includes('general')">
+          <div v-if="showingGeneralConfig">
             <div class="system-prompt-container">
               <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
                 @update:value="handleUpdate('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
@@ -411,28 +427,72 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div v-if="selectedModel.includes('gpt')">
+          <div v-if="selectedModel.includes('gpt') && !showingGeneralConfig">
             <div>
-              <div class="control-grid">
+              <div class=" control-grid">
                 <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                   inputId="api-key" :value="gptKey" @update:value="handleUpdate('gptKey', $event)" />
               </div>
             </div>
             <br>
             <div class="flex-container">
-              <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
-                :placeholderText="'Enter the temperature value for the model.'" inputId="gptAttitude"
-                :value="sliderValue" @update:value="handleUpdate('gpt-attitude', $event)" />
+              <div class="center-text">Temperature: ({{ sliderValue }})</div>
               <div class="slider-container">
                 <span>Serious</span>
-                <input type="range" min="0" max="2" step="0.01" :value="sliderValue"
+                <input type="range" min="0" max="1" step="0.01" :value="sliderValue"
                   @input="updateGptSliderValue($event.target.value)" />
                 <span>Creative</span>
               </div>
             </div>
             <br>
             <br>
-            <div class="config-section" :class="{ show: isDALLEConfigOpen }" v-show="showGPTConfig">
+            <div class="config-section" :class="{ show: isWhisperConfigSectionOpen }" v-show="showGPTConfig">
+              <h3 @click="isWhisperConfigSectionOpen = !isWhisperConfigSectionOpen">
+                Interact Mode Configuration
+                <span class="indicator">{{ isWhisperConfigSectionOpen ? '-' : '+' }}</span>
+              </h3>
+              <div v-show="isWhisperConfigSectionOpen" class="control-grid">
+                <div class="control-checkbox">
+                  <label for="push-to-talk">
+                    Push to Talk Mode:
+                    <input type="checkbox" id="push-to-talk" :checked="pushToTalkMode"
+                      @change="handleUpdate('use-push-to-talk', $event.target.checked)" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="control-checkbox">
+                  <label for="use-whisper">
+                    Use Whisper for Transcriptions:
+                    <input type="checkbox" id="use-whisper" :checked="useWhisper"
+                      @change="handleUpdate('use-whisper', $event.target.checked)" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <InputField :isSecret="false" labelText="Audio Speed:"
+                  :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
+                  inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
+                <ToolTip :targetId="'audio-speed'">Default is 1.0 and 1.05 would be 5% faster playback.</ToolTip>
+                <div class="control select-dropdown">
+                  <label for="tts-model">TTS Model:</label>
+                  <select id="tts-model" :value="ttsModel" @change="handleUpdate('tts-model', $event.target.value)">
+                    <option value="tts-1">tts-1</option>
+                    <option value="tts-1-hd">tts-1-hd</option>
+                  </select>
+                </div>
+                <div class="flex-container">
+                  <div class="center-text">Temperature: ({{ whisperTemperature }})</div>
+                  <div class="slider-container">
+                    <span>Serious</span>
+                    <input type="range" min="0" max="1" step="0.01" :value="whisperTemperature"
+                      @input="updateWhisperSlider($event.target.value)" />
+                    <span>Creative</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <br>
+            <div class="config-section" :class="{ show: isDALLEConfigOpen }"
+              v-show="showGPTConfig && !showingGeneralConfig">
               <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
                 DALL-E Config
                 <span class="indicator">{{ isDALLEConfigOpen ? '-' : '+' }}</span>
@@ -457,7 +517,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div v-if="selectedModel === 'open-ai-format'">
+          <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
             <div class="control-grid">
               <div v-if="customConfigs.length" class="saved-custom-configs">
                 <h4>Saved Custom Configs</h4>
@@ -486,20 +546,16 @@ onMounted(() => {
                 :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
                 :value="maxTokens.toString()" @update:value="handleUpdate('maxTokens', $event)" />
               <div class="flex-container">
-                <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
-                  :placeholderText="'Enter the temperature value for the model.'" inputId="localSliderValue"
-                  :value="localSliderValue.toString()" @update:value="handleUpdate('localSliderValue', $event)" />
+                <div class="center-text">Temperature: ({{ localSliderValue }})</div>
                 <div class="slider-container">
                   <span>Serious</span>
-                  <input type="range" min="0" max="2" step="0.01" :value="localSliderValue"
+                  <input type="range" min="0" max="1" step="0.01" :value="localSliderValue"
                     @input="updateLocalSliderValue($event.target.value)" />
                   <span>Creative</span>
                 </div>
               </div>
               <div class="flex-container">
-                <InputField labelText="Top_P Value (0.0-1.0):" :isSecret="false"
-                  :placeholderText="'Enter the top_P value if applicable'" inputId="top_P" :value="top_P.toString()"
-                  @update:value="handleUpdate('top_P', $event)" />
+                <div class="center-text">Top_P: ({{ top_P }})</div>
                 <div class="slider-container">
                   <span>Lower</span>
                   <input type="range" min="0" max="1" step="0.01" :value="top_P"
@@ -508,9 +564,7 @@ onMounted(() => {
                 </div>
               </div>
               <div class="flex-container">
-                <InputField labelText="Repetition Penalty (0.0-2.0):" :isSecret="false"
-                  :placeholderText="'Enter the repetition penalty value if applicable'" inputId="repetitionPenalty"
-                  :value="repetitionPenalty.toString()" @update:value="handleUpdate('repetitionPenalty', $event)" />
+                <div class="center-text">Repetition Penalty: ({{ repetitionPenalty }})</div>
                 <div class="slider-container">
                   <span>Less</span>
                   <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
@@ -520,7 +574,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div v-if="selectedModel === 'web-llm'">
+          <div v-if="selectedModel === 'web-llm' && !showingGeneralConfig">
             <div class="control select-dropdown">
               <label for="localModelsSelection">Model To Load In Browser:</label>
               <select id="localModelsSelection" :value="browserModelSelection"
@@ -544,14 +598,12 @@ onMounted(() => {
               </select>
             </div>
           </div>
-          <div v-if="selectedModel.startsWith('claude-')">
+          <div v-if="selectedModel.startsWith('claude-') && !showingGeneralConfig">
             <div class="control-grid">
               <InputField :labelText="'API Key'" :isSecret="true" :placeholderText="'Enter the API Key'"
                 inputId="claude-api-key" :value="claudeKey" @update:value="handleUpdate('claudeKey', $event)" />
               <div class="flex-container">
-                <InputField labelText="Temperature (0.0-2.0):" :isSecret="false"
-                  :placeholderText="'Enter the temperature for the model.'" inputId="claudeSliderValue"
-                  :value="claudeSliderValue.toString()" @update:value="handleUpdate('claudeSliderValue', $event)" />
+                <div class="center-text">Temperature: ({{ claudeSliderValue }})</div>
                 <div class="slider-container">
                   <span>Serious</span>
                   <input type="range" min="0" max="2" step="0.01" :value="claudeSliderValue"
@@ -620,6 +672,11 @@ $bottom-panel-border-color: #5f4575cf;
     opacity: 1;
     /* Optional: End with full opacity */
   }
+}
+
+.center-text {
+  text-align: center;
+  padding-bottom: 6px;
 }
 
 .expand-sidebar-btn {
@@ -793,9 +850,11 @@ $bottom-panel-border-color: #5f4575cf;
   ul {
     list-style-type: none;
     padding: 0;
-    max-height: 20vh;
-    overflow: auto;
+    max-height: 15vh;
+    overflow-y: auto;
+    text-overflow: ellipsis;
     scrollbar-width: none;
+    text-wrap: nowrap;
 
     li {
       display: flex;
@@ -1066,10 +1125,10 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .left-panel-collapsed {
-  width: 24px;
+  width: 17px;
   background-color: rgba(22, 74, 67, 0.91);
   cursor: pointer;
-  height: 25vh;
+  height: 18vh;
   position: absolute;
   left: 0;
   top: 35%;
@@ -1095,7 +1154,6 @@ $bottom-panel-border-color: #5f4575cf;
   text-align: center;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 15px;
   color: rgb(224, 224, 224);
 }
 

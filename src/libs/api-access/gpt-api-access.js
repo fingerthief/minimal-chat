@@ -1,6 +1,6 @@
 import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
-import { messages } from '../state-management/state';
+import { whisperTemperature, audioSpeed, ttsModel, messages, pushToTalkMode } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;
@@ -182,11 +182,10 @@ export async function fetchTTSResponse(text) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'tts-1-hd', // Adding the model parameter as required
+      model: ttsModel.value, // Adding the model parameter as required
       input: text,    // Changing 'text' to 'input' as required
       voice: 'nova',
-      speed: 1.05
-      // Default voice, adjust as needed
+      speed: audioSpeed.value
     })
   });
 
@@ -199,13 +198,26 @@ export async function fetchTTSResponse(text) {
   playAudio(audioBlob);
 }
 
+
 function playAudio(audioBlob) {
-  const audioUrl = URL.createObjectURL(audioBlob);
-  const audio = new Audio(audioUrl);
-  audio.play();
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    audioContext.decodeAudioData(reader.result, (buffer) => {
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start(0);
+    }, (error) => {
+      console.error('Error decoding audio:', error);
+    });
+  };
+
+  reader.readAsArrayBuffer(audioBlob);
 }
 
-export async function fetchSTTResponse(file) {
+export async function fetchSTTResponse(file, mimeType) {
   const apiKey = localStorage.getItem('gptKey');
 
   if (!apiKey) {
@@ -215,13 +227,31 @@ export async function fetchSTTResponse(file) {
   const formData = new FormData();
 
   // Append the file with the appropriate format
-  formData.append('file', new File([file], 'audio.webm', { type: 'audio/webm' }));
-  formData.append('model', 'whisper-1'); // Default model, adjust as needed
+  const fileExtension = mimeType.includes("/") ? mimeType.split('/')[1] : mimeType;
+  formData.append('file', new File([file], `audio.${fileExtension}`, { type: fileExtension }));
 
-  // Add default parameters
-  formData.append('response_format', 'json');
-  formData.append('timestamp_granularities', 'all');
-  formData.append('prompt', 'Transcribe the following audio');
+  const whisperParams = {
+    model_size: "large",
+    model: 'whisper-1',
+    language: "en",
+    temperature: whisperTemperature.value,
+    beam_size: 5,
+    best_of: 5,
+    prompt: "Transcribe the following audio accurately",
+    suppress_tokens: [],
+    condition_on_previous_text: true,
+    log_probability: false,
+    timestamps: true,
+    max_tokens: null,
+    no_repeat_ngram_size: 3,
+    timestamp_granularities: 'all',
+    response_format: 'json'
+  };
+
+  // Append each parameter to formData
+  for (const [key, value] of Object.entries(whisperParams)) {
+    formData.append(key, value);
+  }
 
   const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
     method: 'POST',
@@ -242,6 +272,7 @@ export async function fetchSTTResponse(file) {
   // Return the transcribed text
   return content;
 }
+
 
 
 function filterGPTMessages(conversation) {

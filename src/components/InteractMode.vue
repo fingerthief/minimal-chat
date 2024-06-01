@@ -1,7 +1,7 @@
 <template>
-  <div class="interact-mode" @click="closeInteractMode">
+  <div class="interact-mode" @click="toggleInteractMode">
     <div v-if="isLoading" class="loading-message">Initializing, please wait...</div>
-    <div class="visualizer-container" :class="state" @click="closeInteractMode">
+    <div class="visualizer-container" :class="state">
       <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <mask id="waveMask">
@@ -28,6 +28,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { fetchSTTResponse } from '@/libs/api-access/gpt-api-access'; // Import the fetchSTTResponse function
+import { useWhisper, isInteractModeOpen } from '@/libs/state-management/state';
 
 const emit = defineEmits(['recognized-sentence', 'close-interact-mode']);
 
@@ -43,26 +44,32 @@ let currentAudioChunks = [];
 let silenceTimer = null;
 let vadStream = null;
 let lastSpeechTime = 0;
-const VAD_THRESHOLD = 20;
+const VAD_THRESHOLD = 10;
 const SILENCE_TIMEOUT = 2000;
 const wavePath = ref('');
 const state = ref('listening');
 let animationInterval = null;
 let transitioning = false;
 
-const useWhisper = ref(true); // Toggle for using Whisper or Web Speech API
+const getSupportedMimeType = () => {
+  const mimeTypes = [
+    'audio/webm',
+    'audio/mp4',
+    'audio/wav',
+    'audio/mp3',
+  ];
 
-const supportedMimeTypes = [
-  'audio/wav', // High quality but less supported
-  'audio/mp3', // High quality but not supported in all browsers
-  'audio/mp4', // High quality but limited browser support (mainly Safari)
-  'audio/webm;codecs=opus', // Good quality and widely supported
-  'audio/ogg;codecs=opus', // Good quality but less widely supported
-  'audio/webm', // Good quality and widely supported (default codec)
-  'audio/ogg;codecs=vorbis', // Lower quality but widely supported
-  'audio/ogg', // Lower quality and less widely supported (default codec)
-  'audio/x-matroska' // Lower quality and limited browser support
-];
+  for (const mimeType of mimeTypes) {
+    if (MediaRecorder.isTypeSupported(mimeType)) {
+      console.log(mimeType);
+      return mimeType;
+    }
+  }
+
+  return null;
+};
+
+const mimeType = getSupportedMimeType(); // Use only the 'audio/webm' media type
 
 const checkMicrophoneAvailability = async () => {
   try {
@@ -79,14 +86,7 @@ const checkWebSpeechAPI = () => {
 };
 
 const startMediaRecorder = async (stream) => {
-  const mimeType = getSupportedMimeType();
-  console.log(mimeType);
-  if (!mimeType) {
-    errorMessage.value = 'No supported MIME type found for recording.';
-    return;
-  }
-
-  mediaRecorder.value = new MediaRecorder(stream, { mimeType });
+  mediaRecorder.value = new MediaRecorder(stream);
 
   mediaRecorder.value.ondataavailable = (event) => {
     if (event.data.size > 0) {
@@ -152,6 +152,9 @@ const startRecording = async () => {
   }
 };
 
+let noiseFloorAverage = 0;
+const NOISE_FLOOR_SAMPLE_WINDOW = 2500;
+let noiseFloorSamples = [];
 const monitorAudioStream = (stream) => {
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   const analyser = audioContext.createAnalyser();
@@ -161,13 +164,27 @@ const monitorAudioStream = (stream) => {
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
 
+  const calculateRollingAverage = () => {
+    const total = noiseFloorSamples.reduce((sum, value) => sum + value, 0);
+    return total / noiseFloorSamples.length;
+  };
+
   const checkForSpeech = () => {
     analyser.getByteFrequencyData(dataArray);
     const rms = Math.sqrt(dataArray.reduce((sum, value) => sum + value * value, 0) / dataArray.length);
-    const isSpeech = rms > VAD_THRESHOLD;
-    console.log(rms);
+
+    if (noiseFloorSamples.length < NOISE_FLOOR_SAMPLE_WINDOW) {
+      noiseFloorSamples.push(rms);
+    } else {
+      noiseFloorSamples.shift();
+      noiseFloorSamples.push(rms);
+    }
+
+    noiseFloorAverage = calculateRollingAverage();
+
+    const isSpeech = rms > noiseFloorAverage;
     const currentTime = Date.now();
-    if (isSpeech) {
+    if (isSpeech && isInteractModeOpen.value) {
       lastSpeechTime = currentTime;
       if (!mediaRecorder.value || mediaRecorder.value.state === 'inactive') {
         startMediaRecorder(stream);
@@ -178,8 +195,16 @@ const monitorAudioStream = (stream) => {
       mediaRecorder.value.stop();
     }
 
+    if (!isInteractModeOpen.value) {
+      return;
+    }
+
     requestAnimationFrame(checkForSpeech);
   };
+
+  if (!isInteractModeOpen.value) {
+    return;
+  }
 
   checkForSpeech();
 };
@@ -201,10 +226,15 @@ const stopRecording = () => {
   isRecording.value = false;
 };
 
+
 const playAudio = (blob) => {
   if (blob) {
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
+
+    // Stop recording when audio starts playing
+    stopRecording();
+
     audio.play();
   }
 };
@@ -225,6 +255,16 @@ const downloadAudio = (blob, index) => {
 
 const closeInteractMode = () => {
   emit('close-interact-mode');
+};
+
+const toggleInteractMode = () => {
+  if (isRecording.value) {
+    stopRecording();
+    closeInteractMode();
+  } else {
+
+    startRecording();
+  }
 };
 
 const drawAudioWaveform = () => {
@@ -273,16 +313,6 @@ const drawAudioWaveform = () => {
   }
 };
 
-const getSupportedMimeType = () => {
-  for (const mimeType of supportedMimeTypes) {
-    if (MediaRecorder.isTypeSupported(mimeType)) {
-      return mimeType;
-    }
-  }
-  return null;
-};
-
-
 const recognition = ref(null);
 
 onMounted(async () => {
@@ -314,7 +344,7 @@ onMounted(async () => {
           isLoading.value = true;
           state.value = 'fetching'; // Update state to fetching
           try {
-            const transcription = await fetchSTTResponse(lastBlob);
+            const transcription = await fetchSTTResponse(lastBlob, mimeType);
             recognizedSentences.value[recognizedSentences.value.length - 1].text = transcription;
             emit('recognized-sentence', { text: transcription, timestamp: new Date().toISOString() });
           } catch (error) {

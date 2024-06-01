@@ -23,7 +23,12 @@ import {
   selectedDallEImageResolution,
   selectedAutoSaveOption,
   localModelEndpoint,
-  higherContrastMessages
+  higherContrastMessages,
+  pushToTalkMode,
+  useWhisper,
+  ttsModel,
+  audioSpeed,
+  whisperTemperature
 } from '@/libs/state-management/state';
 
 export function setupWatchers() {
@@ -69,6 +74,11 @@ export function setupWatchers() {
     { ref: selectedDallEImageResolution, key: 'selectedDallEImageResolution' },
     { ref: selectedAutoSaveOption, key: 'selectedAutoSaveOption' },
     { ref: higherContrastMessages, key: 'higherContrastMessages' },
+    { ref: pushToTalkMode, key: 'use-push-to-talk' },
+    { ref: useWhisper, key: 'use-whisper' },
+    { ref: ttsModel, key: 'tts-model' },
+    { ref: audioSpeed, key: 'audio-speed' },
+    { ref: whisperTemperature, key: 'whisper-temperature' },
   ];
 
   refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));

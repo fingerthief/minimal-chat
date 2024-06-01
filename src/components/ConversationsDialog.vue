@@ -133,19 +133,18 @@ function toggleConversations() {
   event.stopPropagation();
   showConversationOptions.value = !showConversationOptions.value;
 }
-
-
 </script>
+
 <template>
   <div class="resize-container">
     <div class="settings-header">
       <h2>
         Conversations &nbsp;
-        <ToolTip :targetId="'purgeConversations'"> Purge all conversations</ToolTip>
+        <ToolTip :targetId="'purgeConversations'">Purge all conversations</ToolTip>
         <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.0" />&nbsp;
-        <ToolTip :targetId="'exportConversations'"> Export conversations</ToolTip>
+        <ToolTip :targetId="'exportConversations'">Export conversations</ToolTip>
         <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.0" />&nbsp;
-        <ToolTip :targetId="'importConversations'"> Import conversations</ToolTip>
+        <ToolTip :targetId="'importConversations'">Import conversations</ToolTip>
         <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
       </h2>
     </div>
@@ -227,7 +226,6 @@ $shadow-color: #252629;
   border-bottom: 5px solid #424045b5;
 
   @media (max-width: 600px) {
-
     padding: 25px 0;
     text-align: center;
   }
@@ -427,10 +425,10 @@ $shadow-color: #252629;
 
   li {
     padding: 6px;
-    border-bottom: 1px solid #77737b69;
-    background-color: #313131a1;
+    border-bottom: 1px solid #593b8273;
+    background-color: #19191a;
     transition: background-color 0.2s ease;
-    border-left: 6px solid #3a3a3a;
+    border-left: 4px solid #3a3a3a;
     color: #9e9d9d;
     user-select: none;
     animation: slideIn 0.25s ease-out forwards;

@@ -199,7 +199,7 @@ export default defineConfig(async () => ({
     minify: 'terser', // Use Terser for more advanced minification
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console logs for smaller bundle size
+        drop_console: false, // Remove console logs for smaller bundle size
         drop_debugger: true, // Remove debugger statements
         ecma: 2020, // Use modern ECMAScript features
         module: true,
