@@ -1,6 +1,6 @@
 import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
-import { audioSpeed, ttsModel, messages, pushToTalkMode } from '../state-management/state';
+import { whisperTemperature, audioSpeed, ttsModel, messages, pushToTalkMode } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;
@@ -229,12 +229,29 @@ export async function fetchSTTResponse(file, mimeType) {
   // Append the file with the appropriate format
   const fileExtension = mimeType.includes("/") ? mimeType.split('/')[1] : mimeType;
   formData.append('file', new File([file], `audio.${fileExtension}`, { type: fileExtension }));
-  formData.append('model', 'whisper-1'); // Default model, adjust as needed
 
-  // Add default parameters
-  formData.append('response_format', 'json');
-  formData.append('timestamp_granularities', 'all');
-  formData.append('prompt', 'Transcribe the following audio');
+  const whisperParams = {
+    model_size: "large",
+    model: 'whisper-1',
+    language: "en",
+    temperature: whisperTemperature.value,
+    beam_size: 5,
+    best_of: 5,
+    prompt: "Transcribe the following audio accurately",
+    suppress_tokens: [],
+    condition_on_previous_text: true,
+    log_probability: false,
+    timestamps: true,
+    max_tokens: null,
+    no_repeat_ngram_size: 3,
+    timestamp_granularities: 'all',
+    response_format: 'json'
+  };
+
+  // Append each parameter to formData
+  for (const [key, value] of Object.entries(whisperParams)) {
+    formData.append(key, value);
+  }
 
   const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
     method: 'POST',

@@ -27,7 +27,8 @@ import {
   pushToTalkMode,
   useWhisper,
   ttsModel,
-  audioSpeed
+  audioSpeed,
+  whisperTemperature
 } from '@/libs/state-management/state';
 
 export function setupWatchers() {
@@ -77,6 +78,7 @@ export function setupWatchers() {
     { ref: useWhisper, key: 'use-whisper' },
     { ref: ttsModel, key: 'tts-model' },
     { ref: audioSpeed, key: 'audio-speed' },
+    { ref: whisperTemperature, key: 'whisper-temperature' },
   ];
 
   refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));

@@ -29,7 +29,8 @@ import {
   pushToTalkMode,
   useWhisper,
   audioSpeed,
-  ttsModel
+  ttsModel,
+  whisperTemperature
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
@@ -117,6 +118,9 @@ function updateGptSliderValue(value) {
   handleUpdate('sliderValue', parseFloat(value));
 }
 
+function updateWhisperSlider(value) {
+  handleUpdate('whisper-temperature', parseFloat(value));
+}
 
 function updateLocalSliderValue(value) {
   handleUpdate('localSliderValue', parseFloat(value));
@@ -474,6 +478,15 @@ onMounted(() => {
                     <option value="tts-1">tts-1</option>
                     <option value="tts-1-hd">tts-1-hd</option>
                   </select>
+                </div>
+                <div class="flex-container">
+                  <div class="center-text">Temperature: ({{ whisperTemperature }})</div>
+                  <div class="slider-container">
+                    <span>Serious</span>
+                    <input type="range" min="0" max="1" step="0.01" :value="whisperTemperature"
+                      @input="updateWhisperSlider($event.target.value)" />
+                    <span>Creative</span>
+                  </div>
                 </div>
               </div>
             </div>

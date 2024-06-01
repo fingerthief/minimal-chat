@@ -1,6 +1,6 @@
 import { selectedModel } from "../state-management/state";
 import { ref } from 'vue';
-import { audioSpeed, ttsModel, useWhisper, pushToTalkMode, higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
+import { whisperTemperature, audioSpeed, ttsModel, useWhisper, pushToTalkMode, higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
 import { showToast } from "./general-utils";
 
 export const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
@@ -57,7 +57,9 @@ export function update(field, value) {
   if (field === 'use-whisper') useWhisper.value = value;
   if (field === 'audio-speed') audioSpeed.value = value;
   if (field === 'tts-model') ttsModel.value = value;
+  if (field === 'whisper-temperature') whisperTemperature.value = value;
 }
+
 
 export const systemPrompts = ref([]);
 export const selectedSystemPromptIndex = ref(null);
