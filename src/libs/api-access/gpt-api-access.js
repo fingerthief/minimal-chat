@@ -1,6 +1,6 @@
 import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
-import { messages, pushToTalkMode } from '../state-management/state';
+import { audioSpeed, ttsModel, messages, pushToTalkMode } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;
@@ -182,10 +182,10 @@ export async function fetchTTSResponse(text) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'tts-1-hd', // Adding the model parameter as required
+      model: ttsModel.value, // Adding the model parameter as required
       input: text,    // Changing 'text' to 'input' as required
       voice: 'nova',
-      speed: 1.05
+      speed: audioSpeed.value
     })
   });
 

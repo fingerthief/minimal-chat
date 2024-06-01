@@ -25,7 +25,9 @@ import {
   localModelEndpoint,
   higherContrastMessages,
   pushToTalkMode,
-  useWhisper
+  useWhisper,
+  ttsModel,
+  audioSpeed
 } from '@/libs/state-management/state';
 
 export function setupWatchers() {
@@ -73,6 +75,8 @@ export function setupWatchers() {
     { ref: higherContrastMessages, key: 'higherContrastMessages' },
     { ref: pushToTalkMode, key: 'use-push-to-talk' },
     { ref: useWhisper, key: 'use-whisper' },
+    { ref: ttsModel, key: 'tts-model' },
+    { ref: audioSpeed, key: 'audio-speed' },
   ];
 
   refsToWatch.forEach(({ ref, key }) => watchAndStore(ref, key));

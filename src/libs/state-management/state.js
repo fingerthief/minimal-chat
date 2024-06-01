@@ -5,6 +5,9 @@ import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 
 export const pushToTalkMode = ref((JSON.parse(localStorage.getItem("use-push-to-talk")) || false));
 export const useWhisper = ref((JSON.parse(localStorage.getItem("use-whisper") || false)));
+export const audioSpeed = ref((parseFloat(localStorage.getItem("audio-speed")) || 1.0));
+export const ttsModel = ref((localStorage.getItem("tts-model") || 'tts-1'));
+
 export const contextMenuOpened = ref(false);
 export const shouldShowScrollButton = ref(false);
 export const userText = ref('');

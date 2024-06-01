@@ -27,7 +27,9 @@ import {
   isSmallScreen,
   isSidebarVisible,
   pushToTalkMode,
-  useWhisper
+  useWhisper,
+  audioSpeed,
+  ttsModel
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints, showToast } from '@/libs/utils/general-utils';
 import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
@@ -463,6 +465,18 @@ onMounted(() => {
                       @change="handleUpdate('use-whisper', $event.target.checked)" />
                     <span class="slider"></span>
                   </label>
+                </div>
+                <br>
+                <InputField :isSecret="false" labelText="Audio Speed:"
+                  :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
+                  inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
+                <ToolTip :targetId="'audio-speed'">Default is 1.0 and 1.05 would be 5% faster playback.</ToolTip>
+                <div class="control select-dropdown">
+                  <label for="tts-model">TTS Model:</label>
+                  <select id="tts-model" :value="ttsModel" @change="handleUpdate('tts-model', $event.target.value)">
+                    <option value="tts-1">tts-1</option>
+                    <option value="tts-1-hd">tts-1-hd</option>
+                  </select>
                 </div>
               </div>
             </div>
