@@ -195,9 +195,9 @@ function toggleContextMenu() {
             &nbsp;
             <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
-            <span> &nbsp;{{ conversation.title }}
+            <span>&nbsp;
               <Trash :id="'trash-' + index" :size="13" class="trash-icon"
-                @click.stop="deleteConversation(conversation.id)" />
+                @click.stop="deleteConversation(conversation.id)" /> &nbsp;{{ conversation.title }}
             </span>
             <ToolTip :targetId="'token-' + index">
               <span v-if="!conversation.isEditing" class="token-count">
@@ -461,10 +461,9 @@ $shadow-color: #252629;
   }
 
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: none;
   width: 100%;
   height: 77dvh;
-  overflow: auto;
   box-sizing: border-box;
   font-size: 14px;
 
