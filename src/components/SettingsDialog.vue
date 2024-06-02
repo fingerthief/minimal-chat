@@ -462,7 +462,7 @@ onMounted(() => {
                 </div>
                 <div class="control-checkbox">
                   <label for="use-whisper">
-                    Use Whisper for Transcriptions:
+                    Whisper Transcriptions:
                     <input type="checkbox" id="use-whisper" :checked="useWhisper"
                       @change="handleUpdate('use-whisper', $event.target.checked)" />
                     <span class="slider"></span>
