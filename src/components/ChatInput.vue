@@ -190,9 +190,11 @@ const handleCloseInteractMode = () => {
           </span>
         </div>
       </div>
-      <div class="interact-mode-container">
+      <div v-if="selectedModel.includes('gpt')" class="interact-mode-container">
         <div v-if="!isInteractModeOpen">
-          <ToolTip :targetId="'interactButton'"> Interact mode (Experimental) </ToolTip>
+          <ToolTip :targetId="'interactButton'"> Interact mode (Experimental) <br><br> Hands free conversational speech
+            with the model
+          </ToolTip>
           <div class="interact-button" id="interactButton" @click="isInteractModeOpen = !isInteractModeOpen">
             <Speech />
           </div>
