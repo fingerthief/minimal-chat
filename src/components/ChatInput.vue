@@ -171,37 +171,30 @@ const handleCloseInteractMode = () => {
       <div class="icons">
         <ToolTip :targetId="'imageButton'"> Upload image for vision processing </ToolTip>
         <div class="image-button" id="imageButton" @click="visionImageUploadClickHandler">
-          <span>
             <ImageUp />
-          </span>
         </div>
         <ToolTip :targetId="'uploadButton'"> Upload file to add contents to current conversation </ToolTip>
         <div class="upload-button" id="uploadButton" @click="importFileUploadClick">
-          <span>
             <Upload />
-          </span>
         </div>
         <div class="send-button" @click="isLoading ? abortStream() : sendNewMessage()">
-          <span class="stop-button" v-if="isLoading">
-            <CircleStop />
-          </span>
-          <span v-if="!isLoading">
-            <SquareArrowUp />
-          </span>
+            <CircleStop class="stop-button" v-if="isLoading"/>
+            <SquareArrowUp v-if="!isLoading"/>
         </div>
       </div>
-      <div v-if="selectedModel.includes('gpt')" class="interact-mode-container">
-        <div v-if="!isInteractModeOpen">
-          <ToolTip :targetId="'interactButton'"> Interact mode (Experimental) <br><br> Hands free conversational speech
-            with the model
-          </ToolTip>
-          <div class="interact-button" id="interactButton" @click="isInteractModeOpen = !isInteractModeOpen">
-            <Speech />
-          </div>
+      
+    </div>
+    <div v-if="selectedModel.includes('gpt')" class="interact-mode-container">
+      <div v-if="!isInteractModeOpen">
+        <ToolTip :targetId="'interactButton'"> Interact mode (Experimental) <br><br> Hands free conversational speech
+          with the model
+        </ToolTip>
+        <div class="interact-button" id="interactButton" @click="isInteractModeOpen = !isInteractModeOpen">
+          <Speech />
         </div>
-        <InteractMode v-if="isInteractModeOpen" @recognized-sentence="handleRecognizedSentence"
-          @close-interact-mode="handleCloseInteractMode" />
       </div>
+      <InteractMode v-if="isInteractModeOpen" @recognized-sentence="handleRecognizedSentence"
+        @close-interact-mode="handleCloseInteractMode" />
     </div>
   </form>
 
@@ -213,6 +206,7 @@ $icon-color: rgb(187, 187, 187);
 #chat-form {
   position: absolute;
   display: flex;
+  gap: 6px;
   width: 50vw;
   align-self: center;
   top: 104%;
@@ -220,13 +214,15 @@ $icon-color: rgb(187, 187, 187);
   @media (max-width: 600px) {
     max-width: 100vw;
     width: 100%;
-    top: 102%;
+    top: calc( 100% + 28px - 6px);
+    padding: 6px;
   }
 
   .input-container {
     display: flex;
+    flex: auto;
+    flex-shrink: 2;
     align-items: center;
-    width: 100%;
     position: relative;
 
     @media (max-width: 600px) {
@@ -237,10 +233,10 @@ $icon-color: rgb(187, 187, 187);
 
   .icons {
     display: flex;
+    gap: 6px;
     align-items: center;
     position: absolute;
     right: 20px;
-    top: 15px;
   }
 
   .image-button,
@@ -259,7 +255,6 @@ $icon-color: rgb(187, 187, 187);
     transition:
       background-color 0.3s ease,
       transform 0.2s ease;
-    margin-left: 10px;
 
     &:hover {
       transform: scale(1.3);
@@ -283,13 +278,8 @@ $icon-color: rgb(187, 187, 187);
     white-space: pre-wrap;
     min-height: 50px;
     transition: 0.2s height ease-in-out;
-    padding-right: 150px; // Adjust padding to make space for icons
+    padding-right: 120px; // Adjust padding to make space for icons
     box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
-
-    @media (max-width: 600px) {
-      max-width: 98vw;
-      margin-left: 2vw;
-    }
   }
 
   @font-face {
@@ -303,8 +293,6 @@ $icon-color: rgb(187, 187, 187);
     padding-top: 14px;
     padding-left: 20px;
     transition: 0.2s height ease-in-out;
-    margin-right: 6px;
-
     font-family: Roboto-Regular, sans-serif;
   }
 
@@ -341,17 +329,14 @@ $icon-color: rgb(187, 187, 187);
 }
 
 .interact-mode-container {
-  position: absolute;
-  right: calc(-50px);
-  top: 0;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
   height: 50px;
   width: 50px;
-  margin-left: 18px;
   border: 1px solid rgba(112, 112, 112, 0.5294117647);
   background: #212121;
   box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
