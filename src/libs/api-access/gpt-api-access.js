@@ -1,6 +1,9 @@
 import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
+import { playAudio } from '../utils/audio-utils';
+
 import { whisperTemperature, audioSpeed, ttsModel, messages, pushToTalkMode } from '../state-management/state';
+
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
 let gptVisionRetryCount = 0;
@@ -175,46 +178,32 @@ export async function fetchTTSResponse(text) {
     throw new Error('API key not found');
   }
 
-  const response = await fetch('https://api.openai.com/v1/audio/speech', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: ttsModel.value, // Adding the model parameter as required
-      input: text,    // Changing 'text' to 'input' as required
-      voice: 'nova',
-      speed: audioSpeed.value
-    })
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Error from TTS API: ${errorText}`);
-  }
-
-  const audioBlob = await response.blob(); // Get the audio content as a blob
-  playAudio(audioBlob);
-}
-
-
-function playAudio(audioBlob) {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    audioContext.decodeAudioData(reader.result, (buffer) => {
-      const source = audioContext.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioContext.destination);
-      source.start(0);
-    }, (error) => {
-      console.error('Error decoding audio:', error);
+  try {
+    const response = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: ttsModel.value, // Adding the model parameter as required
+        input: text,    // Changing 'text' to 'input' as required
+        voice: 'nova',
+        speed: audioSpeed.value
+      })
     });
-  };
 
-  reader.readAsArrayBuffer(audioBlob);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error from TTS API: ${errorText}`);
+    }
+
+    const audioBlob = await response.blob(); // Get the audio content as a blob
+    console.log(`[TTS]: Received audio blob, length: ${audioBlob.size}`);
+    playAudio(audioBlob); // Ensure this function is called
+  } catch (error) {
+    console.error(`[TTS]: Error fetching TTS response: ${error.message}`);
+  }
 }
 
 export async function fetchSTTResponse(file, mimeType) {
