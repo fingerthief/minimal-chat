@@ -1,7 +1,7 @@
 <script setup>
 import hljs from 'highlight.js/lib/common';
 import MarkdownIt from 'markdown-it';
-import { RefreshCcw, Trash } from 'lucide-vue-next';
+import { RefreshCcw, Trash, Copy } from 'lucide-vue-next';
 import { ref, nextTick, computed, watch, onMounted } from 'vue';
 import '/node_modules/highlight.js/scss/github-dark-dimmed.scss';
 import ToolTip from './ToolTip.vue';
@@ -88,8 +88,19 @@ function messageClass(role) {
 }
 
 function copyText(message) {
+  let textToCopy = '';
+
+  if (Array.isArray(message)) {
+    textToCopy = message
+      .filter(item => item.text)
+      .map(item => item.text)
+      .join(' ');
+  } else {
+    textToCopy = message.text || '';
+  }
+
   navigator.clipboard
-    .writeText(message)
+    .writeText(textToCopy)
     .then(() => {
       showToast('Copied text!');
       console.log('Content copied to clipboard');
@@ -257,6 +268,11 @@ function handleTripleTap(event) {
               :class="{ loading: isLoading && loadingIcon === item.id }"
               @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
+
+            <Copy v-if="item.role === 'user'" class="delete-icon" :id="'message-copy-' + item.id" :size="18"
+              @click.stop="copyText(item.content)" />
+            <ToolTip v-if="item.role === 'user'" :targetId="'message-copy-' + item.id">Copy</ToolTip>
+
             <Trash v-if="item.role === 'user'" class="delete-icon" :id="'message-trash-' + item.id" :size="18"
               @click.stop="deleteMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
@@ -275,6 +291,7 @@ function handleTripleTap(event) {
     <ContextWindow ref="contextWindow" v-if="isSmallScreen" />
   </div>
 </template>
+
 
 <style lang="scss" scoped>
 .scroller,
