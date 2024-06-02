@@ -10,6 +10,7 @@ export const ttsModel = ref((localStorage.getItem("tts-model") || 'tts-1'));
 export const whisperTemperature = ref(parseFloat(localStorage.getItem("whisper-temperature") || 0.35));
 export const audioQueue = ref([]);
 export const audioIsPlaying = ref(false);
+export const availableModels = ref([]);
 
 export const contextMenuOpened = ref(false);
 export const shouldShowScrollButton = ref(false);
