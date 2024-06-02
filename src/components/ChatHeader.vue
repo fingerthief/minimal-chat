@@ -96,7 +96,7 @@ $shadow-spread-radius: 0px;
 
 .models-dropdown {
   position: absolute;
-  left: -2%;
+  left: -1%;
   top: -2%;
   background-color: transparent;
   border: none;

@@ -285,15 +285,10 @@ $shadow-color: #252629;
     border-radius: 5px;
     padding: 10px;
     display: flex;
-    z-index: 2;
+    z-index: 1;
     flex-direction: column;
     gap: 10px;
-
-    &.visible {
-      transform: translateY(0) scale(100%);
-    }
   }
-
 
   .context-menu-icon {
     display: block;
