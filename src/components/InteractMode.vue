@@ -127,64 +127,6 @@ const drawAudioWaveform = () => {
   }
 };
 
-let noiseFloorAverage = 0;
-const NOISE_FLOOR_SAMPLE_WINDOW = 2500;
-let noiseFloorSamples = [];
-
-const monitorAudioStream = (stream) => {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const analyser = audioContext.createAnalyser();
-  const source = audioContext.createMediaStreamSource(stream);
-  source.connect(analyser);
-  analyser.fftSize = 512;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-
-  const calculateRollingAverage = () => {
-    const total = noiseFloorSamples.reduce((sum, value) => sum + value, 0);
-    return total / noiseFloorSamples.length;
-  };
-
-  const checkForSpeech = () => {
-    analyser.getByteFrequencyData(dataArray);
-    const rms = Math.sqrt(dataArray.reduce((sum, value) => sum + value * value, 0) / dataArray.length);
-
-    if (noiseFloorSamples.length < NOISE_FLOOR_SAMPLE_WINDOW) {
-      noiseFloorSamples.push(rms);
-    } else {
-      noiseFloorSamples.shift();
-      noiseFloorSamples.push(rms);
-    }
-
-    noiseFloorAverage = calculateRollingAverage();
-
-    const isSpeech = rms > noiseFloorAverage;
-    const currentTime = Date.now();
-    if (isSpeech && isInteractModeOpen.value) {
-      lastSpeechTime = currentTime;
-      if (!mediaRecorder.value || mediaRecorder.value.state === 'inactive') {
-        startMediaRecorder(stream, mediaRecorder, currentAudioChunks, mimeType, recognizedSentences);
-        mediaRecorder.value.start();
-      }
-      clearTimeout(silenceTimer);
-    } else if (mediaRecorder.value && mediaRecorder.value.state === 'recording' && currentTime - lastSpeechTime > SILENCE_TIMEOUT) {
-      mediaRecorder.value.stop();
-    }
-
-    if (!isInteractModeOpen.value) {
-      return;
-    }
-
-    requestAnimationFrame(checkForSpeech);
-  };
-
-  if (!isInteractModeOpen.value) {
-    return;
-  }
-
-  checkForSpeech();
-};
-
 const startRecording = async () => {
   isLoading.value = true;
   state.value = 'fetching';
@@ -215,8 +157,6 @@ const startRecording = async () => {
     dataArray.value = new Uint8Array(bufferLength);
     vadStream = stream;
 
-    monitorAudioStream(stream);
-
     isRecording.value = true;
 
     recognition.value.start();
@@ -243,6 +183,34 @@ onMounted(async () => {
   }
 
   recognition.value = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+
+  recognition.value.onspeechstart = () => {
+    drawAudioWaveform();
+    console.log("Speech has been detected");
+
+    if (!isInteractModeOpen.value) {
+      return;
+    }
+
+    lastSpeechTime = currentTime;
+    if (!mediaRecorder.value || mediaRecorder.value.state === 'inactive') {
+      startMediaRecorder(stream, mediaRecorder, currentAudioChunks, mimeType, recognizedSentences);
+      mediaRecorder.value.start();
+    }
+  };
+
+  recognition.value.addEventListener("speechend", () => {
+    drawAudioWaveform();
+    console.log("Speech has stopped being detected");
+
+    if (!isInteractModeOpen.value) {
+      return;
+    }
+
+    mediaRecorder.value.stop();
+  });
+
   recognition.value.continuous = true;
   recognition.value.interimResults = false;
   recognition.value.lang = 'en-US';
