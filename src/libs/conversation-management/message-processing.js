@@ -34,7 +34,9 @@ export async function sendMessage(
       return;
     }
 
-    addMessage('user', messageText);
+    addMessage('user', [
+      { type: 'text', text: messageText }
+    ]);
 
     if (selectedModel.indexOf('claude') !== -1) {
       await sendClaudeMessage(messageText, messages, selectedModel, claudeSliderValue, updateUI, imageInputElement);
@@ -107,14 +109,21 @@ export async function sendBrowserModelMessage(messages, updateUI) {
   await sendBrowserLoadedModelMessage(messages, updateUI);
 }
 
-export async function addMessage(role, message) {
+export async function addMessage(role, content) {
   setSystemPrompt(messages.value, systemPrompt.value);
 
   const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
   const newMessageId = maxId + 1;
 
-  messages.value.push({ id: newMessageId, role, content: message });
+  const newMessage = {
+    id: newMessageId,
+    role,
+    content: Array.isArray(content) ? content : [{ type: 'text', text: content }],
+  };
+
+  messages.value.push(newMessage);
 }
+
 
 export async function sendVisionPrompt(imageInputElement) {
   imageInputElement.click();

@@ -566,10 +566,10 @@ onMounted(() => {
               <div class="flex-container">
                 <div class="center-text">Repetition Penalty: ({{ repetitionPenalty }})</div>
                 <div class="slider-container">
-                  <span>Less</span>
+                  <span>Lower</span>
                   <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
                     @input="updateRepetitionSliderValue($event.target.value)" />
-                  <span>More</span>
+                  <span>Higher</span>
                 </div>
               </div>
             </div>
@@ -953,7 +953,7 @@ $bottom-panel-border-color: #5f4575cf;
       input[type='range'] {
         -webkit-appearance: none;
         flex-grow: 1;
-        height: 15px;
+        height: 5px;
         background: #0c1928;
         outline: none;
         margin-left: 10px;

@@ -58,13 +58,29 @@ function formatMessage(content) {
       }
     },
   });
+
+  let combinedContent = content;
+
+  if (Array.isArray(content)) {
+    combinedContent = content.reduce((result, item) => {
+      if (item.type === 'text' && item.text) {
+        result += item.text + ' ';
+      } else if (item.type === 'image_url' && item.image_url && item.image_url.url) {
+        result += `![](${item.image_url.url})` + ' \r\n';
+      }
+      return result;
+    }, '').trim();
+  }
+
   return md
-    .render(content)
+    .render(combinedContent)
     .replace(/<(ul|li)>\s*\n/g, '<$1> ')
     .replace(/\n\s*<\/(ul|li)>/g, ' </$1>')
     .replace(/\n/g, '<br>')
     .replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
 }
+
+
 
 function messageClass(role) {
   higherContrastMessages.value = JSON.parse(localStorage.getItem("higherContrastMessages") || false);
@@ -270,7 +286,7 @@ function handleTripleTap(event) {
 
 .icon,
 .delete-icon {
-  color: #9d81a0;
+  color: #b8b6b6;
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
@@ -303,11 +319,18 @@ function handleTripleTap(event) {
   clear: both;
   font-size: 1em;
   line-height: 1.5;
-  max-width: 60vw;
+  max-width: 75vw;
   margin-top: 20px;
 
   &.user {
     margin-left: auto;
+    background-color: #2d2d2d;
+    border-radius: 20px;
+    max-width: 70%;
+    padding-left: 12px;
+    padding-bottom: 4px;
+    padding-top: 8px;
+    padding-right: 4px;
 
     &.high-constrast-mode {
       background-color: #2f2d44d9;
@@ -321,13 +344,11 @@ function handleTripleTap(event) {
 
       .message-header {
         justify-content: end;
-        border-bottom: 2px solid #583e72d9;
       }
     }
 
     .message-header {
       justify-content: end;
-      border-bottom: 2px solid #583e72d9;
     }
 
     .label:hover {

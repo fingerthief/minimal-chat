@@ -243,10 +243,16 @@ a {
 
 .messages {
   overflow-y: auto;
-  padding: 3px;
-  min-height: 93vh;
+  padding-left: 19%;
+  padding-right: 19%;
+  min-height: 92vh;
   scrollbar-width: none; // For Firefox
   -ms-overflow-style: none; // For Internet Explorer and Edge
+
+  @media (max-width: 600px) {
+    width: 100vw;
+    padding: 8px;
+  }
 
   &::-webkit-scrollbar {
     display: none; // For Chrome, Safari, and Opera
@@ -420,9 +426,9 @@ pre {
 .sidebar-conversations {
   position: inherit;
   height: 99vh;
-  max-width: 275px;
-  min-width: 275px;
-  width: 275px;
+  max-width: 300px;
+  min-width: 300px;
+  width: 300px;
 
   @media (max-width: 600px) {
     position: fixed;

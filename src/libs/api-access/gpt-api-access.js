@@ -9,12 +9,7 @@ let dalleRetryCount = 0;
 export async function fetchGPTVisionResponse(visionMessages, apiKey) {
   const payload = {
     model: localStorage.getItem('selectedModel') || 'gpt-4-turbo',
-    messages: [
-      {
-        role: 'user',
-        content: visionMessages,
-      },
-    ],
+    messages: visionMessages,
     max_tokens: 4096,
   };
 
@@ -33,17 +28,11 @@ export async function fetchGPTVisionResponse(visionMessages, apiKey) {
 
     return data.choices[0].message.content;
   } catch (error) {
-    if (gptVisionRetryCount < MAX_RETRY_ATTEMPTS) {
-      gptVisionRetryCount++;
-      showToast(`Failed fetchGPTVisionResponse Request. Retrying...Attempt #${gptVisionRetryCount}`);
-      await sleep(1000);
-      return fetchGPTVisionResponse(visionMessages, apiKey);
-    } else {
-      showToast(`Retry Attempts Failed for fetchGPTVisionResponse Request.`);
-      return 'Error generating GPT Vision response.';
-    }
+    showToast(`Request Failed for fetchGPTVisionResponse.`);
+    return 'Error generating GPT Vision response.';
   }
 }
+
 
 export async function generateDALLEImage(conversation) {
   const apiKey = localStorage.getItem('gptKey');
@@ -95,9 +84,9 @@ export async function fetchGPTResponseStream(
   streamedMessageText,
   autoScrollToBottom = true
 ) {
-  const gptMessagesOnly = filterGPTMessages(conversation);
+  //const gptMessagesOnly = filterGPTMessages(conversation);
 
-  let tempMessages = gptMessagesOnly.map((message) => ({
+  let tempMessages = conversation.map((message) => ({
     role: message.role,
     content: message.content,
   }));
