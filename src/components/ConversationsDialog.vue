@@ -191,20 +191,15 @@ function toggleContextMenu() {
             :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
             @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
             :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }">
-            <Database :size="13" :id="'token-' + index" />
-            &nbsp;
             <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
             <span>&nbsp;
               <Trash :id="'trash-' + index" :size="13" class="trash-icon"
                 @click.stop="deleteConversation(conversation.id)" /> &nbsp;{{ conversation.title }}
             </span>
-            <ToolTip :targetId="'token-' + index">
-              <span v-if="!conversation.isEditing" class="token-count">
-                {{ conversationCharacterCount(conversation) }} Tokens
-              </span>
-            </ToolTip>
-
+            <span v-if="!conversation.isEditing" class="token-count">
+              {{ conversationCharacterCount(conversation) }} Tokens
+            </span>
           </li>
           <li @click="startNewConversation" class="new-conversation">
             <span class="new-icon">
@@ -513,6 +508,15 @@ $shadow-color: #252629;
     animation: fadeIn 0.3s ease-out forwards;
     transition: background-color 0.2s ease-out;
     font-size: .875rem;
+
+    .token-count {
+      display: block;
+      margin-top: 3px;
+      left: 24px;
+      font-size: 0.65rem;
+      color: #b0b0b0;
+      position: relative;
+    }
 
     &[contenteditable='true'] {
       outline: none;

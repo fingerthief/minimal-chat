@@ -60,7 +60,7 @@ const isGPTConfigOpen = ref(false);
 const isDALLEConfigOpen = ref(false);
 const isClaudeConfigOpen = ref(false);
 const isImportExportConfigOpen = ref(false);
-const isWhisperConfigSectionOpen = ref(false);
+const isWhisperConfigSectionOpen = ref(true);
 
 const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },

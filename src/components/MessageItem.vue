@@ -349,7 +349,6 @@ function handleTripleTap(event) {
     padding-right: 4px;
 
     @media (max-width: 600px) {
-      width: 75vw;
       max-width: 75vw
     }
 

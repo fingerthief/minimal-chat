@@ -6,7 +6,7 @@ import { addMessage } from '../conversation-management/message-processing';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import { userText } from '../state-management/state';
 import { saveMessagesHandler } from '../conversation-management/useConversations';
-
+import { handleTextStreamEnd } from '@/libs/utils/general-utils';
 // Dynamically import the worker script
 (async () => {
   try {
@@ -123,6 +123,8 @@ export async function imageInputChanged(
   addMessage('assistant', visionResponse);
 
   saveMessagesHandler();
+
+  handleTextStreamEnd(visionResponse);
 
   isLoading.value = false;
 }
