@@ -291,7 +291,7 @@ function handleTripleTap(event) {
     transform 0.75s ease;
 
   &:hover {
-    animation: spin 0.5s backwards ease-in-out;
+    animation: spin 0.5s linear;
     transform: scale(1.2);
     cursor: pointer;
   }
@@ -334,6 +334,10 @@ function handleTripleTap(event) {
   max-width: 75vw;
   margin-top: 20px;
 
+  @media (max-width: 600px) {
+    max-width: 85vw;
+  }
+
   &.user {
     margin-left: auto;
     background-color: #2d2d2d;
@@ -343,6 +347,11 @@ function handleTripleTap(event) {
     padding-bottom: 4px;
     padding-top: 8px;
     padding-right: 4px;
+
+    @media (max-width: 600px) {
+      width: 75vw;
+      max-width: 75vw
+    }
 
     &.high-constrast-mode {
       background-color: #2f2d44d9;
