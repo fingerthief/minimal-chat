@@ -257,11 +257,11 @@ function handleTripleTap(event) {
               :class="{ loading: isLoading && loadingIcon === item.id }"
               @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
-            <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + item.id" :size="18"
+            <Trash v-if="item.role === 'user'" class="delete-icon" :id="'message-trash-' + item.id" :size="18"
               @click.stop="deleteMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
-              {{ item.role === 'user' ? 'User' : modelDisplayName }}
+              {{ item.role === 'user' ? '' : modelDisplayName }}
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
           </div>
@@ -284,20 +284,32 @@ function handleTripleTap(event) {
   scrollbar-width: none;
 }
 
-.icon,
+.icon {
+  color: #b8b6b67d;
+  transition:
+    background-color 0.75s ease,
+    transform 0.75s ease;
+
+  &:hover {
+    animation: spin 0.5s backwards ease-in-out;
+    transform: scale(1.2);
+    cursor: pointer;
+  }
+}
+
 .delete-icon {
-  color: #b8b6b6;
+  color: #b8b6b67d;
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
 
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
     cursor: pointer;
   }
 }
 
-.icon.loading {
+.loading {
   animation: spin 1s infinite linear;
 }
 
@@ -349,7 +361,7 @@ function handleTripleTap(event) {
 
     .message-header {
       justify-content: end;
-      right: 3%;
+      right: 1%;
       position: relative;
     }
 
