@@ -204,10 +204,56 @@ export function handleImportSettings(event, importSettings) {
   }
 }
 
-export function importSettings(settingsData, update) {
+export function importSettings(settingsData, update2) {
   for (const key in settingsData) {
     if (Object.prototype.hasOwnProperty.call(settingsData, key)) {
       update(key, settingsData[key]);
     }
   }
+}
+
+export function handleDeleteSystemPrompt(index) {
+  deleteSystemPrompt(index, showToast);
+}
+
+export function handleSelectSystemPrompt(index) {
+  selectSystemPrompt(index, systemPrompt);
+}
+
+// Custom Configs
+export function handleDeleteCustomConfig(index) {
+  deleteCustomConfig(index, showToast);
+}
+
+export function handleUpdate(field, value) {
+  update(field, value);
+}
+
+
+export function updateGptSliderValue(value) {
+  handleUpdate('sliderValue', parseFloat(value));
+}
+
+export function updateWhisperSlider(value) {
+  handleUpdate('whisper-temperature', parseFloat(value));
+}
+
+export function updateLocalSliderValue(value) {
+  handleUpdate('localSliderValue', parseFloat(value));
+}
+
+export function updateClaudeSliderValue(value) {
+  handleUpdate('claudeSliderValue', parseFloat(value));
+}
+
+export function updateTopPSliderValue(value) {
+  handleUpdate('top_P', parseFloat(value));
+}
+
+export function updateRepetitionSliderValue(value) {
+  handleUpdate('repetitionPenalty', parseFloat(value));
+}
+
+export function handleSelectCustomConfig(index) {
+  selectCustomConfig(index, localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty);
 }

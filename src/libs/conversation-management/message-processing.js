@@ -56,7 +56,7 @@ export async function sendMessage(
       return;
     }
 
-    if (messageText.toLowerCase().startsWith('vision::')) {
+    if (messageText.toLowerCase().startsWith('add image to conversation:: done')) {
       await sendVisionPrompt(imageInputElement);
       return;
     }
@@ -74,7 +74,7 @@ export async function sendMessage(
 }
 
 export async function sendClaudeMessage(messageText, messages, selectedModel, claudeSliderValue, updateUI, imageInputElement) {
-  if (messageText.startsWith('vision::')) {
+  if (messageText.toLowerCase().startsWith('add image to conversation:: done')) {
     isLoading.value = true;
 
     await sendVisionPrompt(imageInputElement);
@@ -155,12 +155,8 @@ export async function visionimageUploadClick(
   saveMessagesHandler,
   imageInput
 ) {
-  if (userText.value.trim().length === 0) {
-    showToast('Please Enter a Prompt First');
-    return;
-  }
 
-  userText.value = 'vision:: ' + userText.value;
+  userText.value = 'Add Image To Conversation:: Done ' + userText.value;
   await sendMessage(
     null,
     userText.value,
