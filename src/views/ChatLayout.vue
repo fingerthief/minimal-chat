@@ -5,7 +5,7 @@ import { onMounted, onUnmounted, ref, nextTick, computed } from 'vue';
 import { ChevronDown } from 'lucide-vue-next';
 import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
-import { uploadFileContentsToCoversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
+import { uploadFileContentsToConversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
 import messageItem from '@/components/MessageItem.vue';
 import chatInput from '@/components/ChatInput.vue';
 import chatHeader from '@/components/ChatHeader.vue';
@@ -116,7 +116,7 @@ onMounted(async () => {
     <input type="file" id="fileUpload" style="display: none"
       @change="(event) => uploadFile(event, conversations, selectConversationHandler)" />
     <input type="file" id="fileImportUpload" style="display: none"
-      @change="(event) => uploadFileContentsToCoversation(event, userText, addMessage)" />
+      @change="(event) => uploadFileContentsToConversation(event, userText, addMessage)" />
     <div @click="openFileSelector" style="display: none">Upload File</div>
     <div @click="importFileClick" style="display: none">Import File</div>
     <input id="imageInput" ref="imageInput" @change="imageInputChangedHandler" style="display: none" type="file" />

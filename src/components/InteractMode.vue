@@ -48,9 +48,6 @@ const VAD_THRESHOLD = 10;
 const SILENCE_TIMEOUT = 2000;
 const wavePath = ref('');
 const state = ref('listening');
-let animationInterval = null;
-let transitioning = false;
-
 const getSupportedMimeType = () => {
   const mimeTypes = [
     'audio/webm',
@@ -226,7 +223,6 @@ const stopRecording = () => {
   isRecording.value = false;
 };
 
-
 const playAudio = (blob) => {
   if (blob) {
     const url = URL.createObjectURL(blob);
@@ -262,7 +258,6 @@ const toggleInteractMode = () => {
     stopRecording();
     closeInteractMode();
   } else {
-
     startRecording();
   }
 };

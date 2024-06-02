@@ -1,6 +1,6 @@
 {
   "name": "minimal-chat",
-  "version": "6.2.0",
+  "version": "6.2.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -28,6 +28,7 @@
     "http-server": "^14.1.1",
     "lucide-vue-next": "^0.368.0",
     "markdown-it": "^14.1.0",
+    "pdfjs-dist": "^4.3.136",
     "sharp": "^0.33.4",
     "swiped-events": "^1.1.9",
     "tippy.js": "^6.3.7",

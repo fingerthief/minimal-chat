@@ -2,26 +2,71 @@
 
 import { showToast } from '@/libs/utils/general-utils';
 import { analyzeImage } from '@/libs/file-processing/image-analysis';
+import { addMessage } from '../conversation-management/message-processing';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+import { userText } from '../state-management/state';
+import { saveMessagesHandler } from '../conversation-management/useConversations';
 
-export async function uploadFileContentsToCoversation(event, userText, addMessage) {
+// Dynamically import the worker script
+(async () => {
+  try {
+    const workerSrc = await import('pdfjs-dist/build/pdf.worker.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc.default;
+  }
+  catch (e) { }
+})();
+
+export async function uploadFileContentsToConversation(event, userText2, addMessage2) {
   const file = event.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
+
   reader.onload = async (e) => {
     const contents = e.target.result;
 
     if (file.type.startsWith('image/')) {
       showToast('Cannot add images to context currently.');
+    } else if (file.type === 'application/pdf') {
+      try {
+        console.log('Loading PDF document...');
+
+        const loadingTask = pdfjsLib.getDocument({ data: contents });
+        const pdfDoc = await loadingTask.promise;
+
+        const numPages = pdfDoc.numPages;
+        let pdfText = '';
+
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdfDoc.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          pdfText += pageText + '\n';
+        }
+
+        addMessage('user', userText.value + ' ' + pdfText);
+        addMessage('assistant', 'Context added from PDF');
+        saveMessagesHandler();
+
+        showToast('Context Added from PDF');
+      } catch (error) {
+        console.error('Error parsing PDF:', error);
+        showToast('Failed to parse PDF. It might be encrypted or corrupted.');
+      }
     } else {
-      // The uploaded file is not an image
       addMessage('user', userText.value + ' ' + contents);
       addMessage('assistant', 'Context added');
+      saveMessagesHandler();
+
       showToast('Context Added');
     }
   };
 
-  await reader.readAsText(file);
+  if (file.type === 'application/pdf') {
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.readAsText(file);
+  }
 }
 
 export function uploadFile(event, conversations, selectConversationHandler) {

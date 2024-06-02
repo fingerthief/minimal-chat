@@ -272,7 +272,7 @@ onMounted(() => {
       <h2>
         Configuration
       </h2>
-      <ToolTip :targetId="'settings-header'"> Current Version: 6.2.0 </ToolTip>
+      <ToolTip :targetId="'settings-header'"> Current Version: 6.2.1 </ToolTip>
     </div>
     <div class="settings-container">
       <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
@@ -462,7 +462,7 @@ onMounted(() => {
                 </div>
                 <div class="control-checkbox">
                   <label for="use-whisper">
-                    Use Whisper for Transcriptions:
+                    Whisper Transcriptions:
                     <input type="checkbox" id="use-whisper" :checked="useWhisper"
                       @change="handleUpdate('use-whisper', $event.target.checked)" />
                     <span class="slider"></span>
