@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, nextTick } from 'vue';
-import { Plus, Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database, Trash } from 'lucide-vue-next';
+import { Plus, Eraser, Download, Upload, SquarePen, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import {
   conversations,
@@ -19,6 +19,7 @@ import { selectConversation } from '@/libs/conversation-management/conversations
 // State
 const loadedConversation = ref({});
 let initialConversation = '';
+const showContextMenu = ref(false);
 
 // Emits
 const emit = defineEmits(['import-conversations', 'export-conversations']);
@@ -144,19 +145,43 @@ function deleteConversation(conversationId) {
     showToast('Conversation Deleted');
   }
 }
+
+const contextMenuVisible = ref(false);
+
+function toggleContextMenu() {
+  if (contextMenuVisible.value) {
+    contextMenuVisible.value = false;
+    setTimeout(() => {
+      showContextMenu.value = false;
+    }, 200); // Duration of the closing animation
+  } else {
+    showContextMenu.value = true;
+    nextTick(() => {
+      contextMenuVisible.value = true;
+    });
+  }
+}
+
 </script>
 
 <template>
   <div class="resize-container">
     <div class="settings-header">
       <h2>
-        Conversations &nbsp;
-        <ToolTip :targetId="'purgeConversations'">Purge all conversations</ToolTip>
-        <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.0" />&nbsp;
-        <ToolTip :targetId="'exportConversations'">Export conversations</ToolTip>
-        <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.0" />&nbsp;
-        <ToolTip :targetId="'importConversations'">Import conversations</ToolTip>
-        <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
+        <span v-show="isSmallScreen">Conversations &nbsp;</span>
+        <MoreHorizontal @blur="showContextMenu = false;" class="context-menu-icon" @click="toggleContextMenu"
+          id="contextMenu" :size="25" :stroke-width="1.0" />
+        <transition name="fade-slide">
+          <div v-show="showContextMenu" class="context-menu"
+            :class="{ visible: contextMenuVisible, hidden: !contextMenuVisible }">
+            <ToolTip :targetId="'purgeConversations'">Purge all conversations</ToolTip>
+            <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.0" />&nbsp;
+            <ToolTip :targetId="'exportConversations'">Export conversations</ToolTip>
+            <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.0" />&nbsp;
+            <ToolTip :targetId="'importConversations'">Import conversations</ToolTip>
+            <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
+          </div>
+        </transition>
       </h2>
     </div>
     <div class="sidebar-content-container">
@@ -170,14 +195,16 @@ function deleteConversation(conversationId) {
             &nbsp;
             <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
-            <span> &nbsp;{{ conversation.title }} </span>
+            <span> &nbsp;{{ conversation.title }}
+              <Trash :id="'trash-' + index" :size="13" class="trash-icon"
+                @click.stop="deleteConversation(conversation.id)" />
+            </span>
             <ToolTip :targetId="'token-' + index">
               <span v-if="!conversation.isEditing" class="token-count">
                 {{ conversationCharacterCount(conversation) }} Tokens
               </span>
             </ToolTip>
-            <Trash :id="'trash-' + index" :size="13" class="trash-icon"
-              @click.stop="deleteConversation(conversation.id)" />
+
           </li>
           <li @click="startNewConversation" class="new-conversation">
             <span class="new-icon">
@@ -197,12 +224,6 @@ function deleteConversation(conversationId) {
               <span class="delete-text">Delete Current Conversation</span>
             </span>
           </li>
-          <!-- <li v-if="!showConversationOptions" class="new-conversation-option--settings" @click="toggleSidebar">
-            <span class="settings-icon">
-              <Settings :stroke-width="1.5" />
-              <span class="settings-text">Settings</span>
-            </span>
-          </li> -->
           <li v-show="showConversationOptions && isSmallScreen" class="new-conversation-option--settings"
             @click="toggleConversations">
             <span class="settings-icon">
@@ -222,6 +243,8 @@ $shadow-color: #252629;
 .new-conversation {
   border-top: 1px solid black;
   text-align: center;
+  position: relative;
+  right: 4%;
 }
 
 .token-count {
@@ -239,20 +262,55 @@ $shadow-color: #252629;
   z-index: 1000;
 }
 
+
 .settings-header {
   font-size: 15px;
   font-weight: bold;
   position: relative;
-  padding: 10px 22px;
-  background-color: #1d1e1e;
+  padding: 8px;
   text-align: left;
   white-space: nowrap;
-  border-bottom: 5px solid #424045b5;
 
   @media (max-width: 600px) {
     padding: 25px 0;
     text-align: center;
   }
+
+  .context-menu {
+    position: absolute;
+    top: 40px;
+    right: 10px;
+    background-color: #1d1e1e;
+    border: 1px solid #424045b5;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    z-index: 2;
+    flex-direction: column;
+    gap: 10px;
+
+    &.visible {
+      transform: translateY(0) scale(100%);
+    }
+  }
+
+
+  .context-menu-icon {
+    display: block;
+    float: right;
+  }
+}
+
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 .bottom-panel {
@@ -452,13 +510,15 @@ $shadow-color: #252629;
 
   li {
     padding: 14px;
-    background-color: #171717;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
     border-left: 4px solid transparent;
-    color: #cccccc;
+    color: #eaeaea;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
     user-select: none;
     animation: fadeIn 0.3s ease-out forwards;
     transition: background-color 0.2s ease-out;
+    font-size: .875rem;
 
     &[contenteditable='true'] {
       outline: none;
@@ -475,14 +535,14 @@ $shadow-color: #252629;
     }
 
     &:hover .trash-icon {
-      display: block;
-      float: right;
+      display: inline-block;
+
     }
 
     .trash-icon {
       display: none;
       cursor: pointer;
-      margin-left: 10px;
+      margin-left: 6px;
     }
 
     &.selected {
