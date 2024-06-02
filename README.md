@@ -22,9 +22,9 @@ MinimalChat is a minimal and lightweight open-source chat application with full 
 
 ### Application Demo
 
-[Visit the Application Demos Wiki Page](https://github.com/fingerthief/minimal-chat/wiki/Application-Demos) for more demos.
+[Higher Quality Video](https://www.youtube.com/watch?v=bO78W8MPWgE)
 
-https://github.com/fingerthief/minimal-chat/assets/2380471/51fde475-1b3f-4904-8c5a-48188e95ea31
+https://github.com/fingerthief/minimal-chat/assets/2380471/e93141b7-1ee1-4dbf-a106-0d92897d899b
 
 ## **Experience the Power of Web Local LLM Models**
 
@@ -58,6 +58,7 @@ To run the web app locally, you'll need NodeJS installed. Then, navigate to the 
 ## **Features**
 
 - Minimal layout
+- Fully voiced conversational interactions with STT and TTS. 
 - Supports multiple language models, including:
   - GPT Model
   - Claude 3 Models
@@ -97,6 +98,8 @@ Yes, MinimalChat is designed to be fully mobile compatible. You can even install
 
 - Swipe to the **Left** on the bottom input box and your **Conversations** dialog will appear.
 - Swipe to the **Right** on the bottom input box and your **Settings** dialog will appear.
+- Double tap on the messages list to open a quick action context menu for starting a new conversation or to delete the current one.
+- Double tap on the settings page to expand or collapse the side panel for extra space.
 
 ## **Integration with Open AI Response Formatted APIs**
 
@@ -138,5 +141,3 @@ If you have any questions, feedback, or suggestions, feel free to reach out to u
 ---
 
 **Thank you for using MinimalChat!**
-
-_Buy me a coffee for some reason: ☕️ [![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow-btn.png)](https://buymeacoffee.com/fingerthief) ☕️_
