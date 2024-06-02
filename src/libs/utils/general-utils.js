@@ -35,7 +35,7 @@ export async function getConversationTitleFromGPT(messages2, model, sliderValue2
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: tempMessages,
-        maxTokens: 18,
+        max_tokens: 18,
         temperature: sliderValue.value,
       }),
     });
