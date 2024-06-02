@@ -325,8 +325,8 @@ function handleTripleTap(event) {
   &.user {
     margin-left: auto;
     background-color: #2d2d2d;
-    border-radius: 20px;
-    max-width: 70%;
+    border-radius: 16px;
+    max-width: 75%;
     padding-left: 12px;
     padding-bottom: 4px;
     padding-top: 8px;
@@ -349,6 +349,8 @@ function handleTripleTap(event) {
 
     .message-header {
       justify-content: end;
+      right: 3%;
+      position: relative;
     }
 
     .label:hover {

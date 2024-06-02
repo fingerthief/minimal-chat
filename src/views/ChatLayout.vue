@@ -426,9 +426,9 @@ pre {
 .sidebar-conversations {
   position: inherit;
   height: 99vh;
-  max-width: 300px;
-  min-width: 300px;
-  width: 300px;
+  max-width: 325px;
+  min-width: 325px;
+  width: 325px;
 
   @media (max-width: 600px) {
     position: fixed;
