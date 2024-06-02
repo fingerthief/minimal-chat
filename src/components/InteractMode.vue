@@ -27,8 +27,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import { fetchSTTResponse } from '@/libs/api-access/gpt-api-access'; // Import the fetchSTTResponse function
+import { fetchSTTResponse } from '@/libs/api-access/gpt-api-access';
 import { useWhisper, isInteractModeOpen } from '@/libs/state-management/state';
+import { getSupportedMimeType, checkMicrophoneAvailability, checkWebSpeechAPI, startMediaRecorder, playAudio, downloadAudio } from '@/libs/utils/audio-utils';
 
 const emit = defineEmits(['recognized-sentence', 'close-interact-mode']);
 
@@ -48,163 +49,7 @@ const VAD_THRESHOLD = 10;
 const SILENCE_TIMEOUT = 2000;
 const wavePath = ref('');
 const state = ref('listening');
-const getSupportedMimeType = () => {
-  const mimeTypes = [
-    'audio/webm',
-    'audio/mp4',
-    'audio/wav',
-    'audio/mp3',
-  ];
-
-  for (const mimeType of mimeTypes) {
-    if (MediaRecorder.isTypeSupported(mimeType)) {
-      console.log(mimeType);
-      return mimeType;
-    }
-  }
-
-  return null;
-};
-
-const mimeType = getSupportedMimeType(); // Use only the 'audio/webm' media type
-
-const checkMicrophoneAvailability = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach(track => track.stop());
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
-const checkWebSpeechAPI = () => {
-  return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-};
-
-const startMediaRecorder = async (stream) => {
-  mediaRecorder.value = new MediaRecorder(stream);
-
-  mediaRecorder.value.ondataavailable = (event) => {
-    if (event.data.size > 0) {
-      currentAudioChunks.push(event.data);
-    }
-  };
-
-  mediaRecorder.value.onstop = async () => {
-    const blob = new Blob(currentAudioChunks, { type: mimeType });
-    currentAudioChunks = [];
-
-    if (recognizedSentences.value.length > 0) {
-      recognizedSentences.value[recognizedSentences.value.length - 1].blob = blob;
-    }
-  };
-};
-
-const startRecording = async () => {
-  isLoading.value = true;
-  state.value = 'fetching'; // Update state to fetching
-  errorMessage.value = null;
-
-  if (!checkWebSpeechAPI()) {
-    errorMessage.value = 'Web Speech API is not supported in this browser.';
-    isLoading.value = false;
-    state.value = 'error'; // Update state to error
-    return;
-  }
-
-  if (!(await checkMicrophoneAvailability())) {
-    errorMessage.value = 'Microphone not available or permission denied.';
-    isLoading.value = false;
-    state.value = 'error'; // Update state to error
-    return;
-  }
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    audioContext.value = new (window.AudioContext || window.webkitAudioContext)();
-    analyser.value = audioContext.value.createAnalyser();
-    const source = audioContext.value.createMediaStreamSource(stream);
-    source.connect(analyser.value);
-    analyser.value.fftSize = 2048;
-    const bufferLength = analyser.value.frequencyBinCount;
-    dataArray.value = new Uint8Array(bufferLength);
-    vadStream = stream;
-
-    monitorAudioStream(stream);
-
-    isRecording.value = true;
-
-    recognition.value.start();
-    state.value = 'listening'; // Update state to listening
-
-    await nextTick();
-    drawAudioWaveform();
-
-    isLoading.value = false;
-  } catch (error) {
-    errorMessage.value = 'Error starting recording or speech recognition.';
-    state.value = 'error'; // Update state to error
-    isLoading.value = false;
-  }
-};
-
-let noiseFloorAverage = 0;
-const NOISE_FLOOR_SAMPLE_WINDOW = 2500;
-let noiseFloorSamples = [];
-const monitorAudioStream = (stream) => {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const analyser = audioContext.createAnalyser();
-  const source = audioContext.createMediaStreamSource(stream);
-  source.connect(analyser);
-  analyser.fftSize = 512;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-
-  const calculateRollingAverage = () => {
-    const total = noiseFloorSamples.reduce((sum, value) => sum + value, 0);
-    return total / noiseFloorSamples.length;
-  };
-
-  const checkForSpeech = () => {
-    analyser.getByteFrequencyData(dataArray);
-    const rms = Math.sqrt(dataArray.reduce((sum, value) => sum + value * value, 0) / dataArray.length);
-
-    if (noiseFloorSamples.length < NOISE_FLOOR_SAMPLE_WINDOW) {
-      noiseFloorSamples.push(rms);
-    } else {
-      noiseFloorSamples.shift();
-      noiseFloorSamples.push(rms);
-    }
-
-    noiseFloorAverage = calculateRollingAverage();
-
-    const isSpeech = rms > noiseFloorAverage;
-    const currentTime = Date.now();
-    if (isSpeech && isInteractModeOpen.value) {
-      lastSpeechTime = currentTime;
-      if (!mediaRecorder.value || mediaRecorder.value.state === 'inactive') {
-        startMediaRecorder(stream);
-        mediaRecorder.value.start();
-      }
-      clearTimeout(silenceTimer);
-    } else if (mediaRecorder.value && mediaRecorder.value.state === 'recording' && currentTime - lastSpeechTime > SILENCE_TIMEOUT) {
-      mediaRecorder.value.stop();
-    }
-
-    if (!isInteractModeOpen.value) {
-      return;
-    }
-
-    requestAnimationFrame(checkForSpeech);
-  };
-
-  if (!isInteractModeOpen.value) {
-    return;
-  }
-
-  checkForSpeech();
-};
+const mimeType = getSupportedMimeType();
 
 const stopRecording = () => {
   if (mediaRecorder.value && mediaRecorder.value.state !== 'inactive') {
@@ -223,36 +68,6 @@ const stopRecording = () => {
   isRecording.value = false;
 };
 
-const playAudio = (blob) => {
-  if (blob) {
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-
-    // Stop recording when audio starts playing
-    stopRecording();
-
-    audio.play();
-  }
-};
-
-const downloadAudio = (blob, index) => {
-  if (blob) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    const extension = blob.type.split('/')[1]; // Get the extension from the MIME type
-    a.download = `sentence_${index + 1}.${extension}`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-  }
-};
-
-const closeInteractMode = () => {
-  emit('close-interact-mode');
-};
-
 const toggleInteractMode = () => {
   if (isRecording.value) {
     stopRecording();
@@ -260,6 +75,10 @@ const toggleInteractMode = () => {
   } else {
     startRecording();
   }
+};
+
+const closeInteractMode = () => {
+  emit('close-interact-mode');
 };
 
 const drawAudioWaveform = () => {
@@ -308,12 +127,118 @@ const drawAudioWaveform = () => {
   }
 };
 
+let noiseFloorAverage = 0;
+const NOISE_FLOOR_SAMPLE_WINDOW = 2500;
+let noiseFloorSamples = [];
+
+const monitorAudioStream = (stream) => {
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const analyser = audioContext.createAnalyser();
+  const source = audioContext.createMediaStreamSource(stream);
+  source.connect(analyser);
+  analyser.fftSize = 512;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  const calculateRollingAverage = () => {
+    const total = noiseFloorSamples.reduce((sum, value) => sum + value, 0);
+    return total / noiseFloorSamples.length;
+  };
+
+  const checkForSpeech = () => {
+    analyser.getByteFrequencyData(dataArray);
+    const rms = Math.sqrt(dataArray.reduce((sum, value) => sum + value * value, 0) / dataArray.length);
+
+    if (noiseFloorSamples.length < NOISE_FLOOR_SAMPLE_WINDOW) {
+      noiseFloorSamples.push(rms);
+    } else {
+      noiseFloorSamples.shift();
+      noiseFloorSamples.push(rms);
+    }
+
+    noiseFloorAverage = calculateRollingAverage();
+
+    const isSpeech = rms > noiseFloorAverage;
+    const currentTime = Date.now();
+    if (isSpeech && isInteractModeOpen.value) {
+      lastSpeechTime = currentTime;
+      if (!mediaRecorder.value || mediaRecorder.value.state === 'inactive') {
+        startMediaRecorder(stream, mediaRecorder, currentAudioChunks, mimeType, recognizedSentences);
+        mediaRecorder.value.start();
+      }
+      clearTimeout(silenceTimer);
+    } else if (mediaRecorder.value && mediaRecorder.value.state === 'recording' && currentTime - lastSpeechTime > SILENCE_TIMEOUT) {
+      mediaRecorder.value.stop();
+    }
+
+    if (!isInteractModeOpen.value) {
+      return;
+    }
+
+    requestAnimationFrame(checkForSpeech);
+  };
+
+  if (!isInteractModeOpen.value) {
+    return;
+  }
+
+  checkForSpeech();
+};
+
+const startRecording = async () => {
+  isLoading.value = true;
+  state.value = 'fetching';
+  errorMessage.value = null;
+
+  if (!checkWebSpeechAPI()) {
+    errorMessage.value = 'Web Speech API is not supported in this browser.';
+    isLoading.value = false;
+    state.value = 'error';
+    return;
+  }
+
+  if (!(await checkMicrophoneAvailability())) {
+    errorMessage.value = 'Microphone not available or permission denied.';
+    isLoading.value = false;
+    state.value = 'error';
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioContext.value = new (window.AudioContext || window.webkitAudioContext)();
+    analyser.value = audioContext.value.createAnalyser();
+    const source = audioContext.value.createMediaStreamSource(stream);
+    source.connect(analyser.value);
+    analyser.value.fftSize = 2048;
+    const bufferLength = analyser.value.frequencyBinCount;
+    dataArray.value = new Uint8Array(bufferLength);
+    vadStream = stream;
+
+    monitorAudioStream(stream);
+
+    isRecording.value = true;
+
+    recognition.value.start();
+    state.value = 'listening';
+
+    await nextTick();
+    drawAudioWaveform();
+
+    isLoading.value = false;
+  } catch (error) {
+    errorMessage.value = 'Error starting recording or speech recognition.';
+    state.value = 'error';
+    isLoading.value = false;
+  }
+};
+
 const recognition = ref(null);
 
 onMounted(async () => {
   if (!checkWebSpeechAPI()) {
     errorMessage.value = 'Web Speech API is not supported in this browser.';
-    state.value = 'error'; // Update state to error
+    state.value = 'error';
     return;
   }
 
@@ -325,7 +250,7 @@ onMounted(async () => {
   recognition.value.onresult = async (event) => {
     const transcript = event.results[event.resultIndex][0].transcript.trim();
     if (transcript.length > 0) {
-      state.value = 'transcribing'; // Update state to transcribing
+      state.value = 'transcribing';
       recognizedSentences.value.push({ text: transcript, blob: null });
 
       if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
@@ -337,7 +262,7 @@ onMounted(async () => {
         const lastBlob = recognizedSentences.value[recognizedSentences.value.length - 1].blob;
         if (lastBlob) {
           isLoading.value = true;
-          state.value = 'fetching'; // Update state to fetching
+          state.value = 'fetching';
           try {
             const transcription = await fetchSTTResponse(lastBlob, mimeType);
             recognizedSentences.value[recognizedSentences.value.length - 1].text = transcription;
@@ -346,12 +271,12 @@ onMounted(async () => {
             errorMessage.value = `Transcription error: ${error.message}`;
           } finally {
             isLoading.value = false;
-            state.value = 'listening'; // Revert state to listening
+            state.value = 'listening';
           }
         }
       } else {
         emit('recognized-sentence', { text: transcript, timestamp: new Date().toISOString() });
-        state.value = 'listening'; // Revert state to listening
+        state.value = 'listening';
       }
     }
   };
@@ -364,7 +289,7 @@ onMounted(async () => {
 
     errorMessage.value = `Speech recognition error: ${event.error}`;
     isLoading.value = false;
-    state.value = 'error'; // Update state to error
+    state.value = 'error';
 
     if (event.error === 'aborted') {
       if (isRecording.value) {
@@ -483,7 +408,6 @@ path {
 }
 
 .sentence-list {
-  /** for debugging */
   display: none;
   margin-top: 20px;
   list-style-type: none;
@@ -516,14 +440,12 @@ path {
 }
 
 .loading-message {
-  /** for debugging */
   display: none;
   margin-top: 20px;
   color: #000;
 }
 
 .error-message {
-  /** for debugging */
   margin-top: 20px;
   position: absolute;
   color: #fff;
