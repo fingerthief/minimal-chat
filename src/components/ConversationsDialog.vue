@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, nextTick } from 'vue';
-import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database } from 'lucide-vue-next';
+import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database, Trash } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import {
   conversations,
@@ -11,9 +11,10 @@ import {
   storedConversations,
   isSidebarOpen,
 } from '@/libs/state-management/state';
-import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
+import { deleteCurrentConversation, editConversationTitle, saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
 import { selectConversation } from '@/libs/conversation-management/conversations-management';
+
 // State
 const loadedConversation = ref({});
 let initialConversation = '';
@@ -133,6 +134,15 @@ function toggleConversations() {
   event.stopPropagation();
   showConversationOptions.value = !showConversationOptions.value;
 }
+
+function deleteConversation(conversationId) {
+  const index = conversations.value.findIndex(convo => convo.id === conversationId);
+  if (index !== -1) {
+    conversations.value.splice(index, 1);
+    saveMessagesHandler();
+    showToast('Conversation Deleted');
+  }
+}
 </script>
 
 <template>
@@ -165,6 +175,8 @@ function toggleConversations() {
                 {{ conversationCharacterCount(conversation) }} Tokens
               </span>
             </ToolTip>
+            <Trash :id="'trash-' + index" :size="13" class="trash-icon"
+              @click.stop="deleteConversation(conversation.id)" />
           </li>
         </ul>
       </div>
@@ -455,6 +467,17 @@ $shadow-color: #252629;
       background-color: #252525;
     }
 
+    &:hover .trash-icon {
+      display: block;
+      float: right;
+    }
+
+    .trash-icon {
+      display: none;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
     &.selected {
       background-color: #242323;
       font-weight: 600;
@@ -468,31 +491,6 @@ $shadow-color: #252629;
     }
   }
 }
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-}
-
 
 @keyframes fadeIn {
   0% {
