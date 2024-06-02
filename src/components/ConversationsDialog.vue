@@ -168,12 +168,11 @@ function toggleContextMenu() {
   <div class="resize-container">
     <div class="settings-header">
       <h2>
-        <span v-show="isSmallScreen">Conversations &nbsp;</span>
+        <span v-if="isSmallScreen">Conversations &nbsp;</span>
         <MoreHorizontal @blur="showContextMenu = false;" class="context-menu-icon" @click="toggleContextMenu"
           id="contextMenu" :size="25" :stroke-width="1.0" />
         <transition name="fade-slide">
-          <div v-show="showContextMenu" class="context-menu"
-            :class="{ visible: contextMenuVisible, hidden: !contextMenuVisible }">
+          <div v-show="showContextMenu" class="context-menu">
             <ToolTip :targetId="'purgeConversations'">Purge all conversations</ToolTip>
             <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.0" />&nbsp;
             <ToolTip :targetId="'exportConversations'">Export conversations</ToolTip>
@@ -182,6 +181,7 @@ function toggleContextMenu() {
             <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
           </div>
         </transition>
+        <Settings v-if="!isSmallScreen" @click="toggleSidebar" :size="25" :stroke-width="1.0" />
       </h2>
     </div>
     <div class="sidebar-content-container">
