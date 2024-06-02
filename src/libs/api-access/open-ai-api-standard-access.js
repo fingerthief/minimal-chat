@@ -15,9 +15,9 @@ export async function fetchLocalModelResponseStream(
   streamedMessageText,
   autoScrollToBottom = true
 ) {
-  const gptMessagesOnly = filterLocalMessages(conversation);
+  //const gptMessagesOnly = filterLocalMessages(conversation);
 
-  let tempMessages = gptMessagesOnly.map((message) => ({
+  let tempMessages = conversation.map((message) => ({
     role: message.role,
     content: message.content,
   }));

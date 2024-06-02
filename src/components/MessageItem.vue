@@ -58,13 +58,29 @@ function formatMessage(content) {
       }
     },
   });
+
+  let combinedContent = content;
+
+  if (Array.isArray(content)) {
+    combinedContent = content.reduce((result, item) => {
+      if (item.type === 'text' && item.text) {
+        result += item.text + ' ';
+      } else if (item.type === 'image_url' && item.image_url && item.image_url.url) {
+        result += `![](${item.image_url.url})` + ' \r\n';
+      }
+      return result;
+    }, '').trim();
+  }
+
   return md
-    .render(content)
+    .render(combinedContent)
     .replace(/<(ul|li)>\s*\n/g, '<$1> ')
     .replace(/\n\s*<\/(ul|li)>/g, ' </$1>')
     .replace(/\n/g, '<br>')
     .replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
 }
+
+
 
 function messageClass(role) {
   higherContrastMessages.value = JSON.parse(localStorage.getItem("higherContrastMessages") || false);
@@ -241,11 +257,11 @@ function handleTripleTap(event) {
               :class="{ loading: isLoading && loadingIcon === item.id }"
               @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
-            <Trash v-if="item.role === 'user'" class="icon delete-icon" :id="'message-trash-' + item.id" :size="18"
+            <Trash v-if="item.role === 'user'" class="delete-icon" :id="'message-trash-' + item.id" :size="18"
               @click.stop="deleteMessage(item.content), startLoading(item.id)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
-              {{ item.role === 'user' ? 'User' : modelDisplayName }}
+              {{ item.role === 'user' ? '' : modelDisplayName }}
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
           </div>
@@ -268,20 +284,32 @@ function handleTripleTap(event) {
   scrollbar-width: none;
 }
 
-.icon,
+.icon {
+  color: #b8b6b67d;
+  transition:
+    background-color 0.75s ease,
+    transform 0.75s ease;
+
+  &:hover {
+    animation: spin 0.5s linear;
+    transform: scale(1.2);
+    cursor: pointer;
+  }
+}
+
 .delete-icon {
-  color: #9d81a0;
+  color: #b8b6b67d;
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
 
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.2);
     cursor: pointer;
   }
 }
 
-.icon.loading {
+.loading {
   animation: spin 1s infinite linear;
 }
 
@@ -303,11 +331,27 @@ function handleTripleTap(event) {
   clear: both;
   font-size: 1em;
   line-height: 1.5;
-  max-width: 60vw;
+  max-width: 75vw;
   margin-top: 20px;
+
+  @media (max-width: 600px) {
+    max-width: 85vw;
+  }
 
   &.user {
     margin-left: auto;
+    background-color: #2d2d2d;
+    border-radius: 16px;
+    max-width: 75%;
+    padding-left: 12px;
+    padding-bottom: 4px;
+    padding-top: 8px;
+    padding-right: 4px;
+
+    @media (max-width: 600px) {
+      width: 75vw;
+      max-width: 75vw
+    }
 
     &.high-constrast-mode {
       background-color: #2f2d44d9;
@@ -321,13 +365,13 @@ function handleTripleTap(event) {
 
       .message-header {
         justify-content: end;
-        border-bottom: 2px solid #583e72d9;
       }
     }
 
     .message-header {
       justify-content: end;
-      border-bottom: 2px solid #583e72d9;
+      right: 1%;
+      position: relative;
     }
 
     .label:hover {

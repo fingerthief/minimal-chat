@@ -1,6 +1,8 @@
 import { fetchGPTVisionResponse } from '../api-access/gpt-api-access.js';
 import { fetchClaudeVisionResponse } from '../api-access/claude-api-access.js';
 import { fetchOpenAiLikeVisionResponse } from '../api-access/open-ai-api-standard-access.js';
+import { messages } from '../state-management/state.js';
+import { addMessage } from '../conversation-management/message-processing.js';
 
 // Encode image as base64
 async function encodeImage(file) {
@@ -37,28 +39,61 @@ function formatMessagesForVision(messages) {
 }
 
 // Analyze image
-export async function analyzeImage(file, fileType, messages, model, localModelName, localModelEndpoint) {
+export async function analyzeImage(file, fileType, messages2, model, localModelName, localModelEndpoint) {
   const base64Image = await encodeImage(file);
-  const gptMessagesOnly = filterGPTMessages(messages);
-  const visionFormattedMessages = formatMessagesForVision(gptMessagesOnly);
+
+  const visionFormattedMessages = messages.value.map((message) => ({
+    role: message.role,
+    content: message.content,
+  }));
+
+  const lastMessageText = messages.value[messages.value.length - 1].content[0].text;
+  visionFormattedMessages.pop();
+
 
   if (model.indexOf('gpt') !== -1) {
     visionFormattedMessages.push({
-      type: 'image_url',
-      image_url: { url: base64Image },
+      role: 'user',
+      content: [
+        {
+          type: 'image_url',
+          image_url: { url: base64Image },
+        },
+        {
+          type: "text",
+          text: lastMessageText
+        }
+      ],
     });
+
+    messages.value.pop();
+    addMessage("user", [
+      {
+        type: 'image_url',
+        image_url: { url: base64Image },
+      },
+      {
+        type: "text",
+        text: lastMessageText
+      }
+    ])
 
     return await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem('gptKey'));
   }
 
   if (model.indexOf('claude') !== -1) {
     visionFormattedMessages.push({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: fileType,
-        data: getStringAfterComma(base64Image),
-      },
+      role: 'user',
+      content: [
+        {
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: fileType,
+            data: getStringAfterComma(base64Image),
+          },
+        },
+      ],
     });
 
     return await fetchClaudeVisionResponse(visionFormattedMessages, localStorage.getItem('claudeKey'), model);
@@ -66,8 +101,13 @@ export async function analyzeImage(file, fileType, messages, model, localModelNa
 
   if (model.indexOf('open-ai-format') !== -1) {
     visionFormattedMessages.push({
-      type: 'image_url',
-      image_url: { url: base64Image },
+      role: 'user',
+      content: [
+        {
+          type: 'image_url',
+          image_url: { url: base64Image },
+        },
+      ],
     });
 
     return await fetchOpenAiLikeVisionResponse(visionFormattedMessages, localStorage.getItem('localModelKey'), localModelName, localModelEndpoint);
@@ -75,3 +115,4 @@ export async function analyzeImage(file, fileType, messages, model, localModelNa
 
   return 'not implemented for selected model';
 }
+

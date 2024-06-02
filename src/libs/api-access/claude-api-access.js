@@ -11,9 +11,7 @@ export async function fetchClaudeConversationTitle(messages) {
   try {
     let storedApiKey = localStorage.getItem('claudeKey');
 
-    let filteredMessages = filterGPTMessages(messages);
-
-    let filteredMessagesWithoutSystemPrompt = filteredMessages.slice(1);
+    let filteredMessagesWithoutSystemPrompt = messages.slice(1);
 
     let tempMessages = filteredMessagesWithoutSystemPrompt.map((message) => ({
       role: message.role,
@@ -128,9 +126,7 @@ export async function streamClaudeResponse(
   autoScrollToBottom = true
 ) {
   try {
-    let filteredMessages = filterGPTMessages(messages);
-
-    let tempMessages = filteredMessages.map((message) => ({
+    let tempMessages = messages.map((message) => ({
       role: message.role,
       content: message.content,
     }));
@@ -148,7 +144,7 @@ export async function streamClaudeResponse(
         'X-API-Key': localStorage.getItem('claudeKey'),
       },
       body: JSON.stringify({
-        system: filteredMessages[0].content,
+        system: messages[0].content,
         messages: tempMessages.slice(1),
         temperature: claudeSliderValue.value,
         model: model,

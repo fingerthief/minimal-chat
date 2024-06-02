@@ -161,7 +161,7 @@ export function updateUI(content, messages, addMessage, autoScrollBottom = true,
       return;
     }
 
-    lastMessage.content += content;
+    lastMessage.content[0].text += content;
   } else {
     addMessage('assistant', content);
   }
