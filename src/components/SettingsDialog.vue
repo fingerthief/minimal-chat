@@ -448,7 +448,7 @@ onMounted(() => {
             <br>
             <div class="config-section" :class="{ show: isWhisperConfigSectionOpen }" v-show="showGPTConfig">
               <h3 @click="isWhisperConfigSectionOpen = !isWhisperConfigSectionOpen">
-                Interact Mode Configuration
+                Interact Mode
                 <span class="indicator">{{ isWhisperConfigSectionOpen ? '-' : '+' }}</span>
               </h3>
               <div v-show="isWhisperConfigSectionOpen" class="control-grid">
@@ -494,7 +494,7 @@ onMounted(() => {
             <div class="config-section" :class="{ show: isDALLEConfigOpen }"
               v-show="showGPTConfig && !showingGeneralConfig">
               <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
-                DALL-E Config
+                DALL-E
                 <span class="indicator">{{ isDALLEConfigOpen ? '-' : '+' }}</span>
               </h3>
               <div v-show="isDALLEConfigOpen" class="control-grid">

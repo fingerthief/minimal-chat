@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, nextTick } from 'vue';
-import { Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database, Trash } from 'lucide-vue-next';
+import { Plus, Eraser, Download, Upload, MessageSquarePlus, MessageSquareX, Settings, Pencil, Database, Trash } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import {
   conversations,
@@ -10,6 +10,7 @@ import {
   lastLoadedConversationId,
   storedConversations,
   isSidebarOpen,
+  isSmallScreen,
 } from '@/libs/state-management/state';
 import { deleteCurrentConversation, editConversationTitle, saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
@@ -178,31 +179,32 @@ function deleteConversation(conversationId) {
             <Trash :id="'trash-' + index" :size="13" class="trash-icon"
               @click.stop="deleteConversation(conversation.id)" />
           </li>
+          <li @click="startNewConversation" class="new-conversation">
+            <span class="new-icon">
+              <plus :size="13" />
+              &nbsp;<span class="new-text">New Conversation</span>
+            </span>
+          </li>
         </ul>
       </div>
     </div>
     <div class="bottom-panel">
       <div class="scrollable-list--bottom">
         <ul>
-          <li class="new-conversation-option" @click="startNewConversation">
-            <span class="new-icon">
-              <MessageSquarePlus :stroke-width="1.5" />
-              <span class="new-text">Start New Conversation</span>
-            </span>
-          </li>
-          <li class="new-conversation-option--delete" @click="deleteCurrentConversation">
+          <li v-show="isSmallScreen" class="new-conversation-option--delete" @click="deleteCurrentConversation">
             <span class="delete-icon">
               <MessageSquareX :stroke-width="1.5" />
               <span class="delete-text">Delete Current Conversation</span>
             </span>
           </li>
-          <li v-if="!showConversationOptions" class="new-conversation-option--settings" @click="toggleSidebar">
+          <!-- <li v-if="!showConversationOptions" class="new-conversation-option--settings" @click="toggleSidebar">
             <span class="settings-icon">
               <Settings :stroke-width="1.5" />
               <span class="settings-text">Settings</span>
             </span>
-          </li>
-          <li v-if="showConversationOptions" class="new-conversation-option--settings" @click="toggleConversations">
+          </li> -->
+          <li v-show="showConversationOptions && isSmallScreen" class="new-conversation-option--settings"
+            @click="toggleConversations">
             <span class="settings-icon">
               <Settings :stroke-width="1.5" />
               <span class="settings-text">Close</span>
@@ -216,6 +218,11 @@ function deleteConversation(conversationId) {
 
 <style lang="scss" scoped>
 $shadow-color: #252629;
+
+.new-conversation {
+  border-top: 1px solid black;
+  text-align: center;
+}
 
 .token-count {
   font-size: 10px;
