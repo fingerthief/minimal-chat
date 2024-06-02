@@ -7,7 +7,14 @@ import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import { userText } from '../state-management/state';
 import { saveMessagesHandler } from '../conversation-management/useConversations';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/node_modules/pdfjs-dist/build/pdf.worker.mjs';
+// Dynamically import the worker script
+(async () => {
+  try {
+    const workerSrc = await import('pdfjs-dist/build/pdf.worker.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc.default;
+  }
+  catch (e) { }
+})();
 
 export async function uploadFileContentsToConversation(event, userText2, addMessage2) {
   const file = event.target.files[0];
