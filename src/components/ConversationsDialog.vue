@@ -155,15 +155,16 @@ function toggleConversations() {
             :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
             @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
             :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }">
+            <Database :size="13" :id="'token-' + index" />
+            &nbsp;
             <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
             <span> &nbsp;{{ conversation.title }} </span>
-            <br /><br />
-            <span v-if="!conversation.isEditing">
-              <Database :size="13" />
-              &nbsp;
-              {{ conversationCharacterCount(conversation) }} Tokens
-            </span>
+            <ToolTip :targetId="'token-' + index">
+              <span v-if="!conversation.isEditing" class="token-count">
+                {{ conversationCharacterCount(conversation) }} Tokens
+              </span>
+            </ToolTip>
           </li>
         </ul>
       </div>
@@ -203,6 +204,10 @@ function toggleConversations() {
 
 <style lang="scss" scoped>
 $shadow-color: #252629;
+
+.token-count {
+  font-size: 10px;
+}
 
 .resize-handle {
   position: absolute;
@@ -380,7 +385,7 @@ $shadow-color: #252629;
 .scrollable-list {
   @media (max-width: 600px) {
     height: 68vh;
-    background-color: #1d1e1e;
+    background-color: #1f1f1f;
   }
 
   max-width: 100%;
@@ -389,26 +394,29 @@ $shadow-color: #252629;
   height: 77dvh;
   overflow: auto;
   box-sizing: border-box;
-  font-size: 12px;
+  font-size: 14px;
 
   .new-conversation-option {
     text-align: left;
-    background-color: #0a1e24b0;
+    background-color: #2b2b2b;
     color: #ffffff;
-    font-weight: bold;
-    border-radius: 5px;
-    padding: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 20px;
     display: flex;
     cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 
     &:hover {
-      background-color: #104745aa;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
     }
 
     .new-icon {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 15px;
       margin-top: 5px;
 
       .new-text {
@@ -424,57 +432,101 @@ $shadow-color: #252629;
   }
 
   li {
-    padding: 6px;
-    border-bottom: 1px solid #593b8273;
-    background-color: #19191a;
-    transition: background-color 0.2s ease;
-    border-left: 4px solid #3a3a3a;
-    color: #9e9d9d;
+    padding: 14px;
+    background-color: #171717;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    border-left: 4px solid transparent;
+    color: #cccccc;
     user-select: none;
-    animation: slideIn 0.25s ease-out forwards;
-    /* Add this line */
+    animation: fadeIn 0.3s ease-out forwards;
+    transition: background-color 0.2s ease-out;
 
     &[contenteditable='true'] {
       outline: none;
-      border: 2px solid #423d42;
-      padding: 15px;
-      border-radius: 5px;
+      border: 2px solid #444444;
+      padding: 20px;
+      border-radius: 8px;
       text-align: center;
+      background-color: #2b2b2b;
     }
 
     &:hover {
-      background-color: #0d3837aa;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      background-color: #252525;
     }
 
     &.selected {
-      background-color: #0f2f31;
-      font-weight: bold;
-      box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-      border-left: 6px solid #02af75d5;
-      color: whitesmoke;
+      background-color: #242323;
+      font-weight: 600;
+      box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
+      border-left: 4px solid #157474;
+      color: #ffffff;
     }
 
     &.deleting {
-      /* Add this block */
-      animation: scaleDown 0.25s ease-out forwards;
+      animation: fadeOut 0.3s ease-out forwards;
     }
   }
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
 
 @keyframes slideIn {
   0% {
     transform: translateX(-100%);
-    /* Start off-screen to the left */
     opacity: 0;
-    /* Optional: Start with 0 opacity */
   }
 
   100% {
     transform: translateX(0);
-    /* End at the original position */
     opacity: 1;
-    /* Optional: End with full opacity */
   }
 }
 
