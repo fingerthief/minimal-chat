@@ -30,7 +30,7 @@ export async function fetchClaudeConversationTitle(messages) {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        max_tokens: 200,
+        max_tokens: 18,
         stream: false,
         model: 'claude-3-haiku-20240307',
         messages: tempMessages,

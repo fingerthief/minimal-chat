@@ -2,6 +2,7 @@
 import ChatLayout from './views/ChatLayout.vue';
 </script>
 <template>
+
   <body>
     <ChatLayout />
   </body>
@@ -18,6 +19,7 @@ import ChatLayout from './views/ChatLayout.vue';
 body {
   display: flex;
   font-family: Roboto-Regular, sans-serif;
+  background-color: #212121;
 
   @media (max-width: 600px) {
     font-size: 14px;

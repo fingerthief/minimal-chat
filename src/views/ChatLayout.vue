@@ -78,7 +78,6 @@ onUnmounted(() => {
 onMounted(async () => {
   setupWatchers();
   sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
-  sidebarContentContainer.value.style.width = '420px';
 
   selectedModel.value = localStorage.getItem('selectedModel') || 'gpt-4o';
 
@@ -171,7 +170,7 @@ onMounted(async () => {
 $icon-color: rgb(187, 187, 187);
 $background-color: #1c1c1e;
 $container-bg-color: #212121;
-$sidebar-bg-color: #19191a;
+$sidebar-bg-color: #171717;
 $scrollbar-track-color: #665067;
 $scrollbar-thumb-color: #4f3d50;
 $scrollbar-thumb-hover-color: #5d455e;
@@ -419,11 +418,11 @@ pre {
 }
 
 .sidebar-conversations {
-  min-width: 0;
-  max-width: 100%;
   position: inherit;
   height: 99vh;
-  width: auto;
+  max-width: 275px;
+  min-width: 275px;
+  width: 275px;
 
   @media (max-width: 600px) {
     position: fixed;
@@ -432,6 +431,8 @@ pre {
     transition: transform 0.25s ease-in-out;
     z-index: 1;
     width: 100vw;
+    max-width: 100vw;
+    min-width: 100vw;
 
     &.open {
       width: 100vw;

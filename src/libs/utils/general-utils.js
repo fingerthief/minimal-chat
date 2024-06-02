@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { fetchTTSResponse } from '../api-access/gpt-api-access';
 export function sleep(ms) {
@@ -35,6 +35,7 @@ export async function getConversationTitleFromGPT(messages2, model, sliderValue2
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: tempMessages,
+        maxTokens: 18,
         temperature: sliderValue.value,
       }),
     });
