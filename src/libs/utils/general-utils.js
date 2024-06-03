@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { fetchTTSResponse } from '../api-access/gpt-api-access';
 export function sleep(ms) {
@@ -236,6 +236,11 @@ export function swipedRight(event) {
 export function handleGlobalClick(event) {
   const settingsDialogElement = document.getElementById('settings-dialog');
   const conversationsDialogElement = document.getElementById('conversations-dialog');
+
+  const storedFilesElement = document.getElementById('stored-files');
+  if (storedFilesElement && !storedFilesElement.contains(event.target) && showStoredFiles.value) {
+    showStoredFiles.value = false;
+  }
 
   if (settingsDialogElement && !settingsDialogElement.contains(event.target) && isSidebarOpen.value) {
     isSidebarOpen.value = false;

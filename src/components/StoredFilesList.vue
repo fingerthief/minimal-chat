@@ -98,10 +98,12 @@ onMounted(async () => {
     position: absolute;
     z-index: 3;
     padding: 20px;
-    background-color: #1e1e1e;
+    background-color: #23262a;
     color: #fff;
     border-radius: 10px;
-    max-width: 40vw;
+    max-width: 50vw;
+    width: 50vw;
+    height: 55vh;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-family: 'Roboto', sans-serif;
 

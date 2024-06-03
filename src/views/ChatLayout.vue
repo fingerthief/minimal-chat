@@ -62,10 +62,15 @@ async function imageInputChangedHandler(event) {
 function handleGlobalClick(event) {
   const settingsDialogElement = document.getElementById('settings-dialog');
   const conversationsDialogElement = document.getElementById('conversations-dialog');
-
+  const storedFilesElement = document.getElementById('stored-files');
   if (settingsDialogElement && !settingsDialogElement.contains(event.target) && isSidebarOpen.value) {
     isSidebarOpen.value = false;
   }
+
+  if (storedFilesElement && !storedFilesElement.contains(event.target) && showStoredFiles.value) {
+    showStoredFiles.value = false;
+  }
+
   if (conversationsDialogElement && !conversationsDialogElement.contains(event.target) && showConversationOptions.value) {
     showConversationOptions.value = false;
   }
@@ -141,7 +146,7 @@ onMounted(async () => {
         <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
         </div>
       </div>
-      <StoredFilesList v-if="showStoredFiles" />
+      <StoredFilesList id="stored-files" v-if="showStoredFiles" />
       <div class="chat-container">
         <div class="container">
           <div class="chat">

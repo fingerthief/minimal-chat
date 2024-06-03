@@ -170,7 +170,7 @@ function toggleContextMenu() {
     <div class="settings-header">
       <h2>
         <span v-if="isSmallScreen">Conversations &nbsp;</span>
-        <Database @click="showStoredFiles = !showStoredFiles" :id="'stored-Files'" class="database-icon" />
+        <Database @click.stop="showStoredFiles = !showStoredFiles" :id="'stored-Files'" class="database-icon" />
         <ToolTip :targetId="'stored-Files'">View Stored Files</ToolTip>
         <MoreHorizontal @blur="showContextMenu = false;" class="context-menu-icon" @click="toggleContextMenu"
           id="contextMenu" :size="25" :stroke-width="1.0" />
