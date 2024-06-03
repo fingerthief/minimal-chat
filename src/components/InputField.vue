@@ -7,10 +7,14 @@ const props = defineProps({
   inputId: String,
   placeholderText: String,
   isSecret: Boolean,
-  isMultiline: Boolean, // New prop to enable multiline input
+  isMultiline: Boolean,
   type: {
     type: String,
     default: 'text',
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -23,9 +27,7 @@ function emitUpdate(event) {
 
 <template>
   <div class="input-field">
-    <!-- Render the label if labelText is provided -->
     <label :for="props.inputId" v-if="props.labelText">{{ props.labelText }}</label>
-    <!-- Conditionally render input or textarea based on isMultiline -->
     <input
       v-if="!props.isMultiline"
       :id="props.inputId"
@@ -34,8 +36,17 @@ function emitUpdate(event) {
       :type="props.isSecret ? 'password' : props.type"
       :placeholder="props.placeholderText"
       :autocomplete="props.isSecret ? 'off' : 'on'"
+      :disabled="props.disabled"
     />
-    <textarea v-else :id="props.inputId" :value="props.value" @blur="emitUpdate" :placeholder="props.placeholderText" rows="4"></textarea>
+    <textarea
+      v-else
+      :id="props.inputId"
+      :value="props.value"
+      @blur="emitUpdate"
+      :placeholder="props.placeholderText"
+      :disabled="props.disabled"
+      rows="4"
+    ></textarea>
   </div>
 </template>
 

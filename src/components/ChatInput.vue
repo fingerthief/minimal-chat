@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { ref, defineEmits, computed } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload, Speech } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import InteractMode from '@/components/InteractMode.vue';
@@ -18,18 +18,22 @@ import {
   localModelEndpoint,
   imageInput,
   abortController,
-  isInteractModeOpen
+  isInteractModeOpen,
+  customEndpoints,
+  selectedCustomEndpoint
 } from '@/libs/state-management/state';
 import { sendMessage, visionimageUploadClick } from '@/libs/conversation-management/message-processing';
 import { setSystemPrompt } from '@/libs/conversation-management/conversations-management';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { engine } from '@/libs/api-access/web-llm-access';
-// Define emits
+
 const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt', 'upload-context']);
-// Local reactive state
 const userInputRef = ref(null);
 
-// Methods for message handling
+const customEndpointDetails = computed(() => {
+  return customEndpoints.value.find(endpoint => endpoint.name === selectedModel.value) || {};
+});
+
 async function sendNewMessage() {
   isLoading.value = true;
   const messagePrompt = userText.value;
@@ -49,7 +53,8 @@ async function sendNewMessage() {
     updateUIWrapper,
     addMessage,
     saveMessagesHandler,
-    imageInput.value
+    imageInput.value,
+    customEndpointDetails.value  // Pass the custom endpoint details
   );
 
   isLoading.value = false;
@@ -68,7 +73,6 @@ function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = tru
   updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
 }
 
-// Methods for UI interactions
 function autoResize() {
   if (!userText.value || userText.value.trim() === '') {
     userInputRef.value.style.height = '30px';
@@ -89,13 +93,12 @@ function handleKeyDown(event) {
       userInputRef.value.selectionStart = userInputRef.value.selectionEnd = cursorPosition + 1;
       autoResize();
     } else {
-      event.preventDefault(); // Prevent the default Enter behavior
+      event.preventDefault();
       sendNewMessage();
     }
   }
 }
 
-// Methods for handling uploads and aborting streams
 async function visionImageUploadClickHandler() {
   await visionimageUploadClick(
     userText,
@@ -109,7 +112,8 @@ async function visionImageUploadClickHandler() {
     updateUIWrapper,
     addMessage,
     saveMessagesHandler,
-    imageInput
+    imageInput,
+    customEndpointDetails.value  // Pass the custom endpoint details
   );
   userText.value = '';
 }
@@ -133,7 +137,6 @@ async function abortStream() {
   }
 }
 
-// Handle recognized sentence
 async function handleRecognizedSentence({ text }) {
   isLoading.value = true;
 
@@ -152,10 +155,12 @@ async function handleRecognizedSentence({ text }) {
     updateUIWrapper,
     addMessage,
     saveMessagesHandler,
-    imageInput.value
+    imageInput.value,
+    customEndpointDetails.value  // Pass the custom endpoint details
   );
   isLoading.value = false;
 }
+
 const handleCloseInteractMode = () => {
   isInteractModeOpen.value = false;
 };
@@ -182,7 +187,6 @@ const handleCloseInteractMode = () => {
             <SquareArrowUp v-if="!isLoading"/>
         </div>
       </div>
-      
     </div>
     <div v-if="selectedModel.includes('gpt')" class="interact-mode-container">
       <div v-if="!isInteractModeOpen">
@@ -197,7 +201,6 @@ const handleCloseInteractMode = () => {
         @close-interact-mode="handleCloseInteractMode" />
     </div>
   </form>
-
 </template>
 
 <style lang="scss" scoped>

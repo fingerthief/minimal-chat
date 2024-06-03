@@ -39,6 +39,9 @@ export const selectedDallEImageCount = ref(parseInt(localStorage.getItem('select
 export const selectedDallEImageResolution = ref(localStorage.getItem('selectedDallEImageResolution') || '256x256');
 export const selectedAutoSaveOption = ref(localStorage.getItem('selectedAutoSaveOption') || true);
 
+export const customEndpoints = ref([]);
+export const selectedCustomEndpoint = ref(null);
+
 export const browserModelSelection = ref(localStorage.getItem('browserModelSelection') || undefined);
 
 export const maxTokens = ref(parseInt(localStorage.getItem('maxTokens')) || -1);

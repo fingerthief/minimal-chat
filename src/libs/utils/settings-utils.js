@@ -89,6 +89,22 @@ export function selectSystemPrompt(index) {
   systemPrompt.value = systemPrompts.value[index];
 }
 
+export function saveCustomEndpoints(endpoints) {
+  localStorage.setItem('customEndpoints', JSON.stringify(endpoints));
+}
+
+export function addCustomEndpoint(endpoint) {
+  const currentEndpoints = JSON.parse(localStorage.getItem('customEndpoints')) || [];
+  currentEndpoints.push(endpoint);
+  saveCustomEndpoints(currentEndpoints);
+}
+
+export function removeCustomEndpoint(endpointName) {
+  let currentEndpoints = JSON.parse(localStorage.getItem('customEndpoints')) || [];
+  currentEndpoints = currentEndpoints.filter(endpoint => endpoint.name !== endpointName);
+  saveCustomEndpoints(currentEndpoints);
+}
+
 export const customConfigs = ref([]);
 export const selectedCustomConfigIndex = ref(null);
 

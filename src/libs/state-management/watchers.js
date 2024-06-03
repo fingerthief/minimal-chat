@@ -28,11 +28,14 @@ import {
   useWhisper,
   ttsModel,
   audioSpeed,
-  whisperTemperature
+  whisperTemperature,
+  selectedCustomEndpoint // Add this import
 } from '@/libs/state-management/state';
 
 export function setupWatchers() {
   watch(selectedModel, (newValue) => {
+    if (!newValue) return; // Early return if newValue is null or undefined
+
     const settings = Object.keys(MODEL_TYPES).reduce((acc, key) => {
       if (newValue.includes(MODEL_TYPES[key])) {
         return modelSettings[MODEL_TYPES[key]];
@@ -50,6 +53,16 @@ export function setupWatchers() {
     } catch (error) {
       console.error('Error updating settings:', error);
     }
+  });
+
+  watch(selectedCustomEndpoint, (newValue) => {
+    if (newValue === 'new') {
+      // Handle the case for adding a new custom endpoint
+      // You can set the default values for a new custom endpoint here if needed
+      return;
+    }
+    // Handle the selection of an existing custom endpoint
+    // For example, load the endpoint details into the appropriate state variables
   });
 
   const watchAndStore = (ref, key, transform = (val) => val) => {
@@ -86,7 +99,7 @@ export function setupWatchers() {
   watchAndStore(localModelEndpoint, 'localModelEndpoint', removeAPIEndpoints);
 
   watch(browserModelSelection, async (newValue) => {
-    if (browserModelSelection.value === undefined || !selectedModel.value.includes('web-llm')) {
+    if (browserModelSelection.value === undefined || !selectedModel.value || !selectedModel.value.includes('web-llm')) {
       return;
     }
 

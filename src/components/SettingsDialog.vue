@@ -17,9 +17,9 @@
           <!-- Collapsible Group for GPT Models -->
           <li @click="isGPTConfigOpen = !isGPTConfigOpen">
             GPT Models
-            <span class="indicator">{{ isGPTConfigOpen || selectedModel.includes('gpt') ? '-' : '+' }}</span>
+            <span class="indicator">{{ isGPTConfigOpen || (selectedModel && selectedModel.includes('gpt')) ? '-' : '+' }}</span>
           </li>
-          <ul v-show="isGPTConfigOpen || selectedModel.includes('gpt')" class="sub-item">
+          <ul v-show="isGPTConfigOpen || (selectedModel && selectedModel.includes('gpt'))" class="sub-item">
             <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
               :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
               {{ model.label }}
@@ -28,9 +28,9 @@
           <!-- Collapsible Group for Claude Models -->
           <li @click="isClaudeConfigOpen = !isClaudeConfigOpen">
             Claude Models
-            <span class="indicator">{{ isClaudeConfigOpen || selectedModel.includes('claude') ? '-' : '+' }}</span>
+            <span class="indicator">{{ isClaudeConfigOpen || (selectedModel && selectedModel.includes('claude')) ? '-' : '+' }}</span>
           </li>
-          <ul v-show="isClaudeConfigOpen || selectedModel.includes('claude')" class="sub-item">
+          <ul v-show="isClaudeConfigOpen || (selectedModel && selectedModel.includes('claude'))" class="sub-item">
             <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
               :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
               {{ model.label }}
@@ -41,6 +41,22 @@
             :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
             {{ model.label }}
           </li>
+          <!-- Custom Endpoints Section -->
+          <li @click="isCustomEndpointOpen = !isCustomEndpointOpen">
+            Custom Endpoints
+            <span class="indicator">{{ isCustomEndpointOpen ? '-' : '+' }}</span>
+          </li>
+          <ul v-show="isCustomEndpointOpen" class="sub-item">
+            <li v-for="endpoint in customEndpoints" :key="endpoint.name"
+                :class="{ selected: endpoint.name === selectedCustomEndpoint }"
+                @click="selectCustomEndpoint(endpoint.name)">
+              {{ endpoint.label }}
+              <Trash2 :size="18" :stroke-width="1.5" @click.stop="deleteEndpoint(endpoint.name)" />
+            </li>
+            <li @click="addNewCustomEndpoint">
+              <span>+ Add new model</span>
+            </li>
+          </ul>
         </ul>
         <div class="close-btn-wrapper">
           <button class="close-btn" @click="() => isSidebarOpen = false">
@@ -52,23 +68,24 @@
         <span>Open Model Selection</span>
       </div>
       <div class="right-panel" @touchstart="handleTouchStart">
-        <div v-if="selectedModel">
-          <div v-if="showingGeneralConfig">
-            <GeneralConfigSection />
-            <ImportExportConfigSection />
-          </div>
-          <div v-if="selectedModel.includes('gpt') && !showingGeneralConfig">
-            <GptConfigSection />
-          </div>
-          <div v-if="selectedModel.startsWith('claude-') && !showingGeneralConfig">
-            <ClaudeConfigSection />
-          </div>
-          <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
-            <LocalConfigSection />
-          </div>
-          <div v-if="selectedModel === 'web-llm' && !showingGeneralConfig">
-            <WebLlmConfigSection />
-          </div>
+        <div v-if="showingGeneralConfig">
+          <GeneralConfigSection />
+          <ImportExportConfigSection />
+        </div>
+        <div v-else-if="selectedModel && selectedModel.includes('gpt')">
+          <GptConfigSection />
+        </div>
+        <div v-else-if="selectedModel && selectedModel.startsWith('claude-')">
+          <ClaudeConfigSection />
+        </div>
+        <div v-else-if="selectedModel === 'open-ai-format'">
+          <LocalConfigSection />
+        </div>
+        <div v-else-if="selectedModel === 'web-llm'">
+          <WebLlmConfigSection />
+        </div>
+        <div v-else-if="selectedCustomEndpoint">
+          <CustomEndpointSection :endpoint="selectedCustomEndpointDetails" />
         </div>
       </div>
     </div>
@@ -76,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import ToolTip from './ToolTip.vue';
 import GeneralConfigSection from './configuration-sections/GeneralConfigSection.vue';
 import GptConfigSection from './configuration-sections/GptConfigSection.vue';
@@ -84,6 +101,7 @@ import ClaudeConfigSection from './configuration-sections/ClaudeConfigSection.vu
 import LocalConfigSection from './configuration-sections/LocalConfigSection.vue';
 import WebLlmConfigSection from './configuration-sections/WebLlmConfigSection.vue';
 import ImportExportConfigSection from './configuration-sections/ImportExportConfigSection.vue';
+import CustomEndpointSection from './configuration-sections/CustomEndpointSection.vue';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import {
   selectedModel,
@@ -97,7 +115,9 @@ import {
   isSmallScreen,
   isSidebarVisible,
   systemPrompt,
-  availableModels
+  availableModels,
+  customEndpoints,
+  selectedCustomEndpoint
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
@@ -107,12 +127,16 @@ import {
   selectedSystemPromptIndex,
   customConfigs,
   selectedCustomConfigIndex,
-
+  saveCustomEndpoints,
+  addCustomEndpoint,
+  removeCustomEndpoint
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
+
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
+const isCustomEndpointOpen = ref(false);
 
 const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
@@ -145,6 +169,7 @@ async function fetchAvailableModels() {
 
 function selectModel(model) {
   selectedModel.value = model;
+  selectedCustomEndpoint.value = null;
 
   // Close all collapsible groups
   showingGeneralConfig.value = false;
@@ -155,6 +180,25 @@ function selectModel(model) {
     fetchAvailableModels();
   }
 }
+
+function selectCustomEndpoint(endpointName) {
+  selectedCustomEndpoint.value = endpointName;
+  selectedModel.value = null;
+}
+
+function addNewCustomEndpoint() {
+  selectedCustomEndpoint.value = 'new';
+  selectedModel.value = null;
+}
+
+function deleteEndpoint(name) {
+  customEndpoints.value = customEndpoints.value.filter(e => e.name !== name);
+  removeCustomEndpoint(name);
+}
+
+const selectedCustomEndpointDetails = computed(() => {
+  return customEndpoints.value.find(endpoint => endpoint.name === selectedCustomEndpoint.value) || {};
+});
 
 function toggleSidebar() {
   isSidebarVisible.value = !isSidebarVisible.value;
@@ -232,6 +276,11 @@ onMounted(() => {
     }
   } else {
     console.log('No saved custom configs found.');
+  }
+
+  const storedEndpoints = localStorage.getItem('customEndpoints');
+  if (storedEndpoints) {
+    customEndpoints.value = JSON.parse(storedEndpoints);
   }
 });
 </script>

@@ -24,7 +24,8 @@ export async function sendMessage(
   updateUI,
   addMessage,
   saveMessagesHandler,
-  imageInputElement
+  imageInputElement,
+  customEndpointDetails = {}
 ) {
   try {
     const messageText = userText.trim();
@@ -38,7 +39,7 @@ export async function sendMessage(
       { type: 'text', text: messageText }
     ]);
 
-    if (selectedModel.indexOf('claude') !== -1) {
+    if (selectedModel && selectedModel.indexOf('claude') !== -1) {
       await sendClaudeMessage(messageText, messages, selectedModel, claudeSliderValue, updateUI, imageInputElement);
       return;
     }
@@ -61,12 +62,12 @@ export async function sendMessage(
       return;
     }
 
-    if (selectedModel.indexOf('web-llm') !== -1) {
+    if (selectedModel && selectedModel.indexOf('web-llm') !== -1) {
       await sendBrowserModelMessage(messages, updateUI);
       return;
     }
 
-    await sendGPTMessage(messages, selectedModel, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUI);
+    await sendGPTMessage(messages, selectedModel, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUI, customEndpointDetails);
   } finally {
     await saveMessagesHandler();
     isLoading.value = false;
@@ -87,16 +88,40 @@ export async function sendClaudeMessage(messageText, messages, selectedModel, cl
   await streamClaudeResponse(messages, selectedModel, claudeSliderValue, updateUI, abortController.value);
 }
 
-export async function sendGPTMessage(messages, selectedModel, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUI) {
+export async function sendGPTMessage(messages, selectedModel, sliderValue, localModelName, localSliderValue, localModelEndpoint, updateUI, customEndpointDetails = {}) {
   try {
     abortController.value = new AbortController();
 
-    if (selectedModel.indexOf('open-ai-format') !== -1) {
-      localModelName = localStorage.getItem('localModelName') || '';
-      localSliderValue = localStorage.getItem('local-attitude') || 0.6;
-      localModelEndpoint = localStorage.getItem('localModelEndpoint') || '';
+    if ((selectedModel && selectedModel.indexOf('open-ai-format') !== -1) || customEndpointDetails.type) {
+      const {
+        url = localModelEndpoint,
+        type = selectedModel,
+        apiKey = customEndpointDetails.apiKey || localStorage.getItem('apiKey'),
+        model = customEndpointDetails.name || localModelName
+      } = customEndpointDetails;
 
-      await fetchLocalModelResponseStream(messages, localSliderValue, localModelName, localModelEndpoint, updateUI, abortController.value);
+      // Convert additionalParams to dynamicParams
+      const dynamicParams = customEndpointDetails.additionalParams.reduce((acc, param) => {
+        let value = param.defaultValue;
+        switch (param.type) {
+          case 'int':
+            value = parseInt(param.defaultValue);
+            break;
+          case 'float':
+            value = parseFloat(param.defaultValue);
+            break;
+          case 'string':
+            value = param.defaultValue;
+            break;
+        }
+        acc[param.key] = value;
+        return acc;
+      }, {});
+
+      await fetchLocalModelResponseStream(messages, sliderValue, model, url, updateUI, abortController.value, {
+        apiKey,
+        dynamicParams
+      });
     } else {
       await fetchGPTResponseStream(messages, sliderValue, selectedModel, updateUI, abortController.value);
     }
@@ -123,7 +148,6 @@ export async function addMessage(role, content) {
 
   messages.value.push(newMessage);
 }
-
 
 export async function sendVisionPrompt(imageInputElement) {
   imageInputElement.click();
@@ -153,9 +177,9 @@ export async function visionimageUploadClick(
   updateUIWrapper,
   addMessage,
   saveMessagesHandler,
-  imageInput
+  imageInput,
+  customEndpointDetails = {}  // Added custom endpoint details parameter
 ) {
-
   userText.value = 'Add Image To Conversation:: Done ' + userText.value;
   await sendMessage(
     null,
@@ -170,6 +194,7 @@ export async function visionimageUploadClick(
     updateUIWrapper,
     addMessage,
     saveMessagesHandler,
-    imageInput.value
+    imageInput.value,
+    customEndpointDetails  // Pass the custom endpoint details
   );
 }

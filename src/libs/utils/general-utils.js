@@ -3,6 +3,7 @@ import 'toastify-js/src/toastify.css';
 import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { fetchTTSResponse } from '../api-access/gpt-api-access';
+
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -20,7 +21,6 @@ export function removeAPIEndpoints(url) {
 let retryCount = 0;
 export async function getConversationTitleFromGPT(messages2, model, sliderValue2) {
   try {
-
     let tempMessages = messages.value.map((message) => ({
       role: message.role,
       content: message.content,
@@ -55,7 +55,7 @@ export async function getConversationTitleFromGPT(messages2, model, sliderValue2
     }
 
     console.error('Error fetching GPT response:', error);
-    return 'An error occurred while generating conversaton title.';
+    return 'An error occurred while generating conversation title.';
   }
 }
 
@@ -79,15 +79,6 @@ export function parseStreamResponseChunk(chunk) {
 
     // Removing multiple occurrences of "data:", any "[DONE]" tags, ": OPENROUTER PROCESSING", "event: " tags, and "ping"
     // Also removing streaming tags: message_start, content_block_start, content_block_delta, content_block_stop, message_delta, message_stop
-    // Regex explanation:
-    // - \[DONE\]: Matches the literal "[DONE]"
-    // - \s*: Matches any whitespace characters (space, tab, newline, etc.)
-    // - data:\s*: Matches "data:" followed by any whitespace
-    // - : OPENROUTER PROCESSING: Matches the literal ": OPENROUTER PROCESSING"
-    // - event:\s*: Matches "event:" followed by any whitespace
-    // - ping: Matches the literal "ping"
-    // - message_start|content_block_start|content_block_delta|content_block_stop|message_delta|message_stop: Matches any of these literal tags
-    // Global flag 'g' to replace all occurrences throughout the string
     cleanedLine = cleanedLine.replace(
       /\[DONE\]\s*|data:\s*|: OPENROUTER PROCESSING|event:\s*|ping|message_start|content_block_start|content_block_delta|content_block_stop|message_delta|message_stop/gi,
       ''
@@ -157,13 +148,21 @@ export function updateUI(content, messages, addMessage, autoScrollBottom = true,
 
   if (lastMessage && lastMessage.role === 'assistant') {
     if (!appendTextValue) {
-      lastMessage.content = content;
+      lastMessage.content = [{ type: 'text', text: content }];
       return;
     }
 
-    lastMessage.content[0].text += content;
+    if (typeof lastMessage.content === 'string') {
+      lastMessage.content = [{ type: 'text', text: lastMessage.content }];
+    }
+
+    if (Array.isArray(lastMessage.content)) {
+      lastMessage.content[0].text += content;
+    } else {
+      lastMessage.content += content;
+    }
   } else {
-    addMessage('assistant', content);
+    addMessage('assistant', [{ type: 'text', text: content }]);
   }
 }
 
@@ -181,11 +180,9 @@ export function updateScrollButtonVisibility(messagesContainer, shouldShowScroll
       return;
     }
 
-    // Calculate the bottom position of the last message relative to the container
     const lastMessageBottom = lastMessage.offsetTop + lastMessage.offsetHeight;
     const scrollBottom = messagesContainer.scrollTop + messagesContainer.offsetHeight;
 
-    // Determine if the scroll position is within 20% of the bottom of the container
     const threshold = messagesContainer.scrollHeight - messagesContainer.offsetHeight * 0.2;
 
     if (lastMessageBottom > messagesContainer.offsetHeight && scrollBottom < threshold) {
@@ -198,7 +195,6 @@ export function updateScrollButtonVisibility(messagesContainer, shouldShowScroll
 
 export function handleDoubleClick(sidebarContentContainer) {
   const currentWidth = sidebarContentContainer.offsetWidth;
-  console.log(currentWidth);
   if (currentWidth < 25) {
     sidebarContentContainer.style.width = '420px';
   } else {
@@ -253,12 +249,10 @@ export function handleGlobalClick(event) {
 export async function handleTextStreamEnd(message) {
   if (isInteractModeOpen.value) {
     try {
-      // Call the fetchTTSResponse with "message" and play the result
       await fetchTTSResponse(message);
     } catch (error) {
       console.error('Error with TTS Response:', error);
-    }
-    finally {
+    } finally {
       if (pushToTalkMode.value) {
         isInteractModeOpen.value = false;
       }

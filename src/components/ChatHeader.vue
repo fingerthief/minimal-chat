@@ -4,7 +4,7 @@
 import { computed, ref } from 'vue';
 import { Menu, ArchiveX, MessagesSquare, Github, MessageSquarePlus } from 'lucide-vue-next';
 import { deleteCurrentConversation } from '@/libs/conversation-management/useConversations';
-import { isSidebarOpen, showConversationOptions, selectedModel } from '@/libs/state-management/state';
+import { isSidebarOpen, showConversationOptions, selectedModel, customEndpoints, selectedCustomEndpoint } from '@/libs/state-management/state';
 
 // Define props
 const props = defineProps({
@@ -13,16 +13,25 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation', 'change-model']);
 
-const modelTypes = [
-  { name: 'claude', display: 'MinimalClaude' },
-  { name: 'gpt', display: 'MinimalGPT' },
-  { name: 'open-ai-format', display: 'MinimalCustom' },
-  { name: 'web-llm', display: 'MinimalLocal' },
-  { name: 'general', display: 'No Model Selected' },
+const predefinedModels = [
+  { name: 'claude-3-opus-20240229', display: 'Claude 3 Opus' },
+  { name: 'claude-3-sonnet-20240229', display: 'Claude 3 Sonnet' },
+  { name: 'claude-3-haiku-20240307', display: 'Claude 3 Haiku' },
+  { name: 'gpt-3.5-turbo', display: 'GPT-3.5 Turbo' },
+  { name: 'gpt-4-turbo', display: 'GPT-4 Turbo' },
+  { name: 'gpt-4o', display: 'GPT-4 Omni' },
+  { name: 'open-ai-format', display: 'Custom API Endpoint' },
+  { name: 'web-llm', display: 'Local Browser Model (Chrome and Edge Only)' },
 ];
 
+// Combine custom models from local storage/state with predefined models
+const combinedModelTypes = computed(() => {
+  const customModels = customEndpoints.value.map(endpoint => ({ name: endpoint.name, display: endpoint.label }));
+  return [...predefinedModels, ...customModels];
+});
+
 const visibleModelLinks = computed(() => {
-  return modelTypes.filter((modelType) => selectedModel.value.includes(modelType.name));
+  return combinedModelTypes.value.filter((modelType) => selectedModel.value.includes(modelType.name));
 });
 
 function toggleSidebar() {
@@ -40,8 +49,20 @@ function onShowConversationsClick() {
   showConversationOptions.value = !showConversationOptions.value;
 }
 
-async function onModelChange(newModel) {
-  selectedModel.value = newModel.target.value;
+async function onModelChange(event) {
+  const selected = event.target.value;
+
+  // Check if the selected model is a custom endpoint
+  const customEndpoint = customEndpoints.value.find(endpoint => endpoint.name === selected);
+  if (customEndpoint) {
+    selectedModel.value = selected;
+    selectedCustomEndpoint.value = customEndpoint;  // Update the state with custom endpoint details if necessary
+  } else {
+    selectedModel.value = selected;
+    selectedCustomEndpoint.value = null;  // Clear custom endpoint details if selecting a predefined model
+  }
+
+  emit('change-model', selectedModel.value);
 }
 </script>
 
@@ -58,14 +79,9 @@ async function onModelChange(newModel) {
       <div class="control select-dropdown">
         <label for="quick-select-model-selector"></label>
         <select id="quick-select-model-selector" :value="selectedModel" @change="onModelChange">
-          <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-          <option value="gpt-4-turbo">GPT-4 Turbo</option>
-          <option value="gpt-4o">GPT-4 Omni</option>
-          <option value="claude-3-opus-20240229">Claude 3 Opus</option>
-          <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
-          <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-          <option value="open-ai-format">Custom API Endpoint</option>
-          <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
+          <option v-for="model in combinedModelTypes" :key="model.name" :value="model.name">
+            {{ model.display }}
+          </option>
         </select>
       </div>
     </div>
@@ -74,6 +90,45 @@ async function onModelChange(newModel) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #1d1e1e;
+  color: white;
+}
+
+.models-dropdown {
+  margin-right: 20px;
+}
+
+.control.select-dropdown select {
+  appearance: none;
+  background-color: #333;
+  color: #fff;
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #444;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.control.select-dropdown option {
+  background-color: #222;
+  color: #fff;
+}
+</style>
 
 <style lang="scss" scoped>
 /* Add your component-specific styles here */

@@ -5,6 +5,7 @@ import { messages } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 
 let localStreamRetryCount = 0;
+
 export async function fetchLocalModelResponseStream(
   conversation,
   attitude,
@@ -12,41 +13,69 @@ export async function fetchLocalModelResponseStream(
   localModelEndpoint,
   updateUiFunction,
   abortController,
-  streamedMessageText,
+  options = {},  // Options now includes dynamic parameters
   autoScrollToBottom = true
 ) {
-  //const gptMessagesOnly = filterLocalMessages(conversation);
+  const {
+    apiKey,
+    dynamicParams = {},  // Added dynamicParams to hold additional parameters
+  } = options;
 
+  // Ensure content for each message is a string
   let tempMessages = conversation.map((message) => ({
     role: message.role,
-    content: message.content,
+    content: Array.isArray(message.content) ? message.content.map(c => c.text).join(' ') : message.content,
   }));
+
+  // Construct the body with dynamic parameters
+  const requestBody = {
+    model: model,
+    stream: true,
+    messages: tempMessages,
+    ...dynamicParams  // Spread dynamic parameters into the request body
+  };
 
   const requestOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('localModelKey') || 'No Key Provided'}`,
+      Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: model,
-      stream: true,
-      messages: tempMessages,
-      temperature: parseFloat(attitude),
-      max_tokens: parseInt(localStorage.getItem('maxTokens')),
-      top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-      repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
-    }),
+    body: JSON.stringify(requestBody),
     signal: abortController.signal,
   };
 
   try {
-    const response = await fetch(localModelEndpoint + `/v1/chat/completions`, requestOptions);
+    const response = await fetch(`${localModelEndpoint}/v1/chat/completions`, requestOptions);
 
-    const result = await readResponseStream(response, updateUiFunction, autoScrollToBottom);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Error: ${response.status} ${response.statusText} - ${error.error.message}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    let done = false;
+    while (!done) {
+      const { value, done: readerDone } = await reader.read();
+      done = readerDone;
+      const textChunk = decoder.decode(value, { stream: true });
+      const parsedLines = parseStreamResponseChunk(textChunk);
+
+      for (const parsedLine of parsedLines) {
+        const { choices } = parsedLine;
+        const { delta } = choices[0];
+        const { content } = delta;
+        if (content) {
+          updateUiFunction(content, autoScrollToBottom);
+        }
+      }
+    }
 
     localStreamRetryCount = 0;
-    return result;
+    return;
   } catch (error) {
     if (error.name === 'AbortError') {
       showToast(`Stream Request Aborted.`);
@@ -217,33 +246,6 @@ export async function getOpenAICompatibleAvailableModels(localModelEndpoint) {
     showToast('Error fetching models, double check the API endpoint configured');
     console.error('Error fetching available models:', error);
     return [];
-  }
-}
-
-async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
-  let decodedResult = '';
-
-  const reader = await response.body.getReader();
-  const decoder = new TextDecoder('utf-8');
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      return decodedResult;
-    }
-    const chunk = decoder.decode(value);
-    const parsedLines = parseStreamResponseChunk(chunk);
-    for (const parsedLine of parsedLines) {
-      const { choices } = parsedLine;
-      const { delta } = choices[0];
-      const { content } = delta;
-      if (content) {
-        decodedResult += content;
-
-        if (updateUiFunction) {
-          updateUI(content, messages.value, addMessage, autoScrollToBottom);
-        }
-      }
-    }
   }
 }
 
