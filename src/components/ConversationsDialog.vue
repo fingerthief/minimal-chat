@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, nextTick } from 'vue';
-import { Plus, Eraser, Download, Upload, SquarePen, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal } from 'lucide-vue-next';
+import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import {
   conversations,
@@ -11,6 +11,7 @@ import {
   storedConversations,
   isSidebarOpen,
   isSmallScreen,
+  showStoredFiles,
 } from '@/libs/state-management/state';
 import { deleteCurrentConversation, editConversationTitle, saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
@@ -169,6 +170,8 @@ function toggleContextMenu() {
     <div class="settings-header">
       <h2>
         <span v-if="isSmallScreen">Conversations &nbsp;</span>
+        <Database @click.stop="showStoredFiles = !showStoredFiles" :id="'stored-Files'" class="database-icon" />
+        <ToolTip :targetId="'stored-Files'">View Stored Files</ToolTip>
         <MoreHorizontal @blur="showContextMenu = false;" class="context-menu-icon" @click="toggleContextMenu"
           id="contextMenu" :size="25" :stroke-width="1.0" />
         <transition name="fade-slide">
@@ -288,6 +291,13 @@ $shadow-color: #252629;
   .context-menu-icon {
     display: block;
     float: right;
+  }
+
+  .database-icon {
+    display: block;
+    position: relative;
+    float: left;
+    right: 8px;
   }
 }
 

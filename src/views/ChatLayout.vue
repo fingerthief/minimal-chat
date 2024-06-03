@@ -11,6 +11,7 @@ import chatInput from '@/components/ChatInput.vue';
 import chatHeader from '@/components/ChatHeader.vue';
 import settingsDialog from '@/components/SettingsDialog.vue';
 import conversationsDialog from '@/components/ConversationsDialog.vue';
+import StoredFilesList from '@/components/StoredFilesList.vue';
 import {
   shouldShowScrollButton,
   userText,
@@ -27,7 +28,8 @@ import {
   conversations,
   higherContrastMessages,
   contextMenuOpened,
-  selectedConversation
+  selectedConversation,
+  showStoredFiles
 } from '@/libs/state-management/state';
 import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
@@ -60,10 +62,15 @@ async function imageInputChangedHandler(event) {
 function handleGlobalClick(event) {
   const settingsDialogElement = document.getElementById('settings-dialog');
   const conversationsDialogElement = document.getElementById('conversations-dialog');
-
+  const storedFilesElement = document.getElementById('stored-files');
   if (settingsDialogElement && !settingsDialogElement.contains(event.target) && isSidebarOpen.value) {
     isSidebarOpen.value = false;
   }
+
+  if (storedFilesElement && !storedFilesElement.contains(event.target) && showStoredFiles.value) {
+    showStoredFiles.value = false;
+  }
+
   if (conversationsDialogElement && !conversationsDialogElement.contains(event.target) && showConversationOptions.value) {
     showConversationOptions.value = false;
   }
@@ -139,7 +146,7 @@ onMounted(async () => {
         <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
         </div>
       </div>
-
+      <StoredFilesList id="stored-files" v-if="showStoredFiles" />
       <div class="chat-container">
         <div class="container">
           <div class="chat">

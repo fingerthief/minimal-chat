@@ -121,16 +121,24 @@ function editMessage(message) {
   if (message.role !== 'user' || message.isEditing) return;
   message.isEditing = true;
   initialMessage = message;
-  nextTick(() => {
-    const messageContent = document.getElementById(`message-${message.id}`);
-    if (messageContent) messageContent.focus();
-  });
 }
 
 async function saveEditedMessage(message, event) {
   message.isEditing = false;
+
+  let parsedMessageText = '';
+
+  if (Array.isArray(initialMessage.content)) {
+    parsedMessageText = initialMessage.content
+      .filter(item => item.text)
+      .map(item => item.text)
+      .join(' ');
+  } else {
+    parsedMessageText = message.text || '';
+  }
+
   const updatedContent = event.target.innerText.trim();
-  if (updatedContent !== initialMessage.content.trim()) {
+  if (updatedContent !== parsedMessageText.trim()) {
     isLoading.value = true;
     setSystemPrompt(messages.value, systemPrompt.value);
 
