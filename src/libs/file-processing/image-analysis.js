@@ -38,9 +38,51 @@ function formatMessagesForVision(messages) {
   }));
 }
 
+async function initIndexedDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('UserFilesDB', 1);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('userFiles')) {
+        db.createObjectStore('userFiles', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+
+    request.onsuccess = (event) => {
+      resolve(event.target.result);
+    };
+
+    request.onerror = (event) => {
+      reject(event.target.error);
+    };
+  });
+}
+
+export async function storeFileData(fileName, fileData) {
+  const db = await initIndexedDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['userFiles'], 'readwrite');
+    const store = transaction.objectStore('userFiles');
+    const request = store.add({ fileName, fileData });
+
+    request.onsuccess = () => {
+      resolve();
+    };
+
+    request.onerror = (event) => {
+      reject(event.target.error);
+    };
+  });
+}
+
 // Analyze image
 export async function analyzeImage(file, fileType, messages2, model, localModelName, localModelEndpoint) {
   const base64Image = await encodeImage(file);
+  const fileData = base64Image;
+  const fileName = file.name;
+  // Store the image data in IndexedDB
+  await storeFileData(fileName, fileData);
 
   const visionFormattedMessages = messages.value.map((message) => ({
     role: message.role,

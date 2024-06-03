@@ -11,6 +11,7 @@ import chatInput from '@/components/ChatInput.vue';
 import chatHeader from '@/components/ChatHeader.vue';
 import settingsDialog from '@/components/SettingsDialog.vue';
 import conversationsDialog from '@/components/ConversationsDialog.vue';
+import StoredFilesList from '@/components/StoredFilesList.vue';
 import {
   shouldShowScrollButton,
   userText,
@@ -27,7 +28,8 @@ import {
   conversations,
   higherContrastMessages,
   contextMenuOpened,
-  selectedConversation
+  selectedConversation,
+  showStoredFiles
 } from '@/libs/state-management/state';
 import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
@@ -139,7 +141,7 @@ onMounted(async () => {
         <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
         </div>
       </div>
-
+      <StoredFilesList v-if="showStoredFiles" />
       <div class="chat-container">
         <div class="container">
           <div class="chat">

@@ -1,7 +1,7 @@
 // file-processing.js
 
 import { showToast } from '@/libs/utils/general-utils';
-import { analyzeImage } from '@/libs/file-processing/image-analysis';
+import { analyzeImage, storeFileData } from '@/libs/file-processing/image-analysis';
 import { addMessage } from '../conversation-management/message-processing';
 import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 import { userText } from '../state-management/state';
@@ -44,6 +44,8 @@ export async function uploadFileContentsToConversation(event, userText2, addMess
           pdfText += pageText + '\n';
         }
 
+        await storeFileData(file.name, pdfText);
+
         addMessage('user', userText.value + ' ' + pdfText);
         addMessage('assistant', 'Context added from PDF');
         saveMessagesHandler();
@@ -54,6 +56,8 @@ export async function uploadFileContentsToConversation(event, userText2, addMess
         showToast('Failed to parse PDF. It might be encrypted or corrupted.');
       }
     } else {
+      await storeFileData(file.name, contents);
+
       addMessage('user', userText.value + ' ' + contents);
       addMessage('assistant', 'Context added');
       saveMessagesHandler();

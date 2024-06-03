@@ -11,6 +11,7 @@ export const whisperTemperature = ref(parseFloat(localStorage.getItem("whisper-t
 export const audioQueue = ref([]);
 export const audioIsPlaying = ref(false);
 export const availableModels = ref([]);
+export const showStoredFiles = ref(false);
 
 export const contextMenuOpened = ref(false);
 export const shouldShowScrollButton = ref(false);
