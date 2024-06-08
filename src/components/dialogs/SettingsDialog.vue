@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue';
+import { useConfigStore } from '@/stores/ConfigStore';
 import DialogHeader from '@/components/controls/DialogHeader.vue';
 import GeneralConfigSection from '@/components/configuration-sections/GeneralConfigSection.vue';
 import GptConfigSection from '@/components/configuration-sections/GptConfigSection.vue';
@@ -7,38 +8,12 @@ import ClaudeConfigSection from '@/components/configuration-sections/ClaudeConfi
 import LocalConfigSection from '@/components/configuration-sections/LocalConfigSection.vue';
 import WebLlmConfigSection from '@/components/configuration-sections/WebLlmConfigSection.vue';
 import ImportExportConfigSection from '@/components/configuration-sections/ImportExportConfigSection.vue';
-import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
-import {
-  selectedModel,
-  localModelEndpoint,
-  localModelKey,
-  maxTokens,
-  localSliderValue,
-  top_P,
-  repetitionPenalty,
-  isSidebarOpen,
-  isSmallScreen,
-  isSidebarVisible,
-  systemPrompt,
-  availableModels
-} from '@/libs/state-management/state';
-import { removeAPIEndpoints } from '@/libs/utils/general-utils';
-import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
-import {
-  selectCustomConfig,
-  systemPrompts,
-  selectedSystemPromptIndex,
-  customConfigs,
-  selectedCustomConfigIndex,
-
-} from '@/libs/utils/settings-utils';
 import "swiped-events";
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import Sidebar from 'primevue/sidebar';
-// Visibility states for collapsible config sections
-const isClaudeConfigOpen = ref(false);
-const isGPTConfigOpen = ref(false);
+
+const configStore = useConfigStore();
 
 const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
@@ -52,62 +27,30 @@ const models = [
 ];
 
 const isSidebarVisibleOnSmallScreen = computed(() => {
-  return (isSidebarVisible.value && isSmallScreen.value) === true;
+  return (configStore.isSidebarVisible.value && configStore.isSmallScreen.value) === true;
 });
 
 // Watch for changes in the sidebar's visibility
-watch(isSidebarOpen, (newVal) => {
+watch(() => configStore.isSidebarOpen.value, (newVal) => {
   if (newVal) {
     runTutorialForSettings();
   }
 });
 
-async function fetchAvailableModels() {
-  try {
-    if (localModelEndpoint.value.trim() !== '') {
-      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
-      availableModels.value = models;
-    }
-  } catch (error) {
-    console.error('Error fetching available models:', error);
-  }
-}
-
-function selectModel(model) {
-  selectedModel.value = model;
-
-  // Close all collapsible groups
-  showingGeneralConfig.value = false;
-  isClaudeConfigOpen.value = false;
-  isGPTConfigOpen.value = false;
-
-  if (model === 'open-ai-format') {
-    fetchAvailableModels();
-  }
-
-  isSidebarVisible.value = false;
-}
-
-function toggleSidebar() {
-  isSidebarVisible.value = !isSidebarVisible.value;
-}
-
 function swipedRight(e) {
   event.stopPropagation();
   if (!e.detail.xStart || e.detail.xStart >= 100) {
     console.log('Swipe did not start at the edge of the left side of the screen');
-    isSidebarOpen.value = true;
+    configStore.isSidebarOpen.value = true;
     return;
   }
 
-  isSidebarOpen.value = false;
+  configStore.isSidebarOpen.value = false;
 }
 
 const lastTap = ref(0);
 function handleTouchStart(event) {
-
-
-  if (!isSmallScreen.value) {
+  if (!configStore.isSmallScreen.value) {
     return;
   }
 
@@ -119,50 +62,44 @@ function handleTouchStart(event) {
     event.preventDefault();
 
     // Double-tap detected
-    isSidebarVisible.value = true;
+    configStore.isSidebarVisible.value = true;
   }
   lastTap.value = currentTime;
 }
 
-const showingGeneralConfig = ref(false);
-function showGeneralConfigSection() {
-  showingGeneralConfig.value = true;
-  isSidebarVisible.value = false;
-}
-
 // Lifecycle hooks
 onMounted(() => {
-  if (selectedModel.value === 'open-ai-format') {
-    fetchAvailableModels();
+  if (configStore.selectedModel.value === 'open-ai-format') {
+    configStore.fetchAvailableModels();
   }
 
   const storedSystemPrompts = localStorage.getItem('system-prompts');
   if (storedSystemPrompts) {
-    systemPrompts.value = JSON.parse(storedSystemPrompts);
-    const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === systemPrompt.value);
+    configStore.systemPrompts.value = JSON.parse(storedSystemPrompts);
+    const savedPromptIndex = configStore.systemPrompts.value.findIndex((prompt) => prompt === configStore.systemPrompt.value);
     if (savedPromptIndex !== -1) {
-      selectedSystemPromptIndex.value = savedPromptIndex;
+      configStore.selectedSystemPromptIndex.value = savedPromptIndex;
     }
   }
 
   const storedCustomConfigs = localStorage.getItem('saved-custom-configs');
   if (storedCustomConfigs) {
-    customConfigs.value = JSON.parse(storedCustomConfigs);
+    configStore.customConfigs.value = JSON.parse(storedCustomConfigs);
 
-    if (customConfigs.value.length > 0) {
-      const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === localModelEndpoint.value);
+    if (configStore.customConfigs.value.length > 0) {
+      const matchingConfigIndex = configStore.customConfigs.value.findIndex((config) => config.endpoint === configStore.localModelEndpoint.value);
 
       if (matchingConfigIndex !== -1) {
-        selectedCustomConfigIndex.value = matchingConfigIndex;
-        const config = customConfigs.value[matchingConfigIndex];
-        localModelEndpoint.value = config.endpoint;
-        localModelKey.value = config.apiKey;
-        maxTokens.value = config.maxTokens;
-        localSliderValue.value = config.temperature;
-        top_P.value = config.top_P;
-        repetitionPenalty.value = config.repetitionPenalty;
-
-        selectCustomConfig(selectedCustomConfigIndex.value, localModelEndpoint, localModelKey, maxTokens, localSliderValue, top_P, repetitionPenalty);
+        const config = configStore.customConfigs.value[matchingConfigIndex];
+        configStore.selectCustomConfig(
+          matchingConfigIndex,
+          config.endpoint,
+          config.apiKey,
+          config.maxTokens,
+          config.temperature,
+          config.top_P,
+          config.repetitionPenalty
+        );
       }
     } else {
       console.log('No saved custom configs found.');
@@ -172,107 +109,117 @@ onMounted(() => {
   }
 });
 </script>
-
 <template>
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
     <DialogHeader title="Configuration" tooltipText="Current Version: 6.2.2" headerId="settings-header"
-      @close="() => isSidebarOpen = false" />
+      @close="() => configStore.isSidebarOpen = false" />
     <div class="settings-container">
-      <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
+      <Sidebar v-model:visible="configStore.isSidebarVisible" :baseZIndex="3"
+        @hide="configStore.isSidebarVisible = false">
         <h3>Select Model</h3>
         <ul>
-          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
+          <li :class="{ selected: configStore.showingGeneralConfig }" @click="configStore.showGeneralConfigSection">
             General Config
           </li>
-          <li :class="{ selected: selectedModel.includes('gpt') }">
-            <h4 @click="isGPTConfigOpen = !isGPTConfigOpen">
+          <li :class="{ selected: configStore.selectedModel.includes('gpt') }">
+            <h4 @click="configStore.isGPTConfigOpen = !configStore.isGPTConfigOpen">
               GPT Models
-              <span :class="{ 'pi pi-chevron-down': isGPTConfigOpen, 'pi pi-chevron-right': !isGPTConfigOpen }"></span>
+              <span
+                :class="{ 'pi pi-chevron-down': configStore.isGPTConfigOpen, 'pi pi-chevron-right': !configStore.isGPTConfigOpen }"></span>
             </h4>
-            <ul v-show="isGPTConfigOpen">
+            <ul v-show="configStore.isGPTConfigOpen">
               <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
-                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                :class="{ selected: model.value === configStore.selectedModel }"
+                @click="configStore.selectModel(model.value)">
                 {{ model.label }}
               </li>
             </ul>
           </li>
-          <li :class="{ selected: selectedModel.includes('claude') }">
-            <h4 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+          <li :class="{ selected: configStore.selectedModel.includes('claude') }">
+            <h4 @click="configStore.isClaudeConfigOpen = !configStore.isClaudeConfigOpen">
               Claude Models
               <span
-                :class="{ 'pi pi-chevron-down': isClaudeConfigOpen, 'pi pi-chevron-right': !isClaudeConfigOpen }"></span>
+                :class="{ 'pi pi-chevron-down': configStore.isClaudeConfigOpen, 'pi pi-chevron-right': !configStore.isClaudeConfigOpen }"></span>
             </h4>
-            <ul v-show="isClaudeConfigOpen">
+            <ul v-show="configStore.isClaudeConfigOpen">
               <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
-                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                :class="{ selected: model.value === configStore.selectedModel }"
+                @click="configStore.selectModel(model.value)">
                 {{ model.label }}
               </li>
             </ul>
           </li>
           <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
-            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+            :key="model.value" :class="{ selected: model.value === configStore.selectedModel }"
+            @click="configStore.selectModel(model.value)">
             {{ model.label }}
           </li>
         </ul>
       </Sidebar>
 
-      <div v-show="!isSmallScreen" class="left-panel">
+      <div v-show="!configStore.isSmallScreen" class="left-panel">
         <h3>Models</h3>
         <ul>
-          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
+          <li :class="{ selected: configStore.showingGeneralConfig }" @click="configStore.showGeneralConfigSection">
             General Config
           </li>
           <!-- Collapsible Group for GPT Models -->
-          <li @click="isGPTConfigOpen = !isGPTConfigOpen">
+          <li @click="configStore.isGPTConfigOpen = !configStore.isGPTConfigOpen">
             GPT Models
-            <span class="indicator">{{ isGPTConfigOpen || selectedModel.includes('gpt') ? '-' : '+' }}</span>
+            <span class="indicator">{{ configStore.isGPTConfigOpen || configStore.selectedModel.includes('gpt') ? '-' :
+              '+' }}</span>
           </li>
-          <ul v-show="isGPTConfigOpen || selectedModel.includes('gpt')" class="sub-item">
+          <ul v-show="configStore.isGPTConfigOpen || configStore.selectedModel.includes('gpt')" class="sub-item">
             <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
-              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+              :class="{ selected: model.value === configStore.selectedModel }"
+              @click="configStore.selectModel(model.value)">
               {{ model.label }}
             </li>
           </ul>
           <!-- Collapsible Group for Claude Models -->
-          <li @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+          <li @click="configStore.isClaudeConfigOpen = !configStore.isClaudeConfigOpen">
             Claude Models
-            <span class="indicator">{{ isClaudeConfigOpen || selectedModel.includes('claude') ? '-' : '+' }}</span>
+            <span class="indicator">{{ configStore.isClaudeConfigOpen || configStore.selectedModel.includes('claude') ?
+              '-' : '+' }}</span>
           </li>
-          <ul v-show="isClaudeConfigOpen || selectedModel.includes('claude')" class="sub-item">
+          <ul v-show="configStore.isClaudeConfigOpen || configStore.selectedModel.includes('claude')" class="sub-item">
             <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
-              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+              :class="{ selected: model.value === configStore.selectedModel }"
+              @click="configStore.selectModel(model.value)">
               {{ model.label }}
             </li>
           </ul>
           <!-- Other Models -->
           <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
-            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+            :key="model.value" :class="{ selected: model.value === configStore.selectedModel }"
+            @click="configStore.selectModel(model.value)">
             {{ model.label }}
           </li>
         </ul>
         <div class="close-btn-wrapper">
         </div>
       </div>
-      <div v-show="!isSidebarVisible && isSmallScreen" class="left-panel-collapsed" @click.stop="toggleSidebar">
+      <div v-show="!configStore.isSidebarVisible && configStore.isSmallScreen" class="left-panel-collapsed"
+        @click.stop="configStore.toggleSidebar">
         <span>Open Model Selection</span>
       </div>
       <div class="right-panel" @touchstart="handleTouchStart">
-        <div v-if="selectedModel">
-          <div v-if="showingGeneralConfig">
+        <div v-if="configStore.selectedModel">
+          <div v-if="configStore.showingGeneralConfig">
             <GeneralConfigSection />
             <ImportExportConfigSection />
           </div>
-          <div v-if="selectedModel.includes('gpt') && !showingGeneralConfig">
+          <div v-if="configStore.selectedModel.includes('gpt') && !configStore.showingGeneralConfig">
             <GptConfigSection />
           </div>
-          <div v-if="selectedModel.startsWith('claude-') && !showingGeneralConfig">
+          <div v-if="configStore.selectedModel.startsWith('claude-') && !configStore.showingGeneralConfig">
             <ClaudeConfigSection />
           </div>
-          <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
+          <div v-if="configStore.selectedModel === 'open-ai-format' && !configStore.showingGeneralConfig">
             <LocalConfigSection />
           </div>
-          <div v-if="selectedModel === 'web-llm' && !showingGeneralConfig">
+          <div v-if="configStore.selectedModel === 'web-llm' && !configStore.showingGeneralConfig">
             <WebLlmConfigSection />
           </div>
         </div>
@@ -280,7 +227,6 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
 <style lang="scss" scoped>
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);

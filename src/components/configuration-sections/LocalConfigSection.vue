@@ -1,53 +1,55 @@
 <template>
     <div class="control-grid">
-        <div v-if="customConfigs.length" class="saved-custom-configs">
+        <div v-if="configStore.customConfigs.length" class="saved-custom-configs">
             <h4>Saved Custom Configs</h4>
             <ul>
-                <li v-for="(config, index) in customConfigs" :key="index"
-                    :class="{ selected: index === selectedCustomConfigIndex }" @click="handleSelectCustomConfig(index)">
+                <li v-for="(config, index) in configStore.customConfigs" :key="index"
+                    :class="{ selected: index === configStore.selectedCustomConfigIndex }"
+                    @click="handleSelectCustomConfig(index)">
                     <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />
                     <span>&nbsp;&nbsp;{{ config.endpoint }}</span>
                 </li>
             </ul>
         </div>
         <InputField :isSecret="false" labelText="API Endpoint:" :placeholderText="'Enter the base API Endpoint URL'"
-            inputId="local-model-endpoint" :value="localModelEndpoint"
+            inputId="local-model-endpoint" :value="configStore.localModelEndpoint"
             @update:value="handleUpdate('localModelEndpoint', $event)" />
         <div class="control select-dropdown">
             <label for="custom-model-selector">Models Available:</label>
-            <select id="custom-model-selector" :value="localModelName"
+            <select id="custom-model-selector" :value="configStore.localModelName"
                 @change="handleUpdate('localModelName', $event.target.value)">
-                <option v-for="model in availableModels" :key="model" :value="model">{{ model }}</option>
+                <option v-for="model in configStore.availableModels" :key="model" :value="model">{{ model }}</option>
             </select>
         </div>
         <InputField :isSecret="true" labelText="API Key:" :placeholderText="'Enter the API key if applicable'"
-            inputId="local-model-key" :value="localModelKey" @update:value="handleUpdate('localModelKey', $event)" />
+            inputId="local-model-key" :value="configStore.localModelKey"
+            @update:value="handleUpdate('localModelKey', $event)" />
         <InputField labelText="Max Tokens:" :isSecret="false"
             :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
-            :value="maxTokens.toString()" @update:value="handleUpdate('maxTokens', $event)" />
+            :value="configStore.maxTokens.toString()" @update:value="handleUpdate('maxTokens', $event)" />
         <div class="flex-container">
-            <div class="center-text">Temperature: ({{ localSliderValue }})</div>
+            <div class="center-text">Temperature: ({{ configStore.localSliderValue }})</div>
             <div class="slider-container">
                 <span>Serious</span>
-                <input type="range" min="0" max="1" step="0.01" :value="localSliderValue"
+                <input type="range" min="0" max="1" step="0.01" :value="configStore.localSliderValue"
                     @input="updateLocalSliderValue($event.target.value)" />
                 <span>Creative</span>
             </div>
         </div>
         <div class="flex-container">
-            <div class="center-text">Top_P: ({{ top_P }})</div>
+            <div class="center-text">Top_P: ({{ configStore.top_P }})</div>
             <div class="slider-container">
                 <span>Lower</span>
-                <input type="range" min="0" max="1" step="0.01" :value="top_P"
+                <input type="range" min="0" max="1" step="0.01" :value="configStore.top_P"
                     @input="updateTopPSliderValue($event.target.value)" />
                 <span>Higher</span>
             </div>
         </div>
         <div class="flex-container">
-            <div class="center-text">Repetition Penalty: ({{ repetitionPenalty }})</div>
+            <div class="center-text">Repetition Penalty: ({{ configStore.repetitionPenalty }})</div>
             <div class="slider-container">
                 <span>Lower</span>
-                <input type="range" min="0" max="2" step="0.01" :value="repetitionPenalty"
+                <input type="range" min="0" max="2" step="0.01" :value="configStore.repetitionPenalty"
                     @input="updateRepetitionSliderValue($event.target.value)" />
                 <span>Higher</span>
             </div>
@@ -56,11 +58,47 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { useConfigStore } from '@/stores/ConfigStore';
 import InputField from '../controls/InputField.vue';
 import { Trash2 } from 'lucide-vue-next';
-import { localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty, availableModels } from '@/libs/state-management/state';
-import { handleUpdate, handleDeleteCustomConfig, handleSelectCustomConfig, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex } from '@/libs/utils/settings-utils';
+
+const configStore = useConfigStore();
+
+function handleUpdate(key, value) {
+    configStore[key] = value;
+}
+
+function handleDeleteCustomConfig(index) {
+    configStore.customConfigs.splice(index, 1);
+    if (configStore.selectedCustomConfigIndex === index) {
+        configStore.selectedCustomConfigIndex = -1;
+    }
+}
+
+function handleSelectCustomConfig(index) {
+    const config = configStore.customConfigs[index];
+    configStore.selectCustomConfig(
+        index,
+        config.endpoint,
+        config.apiKey,
+        config.maxTokens,
+        config.temperature,
+        config.top_P,
+        config.repetitionPenalty
+    );
+}
+
+function updateLocalSliderValue(value) {
+    configStore.localSliderValue = parseFloat(value);
+}
+
+function updateTopPSliderValue(value) {
+    configStore.top_P = parseFloat(value);
+}
+
+function updateRepetitionSliderValue(value) {
+    configStore.repetitionPenalty = parseFloat(value);
+}
 </script>
 
 <style scoped lang="scss">
