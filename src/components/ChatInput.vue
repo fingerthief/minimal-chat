@@ -21,7 +21,6 @@ import {
   isInteractModeOpen
 } from '@/libs/state-management/state';
 import { sendMessage, visionimageUploadClick, addMessage } from '@/libs/conversation-management/message-processing';
-import { setSystemPrompt } from '@/libs/conversation-management/conversations-management';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { engine } from '@/libs/api-access/web-llm-access';
 // Define emits

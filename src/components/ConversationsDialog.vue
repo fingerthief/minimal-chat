@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, computed, nextTick } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal } from 'lucide-vue-next';
 import ToolTip from './ToolTip.vue';
 import {
