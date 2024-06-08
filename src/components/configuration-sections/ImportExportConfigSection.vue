@@ -80,7 +80,7 @@ const isImportExportConfigOpen = ref(false);
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .config-section {
     margin-bottom: 15px;
 

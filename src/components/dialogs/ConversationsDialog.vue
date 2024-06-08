@@ -200,8 +200,9 @@ function toggleContextMenu() {
             :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
             @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
             :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }">
-            <Pencil :id="'pencil-' + index" :size="13" @click.stop="onEditConversationTitle(conversation)" />
-            <ToolTip :targetId="'pencil-' + index">Edit title</ToolTip>
+            <Pencil v-if="isSmallScreen" :id="'pencil-' + index" :size="13"
+              @click.stop="onEditConversationTitle(conversation)" />
+            <ToolTip :targetId="'conversation-' + index">Double Click to Edit Title</ToolTip>
             <span>&nbsp;
               <Trash :id="'trash-' + index" :size="13" class="trash-icon"
                 @click.stop="deleteConversation(conversation.id)" /> &nbsp;{{ conversation.title }}

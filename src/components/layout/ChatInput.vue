@@ -1,14 +1,13 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload, Speech } from 'lucide-vue-next';
-import ToolTip from './controls/ToolTip.vue';
-import InteractMode from '@/components/InteractMode.vue';
+import ToolTip from '@/components/controls/ToolTip.vue';
+import InteractMode from '@/components/controls/InteractMode.vue';
 import 'swiped-events';
 import { swipedLeft, swipedRight, updateUI, showToast } from '@/libs/utils/general-utils';
 import {
   isLoading,
   messages,
-  systemPrompt,
   selectedModel,
   userText,
   claudeSliderValue,

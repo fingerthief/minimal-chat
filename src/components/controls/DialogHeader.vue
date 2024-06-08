@@ -11,7 +11,7 @@
 
 <script setup>
 import { X } from 'lucide-vue-next';
-import ToolTip from './ToolTip.vue';
+import ToolTip from '@/components/controls/ToolTip.vue';
 
 defineProps({
     title: {

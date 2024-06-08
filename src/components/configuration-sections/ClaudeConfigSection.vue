@@ -15,13 +15,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import InputField from '../controls/InputField.vue';
+import InputField from '@/components/controls/InputField.vue';
 import { claudeKey, claudeSliderValue } from '@/libs/state-management/state';
 import { handleUpdate, updateClaudeSliderValue } from '@/libs/utils/settings-utils';
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .center-text {
     text-align: center;
     bottom: 10px;

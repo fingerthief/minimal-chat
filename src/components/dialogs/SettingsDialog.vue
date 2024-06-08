@@ -1,10 +1,223 @@
+<script setup>
+import { ref, watch, onMounted, computed } from 'vue';
+import DialogHeader from '@/components/controls/DialogHeader.vue';
+import GeneralConfigSection from '@/components/configuration-sections/GeneralConfigSection.vue';
+import GptConfigSection from '@/components/configuration-sections/GptConfigSection.vue';
+import ClaudeConfigSection from '@/components/configuration-sections/ClaudeConfigSection.vue';
+import LocalConfigSection from '@/components/configuration-sections/LocalConfigSection.vue';
+import WebLlmConfigSection from '@/components/configuration-sections/WebLlmConfigSection.vue';
+import ImportExportConfigSection from '@/components/configuration-sections/ImportExportConfigSection.vue';
+import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
+import {
+  selectedModel,
+  localModelEndpoint,
+  localModelKey,
+  maxTokens,
+  localSliderValue,
+  top_P,
+  repetitionPenalty,
+  isSidebarOpen,
+  isSmallScreen,
+  isSidebarVisible,
+  systemPrompt,
+  availableModels
+} from '@/libs/state-management/state';
+import { removeAPIEndpoints } from '@/libs/utils/general-utils';
+import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
+import {
+  selectCustomConfig,
+  systemPrompts,
+  selectedSystemPromptIndex,
+  customConfigs,
+  selectedCustomConfigIndex,
+
+} from '@/libs/utils/settings-utils';
+import "swiped-events";
+import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
+import Sidebar from 'primevue/sidebar';
+// Visibility states for collapsible config sections
+const isClaudeConfigOpen = ref(false);
+const isGPTConfigOpen = ref(false);
+
+const models = [
+  { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
+  { label: 'GPT-4 Turbo', value: 'gpt-4-turbo' },
+  { label: 'GPT-4 Omni', value: 'gpt-4o' },
+  { label: 'Claude 3 Opus', value: 'claude-3-opus-20240229' },
+  { label: 'Claude 3 Sonnet', value: 'claude-3-sonnet-20240229' },
+  { label: 'Claude 3 Haiku', value: 'claude-3-haiku-20240307' },
+  { label: 'Custom API', value: 'open-ai-format' },
+  { label: 'WebGPU Model', value: 'web-llm' }
+];
+
+const isSidebarVisibleOnSmallScreen = computed(() => {
+  return (isSidebarVisible.value && isSmallScreen.value) === true;
+});
+
+// Watch for changes in the sidebar's visibility
+watch(isSidebarOpen, (newVal) => {
+  if (newVal) {
+    runTutorialForSettings();
+  }
+});
+
+async function fetchAvailableModels() {
+  try {
+    if (localModelEndpoint.value.trim() !== '') {
+      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
+      availableModels.value = models;
+    }
+  } catch (error) {
+    console.error('Error fetching available models:', error);
+  }
+}
+
+function selectModel(model) {
+  selectedModel.value = model;
+
+  // Close all collapsible groups
+  showingGeneralConfig.value = false;
+  isClaudeConfigOpen.value = false;
+  isGPTConfigOpen.value = false;
+
+  if (model === 'open-ai-format') {
+    fetchAvailableModels();
+  }
+
+  isSidebarVisible.value = false;
+}
+
+function toggleSidebar() {
+  isSidebarVisible.value = !isSidebarVisible.value;
+}
+
+function swipedRight(e) {
+  event.stopPropagation();
+  if (!e.detail.xStart || e.detail.xStart >= 100) {
+    console.log('Swipe did not start at the edge of the left side of the screen');
+    isSidebarOpen.value = true;
+    return;
+  }
+
+  isSidebarOpen.value = false;
+}
+
+const lastTap = ref(0);
+function handleTouchStart(event) {
+
+
+  if (!isSmallScreen.value) {
+    return;
+  }
+
+  const currentTime = new Date().getTime();
+  const tapLength = currentTime - lastTap.value;
+
+  console.log(tapLength);
+  if (tapLength < 300 && tapLength > 0) {
+    event.preventDefault();
+
+    // Double-tap detected
+    isSidebarVisible.value = true;
+  }
+  lastTap.value = currentTime;
+}
+
+const showingGeneralConfig = ref(false);
+function showGeneralConfigSection() {
+  showingGeneralConfig.value = true;
+  isSidebarVisible.value = false;
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  if (selectedModel.value === 'open-ai-format') {
+    fetchAvailableModels();
+  }
+
+  const storedSystemPrompts = localStorage.getItem('system-prompts');
+  if (storedSystemPrompts) {
+    systemPrompts.value = JSON.parse(storedSystemPrompts);
+    const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === systemPrompt.value);
+    if (savedPromptIndex !== -1) {
+      selectedSystemPromptIndex.value = savedPromptIndex;
+    }
+  }
+
+  const storedCustomConfigs = localStorage.getItem('saved-custom-configs');
+  if (storedCustomConfigs) {
+    customConfigs.value = JSON.parse(storedCustomConfigs);
+
+    if (customConfigs.value.length > 0) {
+      const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === localModelEndpoint.value);
+
+      if (matchingConfigIndex !== -1) {
+        selectedCustomConfigIndex.value = matchingConfigIndex;
+        const config = customConfigs.value[matchingConfigIndex];
+        localModelEndpoint.value = config.endpoint;
+        localModelKey.value = config.apiKey;
+        maxTokens.value = config.maxTokens;
+        localSliderValue.value = config.temperature;
+        top_P.value = config.top_P;
+        repetitionPenalty.value = config.repetitionPenalty;
+
+        selectCustomConfig(selectedCustomConfigIndex.value, localModelEndpoint, localModelKey, maxTokens, localSliderValue, top_P, repetitionPenalty);
+      }
+    } else {
+      console.log('No saved custom configs found.');
+    }
+  } else {
+    console.log('No saved custom configs found.');
+  }
+});
+</script>
+
 <template>
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
     <DialogHeader title="Configuration" tooltipText="Current Version: 6.2.2" headerId="settings-header"
       @close="() => isSidebarOpen = false" />
     <div class="settings-container">
-      <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
+      <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
+        <h3>Select Model</h3>
+        <ul>
+          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
+            General Config
+          </li>
+          <li :class="{ selected: selectedModel.includes('gpt') }">
+            <h4 @click="isGPTConfigOpen = !isGPTConfigOpen">
+              GPT Models
+              <span :class="{ 'pi pi-chevron-down': isGPTConfigOpen, 'pi pi-chevron-right': !isGPTConfigOpen }"></span>
+            </h4>
+            <ul v-show="isGPTConfigOpen">
+              <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
+                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                {{ model.label }}
+              </li>
+            </ul>
+          </li>
+          <li :class="{ selected: selectedModel.includes('claude') }">
+            <h4 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+              Claude Models
+              <span
+                :class="{ 'pi pi-chevron-down': isClaudeConfigOpen, 'pi pi-chevron-right': !isClaudeConfigOpen }"></span>
+            </h4>
+            <ul v-show="isClaudeConfigOpen">
+              <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
+                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                {{ model.label }}
+              </li>
+            </ul>
+          </li>
+          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
+            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+            {{ model.label }}
+          </li>
+        </ul>
+      </Sidebar>
+
+      <div v-show="!isSmallScreen" class="left-panel">
         <h3>Models</h3>
         <ul>
           <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
@@ -68,167 +281,6 @@
   </div>
 </template>
 
-<script setup>
-import { ref, watch, onMounted } from 'vue';
-import DialogHeader from '../controls/DialogHeader.vue';
-import GeneralConfigSection from '../configuration-sections/GeneralConfigSection.vue';
-import GptConfigSection from '../configuration-sections/GptConfigSection.vue';
-import ClaudeConfigSection from '../configuration-sections/ClaudeConfigSection.vue';
-import LocalConfigSection from '../configuration-sections/LocalConfigSection.vue';
-import WebLlmConfigSection from '../configuration-sections/WebLlmConfigSection.vue';
-import ImportExportConfigSection from '../configuration-sections/ImportExportConfigSection.vue';
-import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
-import {
-  selectedModel,
-  localModelEndpoint,
-  localModelKey,
-  maxTokens,
-  localSliderValue,
-  top_P,
-  repetitionPenalty,
-  isSidebarOpen,
-  isSmallScreen,
-  isSidebarVisible,
-  systemPrompt,
-  availableModels
-} from '@/libs/state-management/state';
-import { removeAPIEndpoints } from '@/libs/utils/general-utils';
-import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
-import {
-  selectCustomConfig,
-  systemPrompts,
-  selectedSystemPromptIndex,
-  customConfigs,
-  selectedCustomConfigIndex,
-
-} from '@/libs/utils/settings-utils';
-import "swiped-events";
-// Visibility states for collapsible config sections
-const isClaudeConfigOpen = ref(false);
-const isGPTConfigOpen = ref(false);
-
-const models = [
-  { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
-  { label: 'GPT-4 Turbo', value: 'gpt-4-turbo' },
-  { label: 'GPT-4 Omni', value: 'gpt-4o' },
-  { label: 'Claude 3 Opus', value: 'claude-3-opus-20240229' },
-  { label: 'Claude 3 Sonnet', value: 'claude-3-sonnet-20240229' },
-  { label: 'Claude 3 Haiku', value: 'claude-3-haiku-20240307' },
-  { label: 'Custom API', value: 'open-ai-format' },
-  { label: 'WebGPU Model', value: 'web-llm' }
-];
-
-// Watch for changes in the sidebar's visibility
-watch(isSidebarOpen, (newVal) => {
-  if (newVal) {
-    runTutorialForSettings();
-  }
-});
-
-async function fetchAvailableModels() {
-  try {
-    if (localModelEndpoint.value.trim() !== '') {
-      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
-      availableModels.value = models;
-    }
-  } catch (error) {
-    console.error('Error fetching available models:', error);
-  }
-}
-
-function selectModel(model) {
-  selectedModel.value = model;
-
-  // Close all collapsible groups
-  showingGeneralConfig.value = false;
-  isClaudeConfigOpen.value = false;
-  isGPTConfigOpen.value = false;
-
-  if (model === 'open-ai-format') {
-    fetchAvailableModels();
-  }
-}
-
-function toggleSidebar() {
-  isSidebarVisible.value = !isSidebarVisible.value;
-}
-
-function swipedRight(e) {
-  event.stopPropagation();
-  if (!e.detail.xStart || e.detail.xStart >= 100) {
-    console.log('Swipe did not start at the edge of the left side of the screen');
-    isSidebarOpen.value = true;
-    return;
-  }
-
-  isSidebarOpen.value = false;
-}
-
-const lastTap = ref(0);
-function handleTouchStart(event) {
-  if (!isSmallScreen.value) {
-    return;
-  }
-
-  const currentTime = new Date().getTime();
-  const tapLength = currentTime - lastTap.value;
-
-  console.log(tapLength);
-  if (tapLength < 300 && tapLength > 0) {
-    // Double-tap detected
-    toggleSidebar();
-  }
-  lastTap.value = currentTime;
-}
-
-const showingGeneralConfig = ref(false);
-function showGeneralConfigSection() {
-  showingGeneralConfig.value = true;
-}
-
-// Lifecycle hooks
-onMounted(() => {
-  if (selectedModel.value === 'open-ai-format') {
-    fetchAvailableModels();
-  }
-
-  const storedSystemPrompts = localStorage.getItem('system-prompts');
-  if (storedSystemPrompts) {
-    systemPrompts.value = JSON.parse(storedSystemPrompts);
-    const savedPromptIndex = systemPrompts.value.findIndex((prompt) => prompt === systemPrompt.value);
-    if (savedPromptIndex !== -1) {
-      selectedSystemPromptIndex.value = savedPromptIndex;
-    }
-  }
-
-  const storedCustomConfigs = localStorage.getItem('saved-custom-configs');
-  if (storedCustomConfigs) {
-    customConfigs.value = JSON.parse(storedCustomConfigs);
-
-    if (customConfigs.value.length > 0) {
-      const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === localModelEndpoint.value);
-
-      if (matchingConfigIndex !== -1) {
-        selectedCustomConfigIndex.value = matchingConfigIndex;
-        const config = customConfigs.value[matchingConfigIndex];
-        localModelEndpoint.value = config.endpoint;
-        localModelKey.value = config.apiKey;
-        maxTokens.value = config.maxTokens;
-        localSliderValue.value = config.temperature;
-        top_P.value = config.top_P;
-        repetitionPenalty.value = config.repetitionPenalty;
-
-        selectCustomConfig(selectedCustomConfigIndex.value, localModelEndpoint, localModelKey, maxTokens, localSliderValue, top_P, repetitionPenalty);
-      }
-    } else {
-      console.log('No saved custom configs found.');
-    }
-  } else {
-    console.log('No saved custom configs found.');
-  }
-});
-</script>
-
 <style lang="scss" scoped>
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
@@ -250,6 +302,46 @@ $border-color: #1b6a72c4;
 $header-border-color: #424045b5;
 $bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
+
+.p-sidebar {
+  background-color: #292929;
+  /* Light gray background */
+  width: 250px;
+  /* Set a fixed width */
+  padding: 20px;
+  /* Add some padding */
+}
+
+.p-sidebar h3 {
+  margin-top: 0;
+  font-size: 1.5em;
+}
+
+.p-sidebar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.p-sidebar li {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.p-sidebar li:hover {
+  background-color: #07563d;
+}
+
+.p-sidebar li.selected {
+  background-color: rgba(16, 56, 51, 0.91);
+  color: white;
+}
+
+.p-sidebar li.selected:hover {
+  background-color: #074d36;
+}
 
 @keyframes slideIn {
   0% {

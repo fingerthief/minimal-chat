@@ -45,7 +45,7 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style>
+<style lang="scss">
 .tooltip-container {
   padding: 8px;
   background-color: #333;

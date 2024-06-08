@@ -287,7 +287,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .interact-mode {
   cursor: pointer;
 }
