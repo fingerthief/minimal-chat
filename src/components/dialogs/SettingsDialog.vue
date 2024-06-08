@@ -1,120 +1,12 @@
-<template>
-  <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
-    @swiped-right="swipedRight">
-    <DialogHeader title="Configuration" tooltipText="Current Version: 6.2.2" headerId="settings-header"
-      @close="() => isSidebarOpen = false" />
-    <div class="settings-container">
-      <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
-        <h3>Models</h3>
-        <ul>
-          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
-            General Config
-          </li>
-          <li>
-            <h4 @click="isGPTConfigOpen = !isGPTConfigOpen">
-              GPT Models
-              <span :class="{ 'pi pi-chevron-down': isGPTConfigOpen, 'pi pi-chevron-right': !isGPTConfigOpen }"></span>
-            </h4>
-            <ul v-show="isGPTConfigOpen">
-              <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
-                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-                {{ model.label }}
-              </li>
-            </ul>
-          </li>
-          <li>
-            <h4 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
-              Claude Models
-              <span
-                :class="{ 'pi pi-chevron-down': isClaudeConfigOpen, 'pi pi-chevron-right': !isClaudeConfigOpen }"></span>
-            </h4>
-            <ul v-show="isClaudeConfigOpen">
-              <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
-                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-                {{ model.label }}
-              </li>
-            </ul>
-          </li>
-          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
-            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-            {{ model.label }}
-          </li>
-        </ul>
-      </Sidebar>
-
-      <div v-show="!isSmallScreen" class="left-panel">
-        <h3>Models</h3>
-        <ul>
-          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
-            General Config
-          </li>
-          <!-- Collapsible Group for GPT Models -->
-          <li @click="isGPTConfigOpen = !isGPTConfigOpen">
-            GPT Models
-            <span class="indicator">{{ isGPTConfigOpen || selectedModel.includes('gpt') ? '-' : '+' }}</span>
-          </li>
-          <ul v-show="isGPTConfigOpen || selectedModel.includes('gpt')" class="sub-item">
-            <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
-              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-              {{ model.label }}
-            </li>
-          </ul>
-          <!-- Collapsible Group for Claude Models -->
-          <li @click="isClaudeConfigOpen = !isClaudeConfigOpen">
-            Claude Models
-            <span class="indicator">{{ isClaudeConfigOpen || selectedModel.includes('claude') ? '-' : '+' }}</span>
-          </li>
-          <ul v-show="isClaudeConfigOpen || selectedModel.includes('claude')" class="sub-item">
-            <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
-              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-              {{ model.label }}
-            </li>
-          </ul>
-          <!-- Other Models -->
-          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
-            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-            {{ model.label }}
-          </li>
-        </ul>
-        <div class="close-btn-wrapper">
-        </div>
-      </div>
-      <div v-show="!isSidebarVisible && isSmallScreen" class="left-panel-collapsed" @click.stop="toggleSidebar">
-        <span>Open Model Selection</span>
-      </div>
-      <div class="right-panel" @touchstart="handleTouchStart">
-        <div v-if="selectedModel">
-          <div v-if="showingGeneralConfig">
-            <GeneralConfigSection />
-            <ImportExportConfigSection />
-          </div>
-          <div v-if="selectedModel.includes('gpt') && !showingGeneralConfig">
-            <GptConfigSection />
-          </div>
-          <div v-if="selectedModel.startsWith('claude-') && !showingGeneralConfig">
-            <ClaudeConfigSection />
-          </div>
-          <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
-            <LocalConfigSection />
-          </div>
-          <div v-if="selectedModel === 'web-llm' && !showingGeneralConfig">
-            <WebLlmConfigSection />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue';
-import DialogHeader from '../controls/DialogHeader.vue';
-import GeneralConfigSection from '../configuration-sections/GeneralConfigSection.vue';
-import GptConfigSection from '../configuration-sections/GptConfigSection.vue';
-import ClaudeConfigSection from '../configuration-sections/ClaudeConfigSection.vue';
-import LocalConfigSection from '../configuration-sections/LocalConfigSection.vue';
-import WebLlmConfigSection from '../configuration-sections/WebLlmConfigSection.vue';
-import ImportExportConfigSection from '../configuration-sections/ImportExportConfigSection.vue';
+import DialogHeader from '@/components/controls/DialogHeader.vue';
+import GeneralConfigSection from '@/components/configuration-sections/GeneralConfigSection.vue';
+import GptConfigSection from '@/components/configuration-sections/GptConfigSection.vue';
+import ClaudeConfigSection from '@/components/configuration-sections/ClaudeConfigSection.vue';
+import LocalConfigSection from '@/components/configuration-sections/LocalConfigSection.vue';
+import WebLlmConfigSection from '@/components/configuration-sections/WebLlmConfigSection.vue';
+import ImportExportConfigSection from '@/components/configuration-sections/ImportExportConfigSection.vue';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import {
   selectedModel,
@@ -213,7 +105,7 @@ function swipedRight(e) {
 
 const lastTap = ref(0);
 function handleTouchStart(event) {
-  event.preventDefault();
+
 
   if (!isSmallScreen.value) {
     return;
@@ -224,6 +116,8 @@ function handleTouchStart(event) {
 
   console.log(tapLength);
   if (tapLength < 300 && tapLength > 0) {
+    event.preventDefault();
+
     // Double-tap detected
     isSidebarVisible.value = true;
   }
@@ -279,6 +173,114 @@ onMounted(() => {
 });
 </script>
 
+<template>
+  <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
+    @swiped-right="swipedRight">
+    <DialogHeader title="Configuration" tooltipText="Current Version: 6.2.2" headerId="settings-header"
+      @close="() => isSidebarOpen = false" />
+    <div class="settings-container">
+      <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
+        <h3>Select Model</h3>
+        <ul>
+          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
+            General Config
+          </li>
+          <li :class="{ selected: selectedModel.includes('gpt') }">
+            <h4 @click="isGPTConfigOpen = !isGPTConfigOpen">
+              GPT Models
+              <span :class="{ 'pi pi-chevron-down': isGPTConfigOpen, 'pi pi-chevron-right': !isGPTConfigOpen }"></span>
+            </h4>
+            <ul v-show="isGPTConfigOpen">
+              <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
+                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                {{ model.label }}
+              </li>
+            </ul>
+          </li>
+          <li :class="{ selected: selectedModel.includes('claude') }">
+            <h4 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+              Claude Models
+              <span
+                :class="{ 'pi pi-chevron-down': isClaudeConfigOpen, 'pi pi-chevron-right': !isClaudeConfigOpen }"></span>
+            </h4>
+            <ul v-show="isClaudeConfigOpen">
+              <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
+                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                {{ model.label }}
+              </li>
+            </ul>
+          </li>
+          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
+            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+            {{ model.label }}
+          </li>
+        </ul>
+      </Sidebar>
+
+      <div v-show="!isSmallScreen" class="left-panel">
+        <h3>Models</h3>
+        <ul>
+          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
+            General Config
+          </li>
+          <!-- Collapsible Group for GPT Models -->
+          <li @click="isGPTConfigOpen = !isGPTConfigOpen">
+            GPT Models
+            <span class="indicator">{{ isGPTConfigOpen || selectedModel.includes('gpt') ? '-' : '+' }}</span>
+          </li>
+          <ul v-show="isGPTConfigOpen || selectedModel.includes('gpt')" class="sub-item">
+            <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
+              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+              {{ model.label }}
+            </li>
+          </ul>
+          <!-- Collapsible Group for Claude Models -->
+          <li @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+            Claude Models
+            <span class="indicator">{{ isClaudeConfigOpen || selectedModel.includes('claude') ? '-' : '+' }}</span>
+          </li>
+          <ul v-show="isClaudeConfigOpen || selectedModel.includes('claude')" class="sub-item">
+            <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
+              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+              {{ model.label }}
+            </li>
+          </ul>
+          <!-- Other Models -->
+          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
+            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+            {{ model.label }}
+          </li>
+        </ul>
+        <div class="close-btn-wrapper">
+        </div>
+      </div>
+      <div v-show="!isSidebarVisible && isSmallScreen" class="left-panel-collapsed" @click.stop="toggleSidebar">
+        <span>Open Model Selection</span>
+      </div>
+      <div class="right-panel" @touchstart="handleTouchStart">
+        <div v-if="selectedModel">
+          <div v-if="showingGeneralConfig">
+            <GeneralConfigSection />
+            <ImportExportConfigSection />
+          </div>
+          <div v-if="selectedModel.includes('gpt') && !showingGeneralConfig">
+            <GptConfigSection />
+          </div>
+          <div v-if="selectedModel.startsWith('claude-') && !showingGeneralConfig">
+            <ClaudeConfigSection />
+          </div>
+          <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
+            <LocalConfigSection />
+          </div>
+          <div v-if="selectedModel === 'web-llm' && !showingGeneralConfig">
+            <WebLlmConfigSection />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <style lang="scss" scoped>
 $shadow-color: #252629;
 $icon-color: rgb(187, 187, 187);
@@ -310,23 +312,17 @@ $bottom-panel-border-color: #5f4575cf;
   /* Add some padding */
 }
 
-/* Style for the header */
 .p-sidebar h3 {
   margin-top: 0;
   font-size: 1.5em;
-  color: #333;
-  /* Darker text color */
 }
 
-/* Style for the list */
 .p-sidebar ul {
   list-style-type: none;
-  /* Remove default list styling */
   padding: 0;
   margin: 0;
 }
 
-/* Style for the list items */
 .p-sidebar li {
   padding: 10px;
   cursor: pointer;
@@ -334,24 +330,18 @@ $bottom-panel-border-color: #5f4575cf;
   transition: background-color 0.3s ease;
 }
 
-/* Hover effect for list items */
 .p-sidebar li:hover {
   background-color: #0b7251;
   /* Slightly darker gray */
 }
 
-/* Selected state for list items */
 .p-sidebar li.selected {
-  background-color: #0a6246;
-  /* Blue background */
+  background-color: rgba(22, 74, 67, 0.91);
   color: white;
-  /* White text */
 }
 
-/* Additional styling for selected state */
 .p-sidebar li.selected:hover {
-  background-color: #0b7251;
-  /* Darker blue on hover */
+  background-color: #095e43;
 }
 
 @keyframes slideIn {

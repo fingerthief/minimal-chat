@@ -246,7 +246,7 @@ function formatMessage(content) {
         margin-left: auto;
         background-color: #2d2d2d;
         border-radius: 16px;
-        max-width: 51%;
+        max-width: 50%;
         padding-left: 12px;
         padding-bottom: 4px;
         padding-top: 8px;
@@ -285,10 +285,10 @@ function formatMessage(content) {
     &.gpt {
         margin-right: auto;
         transition: background-color 0.3s ease;
-        max-width: 61%;
+        max-width: 60%;
 
         @media (max-width: 600px) {
-            max-width: 90%;
+            max-width: 88%;
         }
 
         &.high-constrast-mode {
