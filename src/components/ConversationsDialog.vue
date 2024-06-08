@@ -27,18 +27,12 @@ const emit = defineEmits(['import-conversations', 'export-conversations']);
 
 // Helper Functions
 function conversationCharacterCount(conversation) {
-  if (conversation) {
-    const messageHistory = conversation.messageHistory;
-    let totalCharacters = 0;
-
-    for (let message of messageHistory) {
-      totalCharacters += message.content.length;
-    }
-
-    return totalCharacters / 4; // Rough estimation of characters to tokens
+  if (conversation && conversation.messageHistory) {
+    return conversation.messageHistory.reduce((total, message) => total + (message.content?.length || 0), 0);
   }
   return 0;
 }
+
 
 // Lifecycle Hooks
 onMounted(function () {
@@ -184,7 +178,7 @@ function toggleContextMenu() {
             <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
           </div>
         </transition>
-        <Settings v-if="!isSmallScreen" @click="toggleSidebar" :size="25" :stroke-width="1.0" />
+        <Settings v-if="!isSmallScreen" @click="toggleSidebar" class="settings-icon" :size="25" :stroke-width="1.0" />
       </h2>
     </div>
     <div class="sidebar-content-container">
@@ -297,7 +291,14 @@ $shadow-color: #252629;
     display: block;
     position: relative;
     float: left;
-    right: 8px;
+    right: 0px;
+  }
+
+  .settings-icon {
+    display: block;
+    position: relative;
+    float: left;
+    right: -12px;
   }
 }
 
@@ -468,6 +469,7 @@ $shadow-color: #252629;
   max-width: 100%;
   overflow-x: none;
   width: 100%;
+  margin-top: 25px;
   height: 77dvh;
   box-sizing: border-box;
   font-size: 14px;
