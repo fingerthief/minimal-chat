@@ -74,7 +74,7 @@ onBeforeUnmount(() => {
 
 <template>
     <transition name="context-menu">
-        <div v-if="contextMenuOpened" :style="style" class="context-menu">
+        <div v-if="contextMenuOpened" @blur="hideContextMenu" :style="style" class="context-menu">
             <ul>
                 <li @click="startNewConversation">
                     <SquarePlus :size="14" />&nbsp;&nbsp;New Conversation
@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
     </transition>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .context-menu {
     position: absolute;
     background: #151515f4;

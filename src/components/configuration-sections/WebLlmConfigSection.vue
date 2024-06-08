@@ -29,7 +29,7 @@ import { browserModelSelection } from '@/libs/state-management/state';
 import { handleUpdate } from '@/libs/utils/settings-utils';
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .select-dropdown select {
     appearance: none;
     background-color: #333;

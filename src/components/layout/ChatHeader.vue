@@ -1,10 +1,9 @@
 <!-- eslint-disable no-unused-vars -->
 
 <script setup>
-import { computed, ref } from 'vue';
-import { Menu, ArchiveX, MessagesSquare, Github, MessageSquarePlus } from 'lucide-vue-next';
-import { deleteCurrentConversation } from '@/libs/conversation-management/useConversations';
-import { isSidebarOpen, showConversationOptions, selectedModel } from '@/libs/state-management/state';
+import { computed } from 'vue';
+import { Menu, Database, Github } from 'lucide-vue-next';
+import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles } from '@/libs/state-management/state';
 
 // Define props
 const props = defineProps({
@@ -69,8 +68,9 @@ async function onModelChange(newModel) {
         </select>
       </div>
     </div>
-    <div class="settings-btn" @click="toggleSidebar">
-      <Menu :stroke-width="0.5" :size="30" />
+    <div class="settings-btn">
+      <Menu @click="toggleSidebar" :stroke-width="0.5" :size="30" />&nbsp;&nbsp;
+      <Database @click="() => showStoredFiles = true" :stroke-width="0.5" :size="30" />
     </div>
   </div>
 </template>

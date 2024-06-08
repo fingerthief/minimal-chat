@@ -63,7 +63,7 @@ import { localModelEndpoint, localModelKey, localModelName, maxTokens, localSlid
 import { handleUpdate, handleDeleteCustomConfig, handleSelectCustomConfig, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex } from '@/libs/utils/settings-utils';
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .center-text {
     text-align: center;
     bottom: 10px;

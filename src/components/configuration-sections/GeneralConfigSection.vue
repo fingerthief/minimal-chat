@@ -41,13 +41,13 @@
 
 <script setup>
 import { ref } from 'vue';
-import InputField from '../controls/InputField.vue';
+import InputField from '@/components/controls/InputField.vue';
 import { Trash2 } from 'lucide-vue-next';
 import { systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts } from '@/libs/utils/settings-utils';
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .system-prompt-container,
 .saved-system-prompts {
     h4 {

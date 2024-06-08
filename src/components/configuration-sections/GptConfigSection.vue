@@ -91,8 +91,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import InputField from '../controls/InputField.vue';
-import ToolTip from '../controls/ToolTip.vue';
+import InputField from '@/components/controls/InputField.vue';
+import ToolTip from '@/components/controls/ToolTip.vue';
 import { gptKey, sliderValue, pushToTalkMode, useWhisper, audioSpeed, ttsModel, whisperTemperature, selectedDallEImageCount, selectedDallEImageResolution } from '@/libs/state-management/state';
 import { handleUpdate, updateGptSliderValue, updateWhisperSlider, showGPTConfig, } from '@/libs/utils/settings-utils';
 
@@ -100,7 +100,7 @@ const isDALLEConfigOpen = ref(false);
 const isWhisperConfigSectionOpen = ref(true);
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .center-text {
     text-align: center;
     bottom: 10px;
