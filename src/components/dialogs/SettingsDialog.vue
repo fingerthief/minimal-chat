@@ -36,6 +36,7 @@ import "swiped-events";
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import Sidebar from 'primevue/sidebar';
+import { Settings } from 'lucide-vue-next';
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
@@ -176,8 +177,8 @@ onMounted(() => {
 <template>
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
-    <DialogHeader title="Configuration" tooltipText="Current Version: 6.2.2" headerId="settings-header"
-      @close="() => isSidebarOpen = false" />
+    <DialogHeader title="Configuration" :icon="Settings" :iconSize="32" tooltipText="Current Version: 6.2.2"
+      headerId="settings-header" @close="() => isSidebarOpen = false" />
     <div class="settings-container">
       <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
         <h3>Select Model</h3>

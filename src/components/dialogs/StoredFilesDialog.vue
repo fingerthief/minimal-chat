@@ -1,7 +1,7 @@
 <template>
-    <div class="stored-files-container">
-        <DialogHeader :icon="Database" :iconSize="32" title="Stored Files" headerId="stored-files-header"
-            @close="closeStoredFiles" />
+    <div v-if="showStoredFiles" class="stored-files-container">
+        <DialogHeader :icon="Database" :iconSize="32" :tooltipText="tooltipText" title="Stored Files"
+            headerId="stored-files-header" @close="closeStoredFiles" />
         <div class="search-section">
             <span class="p-input-icon-left">
                 <InputText v-model="filters['global'].value" placeholder="Search files..." />
@@ -19,13 +19,13 @@
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} files" :filters="filters"
             @filter="onFilter">
             <Column field="id" header="File ID" style="width: 20%"></Column>
-            <Column field="fileName" header="File Name" style="width: 40%"></Column>
-            <Column field="fileSize" header="Size" style="width: 40%">
+            <Column field="fileName" header="File Name" style="width: 50%"></Column>
+            <Column field="fileSize" header="Size" style="width: 20%">
                 <template #body="slotProps">
                     {{ formatFileSize(slotProps.data.fileSize) }}
                 </template>
             </Column>
-            <Column field="fileType" header="File Format" style="width: 40%"></Column>
+            <Column field="fileType" header="Format" style="width: 100%"></Column>
             <Column field="id" header="" style="width: 20%">
                 <template #body="{ data }">
                     <Button @click="downloadFile(data)" icon="pi pi-download" class="p-button-rounded p-button-info"
@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import DialogHeader from '../controls/DialogHeader.vue';
 import { showStoredFiles, userText } from '@/libs/state-management/state';
 import { addMessage } from '@/libs/conversation-management/message-processing';
@@ -68,7 +68,7 @@ import { Upload, X, Database } from 'lucide-vue-next';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
 import InputText from 'primevue/inputtext';
 
-const files = ref();
+const files = ref([]);
 
 const dt = ref(null);
 const filters = ref({
@@ -228,6 +228,14 @@ const uploadFile = async (event) => {
     }
 };
 
+const databaseSize = computed(() => {
+    const totalSize = files.value.reduce((sum, file) => sum + file.fileSize, 0);
+    return (totalSize / (1024 * 1024)).toFixed(2); // Convert to MB
+});
+
+const tooltipText = computed(() => `Total Browser Database Size: ${databaseSize.value}MB`);
+
+
 onMounted(async () => {
     files.value = await fetchStoredFiles();
 });
@@ -255,6 +263,11 @@ onMounted(async () => {
     i {
         margin-right: 5px;
     }
+}
+
+/* Existing styles */
+.search-section {
+    margin-bottom: 0px;
 }
 
 .header {
