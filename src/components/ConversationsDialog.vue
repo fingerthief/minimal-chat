@@ -27,10 +27,22 @@ const emit = defineEmits(['import-conversations', 'export-conversations']);
 
 // Helper Functions
 function conversationCharacterCount(conversation) {
-  if (conversation && conversation.messageHistory) {
-    return conversation.messageHistory.reduce((total, message) => total + (message.content?.length || 0), 0);
+  let totalTextLength = 0;
+
+  for (const message of conversation.messageHistory) {
+    if (Array.isArray(message.content)) {
+      for (const contentItem of message.content) {
+        if (contentItem.type === 'text') {
+          totalTextLength += contentItem.text.length;
+        }
+      }
+    } else {
+      totalTextLength += message.content.length;
+    }
   }
-  return 0;
+
+  const tokenCount = Math.ceil(totalTextLength / 4);
+  return tokenCount;
 }
 
 
