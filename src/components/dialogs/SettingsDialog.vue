@@ -331,17 +331,16 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .p-sidebar li:hover {
-  background-color: #0b7251;
-  /* Slightly darker gray */
+  background-color: #07563d;
 }
 
 .p-sidebar li.selected {
-  background-color: rgba(22, 74, 67, 0.91);
+  background-color: rgba(16, 56, 51, 0.91);
   color: white;
 }
 
 .p-sidebar li.selected:hover {
-  background-color: #095e43;
+  background-color: #074d36;
 }
 
 @keyframes slideIn {
