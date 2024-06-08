@@ -29,6 +29,8 @@
     "lucide-vue-next": "^0.368.0",
     "markdown-it": "^14.1.0",
     "pdfjs-dist": "^4.3.136",
+    "primeicons": "^7.0.0",
+    "primevue": "^3.52.0",
     "sharp": "^0.33.4",
     "swiped-events": "^1.1.9",
     "tippy.js": "^6.3.7",

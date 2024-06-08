@@ -348,6 +348,22 @@ function handleTripleTap(event) {
   }
 }
 
+.message-padding {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: auto;
+
+  &.left {
+    left: -20px;
+  }
+
+  &.right {
+    right: -20px;
+  }
+}
+
 .message {
   position: relative;
   min-width: 10%;
@@ -359,22 +375,29 @@ function handleTripleTap(event) {
   max-width: 75vw;
   margin-top: 20px;
 
+
+  margin-left: 19%;
+  margin-right: 19%;
+
   @media (max-width: 600px) {
     max-width: 85vw;
+
+    margin-left: 0;
+    margin-right: 0;
   }
 
   &.user {
     margin-left: auto;
     background-color: #2d2d2d;
     border-radius: 16px;
-    max-width: 75%;
+    max-width: 51%;
     padding-left: 12px;
     padding-bottom: 4px;
     padding-top: 8px;
     padding-right: 4px;
 
     @media (max-width: 600px) {
-      max-width: 75vw
+      max-width: 80%
     }
 
     &.high-constrast-mode {
@@ -406,6 +429,12 @@ function handleTripleTap(event) {
   &.gpt {
     margin-right: auto;
     transition: background-color 0.3s ease;
+    max-width: 61%;
+
+    @media (max-width: 600px) {
+      max-width: 90%
+    }
+
 
     &.high-constrast-mode {
       background-color: #123638e3;
