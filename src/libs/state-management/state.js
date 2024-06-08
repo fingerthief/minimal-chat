@@ -55,7 +55,7 @@ export const abortController = ref(null);
 export const imageInput = ref(null);
 
 export const isSmallScreen = ref(window.innerWidth <= 600);
-export const isSidebarVisible = ref(isSmallScreen.value);
+export const isSidebarVisible = ref(false);
 
 
 window.addEventListener('resize', () => {

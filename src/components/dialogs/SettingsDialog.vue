@@ -4,7 +4,45 @@
     <DialogHeader title="Configuration" tooltipText="Current Version: 6.2.2" headerId="settings-header"
       @close="() => isSidebarOpen = false" />
     <div class="settings-container">
-      <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
+      <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
+        <h3>Models</h3>
+        <ul>
+          <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
+            General Config
+          </li>
+          <li>
+            <h4 @click="isGPTConfigOpen = !isGPTConfigOpen">
+              GPT Models
+              <span :class="{ 'pi pi-chevron-down': isGPTConfigOpen, 'pi pi-chevron-right': !isGPTConfigOpen }"></span>
+            </h4>
+            <ul v-show="isGPTConfigOpen">
+              <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
+                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                {{ model.label }}
+              </li>
+            </ul>
+          </li>
+          <li>
+            <h4 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
+              Claude Models
+              <span
+                :class="{ 'pi pi-chevron-down': isClaudeConfigOpen, 'pi pi-chevron-right': !isClaudeConfigOpen }"></span>
+            </h4>
+            <ul v-show="isClaudeConfigOpen">
+              <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
+                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                {{ model.label }}
+              </li>
+            </ul>
+          </li>
+          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
+            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+            {{ model.label }}
+          </li>
+        </ul>
+      </Sidebar>
+
+      <div v-show="!isSmallScreen" class="left-panel">
         <h3>Models</h3>
         <ul>
           <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
@@ -69,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import DialogHeader from '../controls/DialogHeader.vue';
 import GeneralConfigSection from '../configuration-sections/GeneralConfigSection.vue';
 import GptConfigSection from '../configuration-sections/GptConfigSection.vue';
@@ -103,6 +141,9 @@ import {
 
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
+import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
+import Sidebar from 'primevue/sidebar';
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
@@ -117,6 +158,10 @@ const models = [
   { label: 'Custom API', value: 'open-ai-format' },
   { label: 'WebGPU Model', value: 'web-llm' }
 ];
+
+const isSidebarVisibleOnSmallScreen = computed(() => {
+  return (isSidebarVisible.value && isSmallScreen.value) === true;
+});
 
 // Watch for changes in the sidebar's visibility
 watch(isSidebarOpen, (newVal) => {
@@ -147,6 +192,8 @@ function selectModel(model) {
   if (model === 'open-ai-format') {
     fetchAvailableModels();
   }
+
+  isSidebarVisible.value = false;
 }
 
 function toggleSidebar() {
@@ -166,6 +213,8 @@ function swipedRight(e) {
 
 const lastTap = ref(0);
 function handleTouchStart(event) {
+  event.preventDefault();
+
   if (!isSmallScreen.value) {
     return;
   }
@@ -176,7 +225,7 @@ function handleTouchStart(event) {
   console.log(tapLength);
   if (tapLength < 300 && tapLength > 0) {
     // Double-tap detected
-    toggleSidebar();
+    isSidebarVisible.value = true;
   }
   lastTap.value = currentTime;
 }
@@ -184,6 +233,7 @@ function handleTouchStart(event) {
 const showingGeneralConfig = ref(false);
 function showGeneralConfigSection() {
   showingGeneralConfig.value = true;
+  isSidebarVisible.value = false;
 }
 
 // Lifecycle hooks
@@ -250,6 +300,59 @@ $border-color: #1b6a72c4;
 $header-border-color: #424045b5;
 $bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
+
+.p-sidebar {
+  background-color: #292929;
+  /* Light gray background */
+  width: 250px;
+  /* Set a fixed width */
+  padding: 20px;
+  /* Add some padding */
+}
+
+/* Style for the header */
+.p-sidebar h3 {
+  margin-top: 0;
+  font-size: 1.5em;
+  color: #333;
+  /* Darker text color */
+}
+
+/* Style for the list */
+.p-sidebar ul {
+  list-style-type: none;
+  /* Remove default list styling */
+  padding: 0;
+  margin: 0;
+}
+
+/* Style for the list items */
+.p-sidebar li {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect for list items */
+.p-sidebar li:hover {
+  background-color: #0b7251;
+  /* Slightly darker gray */
+}
+
+/* Selected state for list items */
+.p-sidebar li.selected {
+  background-color: #0a6246;
+  /* Blue background */
+  color: white;
+  /* White text */
+}
+
+/* Additional styling for selected state */
+.p-sidebar li.selected:hover {
+  background-color: #0b7251;
+  /* Darker blue on hover */
+}
 
 @keyframes slideIn {
   0% {
