@@ -58,30 +58,7 @@ async function imageInputChangedHandler(event) {
 }
 //#endregion
 
-//#region Global Event Handling
-function handleGlobalClick(event) {
-  const settingsDialogElement = document.getElementById('settings-dialog');
-  const conversationsDialogElement = document.getElementById('conversations-dialog');
-  const storedFilesElement = document.getElementById('stored-files');
-  if (settingsDialogElement && !settingsDialogElement.contains(event.target) && isSidebarOpen.value) {
-    isSidebarOpen.value = false;
-  }
-
-  if (storedFilesElement && !storedFilesElement.contains(event.target) && showStoredFiles.value) {
-    showStoredFiles.value = false;
-  }
-
-  if (conversationsDialogElement && !conversationsDialogElement.contains(event.target) && showConversationOptions.value) {
-    showConversationOptions.value = false;
-  }
-}
-//#endregion
-
 //#region Lifecycle Hooks
-onUnmounted(() => {
-  document.removeEventListener('click', handleGlobalClick);
-});
-
 onMounted(async () => {
   setupWatchers();
   sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
@@ -93,8 +70,6 @@ onMounted(async () => {
 
 
   selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
-
-  document.addEventListener('click', handleGlobalClick);
 
   document.addEventListener('swiped-left', function (e) {
     if (!e.detail.xStart || !(window.innerWidth - e.detail.xStart <= 100)) {
@@ -250,8 +225,6 @@ a {
 
 .messages {
   overflow-y: auto;
-  padding-left: 19%;
-  padding-right: 19%;
   min-height: 92vh;
   scrollbar-width: none; // For Firefox
   -ms-overflow-style: none; // For Internet Explorer and Edge

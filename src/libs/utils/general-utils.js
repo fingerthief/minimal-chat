@@ -233,23 +233,6 @@ export function swipedRight(event) {
   isSidebarOpen.value = !isSidebarOpen.value;
 }
 
-export function handleGlobalClick(event) {
-  const settingsDialogElement = document.getElementById('settings-dialog');
-  const conversationsDialogElement = document.getElementById('conversations-dialog');
-
-  const storedFilesElement = document.getElementById('stored-files');
-  if (storedFilesElement && !storedFilesElement.contains(event.target) && showStoredFiles.value) {
-    showStoredFiles.value = false;
-  }
-
-  if (settingsDialogElement && !settingsDialogElement.contains(event.target) && isSidebarOpen.value) {
-    isSidebarOpen.value = false;
-  }
-  if (conversationsDialogElement && !conversationsDialogElement.contains(event.target) && showConversationOptions.value) {
-    showConversationOptions.value = false;
-  }
-}
-
 export async function handleTextStreamEnd(message) {
   if (isInteractModeOpen.value) {
     try {
