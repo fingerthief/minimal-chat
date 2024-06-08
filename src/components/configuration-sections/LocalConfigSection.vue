@@ -57,7 +57,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import InputField from '../InputField.vue';
+import InputField from '../controls/InputField.vue';
 import { Trash2 } from 'lucide-vue-next';
 import { localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty, availableModels } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteCustomConfig, handleSelectCustomConfig, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex } from '@/libs/utils/settings-utils';

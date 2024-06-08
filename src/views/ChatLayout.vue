@@ -9,9 +9,9 @@ import { uploadFileContentsToConversation, uploadFile, imageInputChanged } from 
 import messageItem from '@/components/MessageItem.vue';
 import chatInput from '@/components/ChatInput.vue';
 import chatHeader from '@/components/ChatHeader.vue';
-import settingsDialog from '@/components/SettingsDialog.vue';
-import conversationsDialog from '@/components/ConversationsDialog.vue';
-import StoredFilesList from '@/components/StoredFilesList.vue';
+import settingsDialog from '@/components/dialogs/SettingsDialog.vue';
+import conversationsDialog from '@/components/dialogs/ConversationsDialog.vue';
+import StoredFilesList from '@/components/dialogs/StoredFilesDialog.vue';
 import {
   shouldShowScrollButton,
   userText,

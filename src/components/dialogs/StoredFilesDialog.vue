@@ -1,11 +1,6 @@
 <template>
     <div class="stored-files-container">
-        <div class="header">
-            <h2>Stored Files</h2>
-            <button class="close-icon" @click="closeStoredFiles">
-                <X />
-            </button>
-        </div>
+        <DialogHeader title="Stored Files" headerId="stored-files-header" @close="closeStoredFiles" />
         <div class="upload-section">
             <input type="file" ref="fileInput" @change="uploadFile" />
             <Button @click="$refs.fileInput.click()">
@@ -36,6 +31,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import DialogHeader from '../controls/DialogHeader.vue';
 import { showStoredFiles, userText } from '@/libs/state-management/state';
 import { addMessage } from '@/libs/conversation-management/message-processing';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';

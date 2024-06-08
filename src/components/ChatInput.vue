@@ -1,7 +1,7 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload, Speech } from 'lucide-vue-next';
-import ToolTip from './ToolTip.vue';
+import ToolTip from './controls/ToolTip.vue';
 import InteractMode from '@/components/InteractMode.vue';
 import 'swiped-events';
 import { swipedLeft, swipedRight, updateUI, showToast } from '@/libs/utils/general-utils';

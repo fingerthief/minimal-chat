@@ -4,8 +4,8 @@ import MarkdownIt from 'markdown-it';
 import { RefreshCcw, Trash, Copy } from 'lucide-vue-next';
 import { ref, nextTick, computed, watch, onMounted } from 'vue';
 import '/node_modules/highlight.js/scss/github-dark-dimmed.scss';
-import ToolTip from './ToolTip.vue';
-import ContextWindow from './ContextWindow.vue'; // Import the context menu
+import ToolTip from './controls/ToolTip.vue';
+import ContextWindow from './controls/ContextWindow.vue'; // Import the context menu
 import { showToast } from '@/libs/utils/general-utils';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';

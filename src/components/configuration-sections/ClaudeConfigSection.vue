@@ -16,7 +16,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import InputField from '../InputField.vue';
+import InputField from '../controls/InputField.vue';
 import { claudeKey, claudeSliderValue } from '@/libs/state-management/state';
 import { handleUpdate, updateClaudeSliderValue } from '@/libs/utils/settings-utils';
 </script>

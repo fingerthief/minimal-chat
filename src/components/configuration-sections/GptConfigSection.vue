@@ -91,8 +91,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import InputField from '../InputField.vue';
-import ToolTip from '../ToolTip.vue';
+import InputField from '../controls/InputField.vue';
+import ToolTip from '../controls/ToolTip.vue';
 import { gptKey, sliderValue, pushToTalkMode, useWhisper, audioSpeed, ttsModel, whisperTemperature, selectedDallEImageCount, selectedDallEImageResolution } from '@/libs/state-management/state';
 import { handleUpdate, updateGptSliderValue, updateWhisperSlider, showGPTConfig, } from '@/libs/utils/settings-utils';
 
