@@ -76,6 +76,7 @@ export async function storeFileData(fileName, fileData) {
   });
 }
 
+
 // Analyze image
 export async function analyzeImage(file, fileType, messages2, model, localModelName, localModelEndpoint) {
   const base64Image = await encodeImage(file);
