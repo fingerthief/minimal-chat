@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref, computed, nextTick } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal } from 'lucide-vue-next';
-import ToolTip from './ToolTip.vue';
+import ToolTip from '../controls/ToolTip.vue';
 import {
   conversations,
   selectedConversation,
@@ -27,18 +27,24 @@ const emit = defineEmits(['import-conversations', 'export-conversations']);
 
 // Helper Functions
 function conversationCharacterCount(conversation) {
-  if (conversation) {
-    const messageHistory = conversation.messageHistory;
-    let totalCharacters = 0;
+  let totalTextLength = 0;
 
-    for (let message of messageHistory) {
-      totalCharacters += message.content.length;
+  for (const message of conversation.messageHistory) {
+    if (Array.isArray(message.content)) {
+      for (const contentItem of message.content) {
+        if (contentItem.type === 'text') {
+          totalTextLength += contentItem.text.length;
+        }
+      }
+    } else {
+      totalTextLength += message.content.length;
     }
-
-    return totalCharacters / 4; // Rough estimation of characters to tokens
   }
-  return 0;
+
+  const tokenCount = Math.ceil(totalTextLength / 4);
+  return tokenCount;
 }
+
 
 // Lifecycle Hooks
 onMounted(function () {
@@ -184,7 +190,7 @@ function toggleContextMenu() {
             <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
           </div>
         </transition>
-        <Settings v-if="!isSmallScreen" @click="toggleSidebar" :size="25" :stroke-width="1.0" />
+        <Settings v-if="!isSmallScreen" @click="toggleSidebar" class="settings-icon" :size="25" :stroke-width="1.0" />
       </h2>
     </div>
     <div class="sidebar-content-container">
@@ -297,7 +303,14 @@ $shadow-color: #252629;
     display: block;
     position: relative;
     float: left;
-    right: 8px;
+    right: 0px;
+  }
+
+  .settings-icon {
+    display: block;
+    position: relative;
+    float: left;
+    right: -12px;
   }
 }
 
@@ -468,6 +481,7 @@ $shadow-color: #252629;
   max-width: 100%;
   overflow-x: none;
   width: 100%;
+  margin-top: 25px;
   height: 77dvh;
   box-sizing: border-box;
   font-size: 14px;

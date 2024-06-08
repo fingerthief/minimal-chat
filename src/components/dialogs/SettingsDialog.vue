@@ -1,12 +1,8 @@
 <template>
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
-    <div id="settings-header" class="settings-header">
-      <h2>
-        Configuration
-      </h2>
-      <ToolTip :targetId="'settings-header'"> Current Version: 6.2.2 </ToolTip>
-    </div>
+    <DialogHeader title="Configuration" tooltipText="Current Version: 6.2.2" headerId="settings-header"
+      @close="() => isSidebarOpen = false" />
     <div class="settings-container">
       <div v-show="!isSmallScreen || (isSidebarVisible && isSmallScreen)" class="left-panel">
         <h3>Models</h3>
@@ -43,9 +39,6 @@
           </li>
         </ul>
         <div class="close-btn-wrapper">
-          <button class="close-btn" @click="() => isSidebarOpen = false">
-            Close
-          </button>
         </div>
       </div>
       <div v-show="!isSidebarVisible && isSmallScreen" class="left-panel-collapsed" @click.stop="toggleSidebar">
@@ -77,13 +70,13 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import ToolTip from './ToolTip.vue';
-import GeneralConfigSection from './configuration-sections/GeneralConfigSection.vue';
-import GptConfigSection from './configuration-sections/GptConfigSection.vue';
-import ClaudeConfigSection from './configuration-sections/ClaudeConfigSection.vue';
-import LocalConfigSection from './configuration-sections/LocalConfigSection.vue';
-import WebLlmConfigSection from './configuration-sections/WebLlmConfigSection.vue';
-import ImportExportConfigSection from './configuration-sections/ImportExportConfigSection.vue';
+import DialogHeader from '../controls/DialogHeader.vue';
+import GeneralConfigSection from '../configuration-sections/GeneralConfigSection.vue';
+import GptConfigSection from '../configuration-sections/GptConfigSection.vue';
+import ClaudeConfigSection from '../configuration-sections/ClaudeConfigSection.vue';
+import LocalConfigSection from '../configuration-sections/LocalConfigSection.vue';
+import WebLlmConfigSection from '../configuration-sections/WebLlmConfigSection.vue';
+import ImportExportConfigSection from '../configuration-sections/ImportExportConfigSection.vue';
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 import {
   selectedModel,
@@ -570,24 +563,33 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .settings-header {
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  margin-top: -7px;
-  position: relative;
-  border-bottom: 5px solid #424045b5;
-  padding: 25px 0;
-  background-color: #1d1e1e;
-  color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  padding: 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 5px solid rgba(66, 64, 69, 0.7098039216);
+  margin-bottom: 20px;
 
   h2 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    margin: 0;
+  }
+
+  .close-icon {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #ff6b6b;
+    }
   }
 
   .reload-icon {
@@ -599,6 +601,7 @@ $bottom-panel-border-color: #5f4575cf;
     }
   }
 }
+
 
 .settings-container {
   display: flex;

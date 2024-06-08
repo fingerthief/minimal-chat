@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat App (public site link)**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.2.1-blue)
+![Version](https://img.shields.io/badge/version-6.2.2-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
 ![GitHub repo size](https://img.shields.io/github/repo-size/fingerthief/minimal-chat)
@@ -58,7 +58,7 @@ To run the web app locally, you'll need NodeJS installed. Then, navigate to the 
 ## **Features**
 
 - Minimal layout
-- Fully voiced conversational interactions with STT and TTS. 
+- Fully voiced conversational interactions with STT and TTS.
 - Supports multiple language models, including:
   - GPT Model
   - Claude 3 Models

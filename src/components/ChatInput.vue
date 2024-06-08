@@ -1,7 +1,7 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
 import { SquareArrowUp, ImageUp, CircleStop, Upload, Speech } from 'lucide-vue-next';
-import ToolTip from './ToolTip.vue';
+import ToolTip from './controls/ToolTip.vue';
 import InteractMode from '@/components/InteractMode.vue';
 import 'swiped-events';
 import { swipedLeft, swipedRight, updateUI, showToast } from '@/libs/utils/general-utils';
@@ -20,8 +20,7 @@ import {
   abortController,
   isInteractModeOpen
 } from '@/libs/state-management/state';
-import { sendMessage, visionimageUploadClick } from '@/libs/conversation-management/message-processing';
-import { setSystemPrompt } from '@/libs/conversation-management/conversations-management';
+import { sendMessage, visionimageUploadClick, addMessage } from '@/libs/conversation-management/message-processing';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { engine } from '@/libs/api-access/web-llm-access';
 // Define emits
@@ -55,15 +54,6 @@ async function sendNewMessage() {
   isLoading.value = false;
 }
 
-async function addMessage(role, message) {
-  setSystemPrompt(messages.value, systemPrompt.value);
-
-  const maxId = messages.value.reduce((max, message) => Math.max(max, message.id), 0);
-  const newMessageId = maxId + 1;
-
-  messages.value.push({ id: newMessageId, role, content: message });
-}
-
 function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = true) {
   updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
 }
@@ -83,7 +73,7 @@ function handleKeyDown(event) {
   if (event.key === 'Enter' && !event.shiftKey) {
     if (event.ctrlKey) {
       event.preventDefault();
-      const cursorPosition = event.target.selectionStart;
+      const cursorPosition = userInputRef.value.selectionStart;
       const text = userText.value;
       userText.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
       userInputRef.value.selectionStart = userInputRef.value.selectionEnd = cursorPosition + 1;
@@ -171,18 +161,18 @@ const handleCloseInteractMode = () => {
       <div class="icons">
         <ToolTip :targetId="'imageButton'"> Upload image for vision processing </ToolTip>
         <div class="image-button" id="imageButton" @click="visionImageUploadClickHandler">
-            <ImageUp />
+          <ImageUp />
         </div>
         <ToolTip :targetId="'uploadButton'"> Upload file to add contents to current conversation </ToolTip>
         <div class="upload-button" id="uploadButton" @click="importFileUploadClick">
-            <Upload />
+          <Upload />
         </div>
         <div class="send-button" @click="isLoading ? abortStream() : sendNewMessage()">
-            <CircleStop class="stop-button" v-if="isLoading"/>
-            <SquareArrowUp v-if="!isLoading"/>
+          <CircleStop class="stop-button" v-if="isLoading" />
+          <SquareArrowUp v-if="!isLoading" />
         </div>
       </div>
-      
+
     </div>
     <div v-if="selectedModel.includes('gpt')" class="interact-mode-container">
       <div v-if="!isInteractModeOpen">
@@ -214,7 +204,7 @@ $icon-color: rgb(187, 187, 187);
   @media (max-width: 600px) {
     max-width: 100vw;
     width: 100%;
-    top: calc( 100% + 28px - 6px);
+    top: calc(100% + 28px - 6px);
     padding: 6px;
   }
 
