@@ -205,7 +205,7 @@ onMounted(async () => {
       return;
     }
 
-    mediaRecorder.value.stop();
+    mediaRecorder.stop();
   });
 
   recognition.value.continuous = true;
