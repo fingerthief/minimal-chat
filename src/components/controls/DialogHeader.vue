@@ -49,6 +49,7 @@ defineEmits(['close']);
     align-items: center;
     padding: 12px;
     text-align: center;
+    background-color: #1d1e1e;
     font-size: 24px;
     font-weight: bold;
     color: #ffffff;

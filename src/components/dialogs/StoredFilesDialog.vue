@@ -275,6 +275,7 @@ onMounted(async () => {
     justify-content: space-between;
     align-items: center;
     padding-bottom: 12px;
+    background-color: #1d1e1e;
     text-align: center;
     font-size: 24px;
     font-weight: bold;
@@ -319,7 +320,7 @@ onMounted(async () => {
     position: absolute;
     z-index: 3;
     padding: 20px;
-    background-color: #23262a;
+    background-color: #1d1e1e;
     color: #fff;
     border-radius: 10px;
     max-width: 50vw;

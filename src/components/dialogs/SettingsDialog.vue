@@ -593,6 +593,7 @@ $bottom-panel-border-color: #5f4575cf;
   max-height: 98vh;
   min-height: 98vh;
   max-width: 99vw;
+  background-color: #1d1e1e;
 
   .close-btn {
     align-self: flex-end;
