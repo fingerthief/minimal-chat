@@ -1,9 +1,12 @@
 <!-- DialogHeader.vue -->
 <template>
     <div :id="headerId" class="dialog-header">
-        <h2>{{ title }}</h2>
+        <div class="header-content">
+            <component :is="icon" v-if="icon" :size="iconSize" class="header-icon" />
+            <h2>{{ title }}</h2>
+        </div>
         <button class="close-icon" @click="$emit('close')">
-            <X />
+            <X :size="iconSize" />
         </button>
         <ToolTip :targetId="headerId">{{ tooltipText }}</ToolTip>
     </div>
@@ -26,6 +29,14 @@ defineProps({
         type: String,
         required: true,
     },
+    icon: {
+        type: [Object, Function], // Accepting a component
+        default: null,
+    },
+    iconSize: {
+        type: [Number, String],
+        default: 24,
+    },
 });
 
 defineEmits(['close']);
@@ -42,11 +53,20 @@ defineEmits(['close']);
     font-weight: bold;
     color: #ffffff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    border-bottom: 5px solid rgba(66, 64, 69, 0.7098039216);
+    border-bottom: 5px solid #04676cb5;
     margin-bottom: 20px;
 
-    h2 {
-        margin: 0;
+    .header-content {
+        display: flex;
+        align-items: center;
+
+        .header-icon {
+            margin-right: 8px;
+        }
+
+        h2 {
+            margin: 0;
+        }
     }
 
     .close-icon {

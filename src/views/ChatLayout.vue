@@ -29,7 +29,8 @@ import {
   higherContrastMessages,
   contextMenuOpened,
   selectedConversation,
-  showStoredFiles
+  showStoredFiles,
+  isSmallScreen
 } from '@/libs/state-management/state';
 import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
@@ -109,19 +110,25 @@ onMounted(async () => {
       <div class="overlay" v-show="isSidebarOpen || showConversationOptions"></div>
 
       <!-- Settings Sidebar -->
-      <div class="sidebar-common sidebar-left" id="settings-dialog" :class="{ open: isSidebarOpen }">
-        <settingsDialog />
-      </div>
+      <Transition name="dialog-slide">
+        <div class="sidebar-common" id="settings-dialog" v-if="isSidebarOpen">
+          <settingsDialog />
+        </div>
+      </Transition>
 
       <!-- Conversations Sidebar -->
-      <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
-        :class="{ open: showConversationOptions }">
-        <conversationsDialog @import-conversations="handleImportConversations"
-          @export-conversations="handleExportConversations" />
-        <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
+      <Transition name="dialog-slide">
+        <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
+          v-if="showConversationOptions || !isSmallScreen">
+          <conversationsDialog @import-conversations="handleImportConversations"
+            @export-conversations="handleExportConversations" />
+          <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
+          </div>
         </div>
-      </div>
-      <StoredFilesList id="stored-files" v-if="showStoredFiles" />
+      </Transition>
+      <Transition name="dialog-slide">
+        <StoredFilesList id="stored-files" v-if="showStoredFiles" />
+      </Transition>
       <div class="chat-container">
         <div class="container">
           <div class="chat">
@@ -162,6 +169,36 @@ $button-bg-color: #3a3a3c;
 $button-hover-bg-color: #4a4a4c;
 $font-color: #f0f0f0;
 $overlay-bg-color: rgba(15, 15, 15, 0.5);
+
+.dialog-slide-enter-active {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.dialog-slide-leave-active {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.dialog-slide-enter-from,
+.dialog-slide-leave-to {
+  transform: translateY(-100%) scale(0.50);
+  opacity: 0;
+}
+
+.dialog-slide-enter-to {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.dialog-slide-leave-from {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.dialog-slide-leave-to {
+  transform: translateY(-100%) scale(0.50);
+  opacity: 0;
+}
+
 
 @font-face {
   font-family: Roboto-Regular;
@@ -390,12 +427,7 @@ pre {
   background-color: $sidebar-bg-color;
   padding: 6px;
   overflow: hidden;
-  transition: transform 0.1s ease-in-out;
   z-index: 0;
-
-  &.open {
-    transform: translateX(0);
-  }
 
   @media (max-width: 600px) {
     position: fixed;
@@ -412,9 +444,7 @@ pre {
 
   @media (max-width: 600px) {
     position: fixed;
-    transform: translateX(0%) scale(0);
     border-right: 2px solid $border-color;
-    transition: transform 0.25s ease-in-out;
     z-index: 1;
     width: 100vw;
     max-width: 100vw;
@@ -423,7 +453,6 @@ pre {
     &.open {
       width: 100vw;
       height: 100vh;
-      transition: transform 0.25s ease-in-out;
     }
   }
 }
@@ -434,12 +463,10 @@ pre {
   max-width: 100vw;
   position: fixed;
   top: 15%;
-  transform: translateX(0%) scale(0);
+
   border-right: 2px solid $border-color;
   z-index: 1;
-  transition: transform 0.25s ease-in-out;
   border-radius: 12px;
-  opacity: 1;
   border: 2px solid #083e35d9;
   width: 60vw;
   height: 70vh;
@@ -450,21 +477,14 @@ pre {
     width: 100vw;
     height: 100vh;
     top: 0;
-    transition: transform 0.25s ease-in-out;
   }
 
   &.sidebar-right {
     right: 0;
-    transform: translateX(0%) scale(0.0);
   }
 
 
   &.open {
-    @media (min-width: 600px) {
-      transform: translateX(50%) scale(1);
-    }
-
-    transform: translateX(0%) scale(1);
     opacity: 1;
   }
 }

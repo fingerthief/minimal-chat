@@ -44,7 +44,7 @@ export async function uploadFileContentsToConversation(event, userText2, addMess
           pdfText += pageText + '\n';
         }
 
-        await storeFileData(file.name, pdfText);
+        await storeFileData(file.name, pdfText, file.size, file.type);
 
         addMessage('user', userText.value + ' ' + pdfText);
         addMessage('assistant', 'Context added from PDF');
@@ -56,7 +56,7 @@ export async function uploadFileContentsToConversation(event, userText2, addMess
         showToast('Failed to parse PDF. It might be encrypted or corrupted.');
       }
     } else {
-      await storeFileData(file.name, contents);
+      await storeFileData(file.name, contents, file.size, file.type);
 
       addMessage('user', userText.value + ' ' + contents);
       addMessage('assistant', 'Context added');

@@ -40,12 +40,15 @@ function formatMessagesForVision(messages) {
 
 async function initIndexedDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('UserFilesDB', 1);
+    const request = indexedDB.open('UserFilesDB', 4); // Increase the version number
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('userFiles')) {
-        db.createObjectStore('userFiles', { keyPath: 'id', autoIncrement: true });
+        const objectStore = db.createObjectStore('userFiles', { keyPath: 'id', autoIncrement: true });
+        objectStore.createIndex('fileName', 'fileName', { unique: false });
+        objectStore.createIndex('fileSize', 'fileSize', { unique: false });
+        objectStore.createIndex('fileType', 'fileType', { unique: false });
       }
     };
 
@@ -59,12 +62,12 @@ async function initIndexedDB() {
   });
 }
 
-export async function storeFileData(fileName, fileData) {
+export async function storeFileData(fileName, fileData, fileSize, fileType) {
   const db = await initIndexedDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['userFiles'], 'readwrite');
     const store = transaction.objectStore('userFiles');
-    const request = store.add({ fileName, fileData });
+    const request = store.add({ fileName, fileData, fileSize, fileType });
 
     request.onsuccess = () => {
       resolve();
@@ -76,14 +79,13 @@ export async function storeFileData(fileName, fileData) {
   });
 }
 
-
 // Analyze image
 export async function analyzeImage(file, fileType, messages2, model, localModelName, localModelEndpoint) {
   const base64Image = await encodeImage(file);
   const fileData = base64Image;
   const fileName = file.name;
   // Store the image data in IndexedDB
-  await storeFileData(fileName, fileData);
+  await storeFileData(fileName, fileData, file.size, file.type);
 
   const visionFormattedMessages = messages.value.map((message) => ({
     role: message.role,
@@ -92,7 +94,6 @@ export async function analyzeImage(file, fileType, messages2, model, localModelN
 
   const lastMessageText = messages.value[messages.value.length - 1].content[0].text;
   visionFormattedMessages.pop();
-
 
   if (model.indexOf('gpt') !== -1) {
     visionFormattedMessages.push({
@@ -158,4 +159,3 @@ export async function analyzeImage(file, fileType, messages2, model, localModelN
 
   return 'not implemented for selected model';
 }
-
