@@ -814,13 +814,13 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .left-panel-collapsed {
-  width: 17px;
+  width: 20px;
   background-color: rgba(22, 74, 67, 0.91);
   cursor: pointer;
   height: 18vh;
   position: absolute;
   left: 0;
-  top: 35%;
+  top: 75%;
   border-right: 5px solid rgba(66, 64, 69, 0.7098039216);
   transition: width 0.3s ease;
   display: flex;

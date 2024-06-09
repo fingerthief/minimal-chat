@@ -146,9 +146,9 @@ export async function runTutortialForNewUser() {
         { element: '#conversations-dialog', popover: { title: 'Swipe Left', description: 'Access the Conversations Management page quickly by swiping left from the edge of the screen!', side: "top", align: 'start' } },
         { element: '#message-0', popover: { title: 'Edit Previous Messages', description: 'Double-click any user message in the conversation to enter edit mode and regenerate the response!' } },
         { element: '.gpt .label', popover: { title: 'Copy Message Text', description: 'Tap the label of any message to quickly copy the text to your clipboard.' } },
-        { element: '.context-menu', popover: { title: 'Quick Actions Menu', description: 'Long press the messages list to open a quick actions menu for deleting or starting a new conversation.', side: "top", align: 'start' } },
+        { element: '.context-menu', popover: { title: 'Quick Actions Menu', description: 'Doubelt tap the messages list to open a quick actions menu for deleting or starting a new conversation.', side: "top", align: 'start' } },
         { element: '.image-button', popover: { title: 'Initiate Vision Requests', description: 'Start a Vision request by entering your prompt and choosing an image via the upload button!' } },
-        { element: '.upload-button', popover: { title: 'Upload Files', description: 'Easily add the contents of valid files (non-images, etc.) to the current conversation context.' } },
+        { element: '.upload-button', popover: { title: 'Upload Files', description: 'Easily add the contents of valid files to the current conversation context.' } },
         { element: '.header-icon', popover: { title: 'Have an Idea or Issue?', description: 'Click the header icon to navigate to the GitHub repo where you can submit issues or ideas!' } },
         { popover: { title: 'Tutorial Complete!', description: 'Thanks for following the tutorial! Dive in and start using the app however you like. Happy chatting!' } }
     ];

@@ -43,7 +43,6 @@ const mediaRecorder = ref(null);
 const recognizedSentences = ref([]);
 let currentAudioChunks = [];
 let vadStream = null;
-let lastSpeechTime = 0;
 const wavePath = ref('');
 const state = ref('listening');
 const mimeType = getSupportedMimeType();
@@ -181,7 +180,6 @@ onMounted(async () => {
 
   recognition.value = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
 
-
   recognition.value.onspeechstart = () => {
     drawAudioWaveform();
     console.log("Speech has been detected");
@@ -190,10 +188,9 @@ onMounted(async () => {
       return;
     }
 
-    lastSpeechTime = currentTime;
-    if (!mediaRecorder.value || mediaRecorder.value.state === 'inactive') {
+    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
       startMediaRecorder(stream, mediaRecorder, currentAudioChunks, mimeType, recognizedSentences);
-      mediaRecorder.value.start();
+      mediaRecorder.start();
     }
   };
 

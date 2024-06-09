@@ -138,13 +138,6 @@ onMounted(async () => {
             <div class="messages">
               <messageItem />
             </div>
-            <!-- Floating button to quick scroll to the bottom of the page -->
-            <div class="floating-button scroll" id="scroll-button" @click="null"
-              :class="{ show: shouldShowScrollButton }">
-              <span>
-                <ChevronDown :strokeWidth="3" />
-              </span>
-            </div>
             <!-- User Input -->
             <chatInput :userInput="userText" @abort-stream="abortStream" @upload-context="importFileClick"
               @update:userInput="updateUserText" />

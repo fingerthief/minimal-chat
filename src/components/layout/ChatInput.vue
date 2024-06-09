@@ -1,6 +1,6 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
-import { SquareArrowUp, ImageUp, CircleStop, Upload, Speech } from 'lucide-vue-next';
+import { SquareArrowUp, ImageUp, CircleStop, Upload, Speech, Mic } from 'lucide-vue-next';
 import ToolTip from '@/components/controls/ToolTip.vue';
 import InteractMode from '@/components/controls/InteractMode.vue';
 import 'swiped-events';
@@ -179,7 +179,7 @@ const handleCloseInteractMode = () => {
           with the model
         </ToolTip>
         <div class="interact-button" id="interactButton" @click="isInteractModeOpen = !isInteractModeOpen">
-          <Speech />
+          <Mic />
         </div>
       </div>
       <InteractMode v-if="isInteractModeOpen" @recognized-sentence="handleRecognizedSentence"
@@ -286,7 +286,7 @@ $icon-color: rgb(187, 187, 187);
   }
 
   .loading-border {
-    animation: colorful-pulse 2.5s ease-in-out infinite;
+    animation: colorful-pulse 4s linear infinite;
   }
 
   @keyframes colorful-pulse {
@@ -295,19 +295,24 @@ $icon-color: rgb(187, 187, 187);
       box-shadow: 0 0 4px #0b8181c4;
     }
 
-    25% {
+    20% {
+      border-color: #1e90ffc4;
+      box-shadow: 0 0 6px #1e90ffc4;
+    }
+
+    40% {
       border-color: #6a4292e0;
       box-shadow: 0 0 8px #6a4292d9;
     }
 
-    50% {
+    60% {
       border-color: #d9544fb0;
-      box-shadow: 0 0 12px #d9544fb5;
+      box-shadow: 0 0 8px #d9544fb5;
     }
 
-    75% {
+    80% {
       border-color: #f0ac4eb6;
-      box-shadow: 0 0 8px #f0ac4ec3;
+      box-shadow: 0 0 6px #f0ac4ec3;
     }
 
     100% {

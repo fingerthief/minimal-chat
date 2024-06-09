@@ -253,7 +253,7 @@ function formatMessage(content) {
         padding-right: 4px;
 
         @media (max-width: 600px) {
-            max-width: 80%;
+            max-width: 90%;
         }
 
         &.high-constrast-mode {

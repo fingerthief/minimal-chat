@@ -147,11 +147,18 @@ function toggleConversations() {
 function deleteConversation(conversationId) {
   const index = conversations.value.findIndex(convo => convo.id === conversationId);
   if (index !== -1) {
-    conversations.value.splice(index, 1);
-    saveMessagesHandler();
-    showToast('Conversation Deleted');
+    const conversationElement = document.getElementById(`conversation-${index}`);
+    if (conversationElement) {
+      conversationElement.classList.add('deleting');
+      setTimeout(() => {
+        conversations.value.splice(index, 1);
+        saveMessagesHandler();
+        showToast('Conversation Deleted');
+      }, 200); // Duration of the scaleDown animation
+    }
   }
 }
+
 
 const contextMenuVisible = ref(false);
 
@@ -176,8 +183,9 @@ function toggleContextMenu() {
     <div class="settings-header">
       <h2>
         <span v-if="isSmallScreen">Conversations &nbsp;</span>
-        <Database @click.stop="showStoredFiles = !showStoredFiles" :id="'stored-Files'" class="database-icon" />
-        <ToolTip :targetId="'stored-Files'">View Stored Files</ToolTip>
+        <Database @click.stop="showStoredFiles = !showStoredFiles" v-if="!isSmallScreen" :id="'stored-Files'"
+          class="database-icon" />
+        <ToolTip :targetId="'stored-Files'" v-if="!isSmallScreen">View Stored Files</ToolTip>
         <MoreHorizontal @blur="showContextMenu = false;" class="context-menu-icon" @click="toggleContextMenu"
           id="contextMenu" :size="25" :stroke-width="1.0" />
         <transition name="fade-slide">
@@ -199,7 +207,7 @@ function toggleContextMenu() {
           <li v-for="(conversation, index) in conversations" :key="index" :id="'conversation-' + index"
             :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
             @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
-            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id }">
+            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id, deleting: conversation.deleting }">
             <Pencil v-if="isSmallScreen" :id="'pencil-' + index" :size="13"
               @click.stop="onEditConversationTitle(conversation)" />
             <ToolTip :targetId="'conversation-' + index">Double Click to Edit Title</ToolTip>
@@ -298,6 +306,10 @@ $shadow-color: #252629;
   .context-menu-icon {
     display: block;
     float: right;
+
+    @media (max-width: 600px) {
+      margin-right: 8px;
+    }
   }
 
   .database-icon {
@@ -473,6 +485,24 @@ $shadow-color: #252629;
   }
 }
 
+.scale-down-enter-active,
+.scale-down-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.scale-down-enter-from,
+.scale-down-leave-to {
+  transform: scale(0);
+  opacity: 0;
+}
+
+.scale-down-enter-to,
+.scale-down-leave-from {
+  transform: scale(1);
+  opacity: 1;
+}
+
+
 .scrollable-list {
   @media (max-width: 600px) {
     height: 68vh;
@@ -496,12 +526,10 @@ $shadow-color: #252629;
     padding: 20px;
     display: flex;
     cursor: pointer;
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 
     &:hover {
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      transform: translateY(-2px);
     }
 
     .new-icon {
@@ -524,15 +552,13 @@ $shadow-color: #252629;
 
   li {
     padding: 14px;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
     border-left: 4px solid transparent;
     color: #eaeaea;
     text-overflow: ellipsis;
     text-wrap: nowrap;
     user-select: none;
-    animation: fadeIn 0.3s ease-out forwards;
-    transition: background-color 0.2s ease-out;
     font-size: .875rem;
+    animation: slideIn 0.2s linear forwards;
 
     .token-count {
       display: block;
@@ -577,7 +603,7 @@ $shadow-color: #252629;
     }
 
     &.deleting {
-      animation: fadeOut 0.3s ease-out forwards;
+      animation: scaleDown 0.5s linear forwards;
     }
   }
 }
@@ -602,7 +628,7 @@ $shadow-color: #252629;
 
   100% {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.4);
   }
 }
 
@@ -628,5 +654,9 @@ $shadow-color: #252629;
     transform: scale(0);
     opacity: 0;
   }
+}
+
+li.deleting {
+  animation: scaleDown 0.2s linear forwards;
 }
 </style>
