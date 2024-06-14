@@ -45,9 +45,9 @@ const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
   { label: 'GPT-4 Turbo', value: 'gpt-4-turbo' },
   { label: 'GPT-4 Omni', value: 'gpt-4o' },
-  { label: 'Claude 3 Opus', value: 'claude-3-opus-20240229' },
-  { label: 'Claude 3 Sonnet', value: 'claude-3-sonnet-20240229' },
-  { label: 'Claude 3 Haiku', value: 'claude-3-haiku-20240307' },
+  // { label: 'Claude 3 Opus', value: 'claude-3-opus-20240229' },
+  // { label: 'Claude 3 Sonnet', value: 'claude-3-sonnet-20240229' },
+  // { label: 'Claude 3 Haiku', value: 'claude-3-haiku-20240307' },
   { label: 'Custom API', value: 'open-ai-format' },
   { label: 'WebGPU Model', value: 'web-llm' }
 ];
@@ -177,8 +177,9 @@ onMounted(() => {
 <template>
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
-    <DialogHeader title="Configuration" :icon="Settings" :iconSize="32" tooltipText="Current Version: 6.2.2"
-      headerId="settings-header" @close="() => isSidebarOpen = false" />
+    <DialogHeader title="Configuration" :icon="Settings" :iconSize="32"
+      tooltipText="Current Version: 6.2.3 Starlight Symphony" headerId="settings-header"
+      @close="() => isSidebarOpen = false" />
     <div class="settings-container">
       <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
         <h3>Select Model</h3>
@@ -193,19 +194,6 @@ onMounted(() => {
             </h4>
             <ul v-show="isGPTConfigOpen">
               <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
-                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-                {{ model.label }}
-              </li>
-            </ul>
-          </li>
-          <li :class="{ selected: selectedModel.includes('claude') }">
-            <h4 @click="isClaudeConfigOpen = !isClaudeConfigOpen">
-              Claude Models
-              <span
-                :class="{ 'pi pi-chevron-down': isClaudeConfigOpen, 'pi pi-chevron-right': !isClaudeConfigOpen }"></span>
-            </h4>
-            <ul v-show="isClaudeConfigOpen">
-              <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
                 :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
                 {{ model.label }}
               </li>
@@ -235,17 +223,6 @@ onMounted(() => {
               {{ model.label }}
             </li>
           </ul>
-          <!-- Collapsible Group for Claude Models -->
-          <li @click="isClaudeConfigOpen = !isClaudeConfigOpen">
-            Claude Models
-            <span class="indicator">{{ isClaudeConfigOpen || selectedModel.includes('claude') ? '-' : '+' }}</span>
-          </li>
-          <ul v-show="isClaudeConfigOpen || selectedModel.includes('claude')" class="sub-item">
-            <li v-for="model in models.filter(m => m.value.includes('claude'))" :key="model.value"
-              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-              {{ model.label }}
-            </li>
-          </ul>
           <!-- Other Models -->
           <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
             :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
@@ -266,9 +243,6 @@ onMounted(() => {
           </div>
           <div v-if="selectedModel.includes('gpt') && !showingGeneralConfig">
             <GptConfigSection />
-          </div>
-          <div v-if="selectedModel.startsWith('claude-') && !showingGeneralConfig">
-            <ClaudeConfigSection />
           </div>
           <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
             <LocalConfigSection />

@@ -329,8 +329,9 @@ onMounted(async () => {
     font-family: 'Roboto', sans-serif;
 
     @media (max-width: 600px) {
-        width: 95vw;
-        max-width: 95vw;
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
     }
 
     .header {

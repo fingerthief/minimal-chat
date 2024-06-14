@@ -442,6 +442,7 @@ pre {
     width: 100vw;
     max-width: 100vw;
     min-width: 100vw;
+    height: 100vw;
 
     &.open {
       width: 100vw;
