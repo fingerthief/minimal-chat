@@ -53,7 +53,20 @@ export async function sendBrowserLoadedModelMessage(messagesTest, updateUIFunc) 
     showToast('Model Loaded');
   }
 
-  const filteredMessages = filterMessages(messages.value);
+
+  const filteredMessages = messages.value.map((message) => {
+    let contentText;
+    if (Array.isArray(message.content)) {
+      contentText = message.content[0]?.text || '';
+    } else {
+      contentText = message.content;
+    }
+
+    return {
+      role: message.role,
+      content: contentText,
+    };
+  });
 
   const request = {
     stream: true,
@@ -75,7 +88,7 @@ export async function sendBrowserLoadedModelMessage(messagesTest, updateUIFunc) 
   return await engine.getMessage();
 }
 
-export async function getBrowserLoadedModelConversationTitle(messages) {
+export async function getBrowserLoadedModelConversationTitle(messages2) {
   const initProgressCallback = (report) => { };
 
   const selectedModel = localStorage.getItem('browserModelSelection');
@@ -87,7 +100,19 @@ export async function getBrowserLoadedModelConversationTitle(messages) {
     });
   }
 
-  const filteredMessages = filterMessages(messages);
+  const filteredMessages = messages.value.map((message) => {
+    let contentText;
+    if (Array.isArray(message.content)) {
+      contentText = message.content[0]?.text || '';
+    } else {
+      contentText = message.content;
+    }
+
+    return {
+      role: message.role,
+      content: contentText,
+    };
+  });
 
   let tempMessages = filteredMessages.slice(0);
   tempMessages.push({ role: 'user', content: 'Summarize my inital request or greeting in 5 words or less.' });
