@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
-import { messages } from '../state-management/state';
+import { messages, localModelKey } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 
 let localStreamRetryCount = 0;
@@ -190,13 +190,12 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
 
 export async function getOpenAICompatibleAvailableModels(localModelEndpoint) {
   try {
-    const storedApiKey = localStorage.getItem('localModelKey');
 
     const response = await fetch(`${localModelEndpoint}/v1/models`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${storedApiKey || 'Missing API Key'}`,
+        Authorization: `Bearer ${localModelKey.value || 'Missing API Key'}`,
       },
     });
 
