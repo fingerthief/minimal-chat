@@ -1,7 +1,9 @@
+<!-- src/components/configuration-sections/GptConfigSection.vue -->
 <script setup>
 import { ref } from 'vue';
 import InputField from '@/components/controls/InputField.vue';
 import ToolTip from '@/components/controls/ToolTip.vue';
+import SliderCheckbox from '@/components/controls/SliderCheckbox.vue';
 import { ttsVoice, gptKey, sliderValue, pushToTalkMode, useWhisper, audioSpeed, ttsModel, whisperTemperature, selectedDallEImageCount, selectedDallEImageResolution } from '@/libs/state-management/state';
 import { handleUpdate, updateGptSliderValue, updateWhisperSlider, showGPTConfig, } from '@/libs/utils/settings-utils';
 
@@ -33,22 +35,10 @@ const isWhisperConfigSectionOpen = ref(true);
                 <span class="indicator">{{ isWhisperConfigSectionOpen ? '-' : '+' }}</span>
             </h3>
             <div v-show="isWhisperConfigSectionOpen" class="control-grid">
-                <div class="control-checkbox">
-                    <label for="push-to-talk">
-                        Push to Talk Mode:
-                        <input type="checkbox" id="push-to-talk" :checked="pushToTalkMode"
-                            @change="handleUpdate('use-push-to-talk', $event.target.checked)" />
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="control-checkbox">
-                    <label for="use-whisper">
-                        Whisper Transcriptions:
-                        <input type="checkbox" id="use-whisper" :checked="useWhisper"
-                            @change="handleUpdate('use-whisper', $event.target.checked)" />
-                        <span class="slider"></span>
-                    </label>
-                </div>
+                <SliderCheckbox inputId="push-to-talk" labelText="Push to Talk Mode" v-model="pushToTalkMode"
+                    @update:modelValue="handleUpdate('use-push-to-talk', $event)" />
+                <SliderCheckbox inputId="use-whisper" labelText="Whisper Transcriptions" v-model="useWhisper"
+                    @update:modelValue="handleUpdate('use-whisper', $event)" />
                 <InputField :isSecret="false" labelText="Audio Speed:"
                     :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
                     inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
@@ -194,7 +184,7 @@ const isWhisperConfigSectionOpen = ref(true);
 .control-checkbox {
     display: flex;
     align-items: center;
-    width: 100%;
+    width: fit-content;
 
     label {
         display: flex;

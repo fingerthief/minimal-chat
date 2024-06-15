@@ -33,10 +33,8 @@ import {
 
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
-import 'primeicons/primeicons.css';
-import 'primeflex/primeflex.css';
-import Sidebar from 'primevue/sidebar';
 import { Settings } from 'lucide-vue-next';
+
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
@@ -178,7 +176,7 @@ onMounted(() => {
       tooltipText="Current Version: 6.2.3 Starlight Symphony" headerId="settings-header"
       @close="() => isSidebarOpen = false" />
     <div class="settings-container">
-      <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
+      <Drawer v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
         <h3>Select Model</h3>
         <ul>
           <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
@@ -201,7 +199,7 @@ onMounted(() => {
             {{ model.label }}
           </li>
         </ul>
-      </Sidebar>
+      </Drawer>
 
       <div v-show="!isSmallScreen" class="left-panel">
         <h3>Models</h3>
@@ -275,7 +273,7 @@ $header-border-color: #424045b5;
 $bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
 
-.p-sidebar {
+.p-drawer {
   background-color: #292929;
   /* Light gray background */
   width: 250px;
@@ -284,34 +282,34 @@ $bottom-panel-border-color: #5f4575cf;
   /* Add some padding */
 }
 
-.p-sidebar h3 {
+.p-drawer h3 {
   margin-top: 0;
   font-size: 1.5em;
 }
 
-.p-sidebar ul {
+.p-drawer ul {
   list-style-type: none;
   padding: 0;
   margin: 0;
 }
 
-.p-sidebar li {
+.p-drawer li {
   padding: 10px;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s ease;
 }
 
-.p-sidebar li:hover {
+.p-drawer li:hover {
   background-color: #07563d;
 }
 
-.p-sidebar li.selected {
+.p-drawer li.selected {
   background-color: rgba(16, 56, 51, 0.91);
   color: white;
 }
 
-.p-sidebar li.selected:hover {
+.p-drawer li.selected:hover {
   background-color: #074d36;
 }
 
