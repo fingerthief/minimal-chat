@@ -1,6 +1,7 @@
 import { ref } from 'vue';
-import { selectedModel, ttsVoice, whisperTemperature, audioSpeed, ttsModel, useWhisper, pushToTalkMode, higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution } from '../state-management/state';
-import { showToast } from "./general-utils";
+import { selectedModel, ttsVoice, whisperTemperature, audioSpeed, ttsModel, useWhisper, pushToTalkMode, higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution, availableModels } from '../state-management/state';
+import { removeAPIEndpoints, showToast } from "./general-utils";
+import { getOpenAICompatibleAvailableModels } from '../api-access/open-ai-api-standard-access';
 
 export const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1);
 export const showLocalConfig = ref(selectedModel.value.indexOf('open-ai-format') !== -1);
@@ -126,7 +127,7 @@ export function deleteCustomConfig(index) {
   showToast('Deleted Custom Config');
 }
 
-export function selectCustomConfig(index) {
+export async function selectCustomConfig(index) {
   selectedCustomConfigIndex.value = index;
   const config = customConfigs.value[index];
   localModelEndpoint.value = config.endpoint;
@@ -144,6 +145,15 @@ export function selectCustomConfig(index) {
     if (matchingOption) {
       modelSelector.value = matchingOption.value;
     }
+  }
+
+  try {
+    if (localModelEndpoint.value.trim() !== '') {
+      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
+      availableModels.value = models;
+    }
+  } catch (error) {
+    console.error('Error fetching available models:', error);
   }
 }
 
