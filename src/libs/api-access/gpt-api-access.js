@@ -2,7 +2,7 @@ import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from 
 import { updateUI } from '../utils/general-utils';
 import { playAudio } from '../utils/audio-utils';
 
-import { whisperTemperature, audioSpeed, ttsModel, messages, pushToTalkMode } from '../state-management/state';
+import { whisperTemperature, audioSpeed, ttsModel, ttsVoice, messages, pushToTalkMode } from '../state-management/state';
 
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
@@ -177,7 +177,7 @@ export async function fetchTTSResponse(text) {
       body: JSON.stringify({
         model: ttsModel.value, // Adding the model parameter as required
         input: text,    // Changing 'text' to 'input' as required
-        voice: 'nova',
+        voice: ttsVoice.value,
         speed: audioSpeed.value
       })
     });

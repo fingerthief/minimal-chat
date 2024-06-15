@@ -34,7 +34,7 @@ const scroller = ref(null);
 const contextWindow = ref(null);
 
 onMounted(() => {
-  // Add any necessary onMounted logic
+
 });
 
 // Message filtering
