@@ -68,7 +68,6 @@ import { handleUpdate, handleDeleteCustomConfig, handleSelectCustomConfig, updat
     border-top: none;
     border-left: none;
     border-right: none;
-    padding-top: 6px;
     width: auto;
     max-width: 80%;
     cursor: pointer;

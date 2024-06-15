@@ -66,7 +66,7 @@ const dalleImageResolutionOptions = [
                         optionValue="value" @change="handleUpdate('tts-model', $event.value)"></Dropdown>
                 </div>
                 <div class="control select-dropdown">
-                    <label for="tts-voice">TTS Voice:</label>
+                    <label for="tts-voice">TTS Voice:</label>&nbsp;
                     <Dropdown checkmark id="tts-voice" :options="ttsVoiceOptions" v-model="ttsVoice" optionLabel="label"
                         optionValue="value" @change="handleUpdate('tts-voice', $event.value)"></Dropdown>
                 </div>
@@ -94,13 +94,13 @@ const dalleImageResolutionOptions = [
             </h3>
             <div v-show="isDALLEConfigOpen" class="control-grid">
                 <div class="control select-dropdown">
-                    <label for="dalle-image-count">DALL-E Image Count:</label>
+                    <label for="dalle-image-count">DALL-E Image Count:</label>&nbsp;
                     <Dropdown checkmark id="dalle-image-count" :options="dalleImageCountOptions"
                         v-model="selectedDallEImageCount" optionLabel="label" optionValue="value"
                         @change="handleUpdate('selectedDallEImageCount', $event.value)"></Dropdown>
                 </div>
                 <div class="control select-dropdown">
-                    <label for="dalle-image-resolution">Image Resolution:</label>
+                    <label for="dalle-image-resolution">Image Resolution:</label>&nbsp;
                     <Dropdown checkmark id="dalle-image-resolution" :options="dalleImageResolutionOptions"
                         v-model="selectedDallEImageResolution" optionLabel="label" optionValue="value"
                         @change="handleUpdate('selectedDallEImageResolution', $event.value)"></Dropdown>
@@ -117,7 +117,6 @@ const dalleImageResolutionOptions = [
     border-top: none;
     border-left: none;
     border-right: none;
-    padding-top: 6px;
     width: auto;
     max-width: 80%;
     cursor: pointer;

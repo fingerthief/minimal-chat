@@ -324,6 +324,7 @@ onMounted(async () => {
     width: 50vw;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-family: 'Roboto', sans-serif;
+    border: 2px solid rgba(8, 62, 53, 0.8509803922);
 
     @media (max-width: 600px) {
         width: 100vw;

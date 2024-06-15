@@ -107,7 +107,6 @@ $shadow-spread-radius: 0px;
   border-top: none;
   border-left: none;
   border-right: none;
-  padding-top: 6px;
   width: 450px;
   max-width: 80%;
   cursor: pointer;

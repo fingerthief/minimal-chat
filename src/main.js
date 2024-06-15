@@ -15,7 +15,7 @@ import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 
 import 'primeicons/primeicons.css';
-import 'primevue/resources/themes/aura-dark-green/theme.css'
+import 'primevue/resources/themes/lara-dark-green/theme.css'
 
 const app = createApp(App);
 

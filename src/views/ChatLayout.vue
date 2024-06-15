@@ -163,9 +163,12 @@ $button-hover-bg-color: #4a4a4c;
 $font-color: #f0f0f0;
 $overlay-bg-color: rgba(15, 15, 15, 0.5);
 
-.dialog-slide-enter-active,
+.dialog-slide-enter-active {
+  transition: transform 0.25s cubic-bezier(0.25, 1.25, 0.5, 1);
+}
+
 .dialog-slide-leave-active {
-  transition: transform 0.15s linear;
+  transition: transform 0.15s;
 }
 
 .dialog-slide-enter-from,
@@ -387,7 +390,7 @@ pre {
   max-width: 100vw;
   position: fixed;
   top: 15%;
-
+  padding: 0;
   border-right: 2px solid $border-color;
   z-index: 1;
   border-radius: 12px;

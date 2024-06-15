@@ -849,7 +849,7 @@ $bottom-panel-border-color: #5f4575cf;
   position: fixed;
   bottom: 20px;
   left: 20px;
-  background-color: $button-bg-color;
+  background-color: #1a5950b5;
   color: white;
   border: none;
   border-radius: 50%;
