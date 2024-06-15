@@ -7,6 +7,7 @@ export const pushToTalkMode = ref((JSON.parse(localStorage.getItem("use-push-to-
 export const useWhisper = ref((JSON.parse(localStorage.getItem("use-whisper") || false)));
 export const audioSpeed = ref((parseFloat(localStorage.getItem("audio-speed")) || 1.0));
 export const ttsModel = ref((localStorage.getItem("tts-model") || 'tts-1'));
+export const ttsVoice = ref((localStorage.getItem("tts-voice") || 'nova'));
 export const whisperTemperature = ref(parseFloat(localStorage.getItem("whisper-temperature") || 0.35));
 export const audioQueue = ref([]);
 export const audioIsPlaying = ref(false);

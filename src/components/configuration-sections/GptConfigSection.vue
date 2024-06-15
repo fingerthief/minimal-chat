@@ -1,3 +1,14 @@
+<script setup>
+import { ref } from 'vue';
+import InputField from '@/components/controls/InputField.vue';
+import ToolTip from '@/components/controls/ToolTip.vue';
+import { ttsVoice, gptKey, sliderValue, pushToTalkMode, useWhisper, audioSpeed, ttsModel, whisperTemperature, selectedDallEImageCount, selectedDallEImageResolution } from '@/libs/state-management/state';
+import { handleUpdate, updateGptSliderValue, updateWhisperSlider, showGPTConfig, } from '@/libs/utils/settings-utils';
+
+const isDALLEConfigOpen = ref(false);
+const isWhisperConfigSectionOpen = ref(true);
+</script>
+
 <template>
     <div>
         <div class="control-grid">
@@ -49,6 +60,17 @@
                         <option value="tts-1-hd">tts-1-hd</option>
                     </select>
                 </div>
+                <div class="control select-dropdown">
+                    <label for="tts-voice">TTS Voice:</label>
+                    <select id="tts-voice" :value="ttsVoice" @change="handleUpdate('tts-voice', $event.target.value)">
+                        <option value="alloy">Alloy</option>
+                        <option value="echo">Echo</option>
+                        <option value="fable">Fable</option>
+                        <option value="onyx">Onyx</option>
+                        <option value="nova">Nova</option>
+                        <option value="shimmer">Shimmer</option>
+                    </select>
+                </div>
                 <div class="flex-container">
                     <div class="center-text">Temperature: ({{ whisperTemperature }})</div>
                     <div class="slider-container">
@@ -88,17 +110,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-import InputField from '@/components/controls/InputField.vue';
-import ToolTip from '@/components/controls/ToolTip.vue';
-import { gptKey, sliderValue, pushToTalkMode, useWhisper, audioSpeed, ttsModel, whisperTemperature, selectedDallEImageCount, selectedDallEImageResolution } from '@/libs/state-management/state';
-import { handleUpdate, updateGptSliderValue, updateWhisperSlider, showGPTConfig, } from '@/libs/utils/settings-utils';
-
-const isDALLEConfigOpen = ref(false);
-const isWhisperConfigSectionOpen = ref(true);
-</script>
 
 <style scoped lang="scss">
 .center-text {

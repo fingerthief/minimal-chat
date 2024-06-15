@@ -60,9 +60,6 @@ async function onModelChange(newModel) {
           <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
           <option value="gpt-4-turbo">GPT-4 Turbo</option>
           <option value="gpt-4o">GPT-4 Omni</option>
-          <option value="claude-3-opus-20240229">Claude 3 Opus</option>
-          <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
-          <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
           <option value="open-ai-format">Custom API Endpoint</option>
           <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
         </select>

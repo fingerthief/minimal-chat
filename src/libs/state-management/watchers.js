@@ -28,7 +28,8 @@ import {
   useWhisper,
   ttsModel,
   audioSpeed,
-  whisperTemperature
+  whisperTemperature,
+  ttsVoice
 } from '@/libs/state-management/state';
 
 export function setupWatchers() {
@@ -77,6 +78,7 @@ export function setupWatchers() {
     { ref: pushToTalkMode, key: 'use-push-to-talk' },
     { ref: useWhisper, key: 'use-whisper' },
     { ref: ttsModel, key: 'tts-model' },
+    { ref: ttsVoice, key: 'tts-voice' },
     { ref: audioSpeed, key: 'audio-speed' },
     { ref: whisperTemperature, key: 'whisper-temperature' },
   ];

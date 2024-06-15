@@ -20,7 +20,7 @@ import {
   isSmallScreen,
   isSidebarVisible,
   systemPrompt,
-  availableModels
+  availableModels,
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
@@ -45,9 +45,6 @@ const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
   { label: 'GPT-4 Turbo', value: 'gpt-4-turbo' },
   { label: 'GPT-4 Omni', value: 'gpt-4o' },
-  // { label: 'Claude 3 Opus', value: 'claude-3-opus-20240229' },
-  // { label: 'Claude 3 Sonnet', value: 'claude-3-sonnet-20240229' },
-  // { label: 'Claude 3 Haiku', value: 'claude-3-haiku-20240307' },
   { label: 'Custom API', value: 'open-ai-format' },
   { label: 'WebGPU Model', value: 'web-llm' }
 ];
