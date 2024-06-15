@@ -163,33 +163,19 @@ $button-hover-bg-color: #4a4a4c;
 $font-color: #f0f0f0;
 $overlay-bg-color: rgba(15, 15, 15, 0.5);
 
-.dialog-slide-enter-active {
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-}
-
+.dialog-slide-enter-active,
 .dialog-slide-leave-active {
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition: transform 0.15s linear;
 }
 
 .dialog-slide-enter-from,
 .dialog-slide-leave-to {
-  transform: translateY(-100%) scale(0.50);
-  opacity: 0;
+  transform: translateY(-100%);
 }
 
-.dialog-slide-enter-to {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
+.dialog-slide-enter-to,
 .dialog-slide-leave-from {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
-.dialog-slide-leave-to {
-  transform: translateY(-100%) scale(0.50);
-  opacity: 0;
+  transform: translateY(0);
 }
 
 
@@ -442,7 +428,7 @@ pre {
     width: 100vw;
     max-width: 100vw;
     min-width: 100vw;
-    min-height: 100vw;
+    height: 101vh;
 
     &.open {
       width: 100vw;
