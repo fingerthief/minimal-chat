@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.35",
-    "@primevue/themes": "^4.0.0-rc.1",
+    "braces": ">=3.0.3",
     "driver.js": "^1.3.1",
     "highlight.js": "^11.9.0",
     "http-server": "^14.1.1",
@@ -31,15 +31,14 @@
     "pdfjs-dist": "^4.3.136",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
-    "primevue": "^4.0.0-rc.1",
+    "primevue": "^3.52.0",
     "sharp": "^0.33.4",
     "swiped-events": "^1.1.9",
     "tippy.js": "^6.3.7",
     "toastify-js": "^1.12.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
-    "vue-virtual-scroller": "^2.0.0-beta.8",
-    "braces": ">=3.0.3"
+    "vue-virtual-scroller": "^2.0.0-beta.8"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

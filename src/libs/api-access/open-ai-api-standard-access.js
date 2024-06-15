@@ -202,11 +202,11 @@ export async function getOpenAICompatibleAvailableModels(localModelEndpoint) {
     const data = await response.json();
 
     if (data?.data) {
-      return data.data.map((model) => model.id);
+      return data.data.map((model) => ({ name: model.name, id: model.id }));
     }
 
     if (Array.isArray(data)) {
-      return data.map((model) => model.id);
+      return data.map((model) => ({ name: model.name, id: model.id }));
     }
 
     showToast('Error fetching models, double check the API endpoint configured');

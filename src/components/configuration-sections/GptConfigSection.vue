@@ -9,6 +9,27 @@ import { handleUpdate, updateGptSliderValue, updateWhisperSlider, showGPTConfig,
 
 const isDALLEConfigOpen = ref(false);
 const isWhisperConfigSectionOpen = ref(true);
+
+const ttsModelOptions = [
+    { label: 'tts-1', value: 'tts-1' },
+    { label: 'tts-1-hd', value: 'tts-1-hd' }
+];
+
+const ttsVoiceOptions = [
+    { label: 'Alloy', value: 'alloy' },
+    { label: 'Echo', value: 'echo' },
+    { label: 'Fable', value: 'fable' },
+    { label: 'Onyx', value: 'onyx' },
+    { label: 'Nova', value: 'nova' },
+    { label: 'Shimmer', value: 'shimmer' }
+];
+
+const dalleImageCountOptions = Array.from({ length: 3 }, (_, i) => ({ label: i + 1, value: i + 1 }));
+const dalleImageResolutionOptions = [
+    { label: '256x256', value: '256x256' },
+    { label: '512x512', value: '512x512' },
+    { label: '1024x1024', value: '1024x1024' }
+];
 </script>
 
 <template>
@@ -39,30 +60,22 @@ const isWhisperConfigSectionOpen = ref(true);
                     @update:modelValue="handleUpdate('use-push-to-talk', $event)" />
                 <SliderCheckbox inputId="use-whisper" labelText="Whisper Transcriptions" v-model="useWhisper"
                     @update:modelValue="handleUpdate('use-whisper', $event)" />
+                <div class="control select-dropdown">
+                    <label for="tts-model">TTS Model:</label>&nbsp;
+                    <Dropdown checkmark id="tts-model" :options="ttsModelOptions" v-model="ttsModel" optionLabel="label"
+                        optionValue="value" @change="handleUpdate('tts-model', $event.value)"></Dropdown>
+                </div>
+                <div class="control select-dropdown">
+                    <label for="tts-voice">TTS Voice:</label>
+                    <Dropdown checkmark id="tts-voice" :options="ttsVoiceOptions" v-model="ttsVoice" optionLabel="label"
+                        optionValue="value" @change="handleUpdate('tts-voice', $event.value)"></Dropdown>
+                </div>
                 <InputField :isSecret="false" labelText="Audio Speed:"
                     :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
                     inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
                 <ToolTip :targetId="'audio-speed'">Default is 1.0 and 1.05 would be 5% faster playback.</ToolTip>
-                <div class="control select-dropdown">
-                    <label for="tts-model">TTS Model:</label>
-                    <select id="tts-model" :value="ttsModel" @change="handleUpdate('tts-model', $event.target.value)">
-                        <option value="tts-1">tts-1</option>
-                        <option value="tts-1-hd">tts-1-hd</option>
-                    </select>
-                </div>
-                <div class="control select-dropdown">
-                    <label for="tts-voice">TTS Voice:</label>
-                    <select id="tts-voice" :value="ttsVoice" @change="handleUpdate('tts-voice', $event.target.value)">
-                        <option value="alloy">Alloy</option>
-                        <option value="echo">Echo</option>
-                        <option value="fable">Fable</option>
-                        <option value="onyx">Onyx</option>
-                        <option value="nova">Nova</option>
-                        <option value="shimmer">Shimmer</option>
-                    </select>
-                </div>
                 <div class="flex-container">
-                    <div class="center-text">Temperature: ({{ whisperTemperature }})</div>
+                    <div class="center-text">Temperature: ({{ whisperTemperature }})</div><br>
                     <div class="slider-container">
                         <span>Serious</span>
                         <input type="range" min="0" max="1" step="0.01" :value="whisperTemperature"
@@ -82,19 +95,15 @@ const isWhisperConfigSectionOpen = ref(true);
             <div v-show="isDALLEConfigOpen" class="control-grid">
                 <div class="control select-dropdown">
                     <label for="dalle-image-count">DALL-E Image Count:</label>
-                    <select id="dalle-image-count" :value="selectedDallEImageCount"
-                        @change="handleUpdate('selectedDallEImageCount', $event.target.value)">
-                        <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-                    </select>
+                    <Dropdown checkmark id="dalle-image-count" :options="dalleImageCountOptions"
+                        v-model="selectedDallEImageCount" optionLabel="label" optionValue="value"
+                        @change="handleUpdate('selectedDallEImageCount', $event.value)"></Dropdown>
                 </div>
                 <div class="control select-dropdown">
                     <label for="dalle-image-resolution">Image Resolution:</label>
-                    <select id="dalle-image-resolution" :value="selectedDallEImageResolution"
-                        @change="handleUpdate('selectedDallEImageResolution', $event.target.value)">
-                        <option value="256x256">256x256</option>
-                        <option value="512x512">512x512</option>
-                        <option value="1024x1024">1024x1024</option>
-                    </select>
+                    <Dropdown checkmark id="dalle-image-resolution" :options="dalleImageResolutionOptions"
+                        v-model="selectedDallEImageResolution" optionLabel="label" optionValue="value"
+                        @change="handleUpdate('selectedDallEImageResolution', $event.value)"></Dropdown>
                 </div>
             </div>
         </div>
@@ -102,6 +111,27 @@ const isWhisperConfigSectionOpen = ref(true);
 </template>
 
 <style scoped lang="scss">
+.p-dropdown {
+    background-color: transparent;
+    border-bottom: 2px solid #157474;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    padding-top: 6px;
+    width: auto;
+    max-width: 80%;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #262627;
+    }
+
+    &:focus {
+        outline: none;
+    }
+}
+
 .center-text {
     text-align: center;
     bottom: 10px;

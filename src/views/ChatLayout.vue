@@ -292,62 +292,6 @@ button {
   }
 }
 
-.floating-button {
-  border: 1px solid $border-color;
-  background: transparent;
-  cursor: pointer;
-  color: $icon-color;
-  position: fixed;
-  min-height: 50px;
-  top: 130px;
-  display: grid;
-  align-content: center;
-  right: 7px;
-  z-index: 99999;
-  border-radius: 30px;
-  min-width: 54px;
-  opacity: 0.5;
-  justify-content: space-around;
-  transition: opacity 0.1s ease-in-out;
-
-  &.scroll {
-    top: 76vh;
-    opacity: 0;
-
-    &.show {
-      opacity: 1;
-    }
-  }
-
-  &:hover {
-    opacity: 1;
-  }
-}
-
-.floating-search-field {
-  border: 1px solid $border-color;
-  background-color: #2f2f31;
-  cursor: pointer;
-  color: #433944;
-  position: fixed;
-  min-height: 0px;
-  top: 130px;
-  display: grid;
-  align-content: center;
-  right: 82px;
-  width: 0px;
-  border-radius: 30px;
-  min-width: 0px;
-  z-index: -5;
-  justify-content: space-around;
-  transition: width 0.25s ease-in-out;
-
-  &.show {
-    z-index: 99999;
-    width: 70vw;
-  }
-}
-
 pre {
   background-color: #212426 !important;
   color: #d8d8d8 !important;

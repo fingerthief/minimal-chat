@@ -16,13 +16,11 @@
             </ul>
         </div>
         <br>
+
         <div class="control select-dropdown">
-            <label for="auto-save-conversations">Auto Save Conversations:</label>
-            <select id="auto-save-conversations" :value="selectedAutoSaveOption"
-                @change="handleUpdate('selectedAutoSaveOption', $event.target.value)">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-            </select>
+            <SliderCheckbox inputId="auto-save-conversations" labelText="Auto Save Conversations:"
+                v-model="selectedAutoSaveOption"
+                @update:modelValue="handleUpdate('selectedAutoSaveOption', $event.target.value)" />
         </div>
         <br>
         <br>
@@ -45,9 +43,32 @@ import InputField from '@/components/controls/InputField.vue';
 import { Trash2 } from 'lucide-vue-next';
 import { systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts } from '@/libs/utils/settings-utils';
+import SliderCheckbox from '../controls/SliderCheckbox.vue';
 </script>
 
 <style scoped lang="scss">
+.p-dropdown {
+    background-color: transparent;
+    border-bottom: 2px solid #157474;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    padding-top: 6px;
+    width: auto;
+    max-width: 80%;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #262627;
+    }
+
+    &:focus {
+        outline: none;
+    }
+}
+
+
 .system-prompt-container,
 .saved-system-prompts {
     h4 {

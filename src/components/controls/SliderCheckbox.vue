@@ -23,7 +23,7 @@ const handleChange = (event) => {
         <label :for="inputId">
             {{ labelText }}:
             &nbsp;
-            <ToggleSwitch :inputId="inputId" v-model="componentModelValue" @change="handleChange" />
+            <ToggleButton :inputId="inputId" v-model="componentModelValue" @change="handleChange" />
         </label>
     </div>
 </template>
