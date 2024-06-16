@@ -14,16 +14,18 @@ import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import Listbox from 'primevue/listbox';
-
+import Ripple from 'primevue/ripple';
 
 import 'primeicons/primeicons.css';
-import 'primevue/resources/themes/lara-dark-green/theme.css'
+import 'primevue/resources/themes/lara-dark-green/theme.css';
 
 const app = createApp(App);
 
 app.use(router);
 
-app.use(PrimeVue);
+// Configure PrimeVue
+app.use(PrimeVue, { ripple: true });
+app.directive('ripple', Ripple);
 
 app.component('Sidebar', Sidebar);
 app.component('ToggleButton', ToggleButton);

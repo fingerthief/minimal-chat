@@ -1,6 +1,6 @@
 <!-- MessageItem.vue -->
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { RefreshCcw, Trash, Copy, Pencil } from 'lucide-vue-next';
 import ToolTip from '@/components/controls/ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
@@ -29,8 +29,18 @@ import {
 import { updateUIWrapper } from '@/libs/utils/general-utils';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import 'swiped-events';
-import hljs from 'highlight.js/lib/common';
+import hljs from 'highlight.js/lib/core';
+import javascript from 'highlight.js/lib/languages/javascript';
+import c from 'highlight.js/lib/languages/c';
+import csharp from 'highlight.js/lib/languages/csharp';
+import python from 'highlight.js/lib/languages/python';
+import 'highlight.js/styles/github-dark.css';
 import MarkdownIt from 'markdown-it';
+
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('c', c);
+hljs.registerLanguage('csharp', csharp);
+hljs.registerLanguage('python', python);
 
 // Props
 const props = defineProps({
@@ -160,42 +170,55 @@ async function deleteMessage(content) {
     saveMessagesHandler();
 }
 
-function formatMessage(content) {
-    const md = new MarkdownIt({
-        highlight: (str, lang) => {
-            try {
-                return hljs.highlightAuto(str, lang ? [lang] : undefined).value;
-            } catch (__) {
-                return '';
-            }
-        },
-    });
+const md = new MarkdownIt({
+    highlight: (str, lang) => {
+        if (lang && hljs.getLanguage(lang)) {
+            return hljs.highlight(str, { language: lang }).value;
+        }
+        return hljs.highlightAuto(str).value;
+    },
+});
 
-    let combinedContent = content;
+function formatMessage(content) {
+
+    let combinedContent = '';
 
     if (Array.isArray(content)) {
-        combinedContent = content.reduce((result, item) => {
+        combinedContent = content.map(item => {
             if (item.type === 'text' && item.text) {
-                result += item.text + ' ';
+                return item.text;
             } else if (item.type === 'image_url' && item.image_url && item.image_url.url) {
-                result += `![](${item.image_url.url})` + ' \r\n';
+                return `![](${item.image_url.url})`;
             }
-            return result;
-        }, '').trim();
+            return '';
+        }).join(' ').trim();
+    } else {
+        combinedContent = content;
     }
 
-    return md
-        .render(combinedContent)
-        .replace(/<(ul|li)>\s*\n/g, '<$1> ')
-        .replace(/\n\s*<\/(ul|li)>/g, ' </$1>')
-        .replace(/\n/g, '<br>')
-        .replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
+    let renderedContent = md.render(combinedContent);
+
+    // Replace newlines with <br> tags
+    renderedContent = renderedContent.split('\n').join('<br>');
+
+    // Remove leading and trailing <br> tags
+    if (renderedContent.startsWith('<br>')) {
+        renderedContent = renderedContent.substring(4);
+    }
+    if (renderedContent.endsWith('<br>')) {
+        renderedContent = renderedContent.slice(0, -4);
+    }
+
+    return renderedContent;
 }
 </script>
 
-<!-- MessageItem.vue -->
 <template>
-    <div v-if="active" :class="messageClass(item.role)">
+    <div v-ripple="{
+        pt: {
+            root: { style: 'background: #1574746c;' }
+        }
+    }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
             <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + item.id" :size="18"
                 :class="{ loading: isLoading && loadingIcon === item.id }"
@@ -351,7 +374,7 @@ function formatMessage(content) {
 
         &[contenteditable='true'] {
             outline: none;
-            outline: 2px solid #423d42;
+            outline: 2px solid #157474;
             border-radius: 5px;
             text-align: left;
         }
