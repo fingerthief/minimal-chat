@@ -138,15 +138,6 @@ export async function selectCustomConfig(index) {
   top_P.value = config.top_P;
   repetitionPenalty.value = config.repetitionPenalty;
 
-  const modelSelector = document.getElementById('custom-model-selector');
-  if (modelSelector) {
-    const options = Array.from(modelSelector.options);
-    const matchingOption = options.find((option) => option.value === config.modelName);
-    if (matchingOption) {
-      modelSelector.value = matchingOption.value;
-    }
-  }
-
   try {
     if (localModelEndpoint.value.trim() !== '') {
       const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));

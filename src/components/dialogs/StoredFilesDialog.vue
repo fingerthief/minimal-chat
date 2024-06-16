@@ -61,9 +61,6 @@ import { showStoredFiles, userText } from '@/libs/state-management/state';
 import { addMessage } from '@/libs/conversation-management/message-processing';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Button from 'primevue/button';
 import { Upload, X, Database } from 'lucide-vue-next';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
 import InputText from 'primevue/inputtext';
@@ -327,6 +324,7 @@ onMounted(async () => {
     width: 50vw;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-family: 'Roboto', sans-serif;
+    border: 2px solid rgba(8, 62, 53, 0.8509803922);
 
     @media (max-width: 600px) {
         width: 100vw;

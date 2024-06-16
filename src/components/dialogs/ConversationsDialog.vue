@@ -285,8 +285,8 @@ $shadow-color: #252629;
   white-space: nowrap;
 
   @media (max-width: 600px) {
-    padding: 25px 0;
     text-align: center;
+    top: 16px;
   }
 
   .context-menu {

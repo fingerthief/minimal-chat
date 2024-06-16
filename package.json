@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.35",
+    "braces": ">=3.0.3",
     "driver.js": "^1.3.1",
     "highlight.js": "^11.9.0",
     "http-server": "^14.1.1",

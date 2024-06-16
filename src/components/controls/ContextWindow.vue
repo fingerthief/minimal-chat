@@ -1,36 +1,16 @@
 <!-- ContextWindow.vue -->
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { deleteCurrentConversation, editConversationTitle } from '@/libs/conversation-management/useConversations';
+import { deleteCurrentConversation } from '@/libs/conversation-management/useConversations';
 import { messages, selectedConversation, contextMenuOpened } from '@/libs/state-management/state';
 import { showToast } from '@/libs/utils/general-utils';
-import { Trash, SquarePlus } from 'lucide-vue-next';
+import Menu from 'primevue/menu';
+import { CircleEllipsis } from 'lucide-vue-next';
 
-const style = ref({ top: '0px', left: '0px' });
+const menu = ref(null);
 
 function showContextMenu(event) {
-    console.log(event);
-    if (event) {
-        if (event.touches && event.touches.length > 0) {
-            style.value = {
-                top: `${event.touches[0].clientY}px`,
-                left: `${event.touches[0].clientX}px`,
-            };
-        } else {
-            style.value = {
-                top: `${event.clientY}px`,
-                left: `${event.clientX}px`,
-            };
-        }
-    } else {
-        const { innerWidth, innerHeight } = window;
-        style.value = {
-            top: `50vh`,  // Adjust 50px based on the approximate height of the context menu
-            left: `${innerWidth}px`, // Adjust 100px based on the approximate width of the context menu
-        };
-    }
-
-    contextMenuOpened.value = true;
+    menu.value.toggle(event);
 }
 
 function hideContextMenu() {
@@ -38,7 +18,6 @@ function hideContextMenu() {
 }
 
 function startNewConversation() {
-    // Implement the logic to start a new conversation
     selectedConversation.value = null;
     messages.value = [];
 
@@ -47,99 +26,66 @@ function startNewConversation() {
 }
 
 function deleteCurrentConversationHandler() {
-    // Implement the logic to delete the current conversation
     deleteCurrentConversation();
     hideContextMenu();
 }
 
+const items = [
+    {
+        label: 'New Conversation',
+        icon: 'pi pi-plus',
+        command: startNewConversation
+    },
+    {
+        label: 'Delete Conversation',
+        icon: 'pi pi-trash',
+        command: deleteCurrentConversationHandler
+    }
+];
+
 defineExpose({ showContextMenu, hideContextMenu });
 
 onMounted(() => {
-    window.addEventListener('show-context-menu', showContextMenu);
 
-    nextTick(() => {
-        // Code that runs after the DOM has been updated
-        const hasShownUserTutorial = localStorage.getItem('hasShownUserTutorial');
-        if (!hasShownUserTutorial) {
-            const event = new Event('show-context-menu');
-            window.dispatchEvent(event);
-        }
-    });
 });
 
 onBeforeUnmount(() => {
-    window.removeEventListener('show-context-menu', showContextMenu);
+
 });
 </script>
 
 <template>
-    <transition name="context-menu">
-        <div v-if="contextMenuOpened" @blur="hideContextMenu" :style="style" class="context-menu">
-            <ul>
-                <li @click="startNewConversation">
-                    <SquarePlus :size="14" />&nbsp;&nbsp;New Conversation
-                </li>
-                <li @click="deleteCurrentConversationHandler">
-                    <Trash :size="14" />&nbsp;&nbsp;Delete Conversation
-                </li>
-            </ul>
-        </div>
-    </transition>
+    <div class="pi pi-ellipsis-v" @click="showContextMenu" aria-haspopup="true" aria-controls="overlay_menu"
+        style="font-size: 1.2rem; color: rgb(187, 187, 187);"></div>
+    <Menu ref="menu" id="overlay_menu" class="custom-context-menu" :model="items" :popup="true"></Menu>
 </template>
 
-<style scoped lang="scss">
-.context-menu {
-    position: absolute;
-    background: #151515f4;
-    color: rgb(228, 228, 228);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    transform: scale(1);
-    transition: transform 0.15s ease;
-    top: 38%;
-    left: 30%;
-}
+<style lang="scss">
+.custom-context-menu {
+    .p-menu {
+        background: #151515f4;
+        background-color: #000000f4;
+        color: rgb(228, 228, 228);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
 
-.context-menu-enter-active,
-.context-menu-leave-active {
-    transition: transform 0.15s ease;
-}
+    .p-menuitem {
+        padding: 10px 14px;
+        transition: background 0.15s, transform 0.15s;
 
-.context-menu-enter-from,
-.context-menu-leave-to {
-    transform: scale(0);
-}
+        &:hover {
+            background-color: #063838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    }
 
-.context-menu-enter-to,
-.context-menu-leave-from {
-    transform: scale(1);
-}
+    .p-menuitem-text {
+        padding-left: 6px;
+    }
 
-.context-menu ul {
-    list-style: none;
-    padding: 0px;
-    margin: 0;
-}
-
-.context-menu li {
-    padding: 8px 12px;
-    /* Slightly larger padding for a more spacious feel */
-    cursor: pointer;
-    transition: background 0.3s, transform 0.3s;
-    /* Smooth transition for background and transform */
-    border-bottom: 1px solid #023939e5;
-
-    /* Subtle shadow for depth */
-    background-color: #063737;
-    /* White background for contrast */
-}
-
-.context-menu li:hover {
-    background-color: #063838;
-    /* Light grey background on hover */
-    transform: translateY(-2px);
-    /* Slight lift effect on hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    /* Enhanced shadow on hover */
+    .p-menuitem-link {
+        color: rgb(228, 228, 228);
+    }
 }
 </style>

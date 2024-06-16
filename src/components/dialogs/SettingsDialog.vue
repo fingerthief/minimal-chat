@@ -33,10 +33,8 @@ import {
 
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
-import 'primeicons/primeicons.css';
-import 'primeflex/primeflex.css';
-import Sidebar from 'primevue/sidebar';
 import { Settings } from 'lucide-vue-next';
+
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
@@ -229,9 +227,6 @@ onMounted(() => {
         <div class="close-btn-wrapper">
         </div>
       </div>
-      <div v-show="!isSidebarVisible && isSmallScreen" class="left-panel-collapsed" @click.stop="toggleSidebar">
-        <span>Open Model Selection</span>
-      </div>
       <div class="right-panel" @touchstart="handleTouchStart">
         <div v-if="selectedModel">
           <div v-if="showingGeneralConfig">
@@ -250,8 +245,10 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    <button v-if="isSmallScreen" class="floating-button" @click="toggleSidebar">☰</button>
   </div>
 </template>
+
 
 <style lang="scss" scoped>
 $shadow-color: #252629;
@@ -277,53 +274,50 @@ $bottom-panel-border-color: #5f4575cf;
 
 .p-sidebar {
   background-color: #292929;
-  /* Light gray background */
   width: 250px;
-  /* Set a fixed width */
   padding: 20px;
-  /* Add some padding */
-}
+  animation: slideIn 0.1s ease;
+  transition: all 0.15s;
 
-.p-sidebar h3 {
-  margin-top: 0;
-  font-size: 1.5em;
-}
+  h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+  }
 
-.p-sidebar ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
 
-.p-sidebar li {
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
+  li {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+  }
 
-.p-sidebar li:hover {
-  background-color: #07563d;
-}
+  li:hover {
+    background-color: #07563d;
+  }
 
-.p-sidebar li.selected {
-  background-color: rgba(16, 56, 51, 0.91);
-  color: white;
-}
+  li.selected {
+    background-color: rgba(16, 56, 51, 0.91);
+    color: white;
+  }
 
-.p-sidebar li.selected:hover {
-  background-color: #074d36;
+  li.selected:hover {
+    background-color: #074d36;
+  }
 }
 
 @keyframes slideIn {
   0% {
     transform: translateX(-100%);
-    opacity: 0;
   }
 
   100% {
     transform: translateX(0);
-    opacity: 1;
   }
 }
 
@@ -667,7 +661,6 @@ $bottom-panel-border-color: #5f4575cf;
   }
 }
 
-
 .settings-container {
   display: flex;
   height: 98vh;
@@ -785,38 +778,6 @@ $bottom-panel-border-color: #5f4575cf;
   }
 }
 
-.left-panel-collapsed {
-  width: 20px;
-  background-color: rgba(22, 74, 67, 0.91);
-  cursor: pointer;
-  height: 18vh;
-  position: absolute;
-  left: 0;
-  top: 75%;
-  border-right: 5px solid rgba(66, 64, 69, 0.7098039216);
-  transition: width 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  animation: slideIn 0.15s ease-in-out forwards;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-
-  &:hover {
-    background-color: lighten(rgba(22, 74, 67, 0.91), 5%);
-  }
-}
-
-.left-panel-collapsed span {
-  width: 100%;
-  text-align: center;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  color: rgb(224, 224, 224);
-}
-
 .right-panel {
   flex-grow: 1;
   padding: 20px;
@@ -882,5 +843,33 @@ $bottom-panel-border-color: #5f4575cf;
 
 .bottom-panel {
   background: transparent;
+}
+
+.floating-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: #1a5950b5;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.15s, transform 0.15s;
+
+  &:hover {
+    background-color: $button-hover-bg-color;
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 </style>

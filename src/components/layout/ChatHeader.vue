@@ -1,14 +1,18 @@
 <!-- eslint-disable no-unused-vars -->
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Menu, Database, Github } from 'lucide-vue-next';
 import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles } from '@/libs/state-management/state';
+import ContextWindow from '@/components/controls/ContextWindow.vue';
+import Dropdown from 'primevue/dropdown';
 
 // Define props
 const props = defineProps({
   storedConversations: Array,
 });
+
+const contextWindow = ref(null);
 
 const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation', 'change-model']);
 
@@ -39,9 +43,17 @@ function onShowConversationsClick() {
   showConversationOptions.value = !showConversationOptions.value;
 }
 
-async function onModelChange(newModel) {
-  selectedModel.value = newModel.target.value;
+async function onModelChange(event) {
+  selectedModel.value = event.value;
 }
+
+const modelOptions = [
+  { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
+  { label: 'GPT-4 Turbo', value: 'gpt-4-turbo' },
+  { label: 'GPT-4 Omni', value: 'gpt-4o' },
+  { label: 'Custom API Endpoint', value: 'open-ai-format' },
+  { label: 'Local Browser Model (Chrome and Edge Only)', value: 'web-llm' },
+];
 </script>
 
 <template>
@@ -56,18 +68,16 @@ async function onModelChange(newModel) {
     <div class="models-dropdown">
       <div class="control select-dropdown">
         <label for="quick-select-model-selector"></label>
-        <select id="quick-select-model-selector" :value="selectedModel" @change="onModelChange">
-          <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-          <option value="gpt-4-turbo">GPT-4 Turbo</option>
-          <option value="gpt-4o">GPT-4 Omni</option>
-          <option value="open-ai-format">Custom API Endpoint</option>
-          <option value="web-llm">Local Browser Model (Chrome and Edge Only)</option>
-        </select>
+        <Dropdown id="quick-select-model-selector" :options="modelOptions" v-model="selectedModel" optionValue="value"
+          optionLabel="label" @change="onModelChange" checkmark />
       </div>
     </div>
     <div class="settings-btn">
-      <Menu @click="toggleSidebar" :stroke-width="0.5" :size="30" />&nbsp;&nbsp;
-      <Database @click="() => showStoredFiles = true" :stroke-width="0.5" :size="30" />
+      <Menu @click="toggleSidebar" :stroke-width="1" :size="30" />&nbsp;&nbsp;
+      <Database @click="() => showStoredFiles = true" :stroke-width="1" :size="30" />
+    </div>
+    <div class="context-menu-icon">
+      <ContextWindow ref="contextWindow" />
     </div>
   </div>
 </template>
@@ -89,6 +99,26 @@ $shadow-spread-radius: 0px;
 .chevron {
   top: 10px;
   position: absolute;
+}
+
+.p-dropdown {
+  background-color: transparent;
+  border-bottom: 2px solid #157474;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  width: 450px;
+  max-width: 80%;
+  cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #262627;
+  }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .models-dropdown {
@@ -225,6 +255,30 @@ $shadow-spread-radius: 0px;
 .settings-btn {
   position: absolute;
   left: 10px;
+  top: 18%;
+  background-color: transparent;
+  border: none;
+  color: $icon-color;
+  cursor: pointer;
+  outline: none;
+  display: none;
+
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  @media (max-width: 600px) {
+    display: inline;
+  }
+}
+
+.context-menu-icon {
+  position: absolute;
+  right: 10px;
   top: 18%;
   background-color: transparent;
   border: none;

@@ -164,32 +164,21 @@ $font-color: #f0f0f0;
 $overlay-bg-color: rgba(15, 15, 15, 0.5);
 
 .dialog-slide-enter-active {
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition: transform 0.25s cubic-bezier(0.25, 1.25, 0.5, 1);
 }
 
 .dialog-slide-leave-active {
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transition: transform 0.15s;
 }
 
 .dialog-slide-enter-from,
 .dialog-slide-leave-to {
-  transform: translateY(-100%) scale(0.50);
-  opacity: 0;
+  transform: translateY(-100%);
 }
 
-.dialog-slide-enter-to {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
+.dialog-slide-enter-to,
 .dialog-slide-leave-from {
-  transform: translateY(0) scale(1);
-  opacity: 1;
-}
-
-.dialog-slide-leave-to {
-  transform: translateY(-100%) scale(0.50);
-  opacity: 0;
+  transform: translateY(0);
 }
 
 
@@ -306,62 +295,6 @@ button {
   }
 }
 
-.floating-button {
-  border: 1px solid $border-color;
-  background: transparent;
-  cursor: pointer;
-  color: $icon-color;
-  position: fixed;
-  min-height: 50px;
-  top: 130px;
-  display: grid;
-  align-content: center;
-  right: 7px;
-  z-index: 99999;
-  border-radius: 30px;
-  min-width: 54px;
-  opacity: 0.5;
-  justify-content: space-around;
-  transition: opacity 0.1s ease-in-out;
-
-  &.scroll {
-    top: 76vh;
-    opacity: 0;
-
-    &.show {
-      opacity: 1;
-    }
-  }
-
-  &:hover {
-    opacity: 1;
-  }
-}
-
-.floating-search-field {
-  border: 1px solid $border-color;
-  background-color: #2f2f31;
-  cursor: pointer;
-  color: #433944;
-  position: fixed;
-  min-height: 0px;
-  top: 130px;
-  display: grid;
-  align-content: center;
-  right: 82px;
-  width: 0px;
-  border-radius: 30px;
-  min-width: 0px;
-  z-index: -5;
-  justify-content: space-around;
-  transition: width 0.25s ease-in-out;
-
-  &.show {
-    z-index: 99999;
-    width: 70vw;
-  }
-}
-
 pre {
   background-color: #212426 !important;
   color: #d8d8d8 !important;
@@ -442,7 +375,7 @@ pre {
     width: 100vw;
     max-width: 100vw;
     min-width: 100vw;
-    min-height: 100vw;
+    height: 101vh;
 
     &.open {
       width: 100vw;
@@ -457,7 +390,7 @@ pre {
   max-width: 100vw;
   position: fixed;
   top: 15%;
-
+  padding: 0;
   border-right: 2px solid $border-color;
   z-index: 1;
   border-radius: 12px;

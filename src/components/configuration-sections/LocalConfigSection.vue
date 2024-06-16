@@ -15,10 +15,8 @@
             @update:value="handleUpdate('localModelEndpoint', $event)" />
         <div class="control select-dropdown">
             <label for="custom-model-selector">Models Available:</label>
-            <select id="custom-model-selector" :value="localModelName"
-                @change="handleUpdate('localModelName', $event.target.value)">
-                <option v-for="model in availableModels" :key="model" :value="model">{{ model }}</option>
-            </select>
+            <Dropdown checkmark id="custom-model-selector" :options="availableModels" optionLabel="name"
+                optionValue="id" v-model="localModelName" @change="handleUpdate('localModelName', $event.value)" />
         </div>
         <InputField :isSecret="true" labelText="API Key:" :placeholderText="'Enter the API key if applicable'"
             inputId="local-model-key" :value="localModelKey" @update:value="handleUpdate('localModelKey', $event)" />
@@ -64,6 +62,27 @@ import { handleUpdate, handleDeleteCustomConfig, handleSelectCustomConfig, updat
 </script>
 
 <style scoped lang="scss">
+.p-dropdown {
+    background-color: transparent;
+    border-bottom: 2px solid #157474;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    width: auto;
+    max-width: 80%;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #262627;
+    }
+
+    &:focus {
+        outline: none;
+    }
+}
+
+
 .center-text {
     text-align: center;
     bottom: 10px;

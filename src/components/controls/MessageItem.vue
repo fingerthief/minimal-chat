@@ -1,7 +1,7 @@
 <!-- MessageItem.vue -->
 <script setup>
 import { ref } from 'vue';
-import { RefreshCcw, Trash, Copy } from 'lucide-vue-next';
+import { RefreshCcw, Trash, Copy, Pencil } from 'lucide-vue-next';
 import ToolTip from '@/components/controls/ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
 import {
@@ -200,6 +200,10 @@ function formatMessage(content) {
             <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + item.id" :size="18"
                 :class="{ loading: isLoading && loadingIcon === item.id }"
                 @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
+            <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
+
+            <Pencil v-if="item.role === 'user'" class="icon" :id="'message-edit-' + item.id" :size="18"
+                @click.stop="editMessage(item)" />
             <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
 
             <Copy v-if="item.role === 'user'" class="delete-icon" :id="'message-copy-' + item.id" :size="18"
