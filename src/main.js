@@ -17,6 +17,7 @@ import Listbox from 'primevue/listbox';
 import Ripple from 'primevue/ripple';
 import Menu from 'primevue/menu';
 import ContextMenu from 'primevue/contextmenu';
+import Knob from 'primevue/knob';
 
 import 'primeicons/primeicons.css';
 import 'primevue/resources/themes/aura-dark-green/theme.css';
@@ -39,5 +40,6 @@ app.component('InputText', InputText);
 app.component('Listbox', Listbox);
 app.component('Menu', Menu);
 app.component('ContextMenu', ContextMenu);
+app.component('Knob', Knob);
 
 app.mount('#app');

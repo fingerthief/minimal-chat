@@ -20,9 +20,11 @@
         </div>
         <InputField :isSecret="true" labelText="API Key:" :placeholderText="'Enter the API key if applicable'"
             inputId="local-model-key" :value="localModelKey" @update:value="handleUpdate('localModelKey', $event)" />
-        <InputField labelText="Max Tokens:" :isSecret="false"
-            :placeholderText="'Enter the max token limit if applicable'" inputId="max-tokens"
-            :value="maxTokens.toString()" @update:value="handleUpdate('maxTokens', $event)" />
+        <div class="control">
+            <label for="max-tokens">Max Tokens</label>
+            <Knob id="max-tokens" v-model="maxTokens" :size="75" :step="1" :min="-1" :max="4096"
+                @change="handleUpdate('maxTokens', $event)" />
+        </div>
         <div class="flex-container">
             <div class="center-text">Temperature: ({{ localSliderValue }})</div>
             <div class="slider-container">

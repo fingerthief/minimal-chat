@@ -54,6 +54,7 @@ const modelOptions = [
         border: 2px solid #157474;
         width: 99%;
         max-width: 99%;
+        padding: 4px;
         cursor: pointer;
         font-size: 16px;
         height: 50vh;

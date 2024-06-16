@@ -251,7 +251,7 @@ const menuItems = ref([
 <template>
     <div v-ripple="{
         pt: {
-            root: { style: 'background: #1574746c;' }
+            root: { style: 'background: #1574742d;' }
         }
     }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
