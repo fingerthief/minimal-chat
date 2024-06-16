@@ -43,6 +43,11 @@ defineEmits(['close']);
 </script>
 
 <style lang="scss" scoped>
+.tooltip-container {
+    font-size: 16px;
+    width: fit-content;
+}
+
 .dialog-header {
     display: flex;
     justify-content: space-between;

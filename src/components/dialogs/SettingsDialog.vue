@@ -173,7 +173,7 @@ onMounted(() => {
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
     <DialogHeader title="Configuration" :icon="Settings" :iconSize="32"
-      tooltipText="Current Version: 6.2.3 Starlight Symphony" headerId="settings-header"
+      tooltipText="Current Version: 6.2.4 Lunar Llama 🦙🦙🦙" headerId="settings-header"
       @close="() => isSidebarOpen = false" />
     <div class="settings-container">
       <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
