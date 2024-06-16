@@ -1,8 +1,7 @@
 // ChatLayout.vue
 
 <script setup>
-import { onMounted, onUnmounted, ref, nextTick, computed } from 'vue';
-import { ChevronDown } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
 import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
 import { uploadFileContentsToConversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
@@ -13,7 +12,6 @@ import settingsDialog from '@/components/dialogs/SettingsDialog.vue';
 import conversationsDialog from '@/components/dialogs/ConversationsDialog.vue';
 import StoredFilesList from '@/components/dialogs/StoredFilesDialog.vue';
 import {
-  shouldShowScrollButton,
   userText,
   isLoading,
   selectedModel,
@@ -27,8 +25,6 @@ import {
   lastLoadedConversationId,
   conversations,
   higherContrastMessages,
-  contextMenuOpened,
-  selectedConversation,
   showStoredFiles,
   isSmallScreen
 } from '@/libs/state-management/state';
@@ -89,11 +85,16 @@ onMounted(async () => {
   await runTutortialForNewUser();
 });
 
+function closeDialogs() {
+  isSidebarOpen.value = false;
+  showConversationOptions.value = false;
+  showStoredFiles.value = false;
+}
+
 //#endregion
 </script>
 
 <template>
-  <!-- File Upload -->
   <div id="fileUploadDiv">
     <input type="file" id="fileUpload" style="display: none"
       @change="(event) => uploadFile(event, conversations, selectConversationHandler)" />
@@ -104,19 +105,15 @@ onMounted(async () => {
     <input id="imageInput" ref="imageInput" @change="imageInputChangedHandler" style="display: none" type="file" />
   </div>
   <div class="app-body">
-    <!-- App Container -->
     <div class="app-container" id="app-container">
-      <!-- Overlay for dimming effect -->
-      <div class="overlay" v-show="isSidebarOpen || showConversationOptions"></div>
+      <div @click="closeDialogs" class="overlay" v-show="isSidebarOpen || showConversationOptions || showStoredFiles">
+      </div>
 
-      <!-- Settings Sidebar -->
       <Transition name="dialog-slide">
         <div class="sidebar-common" id="settings-dialog" v-if="isSidebarOpen">
           <settingsDialog />
         </div>
       </Transition>
-
-      <!-- Conversations Sidebar -->
       <Transition name="dialog-slide">
         <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
           v-if="showConversationOptions || !isSmallScreen">
@@ -132,13 +129,10 @@ onMounted(async () => {
       <div class="chat-container">
         <div class="container">
           <div class="chat">
-            <!-- Header -->
             <chatHeader :storedConversations="storedConversations" />
-            <!-- Messages -->
             <div class="messages">
               <messageItem />
             </div>
-            <!-- User Input -->
             <chatInput :userInput="userText" @abort-stream="abortStream" @upload-context="importFileClick"
               @update:userInput="updateUserText" />
           </div>
@@ -161,7 +155,7 @@ $hover-bg-color: #4a4a4c;
 $button-bg-color: #3a3a3c;
 $button-hover-bg-color: #4a4a4c;
 $font-color: #f0f0f0;
-$overlay-bg-color: rgba(15, 15, 15, 0.5);
+$overlay-bg-color: rgba(15, 15, 15, 0.709);
 
 .dialog-slide-enter-active {
   transition: transform 0.25s cubic-bezier(0.25, 1.25, 0.5, 1);
@@ -427,8 +421,8 @@ pre {
   width: 100%;
   height: 100vh;
   background-color: $overlay-bg-color;
-  z-index: 0;
-  transition: opacity 0.3s ease-in-out;
+  z-index: 1;
+  transition: opacity 0.15s linear;
   display: block;
 
   @media (max-width: 600px) {

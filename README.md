@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat Client**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.2.3-blue)
+![Version](https://img.shields.io/badge/version-6.2.4-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
 ![Repo Size](https://img.shields.io/github/repo-size/fingerthief/minimal-chat)
@@ -32,15 +32,13 @@ Thanks to [Web LLM](https://github.com/mlc-ai/web-llm), you can now download and
 
 [More details in the Wiki](https://github.com/fingerthief/minimal-chat/wiki/Host-and-Run-Entire-LLM-Models-Directly-in-the-Browser-Locally)
 
-![Memory Usage](https://github.com/fingerthief/minimal-chat/assets/2380471/432d77dc-78dd-469f-9844-71c770b59f06)
-
 ## Getting Started
 
 ### Installation
 
 1. Install packages: `npm install`
 2. Build the app: `npm run build`
-3. Start local server: `npm run preview` or `npm run dev` for development mode.
+3. Start local server: `npm run preview`for Production mode or `npm run dev` for development mode.
 
 ### Configuration
 
@@ -53,7 +51,7 @@ Thanks to [Web LLM](https://github.com/mlc-ai/web-llm), you can now download and
 - Supports multiple language models:
   - GPT Model
   - Open AI Response Formatted APIs (custom/local)
-  - Local Browser Loaded Models
+  - Load and host full models locally in your own browser with WebLLM
 - Switch models mid-conversation
 - Swipe gestures for quick settings and conversation access
 - Edit, regenerate, or delete past messages
@@ -86,7 +84,6 @@ Yes, it is fully mobile-compatible and can be installed as a PWA.
 
 - Swipe left on the input box to open **Conversations**.
 - Swipe right on the input box to open **Settings**.
-- Double tap the messages list for quick actions.
 - Double tap the settings page to expand/collapse the side panel.
 
 ## Integration with Open AI Response Formatted APIs

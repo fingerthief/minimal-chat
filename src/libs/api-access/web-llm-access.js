@@ -24,7 +24,7 @@ export async function loadNewModel(modelName, updateUIFunc) {
     initProgressCallback: initProgressCallback,
   };
 
-  engine = await webllm.CreateEngine(modelName, chatOpts);
+  engine = await webllm.CreateMLCEngine(modelName, chatOpts);
   showToast('Model Loaded');
 }
 
@@ -49,7 +49,7 @@ export async function sendBrowserLoadedModelMessage(messagesTest, updateUIFunc) 
       initProgressCallback: initProgressCallback,
     };
 
-    engine = await webllm.CreateEngine(selectedModel, chatOpts);
+    engine = await webllm.CreateMLCEngine(selectedModel, chatOpts);
     showToast('Model Loaded');
   }
 
@@ -95,7 +95,7 @@ export async function getBrowserLoadedModelConversationTitle(messages2) {
 
   if (engine === undefined) {
     const webllm = await import('@mlc-ai/web-llm');
-    engine = await webllm.CreateEngine(selectedModel, {
+    engine = await webllm.CreateMLCEngine(selectedModel, {
       initProgressCallback: initProgressCallback,
     });
   }
