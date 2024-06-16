@@ -5,6 +5,7 @@ import { deleteCurrentConversation } from '@/libs/conversation-management/useCon
 import { messages, selectedConversation, contextMenuOpened } from '@/libs/state-management/state';
 import { showToast } from '@/libs/utils/general-utils';
 import Menu from 'primevue/menu';
+import { CircleEllipsis } from 'lucide-vue-next';
 
 const menu = ref(null);
 
@@ -54,7 +55,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="pi pi-ellipsis-v" @click="showContextMenu" aria-haspopup="true" aria-controls="overlay_menu"></div>
+    <div class="pi pi-ellipsis-v" @click="showContextMenu" aria-haspopup="true" aria-controls="overlay_menu"
+        style="font-size: 1.2rem; color: rgb(187, 187, 187);"></div>
     <Menu ref="menu" id="overlay_menu" class="custom-context-menu" :model="items" :popup="true"></Menu>
 </template>
 

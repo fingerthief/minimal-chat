@@ -73,8 +73,8 @@ const modelOptions = [
       </div>
     </div>
     <div class="settings-btn">
-      <Menu @click="toggleSidebar" :stroke-width="0.5" :size="30" />&nbsp;&nbsp;
-      <Database @click="() => showStoredFiles = true" :stroke-width="0.5" :size="30" />
+      <Menu @click="toggleSidebar" :stroke-width="1" :size="30" />&nbsp;&nbsp;
+      <Database @click="() => showStoredFiles = true" :stroke-width="1" :size="30" />
     </div>
     <div class="context-menu-icon">
       <ContextWindow ref="contextWindow" />
