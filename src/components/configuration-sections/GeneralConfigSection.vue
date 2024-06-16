@@ -16,21 +16,10 @@
             </ul>
         </div>
         <br>
-
-        <div class="control select-dropdown">
-            <SliderCheckbox inputId="auto-save-conversations" labelText="Auto Save Conversations:"
-                v-model="selectedAutoSaveOption"
-                @update:modelValue="handleUpdate('selectedAutoSaveOption', $event.target.value)" />
-        </div>
-        <br>
         <br>
         <div class="control-checkbox">
-            <label for="higher-contrast-messages">
-                Higher Contrast Messages:
-                <input type="checkbox" id="higher-contrast-messages" :checked="higherContrastMessages"
-                    @change="handleUpdate('higherContrastMessages', $event.target.checked)" />
-                <span class="slider"></span>
-            </label>
+            <SliderCheckbox inputId="higher-contrast-messages" labelText="Higher Contrast Messages:"
+                v-model="higherContrastMessages" @update:modelValue="handleUpdate('higherContrastMessages', $event)" />
         </div>
         <br>
         <br>
@@ -38,7 +27,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import InputField from '@/components/controls/InputField.vue';
 import { Trash2 } from 'lucide-vue-next';
 import { systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';

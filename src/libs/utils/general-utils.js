@@ -111,11 +111,14 @@ export function showToast(message) {
     duration: 1250,
     newWindow: true,
     close: false,
-    gravity: 'bottom', // `top` or `bottom`
-    position: 'center', // `left`, `center` or `right`
+    gravity: 'top', // `top` or `bottom`
+    position: 'right', // `left`, `center` or `right`
     stopOnFocus: true, // Prevents dismissing of toast on hover
     style: {
-      background: 'linear-gradient(to right, #0f3b39, #0f3b39)',
+      background: '#157474d4',
+      color: 'whitesmoke',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+      borderRadius: '8px',
     },
     onClick: function () { }, // Callback after click
   }).showToast();

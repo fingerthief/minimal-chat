@@ -107,8 +107,9 @@ $shadow-spread-radius: 0px;
   border-top: none;
   border-left: none;
   border-right: none;
-  width: 450px;
-  max-width: 80%;
+  margin-left: 20px;
+  width: 15vw;
+  max-width: 15vw;
   cursor: pointer;
   font-size: 16px;
 
@@ -279,7 +280,7 @@ $shadow-spread-radius: 0px;
 .context-menu-icon {
   position: absolute;
   right: 10px;
-  top: 18%;
+  top: 28%;
   background-color: transparent;
   border: none;
   color: $icon-color;

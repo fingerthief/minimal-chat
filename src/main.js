@@ -13,6 +13,8 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
+import Listbox from 'primevue/listbox';
+
 
 import 'primeicons/primeicons.css';
 import 'primevue/resources/themes/lara-dark-green/theme.css'
@@ -30,5 +32,6 @@ app.component('Column', Column);
 app.component('Button', Button);
 app.component('Dropdown', Dropdown);
 app.component('InputText', InputText);
+app.component('Listbox', Listbox);
 
 app.mount('#app');
