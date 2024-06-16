@@ -211,6 +211,41 @@ function formatMessage(content) {
 
     return renderedContent;
 }
+
+const menu = ref(null);
+
+const menuItems = ref([
+    {
+        label: 'Regenerate',
+        icon: 'pi pi-refresh',
+        command: () => {
+            regenerateMessage(props.item.content);
+            startLoading(props.item.id);
+        },
+        visible: props.item.role === 'user'
+    },
+    {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => editMessage(props.item),
+        visible: props.item.role === 'user'
+    },
+    {
+        label: 'Copy',
+        icon: 'pi pi-copy',
+        command: () => copyText(props.item.content),
+        visible: props.item.role === 'user'
+    },
+    {
+        label: 'Remove',
+        icon: 'pi pi-trash',
+        command: () => {
+            deleteMessage(props.item.content);
+            startLoading(props.item.id);
+        },
+        visible: props.item.role === 'user'
+    }
+]);
 </script>
 
 <template>
@@ -220,22 +255,8 @@ function formatMessage(content) {
         }
     }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
-            <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + item.id" :size="18"
-                :class="{ loading: isLoading && loadingIcon === item.id }"
-                @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
-
-            <Pencil v-if="item.role === 'user'" class="icon" :id="'message-edit-' + item.id" :size="18"
-                @click.stop="editMessage(item)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
-
-            <Copy v-if="item.role === 'user'" class="delete-icon" :id="'message-copy-' + item.id" :size="18"
-                @click.stop="copyText(item.content)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-copy-' + item.id">Copy</ToolTip>
-
-            <Trash v-if="item.role === 'user'" class="delete-icon" :id="'message-trash-' + item.id" :size="18"
-                @click.stop="deleteMessage(item.content), startLoading(item.id)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
+            <ContextMenu ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
+            <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
                 {{ item.role === 'user' ? '' : modelDisplayName }}
             </div>
@@ -244,12 +265,22 @@ function formatMessage(content) {
         <div class="message-contents" :id="'message-' + item.id" :contenteditable="item.isEditing"
             @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)" v-html="formatMessage(item.content)">
         </div>
-        <ToolTip v-if="item.role === 'user'" :targetId="'message-' + item.id">Double click to edit message </ToolTip>
     </div>
 </template>
-
 <!-- MessageItem.vue -->
-<style lang="scss" scoped>
+<style lang="scss">
+.p-menuitem {
+    padding: 4px;
+
+    span {
+        gap: 3px;
+    }
+
+    .p-menuitem-text {
+        margin-left: 6px;
+    }
+}
+
 .message {
     position: relative;
     min-width: 10%;
