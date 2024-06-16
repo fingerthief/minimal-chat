@@ -24,7 +24,7 @@ docker pull tannermiddleton/minimal-chat:latest
 
 [Watch Higher Quality Video](https://www.youtube.com/watch?v=bO78W8MPWgE)
 
-![Demo Video](https://github.com/fingerthief/minimal-chat/assets/2380471/e93141b7-1ee1-4dbf-a106-0d92897d899b)
+[Demo Video](https://github.com/fingerthief/minimal-chat/assets/2380471/e93141b7-1ee1-4dbf-a106-0d92897d899b)
 
 ## Experience the Power of Web Local LLM Models
 
