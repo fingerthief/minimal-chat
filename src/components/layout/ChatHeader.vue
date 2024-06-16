@@ -112,6 +112,7 @@ $shadow-spread-radius: 0px;
   max-width: 15vw;
   cursor: pointer;
   font-size: 16px;
+  padding: 4px;
 
   &:hover {
     background-color: #262627;

@@ -111,16 +111,28 @@ export function showToast(message) {
     duration: 1250,
     newWindow: true,
     close: false,
-    gravity: 'top', // `top` or `bottom`
-    position: 'right', // `left`, `center` or `right`
-    stopOnFocus: true, // Prevents dismissing of toast on hover
+    gravity: 'top',
+    position: 'right',
+    stopOnFocus: true,
     style: {
-      background: '#157474d4',
+      background: 'linear-gradient(135deg, #1574742d, #1574743d)',
       color: 'whitesmoke',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
-      borderRadius: '8px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
+      borderRadius: '12px',
+      padding: '14px 20px',
+      fontFamily: 'Roboto, sans-serif',
+      fontSize: '16px',
+      lineHeight: '1.4',
+      maxWidth: '30vw',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      cursor: 'default',
+      transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
+      opacity: '0.9',
+      transform: 'translateY(-10px)',
     },
-    onClick: function () { }, // Callback after click
+    onClick: function () { },
   }).showToast();
 }
 

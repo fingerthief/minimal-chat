@@ -1,6 +1,6 @@
 <!-- MessageItem.vue -->
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { RefreshCcw, Trash, Copy, Pencil } from 'lucide-vue-next';
 import ToolTip from '@/components/controls/ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
@@ -29,8 +29,18 @@ import {
 import { updateUIWrapper } from '@/libs/utils/general-utils';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import 'swiped-events';
-import hljs from 'highlight.js/lib/common';
+import hljs from 'highlight.js/lib/core';
+import javascript from 'highlight.js/lib/languages/javascript';
+import c from 'highlight.js/lib/languages/c';
+import csharp from 'highlight.js/lib/languages/csharp';
+import python from 'highlight.js/lib/languages/python';
+import 'highlight.js/styles/github-dark.css';
 import MarkdownIt from 'markdown-it';
+
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('c', c);
+hljs.registerLanguage('csharp', csharp);
+hljs.registerLanguage('python', python);
 
 // Props
 const props = defineProps({
@@ -160,59 +170,93 @@ async function deleteMessage(content) {
     saveMessagesHandler();
 }
 
-function formatMessage(content) {
-    const md = new MarkdownIt({
-        highlight: (str, lang) => {
-            try {
-                return hljs.highlightAuto(str, lang ? [lang] : undefined).value;
-            } catch (__) {
-                return '';
-            }
-        },
-    });
+const md = new MarkdownIt({
+    highlight: (str, lang) => {
+        if (lang && hljs.getLanguage(lang)) {
+            return hljs.highlight(str, { language: lang }).value;
+        }
+        return hljs.highlightAuto(str).value;
+    },
+});
 
-    let combinedContent = content;
+function formatMessage(content) {
+
+    let combinedContent = '';
 
     if (Array.isArray(content)) {
-        combinedContent = content.reduce((result, item) => {
+        combinedContent = content.map(item => {
             if (item.type === 'text' && item.text) {
-                result += item.text + ' ';
+                return item.text;
             } else if (item.type === 'image_url' && item.image_url && item.image_url.url) {
-                result += `![](${item.image_url.url})` + ' \r\n';
+                return `![](${item.image_url.url})`;
             }
-            return result;
-        }, '').trim();
+            return '';
+        }).join(' ').trim();
+    } else {
+        combinedContent = content;
     }
 
-    return md
-        .render(combinedContent)
-        .replace(/<(ul|li)>\s*\n/g, '<$1> ')
-        .replace(/\n\s*<\/(ul|li)>/g, ' </$1>')
-        .replace(/\n/g, '<br>')
-        .replace(/^<br\s*\/?>|<br\s*\/?>\s*$/g, '');
+    let renderedContent = md.render(combinedContent);
+
+    // Replace newlines with <br> tags
+    renderedContent = renderedContent.split('\n').join('<br>');
+
+    // Remove leading and trailing <br> tags
+    if (renderedContent.startsWith('<br>')) {
+        renderedContent = renderedContent.substring(4);
+    }
+    if (renderedContent.endsWith('<br>')) {
+        renderedContent = renderedContent.slice(0, -4);
+    }
+
+    return renderedContent;
 }
+
+const menu = ref(null);
+
+const menuItems = ref([
+    {
+        label: 'Regenerate',
+        icon: 'pi pi-refresh',
+        command: () => {
+            regenerateMessage(props.item.content);
+            startLoading(props.item.id);
+        },
+        visible: props.item.role === 'user'
+    },
+    {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => editMessage(props.item),
+        visible: props.item.role === 'user'
+    },
+    {
+        label: 'Copy',
+        icon: 'pi pi-copy',
+        command: () => copyText(props.item.content),
+        visible: props.item.role === 'user'
+    },
+    {
+        label: 'Remove',
+        icon: 'pi pi-trash',
+        command: () => {
+            deleteMessage(props.item.content);
+            startLoading(props.item.id);
+        },
+        visible: props.item.role === 'user'
+    }
+]);
 </script>
 
-<!-- MessageItem.vue -->
 <template>
-    <div v-if="active" :class="messageClass(item.role)">
+    <div v-ripple="{
+        pt: {
+            root: { style: 'background: #1574742d;' }
+        }
+    }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
-            <RefreshCcw v-if="item.role === 'user'" class="icon" :id="'message-refresh-' + item.id" :size="18"
-                :class="{ loading: isLoading && loadingIcon === item.id }"
-                @click.stop="regenerateMessage(item.content), startLoading(item.id)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
-
-            <Pencil v-if="item.role === 'user'" class="icon" :id="'message-edit-' + item.id" :size="18"
-                @click.stop="editMessage(item)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-refresh-' + item.id">Regenerate </ToolTip>
-
-            <Copy v-if="item.role === 'user'" class="delete-icon" :id="'message-copy-' + item.id" :size="18"
-                @click.stop="copyText(item.content)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-copy-' + item.id">Copy</ToolTip>
-
-            <Trash v-if="item.role === 'user'" class="delete-icon" :id="'message-trash-' + item.id" :size="18"
-                @click.stop="deleteMessage(item.content), startLoading(item.id)" />
-            <ToolTip v-if="item.role === 'user'" :targetId="'message-trash-' + item.id">Remove</ToolTip>
+            <ContextMenu ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
+            <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
                 {{ item.role === 'user' ? '' : modelDisplayName }}
             </div>
@@ -221,12 +265,22 @@ function formatMessage(content) {
         <div class="message-contents" :id="'message-' + item.id" :contenteditable="item.isEditing"
             @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)" v-html="formatMessage(item.content)">
         </div>
-        <ToolTip v-if="item.role === 'user'" :targetId="'message-' + item.id">Double click to edit message </ToolTip>
     </div>
 </template>
-
 <!-- MessageItem.vue -->
-<style lang="scss" scoped>
+<style lang="scss">
+.p-menuitem {
+    padding: 4px;
+
+    span {
+        gap: 3px;
+    }
+
+    .p-menuitem-text {
+        margin-left: 6px;
+    }
+}
+
 .message {
     position: relative;
     min-width: 10%;
@@ -351,7 +405,7 @@ function formatMessage(content) {
 
         &[contenteditable='true'] {
             outline: none;
-            outline: 2px solid #423d42;
+            outline: 2px solid #157474;
             border-radius: 5px;
             text-align: left;
         }
