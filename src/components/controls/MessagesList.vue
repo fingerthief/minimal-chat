@@ -2,7 +2,7 @@
 <template>
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
-    <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" @emitUpdates="true"
+    <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" :emitUpdates="true"
       :items="filteredMessages" key-field="id" v-slot="{ item, active }">
       <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
         <MessageItem :item="item" :active="active" />
@@ -23,14 +23,11 @@ import { swipedLeft, swipedRight } from '@/libs/utils/general-utils';
 import 'swiped-events';
 import MessageItem from '@/components/controls/MessageItem.vue';
 
-// Refs
 const messageList = ref(null);
 const scroller = ref(null);
 
-// Message filtering
 const filteredMessages = computed(() => messages.value.filter((message) => message.role !== 'system'));
 
-// Scrolling
 async function scrollToBottom() {
   if (scroller.value && messageList.value) {
     await nextTick();
@@ -39,7 +36,7 @@ async function scrollToBottom() {
 }
 
 watch(
-  () => [filteredMessages],
+  () => filteredMessages.value,
   async () => {
     await scrollToBottom();
   },

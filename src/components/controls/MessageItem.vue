@@ -1,6 +1,6 @@
 <!-- MessageItem.vue -->
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { RefreshCcw, Trash, Copy, Pencil } from 'lucide-vue-next';
 import ToolTip from '@/components/controls/ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
@@ -72,7 +72,7 @@ function copyText(message) {
             .map(item => item.text)
             .join(' ');
     } else {
-        textToCopy = message.text || '';
+        textToCopy = message || '';
     }
 
     navigator.clipboard
@@ -214,38 +214,43 @@ function formatMessage(content) {
 
 const menu = ref(null);
 
-const menuItems = ref([
-    {
-        label: 'Regenerate',
-        icon: 'pi pi-refresh',
-        command: () => {
-            regenerateMessage(props.item.content);
-            startLoading(props.item.id);
+const menuItems = computed(() => {
+    if (!props.item) return [];
+
+    return [
+        {
+            label: 'Regenerate',
+            icon: 'pi pi-refresh',
+            command: () => {
+                regenerateMessage(props.item.content);
+                startLoading(props.item.id);
+            },
+            visible: props.item.role === 'user'
         },
-        visible: props.item.role === 'user'
-    },
-    {
-        label: 'Edit',
-        icon: 'pi pi-pencil',
-        command: () => editMessage(props.item),
-        visible: props.item.role === 'user'
-    },
-    {
-        label: 'Copy',
-        icon: 'pi pi-copy',
-        command: () => copyText(props.item.content),
-        visible: props.item.role === 'user'
-    },
-    {
-        label: 'Remove',
-        icon: 'pi pi-trash',
-        command: () => {
-            deleteMessage(props.item.content);
-            startLoading(props.item.id);
+        {
+            label: 'Edit',
+            icon: 'pi pi-pencil',
+            command: () => editMessage(props.item),
+            visible: props.item.role === 'user'
         },
-        visible: props.item.role === 'user'
-    }
-]);
+        {
+            label: 'Copy',
+            icon: 'pi pi-copy',
+            command: () => copyText(props.item.content),
+            visible: true
+        },
+        {
+            label: 'Remove',
+            icon: 'pi pi-trash',
+            command: () => {
+                deleteMessage(props.item.content);
+                startLoading(props.item.id);
+            },
+            visible: props.item.role === 'user'
+        }
+    ];
+});
+
 </script>
 
 <template>
@@ -255,7 +260,7 @@ const menuItems = ref([
         }
     }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
-            <ContextMenu ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
+            <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
             <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
                 {{ item.role === 'user' ? '' : modelDisplayName }}
