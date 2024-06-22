@@ -1,15 +1,5 @@
 <template>
     <div class="control-grid">
-        <div v-if="customConfigs.length" class="saved-custom-configs">
-            <h4>Saved Custom Configs</h4>
-            <ul>
-                <li v-for="(config, index) in customConfigs" :key="index"
-                    :class="{ selected: index === selectedCustomConfigIndex }" @click="handleSelectCustomConfig(index)">
-                    <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />
-                    <span>&nbsp;&nbsp;{{ config.endpoint }}</span>
-                </li>
-            </ul>
-        </div>
         <InputField :isSecret="false" labelText="API Endpoint:" :placeholderText="'Enter the base API Endpoint URL'"
             inputId="local-model-endpoint" :value="localModelEndpoint"
             @update:value="handleUpdate('localModelEndpoint', $event)" />
@@ -57,7 +47,7 @@ import { ChevronDown, ChevronRight, Trash2 } from 'lucide-vue-next';
 import Listbox from 'primevue/listbox';
 import Slider from '../controls/Slider.vue';
 import { localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty, availableModels, selectedModel } from '@/libs/state-management/state';
-import { handleUpdate, handleDeleteCustomConfig, handleSelectCustomConfig, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex, updateMaxTokensSliderValue } from '@/libs/utils/settings-utils';
+import { handleUpdate, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex, updateMaxTokensSliderValue } from '@/libs/utils/settings-utils';
 
 
 const isModelSelectorOpen = ref(false);

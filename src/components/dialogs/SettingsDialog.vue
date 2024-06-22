@@ -21,6 +21,7 @@ import {
   isSidebarVisible,
   systemPrompt,
   availableModels,
+
 } from '@/libs/state-management/state';
 import { removeAPIEndpoints } from '@/libs/utils/general-utils';
 import { runTutorialForSettings } from '@/libs/utils/tutorial-utils';
@@ -30,14 +31,18 @@ import {
   selectedSystemPromptIndex,
   customConfigs,
   selectedCustomConfigIndex,
+  handleSelectCustomConfig,
+  handleDeleteCustomConfig
 
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
-import { Settings } from 'lucide-vue-next';
+import { Settings, Trash2 } from 'lucide-vue-next';
 
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
 const isGPTConfigOpen = ref(false);
+const isCustomConfigOpen = ref(false);
+const selectedCustomConfig = ref(null);
 
 const models = [
   { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
@@ -47,11 +52,6 @@ const models = [
   { label: 'WebGPU Model', value: 'web-llm' }
 ];
 
-const isSidebarVisibleOnSmallScreen = computed(() => {
-  return (isSidebarVisible.value && isSmallScreen.value) === true;
-});
-
-// Watch for changes in the sidebar's visibility
 watch(isSidebarOpen, (newVal) => {
   if (newVal) {
     runTutorialForSettings();
@@ -67,21 +67,6 @@ async function fetchAvailableModels() {
   } catch (error) {
     console.error('Error fetching available models:', error);
   }
-}
-
-function selectModel(model) {
-  selectedModel.value = model;
-
-  // Close all collapsible groups
-  showingGeneralConfig.value = false;
-  isClaudeConfigOpen.value = false;
-  isGPTConfigOpen.value = false;
-
-  if (model === 'open-ai-format') {
-    fetchAvailableModels();
-  }
-
-  isSidebarVisible.value = false;
 }
 
 function toggleSidebar() {
@@ -114,7 +99,6 @@ function handleTouchStart(event) {
   if (tapLength < 300 && tapLength > 0) {
     event.preventDefault();
 
-    // Double-tap detected
     isSidebarVisible.value = true;
   }
   lastTap.value = currentTime;
@@ -125,6 +109,31 @@ function showGeneralConfigSection() {
   showingGeneralConfig.value = true;
   isSidebarVisible.value = false;
 }
+
+function selectCustomModel(configName) {
+  selectedModel.value = 'open-ai-format';
+  selectedCustomConfig.value = configName;
+
+  isSidebarVisible.value = false;
+}
+
+function selectModel(model) {
+  selectedModel.value = model;
+  selectedCustomConfig.value = null;
+  isCustomConfigOpen.value = false;
+
+  showingGeneralConfig.value = false;
+  isClaudeConfigOpen.value = false;
+  isGPTConfigOpen.value = false;
+  isCustomConfigOpen.value = false;
+
+  if (model === 'open-ai-format') {
+    fetchAvailableModels();
+  }
+
+  isSidebarVisible.value = false;
+}
+
 
 // Lifecycle hooks
 onMounted(() => {
@@ -148,7 +157,7 @@ onMounted(() => {
     if (customConfigs.value.length > 0) {
       const matchingConfigIndex = customConfigs.value.findIndex((config) => config.endpoint === localModelEndpoint.value);
 
-      if (matchingConfigIndex !== -1) {
+      if (matchingConfigIndex !== -1 && selectedModel.value.includes("open-ai-format")) {
         selectedCustomConfigIndex.value = matchingConfigIndex;
         const config = customConfigs.value[matchingConfigIndex];
         localModelEndpoint.value = config.endpoint;
@@ -173,7 +182,7 @@ onMounted(() => {
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
     <DialogHeader title="Configuration" :icon="Settings" :iconSize="32"
-      tooltipText="Current Version: 6.2.5 Neural Nexus ⚛" headerId="settings-header"
+      tooltipText="Current Version: 6.2.5 Neural Nexus 🧠" headerId="settings-header"
       @close="() => isSidebarOpen = false" />
     <div class="settings-container">
       <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
@@ -194,9 +203,24 @@ onMounted(() => {
               </li>
             </ul>
           </li>
-          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
-            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-            {{ model.label }}
+          <li>
+            <h4 @click="isCustomConfigOpen = !isCustomConfigOpen">
+              Custom Models
+              <span class="indicator"
+                :class="{ 'pi pi-chevron-down': isCustomConfigOpen, 'pi pi-chevron-right': !isCustomConfigOpen }"></span>
+            </h4>
+            <ul v-show="isCustomConfigOpen">
+              <li v-for="(config, index) in customConfigs" :key="config.endpoint"
+                :class="{ selected: selectedModel === 'open-ai-format' && localModelEndpoint === config.endpoint }"
+                @click="handleSelectCustomConfig(index)">
+                <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />&nbsp;&nbsp;
+                {{ config.endpoint }}
+              </li>
+            </ul>
+          </li>
+          <li :class="{ selected: selectedModel === 'web-llm' && !selectedCustomConfig }"
+            @click="selectModel('web-llm')">
+            Browser Model
           </li>
         </ul>
       </Sidebar>
@@ -218,10 +242,21 @@ onMounted(() => {
               {{ model.label }}
             </li>
           </ul>
-          <!-- Other Models -->
-          <li v-for="model in models.filter(m => !m.value.includes('gpt') && !m.value.includes('claude'))"
-            :key="model.value" :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-            {{ model.label }}
+          <li @click="isCustomConfigOpen = !isCustomConfigOpen">
+            Custom Models
+            <span class="indicator">{{ isCustomConfigOpen || selectedModel === 'open-ai-format' ? '-' : '+' }}</span>
+          </li>
+          <ul v-show="isCustomConfigOpen || selectedModel === 'open-ai-format'" class="sub-item">
+            <li v-for="(config, index) in customConfigs" :key="config.endpoint"
+              :class="{ selected: selectedModel === 'open-ai-format' && selectedCustomConfigIndex === index }"
+              @click="handleSelectCustomConfig(index)">
+              <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />&nbsp;&nbsp;
+              {{ config.endpoint }}
+            </li>
+          </ul>
+          <li :class="{ selected: selectedModel === 'web-llm' && !selectedCustomConfig }"
+            @click="selectModel('web-llm')">
+            Browser Model
           </li>
         </ul>
         <div class="close-btn-wrapper">

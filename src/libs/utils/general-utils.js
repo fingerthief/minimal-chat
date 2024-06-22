@@ -108,14 +108,14 @@ export function parseStreamResponseChunk(chunk) {
 export function showToast(message) {
   Toastify({
     text: message,
-    duration: 1250,
+    duration: 2000,
     newWindow: true,
     close: false,
     gravity: 'top',
     position: 'right',
     stopOnFocus: true,
     style: {
-      background: 'linear-gradient(135deg, #1574742d, #1574743d)',
+      background: '#157474ac',
       color: 'whitesmoke',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
       borderRadius: '12px',
@@ -123,14 +123,15 @@ export function showToast(message) {
       fontFamily: 'Roboto, sans-serif',
       fontSize: '16px',
       lineHeight: '1.4',
-      maxWidth: '30vw',
+      maxWidth: '70vw',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
       cursor: 'default',
       transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
-      opacity: '0.9',
+      opacity: '1',
       transform: 'translateY(-10px)',
+      zIndex: '5'
     },
     onClick: function () { },
   }).showToast();

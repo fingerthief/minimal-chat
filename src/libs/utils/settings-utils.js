@@ -137,6 +137,7 @@ export async function selectCustomConfig(index) {
   localSliderValue.value = config.temperature;
   top_P.value = config.top_P;
   repetitionPenalty.value = config.repetitionPenalty;
+  selectedModel.value = "open-ai-format";
 
   try {
     if (localModelEndpoint.value.trim() !== '') {
