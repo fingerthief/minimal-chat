@@ -274,6 +274,17 @@ const menuItems = computed(() => {
 </template>
 <!-- MessageItem.vue -->
 <style lang="scss">
+.scale-enter-from,
+.scale-leave-to {
+    transition: all 0.15s ease-out;
+    transform: scale(0);
+}
+
+.scale-enter-to,
+.scale-leave-from {
+    transform: scale(1);
+}
+
 .p-menuitem {
     padding: 4px;
 

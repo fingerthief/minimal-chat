@@ -5,15 +5,24 @@
                 @update:value="handleUpdate('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
                 :placeholderText="'Enter the system prompt if applicable.'" />
         </div>
-        <div v-if="systemPrompts.length" class="saved-system-prompts">
-            <h4>Saved System Prompts:</h4>
-            <ul>
-                <li v-for="(prompt, index) in systemPrompts" :key="index"
-                    :class="{ selected: index === selectedSystemPromptIndex }" @click="handleSelectSystemPrompt(index)">
-                    <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteSystemPrompt(index)" />
-                    &nbsp;&nbsp;{{ prompt }}
-                </li>
-            </ul>
+        <div class="saved-system-prompts-section">
+            <h4 @click="isSavedPromptsOpen = !isSavedPromptsOpen">
+                Saved System Prompts
+                <ChevronDown v-if="isSavedPromptsOpen" class="indicator" size="20" />
+                <ChevronRight v-else class="indicator" size="20" />
+            </h4>
+            <transition name="slide-fade">
+                <div v-show="isSavedPromptsOpen && systemPrompts.length" class="saved-system-prompts">
+                    <ul>
+                        <li v-for="(prompt, index) in systemPrompts" :key="index"
+                            :class="{ selected: index === selectedSystemPromptIndex }"
+                            @click="handleSelectSystemPrompt(index)">
+                            <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteSystemPrompt(index)" />
+                            &nbsp;&nbsp;{{ prompt }}
+                        </li>
+                    </ul>
+                </div>
+            </transition>
         </div>
         <br>
         <br>

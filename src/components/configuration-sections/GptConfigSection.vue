@@ -45,56 +45,62 @@ const dalleImageResolutionOptions = [
             maxLabel="Creative" @update:modelValue="updateGptSliderValue" />
         <br>
         <br>
-        <div class="config-section" :class="{ show: isWhisperConfigSectionOpen }">
+        <div class="config-section">
             <h3 @click="isWhisperConfigSectionOpen = !isWhisperConfigSectionOpen">
                 Interact Mode
                 <ChevronDown v-if="isWhisperConfigSectionOpen" class="indicator" size="20" />
                 <ChevronRight v-else class="indicator" size="20" />
             </h3>
-            <div v-show="isWhisperConfigSectionOpen" class="control-grid">
-                <SliderCheckbox inputId="push-to-talk" labelText="Push to Talk Mode" v-model="pushToTalkMode"
-                    @update:modelValue="handleUpdate('use-push-to-talk', $event)" />
-                <SliderCheckbox inputId="use-whisper" labelText="Whisper Transcriptions" v-model="useWhisper"
-                    @update:modelValue="handleUpdate('use-whisper', $event)" />
-                <div class="control select-dropdown">
-                    <label for="tts-model">TTS Model:</label>&nbsp;
-                    <Dropdown checkmark id="tts-model" :options="ttsModelOptions" v-model="ttsModel" optionLabel="label"
-                        optionValue="value" @change="handleUpdate('tts-model', $event.value)"></Dropdown>
+            <transition name="slide-fade">
+                <div v-show="isWhisperConfigSectionOpen" class="control-grid">
+                    <SliderCheckbox inputId="push-to-talk" labelText="Push to Talk Mode" v-model="pushToTalkMode"
+                        @update:modelValue="handleUpdate('use-push-to-talk', $event)" />
+                    <SliderCheckbox inputId="use-whisper" labelText="Whisper Transcriptions" v-model="useWhisper"
+                        @update:modelValue="handleUpdate('use-whisper', $event)" />
+                    <div class="control select-dropdown">
+                        <label for="tts-model">TTS Model:</label>&nbsp;
+                        <Dropdown checkmark id="tts-model" :options="ttsModelOptions" v-model="ttsModel"
+                            optionLabel="label" optionValue="value" @change="handleUpdate('tts-model', $event.value)">
+                        </Dropdown>
+                    </div>
+                    <div class="control select-dropdown">
+                        <label for="tts-voice">TTS Voice:</label>&nbsp;
+                        <Dropdown checkmark id="tts-voice" :options="ttsVoiceOptions" v-model="ttsVoice"
+                            optionLabel="label" optionValue="value" @change="handleUpdate('tts-voice', $event.value)">
+                        </Dropdown>
+                    </div>
+                    <InputField :isSecret="false" labelText="Audio Speed:"
+                        :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
+                        inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
+                    <ToolTip :targetId="'audio-speed'">Default is 1.0 and 1.05 would be 5% faster playback.</ToolTip>
+                    <Slider label="Temperature" v-model="whisperTemperature" :min="0" :max="1" :step="0.01"
+                        minLabel="Serious" maxLabel="Creative" @update:modelValue="updateWhisperSlider" />
                 </div>
-                <div class="control select-dropdown">
-                    <label for="tts-voice">TTS Voice:</label>&nbsp;
-                    <Dropdown checkmark id="tts-voice" :options="ttsVoiceOptions" v-model="ttsVoice" optionLabel="label"
-                        optionValue="value" @change="handleUpdate('tts-voice', $event.value)"></Dropdown>
-                </div>
-                <InputField :isSecret="false" labelText="Audio Speed:"
-                    :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
-                    inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
-                <ToolTip :targetId="'audio-speed'">Default is 1.0 and 1.05 would be 5% faster playback.</ToolTip>
-                <Slider label="Temperature" v-model="whisperTemperature" :min="0" :max="1" :step="0.01"
-                    minLabel="Serious" maxLabel="Creative" @update:modelValue="updateWhisperSlider" />
-            </div>
+            </transition>
         </div>
         <br>
-        <div class="config-section" :class="{ show: isDALLEConfigOpen }">
+        <div class="config-section">
             <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
                 DALL-E
                 <ChevronDown v-if="isDALLEConfigOpen" class="indicator" size="20" />
                 <ChevronRight v-else class="indicator" size="20" />
             </h3>
-            <div v-show="isDALLEConfigOpen" class="control-grid">
-                <div class="control select-dropdown">
-                    <label for="dalle-image-count">DALL-E Image Count:</label>&nbsp;
-                    <Dropdown checkmark id="dalle-image-count" :options="dalleImageCountOptions"
-                        v-model="selectedDallEImageCount" optionLabel="label" optionValue="value"
-                        @change="handleUpdate('selectedDallEImageCount', $event.value)"></Dropdown>
+            <transition name="slide-fade">
+                <div v-show="isDALLEConfigOpen" class="control-grid">
+                    <div class="control select-dropdown">
+                        <label for="dalle-image-count">DALL-E Image Count:</label>&nbsp;
+                        <Dropdown checkmark id="dalle-image-count" :options="dalleImageCountOptions"
+                            v-model="selectedDallEImageCount" optionLabel="label" optionValue="value"
+                            @change="handleUpdate('selectedDallEImageCount', $event.value)"></Dropdown>
+                    </div>
+                    <div class="control select-dropdown">
+                        <label for="dalle-image-resolution">Image Resolution:</label>&nbsp;
+                        <Dropdown checkmark id="dalle-image-resolution" :options="dalleImageResolutionOptions"
+                            v-model="selectedDallEImageResolution" optionLabel="label" optionValue="value"
+                            @change="handleUpdate('selectedDallEImageResolution', $event.value)"></Dropdown>
+                    </div>
                 </div>
-                <div class="control select-dropdown">
-                    <label for="dalle-image-resolution">Image Resolution:</label>&nbsp;
-                    <Dropdown checkmark id="dalle-image-resolution" :options="dalleImageResolutionOptions"
-                        v-model="selectedDallEImageResolution" optionLabel="label" optionValue="value"
-                        @change="handleUpdate('selectedDallEImageResolution', $event.value)"></Dropdown>
-                </div>
-            </div>
+            </transition>
         </div>
     </div>
 </template>
@@ -161,6 +167,19 @@ const dalleImageResolutionOptions = [
     }
 }
 
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: all 0.15s ease;
+    max-height: 90vh;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
 .config-section {
     margin-bottom: 15px;
 
@@ -177,25 +196,10 @@ const dalleImageResolutionOptions = [
         padding: 8px;
     }
 
-    .config-info {
-        font-size: 12px;
-    }
-
     .control-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
         gap: 20px;
-        transition: max-height 0.3s ease-in-out;
-        overflow: hidden;
-        max-height: 0;
-
-        @media (max-width: 600px) {
-            grid-template-columns: repeat(1, 1fr);
-        }
-    }
-
-    &.show .control-grid {
-        max-height: fit-content;
     }
 }
 

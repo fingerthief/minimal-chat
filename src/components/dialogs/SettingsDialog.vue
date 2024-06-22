@@ -36,7 +36,7 @@ import {
 
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
-import { Settings, Trash2 } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Settings, Trash2 } from 'lucide-vue-next';
 
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
@@ -110,11 +110,17 @@ function showGeneralConfigSection() {
   isSidebarVisible.value = false;
 }
 
-function selectCustomModel(configName) {
-  selectedModel.value = 'open-ai-format';
-  selectedCustomConfig.value = configName;
+function selectCustomModel(index) {
+  handleSelectCustomConfig(index);
+  // selectedCustomConfig.value = configName;
+
+  showingGeneralConfig.value = false;
+  isClaudeConfigOpen.value = false;
+  isGPTConfigOpen.value = false;
+  isCustomConfigOpen.value = false;
 
   isSidebarVisible.value = false;
+
 }
 
 function selectModel(model) {
@@ -182,7 +188,7 @@ onMounted(() => {
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
     <DialogHeader title="Configuration" :icon="Settings" :iconSize="32"
-      tooltipText="Current Version: 6.2.5 Neural Nexus 🧠" headerId="settings-header"
+      tooltipText="Current Version: 6.2.5 Fluid Fusion (Pre-Release)" headerId="settings-header"
       @close="() => isSidebarOpen = false" />
     <div class="settings-container">
       <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
@@ -212,7 +218,7 @@ onMounted(() => {
             <ul v-show="isCustomConfigOpen">
               <li v-for="(config, index) in customConfigs" :key="config.endpoint"
                 :class="{ selected: selectedModel === 'open-ai-format' && localModelEndpoint === config.endpoint }"
-                @click="handleSelectCustomConfig(index)">
+                @click="selectCustomModel(config.endpoint, index)">
                 <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />&nbsp;&nbsp;
                 {{ config.endpoint }}
               </li>
@@ -231,33 +237,38 @@ onMounted(() => {
           <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
             General Config
           </li>
-          <!-- Collapsible Group for GPT Models -->
           <li @click="isGPTConfigOpen = !isGPTConfigOpen">
+            <ChevronDown v-if="isGPTConfigOpen || selectedModel.includes('gpt')" :size="12" />
+            <ChevronRight v-else :size="12" />
             GPT Models
-            <span class="indicator">{{ isGPTConfigOpen || selectedModel.includes('gpt') ? '-' : '+' }}</span>
           </li>
-          <ul v-show="isGPTConfigOpen || selectedModel.includes('gpt')" class="sub-item">
-            <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
-              :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
-              {{ model.label }}
-            </li>
-          </ul>
+          <transition name="slide-fade">
+            <ul v-show="isGPTConfigOpen || selectedModel.includes('gpt')" class="sub-item">
+              <li v-for="model in models.filter(m => m.value.includes('gpt'))" :key="model.value"
+                :class="{ selected: model.value === selectedModel }" @click="selectModel(model.value)">
+                {{ model.label }}
+              </li>
+            </ul>
+          </transition>
           <li @click="isCustomConfigOpen = !isCustomConfigOpen">
+            <ChevronDown v-if="isCustomConfigOpen || selectedModel === 'open-ai-format'" :size="12" />
+            <ChevronRight v-else :size="12" />
             Custom Models
-            <span class="indicator">{{ isCustomConfigOpen || selectedModel === 'open-ai-format' ? '-' : '+' }}</span>
           </li>
-          <ul v-show="isCustomConfigOpen || selectedModel === 'open-ai-format'" class="sub-item">
-            <li v-for="(config, index) in customConfigs" :key="config.endpoint"
-              :class="{ selected: selectedModel === 'open-ai-format' && selectedCustomConfigIndex === index }"
-              @click="handleSelectCustomConfig(index)">
-              <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />&nbsp;&nbsp;
-              {{ config.endpoint }}
-            </li>
-            <li v-if="!customConfigs.length" :class="{ selected: selectedModel === 'open-ai-format' }"
-              @click="selectModel('open-ai-format')">
-              Add New Custom API
-            </li>
-          </ul>
+          <transition name="slide-fade">
+            <ul v-show="isCustomConfigOpen || selectedModel === 'open-ai-format'" class="sub-item">
+              <li v-for="(config, index) in customConfigs" :key="config.endpoint"
+                :class="{ selected: selectedModel === 'open-ai-format' && selectedCustomConfigIndex === index }"
+                @click="selectCustomModel(index)">
+                <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />&nbsp;&nbsp;
+                {{ config.endpoint }}
+              </li>
+              <li v-if="!customConfigs.length" :class="{ selected: selectedModel === 'open-ai-format' }"
+                @click="selectModel('open-ai-format')">
+                Add New Custom API
+              </li>
+            </ul>
+          </transition>
           <li :class="{ selected: selectedModel === 'web-llm' && !selectedCustomConfig }"
             @click="selectModel('web-llm')">
             Browser Model
@@ -310,6 +321,24 @@ $border-color: #1b6a72c4;
 $header-border-color: #424045b5;
 $bottom-panel-bg-color: #1d1e1e;
 $bottom-panel-border-color: #5f4575cf;
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.15s ease-out;
+  max-height: 30vh;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 0.15s ease-out;
+}
 
 .p-sidebar {
   background-color: #292929;
