@@ -1,9 +1,9 @@
 <!-- DialogHeader.vue -->
 <template>
-    <div :id="headerId" class="dialog-header">
+    <div class="dialog-header">
         <div class="header-content">
             <component :is="icon" v-if="icon" :size="iconSize" class="header-icon" />
-            <h2>{{ title }}</h2>
+            <h2 :id="headerId">{{ title }}</h2>
         </div>
         <button class="close-icon" @click="$emit('close')">
             <X :size="iconSize" />

@@ -2,7 +2,8 @@
     <div class="config-section" :class="{ show: isImportExportConfigOpen }">
         <h3 @click="isImportExportConfigOpen = !isImportExportConfigOpen">
             Import/Export Configuration
-            <span class="indicator">{{ isImportExportConfigOpen ? '-' : '+' }}</span>
+            <ChevronDown v-if="isImportExportConfigOpen" class="indicator" size="20" />
+            <ChevronRight v-else class="indicator" size="20" />
         </h3>
         <div v-show="isImportExportConfigOpen" class="control-grid">
             <h4>
@@ -72,7 +73,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Download, Upload } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Download, Upload } from 'lucide-vue-next';
 import { handleExportSettings, exportSettingsToFile, handleImportSettings, importSettings } from '@/libs/utils/settings-utils';
 import { shouldShowScrollButton, userText, isLoading, hasFilterText, selectedModel, isSidebarOpen, showConversationOptions, messages, streamedMessageText, modelDisplayName, localModelKey, localModelName, localModelEndpoint, localSliderValue, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution, selectedAutoSaveOption, browserModelSelection, maxTokens, top_P, repetitionPenalty, systemPrompt, conversations, storedConversations, lastLoadedConversationId, selectedConversation, abortController, imageInput } from '@/libs/state-management/state';
 

@@ -251,6 +251,10 @@ export function updateTopPSliderValue(value) {
   handleUpdate('top_P', parseFloat(value));
 }
 
+export function updateMaxTokensSliderValue(value) {
+  handleUpdate('maxTokens', parseFloat(value));
+}
+
 export function updateRepetitionSliderValue(value) {
   handleUpdate('repetitionPenalty', parseFloat(value));
 }

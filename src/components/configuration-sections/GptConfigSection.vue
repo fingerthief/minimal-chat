@@ -3,12 +3,14 @@
 import { ref } from 'vue';
 import InputField from '@/components/controls/InputField.vue';
 import ToolTip from '@/components/controls/ToolTip.vue';
+import Slider from '@/components/controls/Slider.vue';
 import SliderCheckbox from '@/components/controls/SliderCheckbox.vue';
 import { ttsVoice, gptKey, sliderValue, pushToTalkMode, useWhisper, audioSpeed, ttsModel, whisperTemperature, selectedDallEImageCount, selectedDallEImageResolution } from '@/libs/state-management/state';
 import { handleUpdate, updateGptSliderValue, updateWhisperSlider, showGPTConfig, } from '@/libs/utils/settings-utils';
+import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 
 const isDALLEConfigOpen = ref(false);
-const isWhisperConfigSectionOpen = ref(true);
+const isWhisperConfigSectionOpen = ref(false);
 
 const ttsModelOptions = [
     { label: 'tts-1', value: 'tts-1' },
@@ -39,21 +41,15 @@ const dalleImageResolutionOptions = [
                 :value="gptKey" @update:value="handleUpdate('gptKey', $event)" />
         </div>
         <br>
-        <div class="flex-container">
-            <div class="center-text">Temperature: ({{ sliderValue }})</div>
-            <div class="slider-container">
-                <span>Serious</span>
-                <input type="range" min="0" max="1" step="0.01" :value="sliderValue"
-                    @input="updateGptSliderValue($event.target.value)" />
-                <span>Creative</span>
-            </div>
-        </div>
+        <Slider label="Temperature" v-model="sliderValue" :min="0" :max="1" :step="0.01" minLabel="Serious"
+            maxLabel="Creative" @update:modelValue="updateGptSliderValue" />
         <br>
         <br>
-        <div class="config-section" :class="{ show: isWhisperConfigSectionOpen }" v-show="showGPTConfig">
+        <div class="config-section" :class="{ show: isWhisperConfigSectionOpen }">
             <h3 @click="isWhisperConfigSectionOpen = !isWhisperConfigSectionOpen">
                 Interact Mode
-                <span class="indicator">{{ isWhisperConfigSectionOpen ? '-' : '+' }}</span>
+                <ChevronDown v-if="isWhisperConfigSectionOpen" class="indicator" size="20" />
+                <ChevronRight v-else class="indicator" size="20" />
             </h3>
             <div v-show="isWhisperConfigSectionOpen" class="control-grid">
                 <SliderCheckbox inputId="push-to-talk" labelText="Push to Talk Mode" v-model="pushToTalkMode"
@@ -74,23 +70,16 @@ const dalleImageResolutionOptions = [
                     :placeholderText="'Example: Default is 1.0 and 1.05 would be 5% faster playback.'"
                     inputId="audio-speed" :value="audioSpeed" @update:value="handleUpdate('audio-speed', $event)" />
                 <ToolTip :targetId="'audio-speed'">Default is 1.0 and 1.05 would be 5% faster playback.</ToolTip>
-                <div class="flex-container">
-                    <div class="center-text">Temperature: ({{ whisperTemperature }})</div><br>
-                    <div class="slider-container">
-                        <span>Serious</span>
-                        <input type="range" min="0" max="1" step="0.01" :value="whisperTemperature"
-                            @input="updateWhisperSlider($event.target.value)" />
-                        <span>Creative</span>
-                    </div>
-                </div>
+                <Slider label="Temperature" v-model="whisperTemperature" :min="0" :max="1" :step="0.01"
+                    minLabel="Serious" maxLabel="Creative" @update:modelValue="updateWhisperSlider" />
             </div>
         </div>
         <br>
-        <div class="config-section" :class="{ show: isDALLEConfigOpen }"
-            v-show="showGPTConfig && !showingGeneralConfig">
+        <div class="config-section" :class="{ show: isDALLEConfigOpen }">
             <h3 @click="isDALLEConfigOpen = !isDALLEConfigOpen">
                 DALL-E
-                <span class="indicator">{{ isDALLEConfigOpen ? '-' : '+' }}</span>
+                <ChevronDown v-if="isDALLEConfigOpen" class="indicator" size="20" />
+                <ChevronRight v-else class="indicator" size="20" />
             </h3>
             <div v-show="isDALLEConfigOpen" class="control-grid">
                 <div class="control select-dropdown">

@@ -5,7 +5,6 @@
             v-model="browserModelSelection" @change="handleUpdate('browserModelSelection', browserModelSelection)" />
     </div>
 </template>
-
 <script setup>
 import { browserModelSelection } from '@/libs/state-management/state';
 import { handleUpdate } from '@/libs/utils/settings-utils';
@@ -44,22 +43,25 @@ const modelOptions = [
 
 <style scoped lang="scss">
 .select-listbox {
-
     label {
-        font-size: 18px
+        font-size: 18px;
+        margin-bottom: 10px;
+        display: block;
+        color: #e0e0e0;
     }
 
-    .p-listbox {
-        background-color: transparent;
+    :deep(.p-listbox) {
+        background-color: #1e1e1e;
         border: 2px solid #157474;
+        border-radius: 8px;
         width: 99%;
         max-width: 99%;
-        padding: 4px;
-        cursor: pointer;
+        padding: 8px;
         font-size: 16px;
         height: 50vh;
         max-height: 50vh;
         overflow: auto;
+        transition: all 0.3s ease;
 
         @media (max-width: 600px) {
             height: 78vh;
@@ -67,13 +69,59 @@ const modelOptions = [
         }
 
         &:hover {
-            background-color: #262627;
+            border-color: #1a8f8f;
+            box-shadow: 0 0 10px rgba(21, 116, 116, 0.2);
         }
 
-        &:focus {
-            outline: none;
+        .p-listbox-list {
+            padding: 0;
+        }
+
+        .p-listbox-item {
+            padding: 12px 16px;
+            color: #e0e0e0;
+            transition: background-color 0.2s ease;
+            border-radius: 4px;
+            margin-bottom: 4px;
+
+            &:hover {
+                background-color: #2a2a2b;
+            }
+
+            &.p-highlight {
+                background-color: #157474;
+                color: #ffffff;
+            }
+        }
+
+        .p-listbox-filter-container {
+            padding: 8px;
+            margin-bottom: 8px;
+
+            .p-inputtext {
+                background-color: #2a2a2b;
+                border: 1px solid #3a3a3b;
+                color: #e0e0e0;
+                border-radius: 4px;
+                padding: 8px 12px;
+                width: 100%;
+
+                &:focus {
+                    border-color: #157474;
+                    box-shadow: 0 0 0 2px rgba(21, 116, 116, 0.2);
+                }
+            }
+
+            .p-listbox-filter-icon {
+                color: #157474;
+                right: 20px;
+                top: 18px;
+            }
         }
     }
 
+    :deep(.p-component) {
+        font-family: 'Arial', sans-serif;
+    }
 }
 </style>
