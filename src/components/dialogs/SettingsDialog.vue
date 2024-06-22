@@ -253,6 +253,10 @@ onMounted(() => {
               <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />&nbsp;&nbsp;
               {{ config.endpoint }}
             </li>
+            <li v-if="!customConfigs.length" :class="{ selected: selectedModel === 'open-ai-format' }"
+              @click="selectModel('open-ai-format')">
+              Add New Custom API
+            </li>
           </ul>
           <li :class="{ selected: selectedModel === 'web-llm' && !selectedCustomConfig }"
             @click="selectModel('web-llm')">

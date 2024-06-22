@@ -35,7 +35,7 @@ export function update(field, value) {
     if (field === 'localModelEndpoint') localModelEndpoint.value = value;
     if (field === 'localModelKey') localModelKey.value = value;
 
-    if (selectedCustomConfigIndex.value !== null) {
+    if (selectedCustomConfigIndex.value !== null || !customConfigs.value.length) {
       saveCustomConfig();
     }
 
