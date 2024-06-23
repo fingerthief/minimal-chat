@@ -1,7 +1,7 @@
 import { fetchGPTVisionResponse } from '../api-access/gpt-api-access.js';
 import { fetchClaudeVisionResponse } from '../api-access/claude-api-access.js';
 import { fetchOpenAiLikeVisionResponse } from '../api-access/open-ai-api-standard-access.js';
-import { messages } from '../state-management/state.js';
+import { messages, selectedModel } from '../state-management/state.js';
 import { addMessage } from '../conversation-management/message-processing.js';
 
 // Encode image as base64
@@ -109,7 +109,7 @@ export async function analyzeImage(file, fileType, messages2, model, localModelN
   const lastMessageText = messages.value[messages.value.length - 1].content[0].text;
   visionFormattedMessages.pop();
 
-  if (model.indexOf('gpt') !== -1) {
+  if (model.indexOf('gpt') !== -1 || selectedModel.value.includes('open-ai-format')) {
     visionFormattedMessages.push({
       role: 'user',
       content: [
@@ -136,7 +136,12 @@ export async function analyzeImage(file, fileType, messages2, model, localModelN
       }
     ])
 
-    return await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem('gptKey'));
+    if (selectedModel.value.includes("gpt")) {
+      return await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem('gptKey'));
+    }
+    else {
+      return await fetchOpenAiLikeVisionResponse(visionFormattedMessages, localStorage.getItem('localModelKey'), localModelName, localModelEndpoint)
+    }
   }
 
   if (model.indexOf('claude') !== -1) {

@@ -63,12 +63,7 @@ let localVisionRetryCount = 0;
 export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint) {
   const payload = {
     model: model,
-    messages: [
-      {
-        role: 'user',
-        content: visionMessages,
-      },
-    ],
+    messages: visionMessages,
     max_tokens: 4096,
     top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
     repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
