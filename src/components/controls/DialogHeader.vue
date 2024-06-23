@@ -81,7 +81,7 @@ defineEmits(['close']);
         color: #ffffff;
         font-size: 24px;
         cursor: pointer;
-        transition: color 0.3s ease;
+        transition: color 0.15s ease;
 
         &:hover {
             color: #ff6b6b;

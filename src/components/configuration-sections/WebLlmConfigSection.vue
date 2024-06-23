@@ -61,7 +61,7 @@ const modelOptions = [
         height: 50vh;
         max-height: 50vh;
         overflow: auto;
-        transition: all 0.3s ease;
+        transition: all 0.15s ease;
 
         @media (max-width: 600px) {
             height: 78vh;

@@ -158,23 +158,40 @@ $font-color: #f0f0f0;
 $overlay-bg-color: rgba(15, 15, 15, 0.709);
 
 .dialog-slide-enter-active {
-  transition: transform 0.25s cubic-bezier(0.25, 1.25, 0.5, 1);
+  transition: all 0.15s cubic-bezier(0.25, 1.25, 0.5, 1);
+  transform: translateY(0);
+
+  @media (max-width: 600px) {
+    transition: all 0.15s linear;
+    transform: scale(1);
+  }
 }
 
 .dialog-slide-leave-active {
-  transition: transform 0.15s;
+  transition: all 0.15s linear;
+  transform: translateY(-100%);
+
+  @media (max-width: 600px) {
+    transition: all 0.15s linear;
+    transform: scale(0.2);
+  }
 }
 
-.dialog-slide-enter-from,
+.dialog-slide-enter-from {
+  transform: translateY(-100%);
+
+  @media (max-width: 600px) {
+    transform: scale(0.2);
+  }
+}
+
 .dialog-slide-leave-to {
   transform: translateY(-100%);
-}
 
-.dialog-slide-enter-to,
-.dialog-slide-leave-from {
-  transform: translateY(0);
+  @media (max-width: 600px) {
+    transform: scale(0.2);
+  }
 }
-
 
 @font-face {
   font-family: Roboto-Regular;
@@ -281,8 +298,8 @@ button {
 
 .hover-increase-size {
   transition:
-    background-color 0.3s ease,
-    transform 0.1s ease;
+    background-color 0.15s ease,
+    transform 0.15s ease;
 
   &:hover {
     transform: scale(1.2);

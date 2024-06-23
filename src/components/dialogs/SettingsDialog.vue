@@ -344,7 +344,7 @@ $bottom-panel-border-color: #5f4575cf;
   background-color: #292929;
   width: 250px;
   padding: 20px;
-  animation: slideIn 0.1s ease;
+  animation: slideIn 0.15s ease;
   transition: all 0.15s;
 
   h3 {
@@ -404,7 +404,7 @@ $bottom-panel-border-color: #5f4575cf;
   border-radius: 4px;
   cursor: pointer;
   margin: 10px;
-  transition: background-color 0.3s;
+  transition: background-color 0.15s;
 
   &:hover {
     background-color: $button-hover-bg-color;
@@ -435,7 +435,7 @@ $bottom-panel-border-color: #5f4575cf;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-    transition: max-height 0.3s ease-in-out;
+    transition: max-height 0.15s ease-in-out;
     overflow: hidden;
     max-height: 0;
 
@@ -483,7 +483,7 @@ $bottom-panel-border-color: #5f4575cf;
       height: 20px;
       background-color: #494747;
       border-radius: 34px;
-      transition: background-color 0.3s;
+      transition: background-color 0.15s;
       position: relative;
       margin-left: 10px;
 
@@ -496,7 +496,7 @@ $bottom-panel-border-color: #5f4575cf;
         bottom: 4px;
         background-color: white;
         border-radius: 50%;
-        transition: transform 0.3s;
+        transition: transform 0.15s;
       }
     }
   }
@@ -544,7 +544,7 @@ $bottom-panel-border-color: #5f4575cf;
     cursor: pointer;
     background: $button-bg-color;
     flex-direction: column-reverse;
-    transition: background 0.3s ease;
+    transition: background 0.15s ease;
 
     &:hover {
       background: darken($highlight-bg-color, 5%);
@@ -712,7 +712,7 @@ $bottom-panel-border-color: #5f4575cf;
     color: #ffffff;
     font-size: 24px;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color 0.15s ease;
 
     &:hover {
       color: #ff6b6b;
@@ -721,7 +721,7 @@ $bottom-panel-border-color: #5f4575cf;
 
   .reload-icon {
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.15s ease;
 
     &:hover {
       transform: rotate(360deg);
@@ -782,7 +782,7 @@ $bottom-panel-border-color: #5f4575cf;
       border-radius: 4px;
       margin-bottom: 8px;
       border-bottom: 1px solid #1a5951;
-      transition: background-color 0.3s;
+      transition: background-color 0.15s;
 
       &:hover,
       &.selected {

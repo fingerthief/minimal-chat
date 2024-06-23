@@ -128,7 +128,7 @@ export function showToast(message) {
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
       cursor: 'default',
-      transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
+      transition: 'transform 0.15s ease-in-out, opacity 0.15s ease-in-out',
       opacity: '1',
       transform: 'translateY(-10px)',
       zIndex: '5'

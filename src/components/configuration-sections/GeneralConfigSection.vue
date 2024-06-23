@@ -167,7 +167,7 @@ onBeforeMount(async () => {
     border: 1px solid #157474;
     color: #157474;
     background-color: transparent;
-    transition: all 0.3s ease;
+    transition: all 0.15s ease;
     min-width: 100%;
 
     &:hover {
@@ -219,7 +219,7 @@ onBeforeMount(async () => {
 
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-    transition: all 0.1s linear;
+    transition: all 0.15s linear;
     max-height: 90vh;
 }
 
@@ -346,7 +346,7 @@ onBeforeMount(async () => {
             height: 20px;
             background-color: #494747;
             border-radius: 34px;
-            transition: background-color 0.3s;
+            transition: background-color 0.15s;
             position: relative;
             margin-left: 10px;
 
@@ -359,7 +359,7 @@ onBeforeMount(async () => {
                 bottom: 4px;
                 background-color: white;
                 border-radius: 50%;
-                transition: transform 0.3s;
+                transition: transform 0.15s;
             }
         }
     }

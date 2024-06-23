@@ -61,7 +61,7 @@ const handleChange = (event) => {
             height: 20px;
             background-color: #494747;
             border-radius: 34px;
-            transition: background-color 0.3s;
+            transition: background-color 0.15s;
             position: relative;
             margin-left: 10px;
 
@@ -74,7 +74,7 @@ const handleChange = (event) => {
                 bottom: 4px;
                 background-color: white;
                 border-radius: 50%;
-                transition: transform 0.3s;
+                transition: transform 0.15s;
             }
         }
     }

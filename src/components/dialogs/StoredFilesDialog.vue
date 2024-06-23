@@ -279,7 +279,7 @@ onMounted(async () => {
     background-color: #3a3a3a;
     color: #ffffff;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.15s ease;
 
     &:hover {
         background-color: #4a4a4a;
@@ -319,7 +319,7 @@ onMounted(async () => {
         color: #ffffff;
         font-size: 24px;
         cursor: pointer;
-        transition: color 0.3s ease;
+        transition: color 0.15s ease;
 
         &:hover {
             color: #ff6b6b;
@@ -387,7 +387,7 @@ li {
     justify-content: space-between;
     padding: 15px;
     border-bottom: 1px solid #333;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.15s ease;
     cursor: pointer;
 }
 
@@ -416,7 +416,7 @@ li:hover {
     color: #b2b0b0;
     font-size: 1.2em;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color 0.15s ease;
     display: inline-block;
     padding-left: 6px;
 }

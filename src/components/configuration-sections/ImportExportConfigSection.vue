@@ -133,7 +133,7 @@ const isImportExportConfigOpen = ref(false);
         cursor: pointer;
         background: #1a5951;
         flex-direction: column-reverse;
-        transition: background 0.3s ease;
+        transition: background 0.15s ease;
 
         &:hover {
             background: darken(#165951, 5%);

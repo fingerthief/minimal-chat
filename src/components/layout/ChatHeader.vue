@@ -135,7 +135,7 @@ $shadow-spread-radius: 0px;
   max-width: fit-content;
 
   transition:
-    background-color 0.3s ease,
+    background-color 0.15s ease,
     transform 0.2s ease;
 
   .select-dropdown {
@@ -153,7 +153,7 @@ $shadow-spread-radius: 0px;
       cursor: pointer;
       font-size: 16px;
       transition:
-        background-color 0.3s ease,
+        background-color 0.15s ease,
         transform 0.2s ease;
 
       &:hover {
@@ -242,7 +242,7 @@ $shadow-spread-radius: 0px;
   position: relative;
   cursor: pointer;
   transition:
-    background-color 0.3s ease,
+    background-color 0.15s ease,
     transform 0.2s ease;
 
   &:hover {
@@ -266,7 +266,7 @@ $shadow-spread-radius: 0px;
   display: none;
 
   transition:
-    background-color 0.3s ease,
+    background-color 0.15s ease,
     transform 0.2s ease;
 
   &:hover {
@@ -290,7 +290,7 @@ $shadow-spread-radius: 0px;
   display: none;
 
   transition:
-    background-color 0.3s ease,
+    background-color 0.15s ease,
     transform 0.2s ease;
 
   &:hover {
@@ -309,7 +309,7 @@ $shadow-spread-radius: 0px;
   cursor: pointer;
   color: $icon-color;
   transition:
-    background-color 0.3s ease,
+    background-color 0.15s ease,
     transform 0.2s ease;
   display: none;
 
@@ -347,7 +347,7 @@ $shadow-spread-radius: 0px;
   display: none;
   cursor: pointer;
   transition:
-    background-color 0.3s ease,
+    background-color 0.15s ease,
     transform 0.2s ease;
 
   &:hover {
@@ -378,7 +378,7 @@ $shadow-spread-radius: 0px;
 
 .hover-increase-size {
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: transform 0.15s;
 }
 
 .hover-increase-size:hover {

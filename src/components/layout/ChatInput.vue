@@ -242,7 +242,7 @@ $icon-color: rgb(187, 187, 187);
     border-radius: 30px;
     justify-content: space-around;
     transition:
-      background-color 0.3s ease,
+      background-color 0.15s ease,
       transform 0.2s ease;
 
     &:hover {

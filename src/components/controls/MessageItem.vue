@@ -339,7 +339,7 @@ const menuItems = computed(() => {
         &.high-constrast-mode {
             background-color: #2f2d44d9;
             border-radius: 12px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.15s ease;
             margin-bottom: 20px;
             margin-top: 20px;
             max-width: 90vw;
@@ -371,7 +371,7 @@ const menuItems = computed(() => {
 
     &.gpt {
         margin-right: auto;
-        transition: background-color 0.3s ease;
+        transition: background-color 0.15s ease;
         max-width: 60%;
 
         @media (max-width: 600px) {
@@ -381,7 +381,7 @@ const menuItems = computed(() => {
         &.high-constrast-mode {
             background-color: #123638e3;
             border-radius: 12px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.15s ease;
             margin-bottom: 20px;
             margin-top: 20px;
             max-width: 90vw;
@@ -461,7 +461,7 @@ const menuItems = computed(() => {
 
 .delete-icon {
     color: #b8b6b67d;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.15s ease, transform 0.2s ease;
 
     &:hover {
         transform: scale(1.2);

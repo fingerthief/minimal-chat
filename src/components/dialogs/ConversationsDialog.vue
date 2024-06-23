@@ -455,7 +455,7 @@ $shadow-color: #252629;
         font-weight: bold;
         box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
         border: 1px solid #513f77;
-        animation: pulse 0.25s ease-out forwards;
+        animation: pulse 0.15s ease-out forwards;
       }
 
       &.selected:before {
@@ -487,7 +487,7 @@ $shadow-color: #252629;
 
 .scale-down-enter-active,
 .scale-down-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .scale-down-enter-from,
