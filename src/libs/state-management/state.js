@@ -14,6 +14,9 @@ export const audioIsPlaying = ref(false);
 export const availableModels = ref([]);
 export const showStoredFiles = ref(false);
 
+export const isAvatarEnabled = ref((localStorage.getItem("isAvatarEnabled") || false));
+export const avatarUrl = ref((localStorage.getItem("avatarUrl") || ""));
+
 export const contextMenuOpened = ref(false);
 export const shouldShowScrollButton = ref(false);
 export const userText = ref('');

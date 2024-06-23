@@ -19,6 +19,8 @@ import {
     selectedConversation,
     modelDisplayName,
     higherContrastMessages,
+    isAvatarEnabled,
+    avatarUrl,
 } from '@/libs/state-management/state';
 import {
     setSystemPrompt,
@@ -36,6 +38,7 @@ import csharp from 'highlight.js/lib/languages/csharp';
 import python from 'highlight.js/lib/languages/python';
 import 'highlight.js/styles/github-dark.css';
 import MarkdownIt from 'markdown-it';
+import Avatar from 'primevue/avatar';
 
 hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('c', c);
@@ -260,8 +263,11 @@ const menuItems = computed(() => {
         }
     }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
-            <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
             <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
+            <Avatar v-if="item.role !== 'user' && isAvatarEnabled === true" :image="avatarUrl" shape="circle"
+                size="large" />
+            <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
+
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
                 {{ item.role === 'user' ? '' : modelDisplayName }}
             </div>
@@ -349,6 +355,13 @@ const menuItems = computed(() => {
             justify-content: end;
             right: 1%;
             position: relative;
+
+            display: flex;
+            align-items: center;
+
+            .p-avatar {
+                margin-right: 10px;
+            }
         }
 
         .label:hover {
@@ -384,6 +397,12 @@ const menuItems = computed(() => {
         .message-header {
             justify-content: start;
             border-bottom: 2px solid #0b6363e5;
+            display: flex;
+            align-items: center;
+
+            .p-avatar {
+                margin-right: 10px;
+            }
         }
 
         .label:hover {
@@ -397,6 +416,7 @@ const menuItems = computed(() => {
         gap: 8px;
         color: #dadbde;
         padding: 3px 6px;
+
 
         .label {
             color: #dadbde;

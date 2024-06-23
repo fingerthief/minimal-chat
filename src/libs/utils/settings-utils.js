@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { selectedModel, ttsVoice, whisperTemperature, audioSpeed, ttsModel, useWhisper, pushToTalkMode, higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution, availableModels } from '../state-management/state';
+import { isAvatarEnabled, avatarUrl, selectedModel, ttsVoice, whisperTemperature, audioSpeed, ttsModel, useWhisper, pushToTalkMode, higherContrastMessages, isSidebarOpen, systemPrompt, localModelName, localSliderValue, top_P, repetitionPenalty, maxTokens, localModelEndpoint, localModelKey, selectedAutoSaveOption, browserModelSelection, gptKey, sliderValue, claudeKey, claudeSliderValue, selectedDallEImageCount, selectedDallEImageResolution, availableModels } from '../state-management/state';
 import { removeAPIEndpoints, showToast } from "./general-utils";
 import { getOpenAICompatibleAvailableModels } from '../api-access/open-ai-api-standard-access';
 
@@ -59,6 +59,8 @@ export function update(field, value) {
   if (field === 'tts-model') ttsModel.value = value;
   if (field === 'tts-voice') ttsVoice.value = value;
   if (field === 'whisper-temperature') whisperTemperature.value = value;
+  if (field === 'isAvatarEnabled') isAvatarEnabled.value = value;
+  if (field === 'avatarUrl') avatarUrl.value = value;
 }
 
 

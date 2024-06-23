@@ -1,5 +1,3 @@
-<!-- src/components/controls/SliderCheckbox.vue -->
-
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
 

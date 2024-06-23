@@ -745,7 +745,7 @@ $bottom-panel-border-color: #5f4575cf;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 60vh;
+  height: 70vh;
   transition: width 0.15s ease;
   animation: slideIn 0.15s ease-out backwards;
 
@@ -852,7 +852,7 @@ $bottom-panel-border-color: #5f4575cf;
   overflow-y: auto;
   scrollbar-width: none;
   background-color: #1d1e1e;
-  max-height: 59vh;
+  max-height: 70vh;
   overflow-x: hidden;
 
   @media (max-width: 600px) {

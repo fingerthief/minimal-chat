@@ -1,22 +1,27 @@
+<!-- Original component (e.g., MessageList.vue) -->
 <template>
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
-    <VirtualScroller :items="filteredMessages" :itemSize="1200" class="scroller" :scrollHeight="'87vh'" :delay="0"
-      :lazy="true" :showLoader="false">
-      <template #item="{ item, index }">
-        <MessageItem :item="item" :active="true" :key="item.id" />
-      </template>
-    </VirtualScroller>
+    <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" :emitUpdates="true"
+      :items="filteredMessages" key-field="id" v-slot="{ item, active }">
+      <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
+        <MessageItem :item="item" :active="active" />
+      </DynamicScrollerItem>
+    </DynamicScroller>
   </div>
 </template>
 
 <script setup>
 import { ref, nextTick, computed, watch, onMounted } from 'vue';
-import { messages } from '@/libs/state-management/state';
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+import {
+  messages,
+  isSmallScreen,
+} from '@/libs/state-management/state';
 import { swipedLeft, swipedRight } from '@/libs/utils/general-utils';
 import 'swiped-events';
 import MessageItem from '@/components/controls/MessageItem.vue';
-import VirtualScroller from 'primevue/virtualscroller';
 
 const messageList = ref(null);
 const scroller = ref(null);
@@ -41,20 +46,6 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-.p-virtualscroller {
-  height: 87vh;
-  width: 100%;
-}
-
-.p-virtualscroller-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.p-virtualscroller-item {
-  flex: 0 0 auto;
-}
-
 .scroller,
 .message-list {
   height: 87vh;

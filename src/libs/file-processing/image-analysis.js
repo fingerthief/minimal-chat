@@ -62,22 +62,36 @@ async function initIndexedDB() {
   });
 }
 
-export async function storeFileData(fileName, fileData, fileSize, fileType) {
-  const db = await initIndexedDB();
-  return new Promise((resolve, reject) => {
+export const storeFileData = async (fileName, fileData, fileSize, fileType) => {
+  const request = indexedDB.open('UserFilesDB', 4);
+
+  request.onupgradeneeded = (event) => {
+    const db = event.target.result;
+    if (!db.objectStoreNames.contains('userFiles')) {
+      db.createObjectStore('userFiles', { keyPath: 'id', autoIncrement: true });
+    }
+  };
+
+  request.onsuccess = (event) => {
+    const db = event.target.result;
     const transaction = db.transaction(['userFiles'], 'readwrite');
     const store = transaction.objectStore('userFiles');
-    const request = store.add({ fileName, fileData, fileSize, fileType });
 
-    request.onsuccess = () => {
-      resolve();
+    const file = {
+      fileName,
+      fileData,
+      fileSize,
+      fileType,
+      uploadDate: new Date().toISOString()
     };
 
-    request.onerror = (event) => {
-      reject(event.target.error);
-    };
-  });
-}
+    store.add(file);
+  };
+
+  request.onerror = (event) => {
+    console.error('Error storing file data:', event.target.error);
+  };
+};
 
 // Analyze image
 export async function analyzeImage(file, fileType, messages2, model, localModelName, localModelEndpoint) {
