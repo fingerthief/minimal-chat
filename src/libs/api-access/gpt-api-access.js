@@ -1,8 +1,8 @@
 import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
 import { playAudio } from '../utils/audio-utils';
-
-import { whisperTemperature, audioSpeed, ttsModel, ttsVoice, messages, pushToTalkMode } from '../state-management/state';
+import { getCompleteSentences } from '../utils/sentence-utils';
+import { whisperTemperature, audioSpeed, ttsModel, ttsVoice, messages, isInteractModeOpen } from '../state-management/state';
 
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
@@ -87,8 +87,6 @@ export async function fetchGPTResponseStream(
   streamedMessageText,
   autoScrollToBottom = true
 ) {
-  //const gptMessagesOnly = filterGPTMessages(conversation);
-
   let tempMessages = conversation.map((message) => ({
     role: message.role,
     content: message.content,
@@ -108,13 +106,10 @@ export async function fetchGPTResponseStream(
     }),
     signal: abortController.signal,
   };
-  let result;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', requestOptions);
-
-    result = await readResponseStream(response, updateUiFunction, autoScrollToBottom);
-
+    const result = await readResponseStream(response, updateUiFunction, autoScrollToBottom);
     return result;
   } catch (error) {
     if (error.name === 'AbortError') {
@@ -132,6 +127,8 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
   const reader = response.body.getReader();
   const decoder = new TextDecoder('utf-8');
   let decodedResult = '';
+  let buffer = '';
+  let processedSentences = new Set();
 
   while (true) {
     const { done, value } = await reader.read();
@@ -148,13 +145,44 @@ async function readResponseStream(response, updateUiFunction, autoScrollToBottom
       ],
     } of parsedLines) {
       if (content) {
+        buffer += content;
         decodedResult += content;
+
         updateUI(content, messages.value, addMessage, autoScrollToBottom);
+
+        if (isInteractModeOpen.value) {
+          const sentences = getCompleteSentences(buffer);
+
+          for (const sentence of sentences) {
+            if (!processedSentences.has(sentence) && sentence.length <= 4096) {
+              processedSentences.add(sentence);
+              try {
+                await fetchTTSResponse(sentence);
+              } catch (error) {
+                console.error('Error fetching TTS response:', error);
+              }
+            }
+          }
+          buffer = buffer.slice(sentences.join('').length);
+        }
       }
     }
   }
 
-  handleTextStreamEnd(decodedResult);
+  // Process any remaining content in the buffer
+  if (buffer.length > 0 && isInteractModeOpen.value) {
+    const sentences = getCompleteSentences(buffer);
+    for (const sentence of sentences) {
+      if (!processedSentences.has(sentence) && sentence.length <= 4096) {
+        processedSentences.add(sentence);
+        try {
+          await fetchTTSResponse(sentence);
+        } catch (error) {
+          console.error('Error fetching TTS response:', error);
+        }
+      }
+    }
+  }
 
   return decodedResult;
 }
@@ -168,6 +196,11 @@ export async function fetchTTSResponse(text) {
   }
 
   try {
+    if (text.length > 4096) {
+      console.error(`[TTS]: Input text exceeds 4096 characters.`);
+      return;
+    }
+
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
       headers: {
@@ -175,8 +208,8 @@ export async function fetchTTSResponse(text) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: ttsModel.value, // Adding the model parameter as required
-        input: text,    // Changing 'text' to 'input' as required
+        model: ttsModel.value,
+        input: text,
         voice: ttsVoice.value,
         speed: audioSpeed.value
       })
@@ -187,9 +220,8 @@ export async function fetchTTSResponse(text) {
       throw new Error(`Error from TTS API: ${errorText}`);
     }
 
-    const audioBlob = await response.blob(); // Get the audio content as a blob
-    console.log(`[TTS]: Received audio blob, length: ${audioBlob.size}`);
-    playAudio(audioBlob); // Ensure this function is called
+    const audioBlob = await response.blob();
+    playAudio(audioBlob);
   } catch (error) {
     console.error(`[TTS]: Error fetching TTS response: ${error.message}`);
   }

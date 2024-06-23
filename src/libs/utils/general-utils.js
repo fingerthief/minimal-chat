@@ -252,12 +252,12 @@ export function swipedRight(event) {
 export async function handleTextStreamEnd(message) {
   if (isInteractModeOpen.value) {
     try {
-      // Call the fetchTTSResponse with "message" and play the result
-      await fetchTTSResponse(message);
+      if (message.length <= 4096) {
+        await fetchTTSResponse(message);
+      }
     } catch (error) {
       console.error('Error with TTS Response:', error);
-    }
-    finally {
+    } finally {
       if (pushToTalkMode.value) {
         isInteractModeOpen.value = false;
       }
