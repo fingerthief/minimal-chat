@@ -1,73 +1,73 @@
 <template>
-    <div class="config-section" :class="{ show: isImportExportConfigOpen }">
+    <div class="config-section">
         <h3 @click="isImportExportConfigOpen = !isImportExportConfigOpen">
             Import/Export Configuration
             <ChevronDown v-if="isImportExportConfigOpen" class="indicator" size="20" />
             <ChevronRight v-else class="indicator" size="20" />
         </h3>
-        <div v-show="isImportExportConfigOpen" class="control-grid">
-            <h4>
-                Manage Settings
-                <p class="config-info">
-                    Export your current settings to a JSON file for backup or to easily set up the application on
-                    another
-                    device. You can also import
-                    settings from a JSON file.
-                </p>
-            </h4>
+        <transition name="slide-fade">
+            <div v-show="isImportExportConfigOpen" class="control-grid">
+                <h4>
+                    Manage Settings
+                    <p class="config-info">
+                        Export your current settings to a JSON file for backup or to easily set up the application on
+                        another device. You can also import settings from a JSON file.
+                    </p>
+                </h4>
 
-            <div class="settings-list">
-                <div class="settings-item-button" @click="
-                    handleExportSettings(
-                        {
-                            shouldShowScrollButton,
-                            userText,
-                            isLoading,
-                            hasFilterText,
-                            selectedModel,
-                            isSidebarOpen,
-                            showConversationOptions,
-                            messages,
-                            streamedMessageText,
-                            modelDisplayName,
-                            localModelKey,
-                            localModelName,
-                            localModelEndpoint,
-                            localSliderValue,
-                            gptKey,
-                            sliderValue,
-                            claudeKey,
-                            claudeSliderValue,
-                            selectedDallEImageCount,
-                            selectedDallEImageResolution,
-                            selectedAutoSaveOption,
-                            browserModelSelection,
-                            maxTokens,
-                            top_P,
-                            repetitionPenalty,
-                            systemPrompt,
-                            conversations,
-                            storedConversations,
-                            lastLoadedConversationId,
-                            selectedConversation,
-                            abortController,
-                            imageInput,
-                        },
-                        exportSettingsToFile
-                    )
-                    ">
-                    <span class="action-text">Export Settings</span>
-                    <Download :stroke-width="1.5" />
+                <div class="settings-list">
+                    <div class="settings-item-button" @click="
+                        handleExportSettings(
+                            {
+                                shouldShowScrollButton,
+                                userText,
+                                isLoading,
+                                hasFilterText,
+                                selectedModel,
+                                isSidebarOpen,
+                                showConversationOptions,
+                                messages,
+                                streamedMessageText,
+                                modelDisplayName,
+                                localModelKey,
+                                localModelName,
+                                localModelEndpoint,
+                                localSliderValue,
+                                gptKey,
+                                sliderValue,
+                                claudeKey,
+                                claudeSliderValue,
+                                selectedDallEImageCount,
+                                selectedDallEImageResolution,
+                                selectedAutoSaveOption,
+                                browserModelSelection,
+                                maxTokens,
+                                top_P,
+                                repetitionPenalty,
+                                systemPrompt,
+                                conversations,
+                                storedConversations,
+                                lastLoadedConversationId,
+                                selectedConversation,
+                                abortController,
+                                imageInput,
+                            },
+                            exportSettingsToFile
+                        )
+                        ">
+                        <span class="action-text">Export Settings</span>
+                        <Download :stroke-width="1.5" />
+                    </div>
+                    <label class="settings-item-button">
+                        <span class="action-text">Import Settings</span>
+                        <Upload :stroke-width="1.5" />
+                        <input type="file" accept=".json"
+                            @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))"
+                            style="display: none" />
+                    </label>
                 </div>
-                <label class="settings-item-button">
-                    <span class="action-text">Import Settings</span>
-                    <Upload :stroke-width="1.5" />
-                    <input type="file" accept=".json"
-                        @change="(event) => handleImportSettings(event, (data) => importSettings(data, update))"
-                        style="display: none" />
-                </label>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 
@@ -82,6 +82,19 @@ const isImportExportConfigOpen = ref(false);
 </script>
 
 <style scoped lang="scss">
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: all 0.15s ease;
+    max-height: 90vh;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
 .config-section {
     margin-bottom: 15px;
 
@@ -98,25 +111,10 @@ const isImportExportConfigOpen = ref(false);
         padding: 8px;
     }
 
-    .config-info {
-        font-size: 12px;
-    }
-
     .control-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
         gap: 20px;
-        transition: max-height 0.3s ease-in-out;
-        overflow: hidden;
-        max-height: 0;
-
-        @media (max-width: 600px) {
-            grid-template-columns: repeat(1, 1fr);
-        }
-    }
-
-    &.show .control-grid {
-        max-height: fit-content;
     }
 }
 

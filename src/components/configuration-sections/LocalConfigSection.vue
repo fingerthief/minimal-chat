@@ -3,6 +3,8 @@
         <InputField :isSecret="false" labelText="API Endpoint:" :placeholderText="'Enter the base API Endpoint URL'"
             inputId="local-model-endpoint" :value="localModelEndpoint"
             @update:value="handleUpdate('localModelEndpoint', $event)" />
+        <ToolTip targetId="local-model-endpoint">Updating this value will automatically save a new custom config entry
+        </ToolTip>
         <InputField :isSecret="true" labelText="API Key:" :placeholderText="'Enter the API key if applicable'"
             inputId="local-model-key" :value="localModelKey" @update:value="handleUpdate('localModelKey', $event)" />
     </div>
@@ -13,16 +15,18 @@
             <ChevronDown v-if="isParametersOpen" class="indicator" size="20" />
             <ChevronRight v-else class="indicator" size="20" />
         </h3>
-        <div v-show="isParametersOpen" class="control-grid">
-            <Slider label="Temperature" v-model="localSliderValue" :min="0" :max="1" :step="0.01" minLabel="Serious"
-                maxLabel="Creative" @update:modelValue="updateLocalSliderValue" />
-            <Slider label="Top_P" v-model="top_P" :min="0" :max="1" :step="0.01" minLabel="Lower" maxLabel="Higher"
-                @update:modelValue="updateTopPSliderValue" />
-            <Slider label="Repetition Penalty" v-model="repetitionPenalty" :min="0" :max="2" :step="0.01"
-                minLabel="Lower" maxLabel="Higher" @update:modelValue="updateRepetitionSliderValue" />
-            <Slider label="Max Tokens" v-model="maxTokens" :min="-1" :max="4096" :step="1" minLabel="Less"
-                maxLabel="More" @update:modelValue="updateMaxTokensSliderValue" />
-        </div>
+        <transition name="slide-fade">
+            <div v-show="isParametersOpen" class="control-grid">
+                <Slider label="Temperature" v-model="localSliderValue" :min="0" :max="1" :step="0.01" minLabel="Serious"
+                    maxLabel="Creative" @update:modelValue="updateLocalSliderValue" />
+                <Slider label="Top_P" v-model="top_P" :min="0" :max="1" :step="0.01" minLabel="Lower" maxLabel="Higher"
+                    @update:modelValue="updateTopPSliderValue" />
+                <Slider label="Repetition Penalty" v-model="repetitionPenalty" :min="0" :max="2" :step="0.01"
+                    minLabel="Lower" maxLabel="Higher" @update:modelValue="updateRepetitionSliderValue" />
+                <Slider label="Max Tokens" v-model="maxTokens" :min="-1" :max="4096" :step="1" minLabel="Less"
+                    maxLabel="More" @update:modelValue="updateMaxTokensSliderValue" />
+            </div>
+        </transition>
     </div>
     <br>
     <div class="config-section" :class="{ show: isModelSelectorOpen }">
@@ -31,12 +35,14 @@
             <ChevronDown v-if="isModelSelectorOpen" class="indicator" size="20" />
             <ChevronRight v-else class="indicator" size="20" />
         </h3>
-        <div v-show="isModelSelectorOpen" class="control-grid">
-            <div class="control select-dropdown select-listbox">
-                <Listbox filter id="custom-model-selector" v-model="localModelName" :options="availableModels"
-                    optionLabel="name" optionValue="id" @change="handleUpdate('localModelName', $event.value)" />
+        <transition name="slide-fade">
+            <div v-show="isModelSelectorOpen" class="control-grid">
+                <div class="control select-dropdown select-listbox">
+                    <Listbox filter id="custom-model-selector" v-model="localModelName" :options="availableModels"
+                        optionLabel="name" optionValue="id" @change="handleUpdate('localModelName', $event.value)" />
+                </div>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 
@@ -48,6 +54,7 @@ import Listbox from 'primevue/listbox';
 import Slider from '../controls/Slider.vue';
 import { localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty, availableModels, selectedModel } from '@/libs/state-management/state';
 import { handleUpdate, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex, updateMaxTokensSliderValue } from '@/libs/utils/settings-utils';
+import ToolTip from '../controls/ToolTip.vue';
 
 
 const isModelSelectorOpen = ref(false);
@@ -55,6 +62,19 @@ const isParametersOpen = ref(false);
 </script>
 
 <style scoped lang="scss">
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: all 0.15s ease;
+    max-height: 90vh;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
 .config-section {
     margin-bottom: 15px;
 
@@ -75,13 +95,6 @@ const isParametersOpen = ref(false);
         display: grid;
         grid-template-columns: repeat(1, 1fr);
         gap: 20px;
-        transition: max-height 0.3s ease-in-out;
-        overflow: hidden;
-        max-height: 0;
-    }
-
-    &.show .control-grid {
-        max-height: fit-content;
     }
 }
 

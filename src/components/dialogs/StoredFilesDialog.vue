@@ -183,8 +183,11 @@ const uploadFile = async (event) => {
 
         reader.onload = async (e) => {
             const contents = e.target.result;
-
-            if (file.type === 'application/pdf') {
+            if (file.type.startsWith('image/')) {
+                // For image files, store the data URL
+                await storeFileData(file.name, contents, file.size, file.type);
+            }
+            else if (file.type === 'application/pdf') {
                 try {
                     const loadingTask = pdfjsLib.getDocument({ data: contents });
                     const pdfDoc = await loadingTask.promise;
@@ -213,7 +216,9 @@ const uploadFile = async (event) => {
             files.value = await fetchStoredFiles();
         };
 
-        if (file.type === 'application/pdf') {
+        if (file.type.startsWith('image/')) {
+            reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
             reader.readAsArrayBuffer(file);
         } else {
             reader.readAsText(file);

@@ -383,15 +383,14 @@ pre {
   min-width: 25vw;
   max-width: 100vw;
   position: fixed;
-  top: 15%;
+  top: 5%;
   padding: 0;
   border-right: 2px solid $border-color;
   z-index: 1;
   border-radius: 12px;
   border: 2px solid #083e35d9;
   width: 60vw;
-  height: 70vh;
-  top: 15%;
+  height: 85vh;
   font-size: 12px;
 
   @media (max-width: 600px) {
