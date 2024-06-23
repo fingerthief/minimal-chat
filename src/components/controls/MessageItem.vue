@@ -1,6 +1,6 @@
 <!-- MessageItem.vue -->
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, toRef } from 'vue';
 import { RefreshCcw, Trash, Copy, Pencil } from 'lucide-vue-next';
 import ToolTip from '@/components/controls/ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
@@ -129,14 +129,17 @@ function startLoading(id) {
 
 // Message editing
 let initialMessage = '';
+const isEditing = ref(false);
+const emit = defineEmits(['update:isEditing']);
 
 function editMessage(message) {
-    if (message.role !== 'user' || message.isEditing) return;
-    message.isEditing = true;
+    if (message.role !== 'user' || isEditing.value) return;
+    isEditing.value = true;
     initialMessage = message;
 }
 
 async function saveEditedMessage(message, event) {
+    isEditing.value = false;
     message.isEditing = false;
 
     let parsedMessageText = '';
@@ -309,7 +312,7 @@ const menuItems = computed(() => {
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
         </div>
-        <div class="message-contents" :id="'message-' + item.id" :contenteditable="item.isEditing"
+        <div class="message-contents" :id="'message-' + item.id" :contenteditable="isEditing"
             @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)" v-html="formatMessage(item.content)">
         </div>
     </div>

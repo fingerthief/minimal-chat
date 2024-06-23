@@ -2,11 +2,13 @@
 <template>
   <div ref="messageList" class="message-list" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500">
-    <DynamicScroller :min-item-size="1200" :buffer="1200" ref="scroller" class="scroller" :emitUpdates="true"
-      :items="filteredMessages" key-field="id" v-slot="{ item, active }">
-      <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
-        <MessageItem :item="item" :active="active" />
-      </DynamicScrollerItem>
+    <DynamicScroller :items="filteredMessages" :min-item-size="50" :buffer="100" key-field="id" :emitUpdates="true"
+      :size-dependencies="['content']" type-field="type" ref="scroller" class="scroller">
+      <template v-slot="{ item, index, active }">
+        <DynamicScrollerItem :item="item" :active="active" :data-index="index" :size-dependencies="['content']">
+          <MessageItem :item="item" :active="active" />
+        </DynamicScrollerItem>
+      </template>
     </DynamicScroller>
   </div>
 </template>
@@ -26,12 +28,26 @@ import MessageItem from '@/components/controls/MessageItem.vue';
 const messageList = ref(null);
 const scroller = ref(null);
 
-const filteredMessages = computed(() => messages.value.filter((message) => message.role !== 'system'));
+const filteredMessages = computed(() =>
+  messages.value
+    .filter((message) => message.role !== 'system')
+    .map(message => ({
+      ...message,
+      type: getItemType(message)
+    }))
+);
+
+function getItemType(item) {
+  const baseSize = 50;
+  const contentLength = item.content.length;
+  const estimatedSize = baseSize + Math.ceil(contentLength / 100) * 20; // Add 20px for every 100 characters
+  return estimatedSize;
+}
 
 async function scrollToBottom() {
   if (scroller.value && messageList.value) {
     await nextTick();
-    scroller.value.scrollToItem(filteredMessages.value.length);
+    scroller.value.scrollToItem(filteredMessages.value.length - 1);
   }
 }
 
@@ -42,6 +58,10 @@ watch(
   },
   { deep: true }
 );
+
+onMounted(() => {
+  scrollToBottom();
+});
 
 </script>
 

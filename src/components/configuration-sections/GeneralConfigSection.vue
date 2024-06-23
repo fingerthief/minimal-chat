@@ -34,14 +34,14 @@
         <br>
         <div class="config-section" :class="{ show: isAvatarSectionOpen }">
             <h3 @click="isAvatarSectionOpen = !isAvatarSectionOpen">
-                AI Message Avatar
+                Avatar Configuration
                 <ChevronDown v-if="isAvatarSectionOpen" class="indicator" size="20" />
                 <ChevronRight v-else class="indicator" size="20" />
             </h3>
             <transition name="slide-fade">
                 <div v-show="isAvatarSectionOpen" class="control-grid">
                     <div class="control-checkbox">
-                        <SliderCheckbox inputId="enable-ai-avatar" labelText="Enable AI Avatar"
+                        <SliderCheckbox inputId="enable-ai-avatar" labelText="Enable Message Avatars"
                             v-model="isAvatarEnabled" />
                     </div>
                     <div class="avatar-url-container">
