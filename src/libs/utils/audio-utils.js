@@ -1,43 +1,52 @@
-// /libs/utils/audio-utils.js
+// audio-utils.js
 import { audioQueue, audioIsPlaying } from '@/libs/state-management/state';
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();  // Create a single AudioContext instance
+let audioContext;
+let microphone;
+let echoCanceller;
 
 const logDebug = (message) => {
   console.log(`[Audio Utils]: ${message}`);
 };
 
+const ensureAudioContext = () => {
+  if (!audioContext || audioContext.state === 'closed') {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioContext;
+};
+
 const playNextAudio = () => {
-  if (audioQueue.value.length > 0) {
+  if (audioQueue.value.length > 0 && !audioIsPlaying.value) {
     const audioBlob = audioQueue.value.shift();
     logDebug(`Playing next audio. Queue length: ${audioQueue.value.length}`);
 
     const reader = new FileReader();
     reader.onload = () => {
-      audioContext.decodeAudioData(reader.result, (buffer) => {
+      ensureAudioContext().decodeAudioData(reader.result, (buffer) => {
         const source = audioContext.createBufferSource();
         source.buffer = buffer;
         source.connect(audioContext.destination);
 
         source.onended = () => {
           logDebug(`Audio ended. Queue length: ${audioQueue.value.length}`);
-          audioIsPlaying.value = false;  // Reset the flag when the audio ends
-          playNextAudio();  // Recursively play the next audio
+          audioIsPlaying.value = false;
+          playNextAudio();
         };
 
         source.start(0);
         logDebug('Audio started playing.');
-        audioIsPlaying.value = true;  // Set the flag when an audio starts playing
+        audioIsPlaying.value = true;
       }, (error) => {
         logDebug(`Error decoding audio: ${error.message}`);
-        audioIsPlaying.value = false;  // Reset the flag on error
-        playNextAudio();  // Try to play the next audio
+        audioIsPlaying.value = false;
+        playNextAudio();
       });
     };
 
     reader.readAsArrayBuffer(audioBlob);
   } else {
-    logDebug('Audio queue is empty.');
+    logDebug('Audio queue is empty or audio is already playing.');
   }
 };
 
@@ -50,6 +59,29 @@ export const addToAudioQueue = (blob) => {
   } else {
     logDebug('Audio is already playing. Added to queue.');
   }
+};
+
+export const setupEchoCancellation = async () => {
+  audioContext = ensureAudioContext();
+  
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  microphone = audioContext.createMediaStreamSource(stream);
+
+  echoCanceller = audioContext.createEchoModerator ? audioContext.createEchoModerator() : audioContext.createGain();
+
+  microphone.connect(echoCanceller);
+  // Do not connect echoCanceller to audioContext.destination
+
+  return { audioContext, echoCanceller, stream };
+};
+
+export const getProcessedAudioStream = () => {
+  if (!echoCanceller) {
+    throw new Error('Echo cancellation not set up. Call setupEchoCancellation first.');
+  }
+  const processorNode = audioContext.createMediaStreamDestination();
+  echoCanceller.connect(processorNode);
+  return processorNode.stream;
 };
 
 export const playAudio = (blob) => {
@@ -109,19 +141,19 @@ export const checkWebSpeechAPI = () => {
   return supported;
 };
 
-export const startMediaRecorder = async (stream, mediaRecorder, currentAudioChunks, mimeType, recognizedSentences) => {
-  mediaRecorder.value = new MediaRecorder(stream);
+export const startMediaRecorder = (stream, currentAudioChunks, mimeType, recognizedSentences) => {
+  const mediaRecorder = new MediaRecorder(stream);
 
-  mediaRecorder.value.ondataavailable = (event) => {
+  mediaRecorder.ondataavailable = (event) => {
     if (event.data.size > 0) {
       currentAudioChunks.push(event.data);
       logDebug('Audio data available.');
     }
   };
 
-  mediaRecorder.value.onstop = async () => {
+  mediaRecorder.onstop = () => {
     const blob = new Blob(currentAudioChunks, { type: mimeType });
-    currentAudioChunks = [];
+    currentAudioChunks.length = 0;
 
     if (recognizedSentences.value.length > 0) {
       recognizedSentences.value[recognizedSentences.value.length - 1].blob = blob;
@@ -129,5 +161,6 @@ export const startMediaRecorder = async (stream, mediaRecorder, currentAudioChun
     }
   };
 
-  logDebug('MediaRecorder started.');
+  logDebug('MediaRecorder created.');
+  return mediaRecorder;
 };

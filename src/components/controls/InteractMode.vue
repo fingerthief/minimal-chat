@@ -29,23 +29,32 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { fetchSTTResponse } from '@/libs/api-access/gpt-api-access';
 import { useWhisper, isInteractModeOpen } from '@/libs/state-management/state';
-import { getSupportedMimeType, checkMicrophoneAvailability, checkWebSpeechAPI, startMediaRecorder, playAudio, downloadAudio } from '@/libs/utils/audio-utils';
+import { 
+  getSupportedMimeType, 
+  checkMicrophoneAvailability, 
+  checkWebSpeechAPI, 
+  startMediaRecorder, 
+  playAudio, 
+  downloadAudio, 
+  setupEchoCancellation, 
+  getProcessedAudioStream
+} from '@/libs/utils/audio-utils';
 
 const emit = defineEmits(['recognized-sentence', 'close-interact-mode']);
 
 const isRecording = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref(null);
-const audioContext = ref(null);
 const analyser = ref(null);
 const dataArray = ref(null);
 const mediaRecorder = ref(null);
 const recognizedSentences = ref([]);
 let currentAudioChunks = [];
-let vadStream = null;
 const wavePath = ref('');
 const state = ref('listening');
 const mimeType = getSupportedMimeType();
+const recognition = ref(null);
+let audioContextRef = null;
 
 const stopRecording = () => {
   if (mediaRecorder.value && mediaRecorder.value.state !== 'inactive') {
@@ -54,11 +63,6 @@ const stopRecording = () => {
 
   if (recognition.value) {
     recognition.value.stop();
-  }
-
-  if (vadStream) {
-    vadStream.getTracks().forEach(track => track.stop());
-    vadStream = null;
   }
 
   isRecording.value = false;
@@ -143,17 +147,24 @@ const startRecording = async () => {
   }
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    audioContext.value = new (window.AudioContext || window.webkitAudioContext)();
-    analyser.value = audioContext.value.createAnalyser();
-    const source = audioContext.value.createMediaStreamSource(stream);
+    const { audioContext, echoCanceller, stream } = await setupEchoCancellation();
+    audioContextRef = audioContext;
+    const processedStream = getProcessedAudioStream();
+    
+    analyser.value = audioContext.createAnalyser();
+    const source = audioContext.createMediaStreamSource(processedStream);
     source.connect(analyser.value);
     analyser.value.fftSize = 2048;
-    const bufferLength = analyser.value.frequencyBinCount;
-    dataArray.value = new Uint8Array(bufferLength);
-    vadStream = stream;
+    dataArray.value = new Uint8Array(analyser.value.frequencyBinCount);
 
     isRecording.value = true;
+
+    recognition.value = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.value.continuous = true;
+    recognition.value.interimResults = false;
+    recognition.value.lang = 'en-US';
+
+    setupRecognitionEventListeners(processedStream);
 
     recognition.value.start();
     state.value = 'listening';
@@ -163,23 +174,14 @@ const startRecording = async () => {
 
     isLoading.value = false;
   } catch (error) {
+    console.error('Error in startRecording:', error);
     errorMessage.value = 'Error starting recording or speech recognition.';
     state.value = 'error';
     isLoading.value = false;
   }
 };
 
-const recognition = ref(null);
-
-onMounted(async () => {
-  if (!checkWebSpeechAPI()) {
-    errorMessage.value = 'Web Speech API is not supported in this browser.';
-    state.value = 'error';
-    return;
-  }
-
-  recognition.value = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-
+const setupRecognitionEventListeners = (stream) => {
   recognition.value.onspeechstart = () => {
     drawAudioWaveform();
     console.log("Speech has been detected");
@@ -188,9 +190,9 @@ onMounted(async () => {
       return;
     }
 
-    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-      startMediaRecorder(stream, mediaRecorder, currentAudioChunks, mimeType, recognizedSentences);
-      mediaRecorder.start();
+    if (!mediaRecorder.value || mediaRecorder.value.state === 'inactive') {
+      mediaRecorder.value = startMediaRecorder(stream, currentAudioChunks, mimeType, recognizedSentences);
+      mediaRecorder.value.start();
     }
   };
 
@@ -202,12 +204,10 @@ onMounted(async () => {
       return;
     }
 
-    mediaRecorder.stop();
+    if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
+      mediaRecorder.value.stop();
+    }
   });
-
-  recognition.value.continuous = true;
-  recognition.value.interimResults = false;
-  recognition.value.lang = 'en-US';
 
   recognition.value.onresult = async (event) => {
     const transcript = event.results[event.resultIndex][0].transcript.trim();
@@ -217,7 +217,7 @@ onMounted(async () => {
 
       if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
         mediaRecorder.value.stop();
-        await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for the mediaRecorder to finish processing the last chunk
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
       if (useWhisper.value) {
@@ -245,20 +245,17 @@ onMounted(async () => {
 
   recognition.value.onerror = (event) => {
     if (event.error == "no-speech") {
-      return; //This prevents the error message for no speech from popping up repeatedly.
-      //Maybe consider a counter here in the future for if no speech is is thrown more than X times we disable interact mode.
+      return;
     }
 
     errorMessage.value = `Speech recognition error: ${event.error}`;
     isLoading.value = false;
     state.value = 'error';
 
-    if (event.error === 'aborted') {
-      if (isRecording.value) {
-        setTimeout(() => {
-          recognition.value.start();
-        }, 1000);
-      }
+    if (event.error === 'aborted' && isRecording.value) {
+      setTimeout(() => {
+        recognition.value.start();
+      }, 1000);
     }
   };
 
@@ -269,18 +266,24 @@ onMounted(async () => {
       }, 1000);
     }
   };
+};
+
+onMounted(async () => {
+  if (!checkWebSpeechAPI()) {
+    errorMessage.value = 'Web Speech API is not supported in this browser.';
+    state.value = 'error';
+    return;
+  }
 
   await startRecording();
 });
 
 onUnmounted(() => {
-  if (audioContext.value) {
-    audioContext.value.close();
-  }
   if (recognition.value) {
     recognition.value.stop();
   }
   stopRecording();
+  // Don't close the AudioContext here
 });
 </script>
 
