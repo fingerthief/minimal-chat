@@ -31,7 +31,9 @@ import {
   whisperTemperature,
   ttsVoice,
   isAvatarEnabled,
-  avatarUrl
+  avatarUrl,
+  userAvatarUrl,
+  avatarShape
 } from '@/libs/state-management/state';
 
 export function setupWatchers() {
@@ -84,6 +86,8 @@ export function setupWatchers() {
     { ref: audioSpeed, key: 'audio-speed' },
     { ref: whisperTemperature, key: 'whisper-temperature' },
     { ref: avatarUrl, key: 'avatarUrl' },
+    { ref: avatarShape, key: 'avatarShape' },
+    { ref: userAvatarUrl, key: 'userAvatarUrl' },
     { ref: isAvatarEnabled, key: 'isAvatarEnabled' },
   ];
 

@@ -45,29 +45,39 @@
                             v-model="isAvatarEnabled" />
                     </div>
                     <div class="avatar-url-container">
-                        <InputField labelText="Avatar Image URL:" inputId="avatar-url" :value="avatarUrl"
-                            @update:value="handleUpdate('avatarUrl', $event)" :isSecret="false" :isMultiline="false"
-                            :placeholderText="'Enter the URL for the AI avatar image'" />
-                        <br>
-                        <h4>Select an image from stored files or upload a new one:</h4>
-                        <Listbox v-model="selectedFile" :options="storedFiles" optionLabel="fileName"
-                            @change="updateAvatarUrl" class="w-full md:w-14rem select-listbox" :filter="true">
-                            <template #header>
-                                <Button label="Upload Avatar" icon="pi pi-upload" class="custom-upload-button"
-                                    @click="triggerFileInput" />
-                            </template>
-                            <template #option="slotProps">
-                                <div class="flex align-items-center">
-                                    <Avatar :image="slotProps.option.fileData" :alt="slotProps.option.fileName"
-                                        shape="circle" size="large" />
-                                    <div class="ml-2">{{ slotProps.option.fileName }}</div>
-                                </div>
-                            </template>
-                        </Listbox>
-                        <input type="file" ref="fileInput" style="display: none" @change="uploadFile"
-                            accept="image/*" />
-                    </div>
+                        <div class="avatar-settings">
+                            <h4>Avatar Settings:</h4>
+                            <SelectButton v-model="avatarType" :options="avatarOptions" optionLabel="name"
+                                @change="handleAvatarTypeChange" />
+                            <br>
+                            <SelectButton v-model="avatarShape" :options="avatarShapes" optionLabel="name"
+                                optionValue="value" @change="handleAvatarShapeChange" />
 
+                            <br>
+                            <InputField :labelText="`${avatarType.name} Image URL:`" inputId="avatar-url"
+                                :value="avatarType.value === 'ai' ? avatarUrl : userAvatarUrl"
+                                @update:value="handleAvatarUrlUpdate" :isSecret="false" :isMultiline="false"
+                                :placeholderText="`Enter the URL for the ${avatarType.name} avatar image`" />
+                            <br>
+                            <h4>Select an image from stored files or upload a new one:</h4>
+                            <Listbox v-model="selectedFile" :options="storedFiles" optionLabel="fileName"
+                                @change="updateAvatarUrl" class="w-full md:w-14rem select-listbox" :filter="true">
+                                <template #header>
+                                    <Button :label="`Upload ${avatarType.name} Avatar`" icon="pi pi-upload"
+                                        class="custom-upload-button" @click="triggerFileInput" />
+                                </template>
+                                <template #option="slotProps">
+                                    <div class="flex align-items-center">
+                                        <Avatar :image="slotProps.option.fileData" :alt="slotProps.option.fileName"
+                                            shape="circle" size="large" />
+                                        <div class="ml-2">{{ slotProps.option.fileName }}</div>
+                                    </div>
+                                </template>
+                            </Listbox>
+                            <input type="file" ref="fileInput" style="display: none" @change="uploadFile"
+                                accept="image/*" />
+                        </div>
+                    </div>
                 </div>
             </transition>
         </div>
@@ -78,7 +88,7 @@
 <script setup>
 import InputField from '@/components/controls/InputField.vue';
 import { ChevronDown, ChevronRight, Trash2 } from 'lucide-vue-next';
-import { isAvatarEnabled, avatarUrl, systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
+import { avatarShape, userAvatarUrl, isAvatarEnabled, avatarUrl, systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts } from '@/libs/utils/settings-utils';
 import SliderCheckbox from '../controls/SliderCheckbox.vue';
 import { ref, onMounted, onBeforeMount } from 'vue';
@@ -90,6 +100,7 @@ const selectedFile = ref(null);
 const fileInput = ref(null);
 
 const isAvatarSectionOpen = ref(false);
+const isSavedPromptsOpen = ref(true);
 
 const fetchStoredFiles = async () => {
     try {
@@ -134,9 +145,42 @@ const triggerFileInput = () => {
     fileInput.value.click();
 };
 
+const avatarType = ref({ name: 'AI', value: 'ai' });
+const avatarOptions = [
+    { name: 'AI', value: 'ai' },
+    { name: 'User', value: 'user' }
+];
+
+const avatarShapes = [
+    { name: 'Circle', value: 'circle' },
+    { name: 'Square', value: 'square' }
+];
+
+const handleAvatarShapeChange = () => {
+    localStorage.setItem("avatarShape", JSON.stringify({ name: avatarShape.value === 'circle' ? 'Circle' : 'Square', value: avatarShape.value }));
+};
+
+
+const handleAvatarTypeChange = () => {
+    // Reset selected file when switching avatar type
+    selectedFile.value = null;
+};
+
+const handleAvatarUrlUpdate = (newValue) => {
+    if (avatarType.value.value === 'ai') {
+        handleUpdate('avatarUrl', newValue);
+    } else {
+        handleUpdate('userAvatarUrl', newValue);
+    }
+};
+
 const updateAvatarUrl = () => {
     if (selectedFile.value) {
-        handleUpdate('avatarUrl', selectedFile.value.fileData);
+        if (avatarType.value.value === 'ai') {
+            handleUpdate('avatarUrl', selectedFile.value.fileData);
+        } else {
+            handleUpdate('userAvatarUrl', selectedFile.value.fileData);
+        }
     }
 };
 
@@ -161,6 +205,52 @@ onBeforeMount(async () => {
 
 .p-header {
     padding: 6px;
+}
+
+.avatar-settings {
+    margin-bottom: 1rem;
+
+    h4 {
+        margin-bottom: 0.5rem;
+    }
+
+    .p-selectbutton {
+        margin-bottom: 0.5rem;
+
+        .p-button {
+            background-color: #333;
+            border: 1px solid #157474;
+            color: #fff;
+
+            &.p-highlight {
+                background-color: #157474;
+                border-color: #157474;
+            }
+
+            &:not(.p-highlight):hover {
+                background-color: #444;
+            }
+        }
+    }
+}
+
+.p-selectbutton {
+    margin-bottom: 1rem;
+
+    .p-button {
+        background-color: #333;
+        border: 1px solid #157474;
+        color: #fff;
+
+        &.p-highlight {
+            background-color: #157474;
+            border-color: #157474;
+        }
+
+        &:not(.p-highlight):hover {
+            background-color: #444;
+        }
+    }
 }
 
 .custom-upload-button {

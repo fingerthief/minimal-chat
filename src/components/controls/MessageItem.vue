@@ -21,6 +21,8 @@ import {
     higherContrastMessages,
     isAvatarEnabled,
     avatarUrl,
+    userAvatarUrl,
+    avatarShape,
 } from '@/libs/state-management/state';
 import {
     setSystemPrompt,
@@ -264,7 +266,9 @@ const menuItems = computed(() => {
     }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
             <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
-            <Avatar v-if="item.role !== 'user' && isAvatarEnabled === true" :image="avatarUrl" shape="circle"
+            <Avatar v-if="item.role !== 'user' && isAvatarEnabled === true" :image="avatarUrl" :shape="avatarShape"
+                size="large" />
+            <Avatar v-if="item.role === 'user' && isAvatarEnabled === true" :image="userAvatarUrl" :shape="avatarShape"
                 size="large" />
             <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
 
@@ -360,7 +364,8 @@ const menuItems = computed(() => {
             align-items: center;
 
             .p-avatar {
-                margin-right: 10px;
+                position: relative;
+                left: 15px;
             }
         }
 
