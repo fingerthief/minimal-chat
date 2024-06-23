@@ -124,7 +124,30 @@ const fetchStoredFiles = async () => {
 };
 
 const addStoredFileToContext = (file) => {
-    addMessage('user', userText.value + ' ' + file.fileData);
+    let messageContent;
+    if (file.fileType.startsWith('image/')) {
+        // If it's an image, create an array with image_url and text objects
+        messageContent = [
+            {
+                type: 'image_url',
+                image_url: { url: file.fileData },
+            },
+            {
+                type: 'text',
+                text: `${userText.value}\n\nImage: ${file.fileName}`
+            }
+        ];
+    } else {
+        // For non-image files, create an array with a single text object
+        messageContent = [
+            {
+                type: 'text',
+                text: `${userText.value} ${file.fileData}`
+            }
+        ];
+    }
+
+    addMessage('user', messageContent);
     addMessage('assistant', `${file.fileName} context added from storage.`);
 
     showToast("Successfully Added File Context From Storage");
