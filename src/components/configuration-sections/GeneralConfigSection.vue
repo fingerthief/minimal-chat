@@ -104,15 +104,28 @@ const isSavedPromptsOpen = ref(true);
 
 const fetchStoredFiles = async () => {
     try {
-        const request = indexedDB.open('UserFilesDB', 5);
+        const dbName = 'UserFilesDB';
+        const dbVersion = 5;
+        const storeName = 'userFiles';
 
         const db = await new Promise((resolve, reject) => {
+            const request = indexedDB.open(dbName, dbVersion);
+
+            request.onerror = (event) => reject(`IndexedDB error: ${event.target.error}`);
+
             request.onsuccess = (event) => resolve(event.target.result);
-            request.onerror = reject;
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(storeName)) {
+                    db.createObjectStore(storeName, { keyPath: 'fileName' });
+                    console.log(`Created new object store: ${storeName}`);
+                }
+            };
         });
 
-        const transaction = db.transaction(['userFiles'], 'readonly');
-        const store = transaction.objectStore('userFiles');
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
         const getAllRequest = store.getAll();
 
         const result = await new Promise((resolve, reject) => {

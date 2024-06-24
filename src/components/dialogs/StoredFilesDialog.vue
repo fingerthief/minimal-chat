@@ -93,23 +93,28 @@ const closeStoredFiles = () => {
 
 const fetchStoredFiles = async () => {
     try {
-        const request = indexedDB.open('UserFilesDB', 5);
+        const dbName = 'UserFilesDB';
+        const dbVersion = 5;
+        const storeName = 'userFiles';
 
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains('userFiles')) {
-                db.createObjectStore('userFiles', { keyPath: 'id', autoIncrement: true });
-            }
-        };
+        const db = await new Promise((resolve, reject) => {
+            const request = indexedDB.open(dbName, dbVersion);
 
-        const event = await new Promise((resolve, reject) => {
-            request.onsuccess = resolve;
-            request.onerror = reject;
+            request.onerror = (event) => reject(`IndexedDB error: ${event.target.error}`);
+
+            request.onsuccess = (event) => resolve(event.target.result);
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(storeName)) {
+                    db.createObjectStore(storeName, { keyPath: 'fileName' });
+                    console.log(`Created new object store: ${storeName}`);
+                }
+            };
         });
 
-        const db = event.target.result;
-        const transaction = db.transaction(['userFiles'], 'readonly');
-        const store = transaction.objectStore('userFiles');
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
         const getAllRequest = store.getAll();
 
         const result = await new Promise((resolve, reject) => {
@@ -117,11 +122,13 @@ const fetchStoredFiles = async () => {
             getAllRequest.onerror = reject;
         });
 
-        return result;
+        return result.filter(file => file.fileType && file.fileType.startsWith('image/'));
     } catch (error) {
         console.error(`Error Fetching Stored Files: ${error}`);
+        return [];
     }
 };
+
 
 const addStoredFileToContext = (file) => {
     let messageContent;
