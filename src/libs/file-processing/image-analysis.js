@@ -40,7 +40,7 @@ function formatMessagesForVision(messages) {
 
 async function initIndexedDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('UserFilesDB', 4); // Increase the version number
+    const request = indexedDB.open('UserFilesDB', 5); // Increase the version number
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
@@ -63,7 +63,7 @@ async function initIndexedDB() {
 }
 
 export const storeFileData = async (fileName, fileData, fileSize, fileType) => {
-  const request = indexedDB.open('UserFilesDB', 4);
+  const request = indexedDB.open('UserFilesDB', 5);
 
   request.onupgradeneeded = (event) => {
     const db = event.target.result;

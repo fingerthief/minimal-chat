@@ -104,7 +104,7 @@ const isSavedPromptsOpen = ref(true);
 
 const fetchStoredFiles = async () => {
     try {
-        const request = indexedDB.open('UserFilesDB', 4);
+        const request = indexedDB.open('UserFilesDB', 5);
 
         const db = await new Promise((resolve, reject) => {
             request.onsuccess = (event) => resolve(event.target.result);

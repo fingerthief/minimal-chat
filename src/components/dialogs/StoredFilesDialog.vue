@@ -93,7 +93,7 @@ const closeStoredFiles = () => {
 
 const fetchStoredFiles = async () => {
     try {
-        const request = indexedDB.open('UserFilesDB', 4);
+        const request = indexedDB.open('UserFilesDB', 5);
 
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
@@ -156,7 +156,7 @@ const addStoredFileToContext = (file) => {
 };
 
 const deleteFile = (fileId) => {
-    const request = indexedDB.open('UserFilesDB', 4);
+    const request = indexedDB.open('UserFilesDB', 5);
 
     request.onsuccess = (event) => {
         const db = event.target.result;
