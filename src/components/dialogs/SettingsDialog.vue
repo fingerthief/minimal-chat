@@ -218,7 +218,7 @@ onMounted(() => {
             <ul v-show="isCustomConfigOpen">
               <li v-for="(config, index) in customConfigs" :key="config.endpoint"
                 :class="{ selected: selectedModel === 'open-ai-format' && localModelEndpoint === config.endpoint }"
-                @click="selectCustomModel(config.endpoint, index)">
+                @click="selectCustomModel(index)">
                 <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />&nbsp;&nbsp;
                 {{ config.endpoint }}
               </li>
