@@ -2,7 +2,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { determineModelDisplayName, handleDoubleClick } from '@/libs/utils/general-utils';
+import { determineModelDisplayName, handleDoubleClick, removeAPIEndpoints } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
 import { uploadFileContentsToConversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
 import messageItem from '@/components/controls/MessagesList.vue';
@@ -26,7 +26,8 @@ import {
   conversations,
   higherContrastMessages,
   showStoredFiles,
-  isSmallScreen
+  isSmallScreen,
+  availableModels
 } from '@/libs/state-management/state';
 import { setupWatchers } from '@/libs/state-management/watchers';
 import { saveMessagesHandler, selectConversationHandler } from '@/libs/conversation-management/useConversations';
@@ -34,6 +35,7 @@ import { addMessage } from '@/libs/conversation-management/message-processing';
 import { runTutortialForNewUser } from '@/libs/utils/tutorial-utils';
 import "driver.js/dist/driver.css";
 import "../assets/tutorial.css";
+import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 
 const sidebarContentContainer = ref(null);
 
@@ -55,6 +57,17 @@ async function imageInputChangedHandler(event) {
 }
 //#endregion
 
+async function fetchAvailableModels() {
+  try {
+    if (localModelEndpoint.value.trim() !== '') {
+      const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
+      availableModels.value = models;
+    }
+  } catch (error) {
+    console.error('Error fetching available models:', error);
+  }
+}
+
 //#region Lifecycle Hooks
 onMounted(async () => {
   setupWatchers();
@@ -65,6 +78,9 @@ onMounted(async () => {
   modelDisplayName.value = determineModelDisplayName(selectedModel.value);
   higherContrastMessages.value = localStorage.getItem('higherContrastMessages') || false;
 
+  if (selectedModel.value === 'open-ai-format') {
+    fetchAvailableModels();
+  }
 
   selectConversationHandler(lastLoadedConversationId.value || conversations.value[0]?.id);
 
