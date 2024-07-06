@@ -95,7 +95,7 @@ import SliderCheckbox from '../controls/SliderCheckbox.vue';
 import { ref, onBeforeMount } from 'vue';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
 import { showToast } from '@/libs/utils/general-utils';
-import { fetchStoredFiles } from '@/libs/utils/indexed-db-utils';
+import { fetchStoredImageFiles } from '@/libs/utils/indexed-db-utils';
 
 const storedFiles = ref([]);
 const selectedFile = ref(null);
@@ -116,7 +116,7 @@ const avatarShapes = [
 ];
 
 const handleFetchStoredFiles = async () => {
-    storedFiles.value = await fetchStoredFiles();
+    storedFiles.value = await fetchStoredImageFiles();
 };
 
 const uploadFile = async (event) => {

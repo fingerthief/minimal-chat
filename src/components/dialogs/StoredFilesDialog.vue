@@ -18,7 +18,7 @@
             tableStyle="min-width: 25rem"
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} files">
-            <Column field="id" header="File ID" style="width: 20%" />
+            <Column field="fileId" hidden header="File ID" style="width: 20%" />
             <Column field="fileName" header="File Name" style="width: 50%" />
             <Column field="fileSize" header="Size" style="width: 20%">
                 <template #body="{ data }">
@@ -40,7 +40,7 @@
             </Column>
             <Column field="id" header="" style="width: 20%">
                 <template #body="{ data }">
-                    <Button @click="handleDeleteFile(data.id)" icon="pi pi-trash"
+                    <Button @click="handleDeleteFile(data.fileId)" icon="pi pi-trash"
                         class="p-button-rounded p-button-danger" title="Delete File" />
                 </template>
             </Column>
@@ -64,7 +64,7 @@ import { showToast } from '@/libs/utils/general-utils';
 import { Upload, Database } from 'lucide-vue-next';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
 import InputText from 'primevue/inputtext';
-import { fetchStoredFiles, deleteFile } from '@/libs/utils/indexed-db-utils';
+import { fetchStoredFiles, deleteFile, getTotalDatabaseSize } from '@/libs/utils/indexed-db-utils';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
@@ -72,6 +72,11 @@ import DataTable from 'primevue/datatable';
 const files = ref([]);
 const searchQuery = ref('');
 const fileInput = ref(null);
+const databaseSize = ref('0.00');
+
+const updateDatabaseSize = async () => {
+    databaseSize.value = await getTotalDatabaseSize();
+};
 
 const filteredFiles = computed(() => {
     if (!searchQuery.value) return files.value;
@@ -96,7 +101,7 @@ const handleFetchStoredFiles = async () => {
     files.value = await fetchStoredFiles();
 };
 
-const addStoredFileToContext = (file) => {
+const addStoredFileToContext = async (file) => {
     const messageContent = file.fileType.startsWith('image/')
         ? [
             { type: 'image_url', image_url: { url: file.fileData } },
@@ -115,7 +120,8 @@ const addStoredFileToContext = (file) => {
 const handleDeleteFile = async (fileId) => {
     try {
         await deleteFile(fileId);
-        files.value = files.value.filter(file => file.id !== fileId);
+        files.value = files.value.filter(file => file.fileId !== fileId);
+        await updateDatabaseSize();
         showToast("File Deleted From Storage");
     } catch (error) {
         console.error('Failed to delete file:', error);
@@ -146,7 +152,8 @@ const uploadFile = async (event) => {
         await processFile(file);
     }
 
-    files.value = await handleFetchStoredFiles();
+    await handleFetchStoredFiles();
+    await updateDatabaseSize();
 };
 
 const processFile = async (file) => {
@@ -193,15 +200,11 @@ const processPDF = async (contents, file) => {
     }
 };
 
-const databaseSize = computed(() => {
-    const totalSize = files.value.reduce((sum, file) => sum + file.fileSize, 0);
-    return (totalSize / (1024 * 1024)).toFixed(2); // Convert to MB
-});
-
 const tooltipText = computed(() => `Total Browser Database Size: ${databaseSize.value}MB`);
 
 onMounted(async () => {
     files.value = await fetchStoredFiles();
+    await updateDatabaseSize();
 });
 </script>
 <style scoped lang="scss">
