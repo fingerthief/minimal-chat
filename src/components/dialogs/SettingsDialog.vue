@@ -188,7 +188,7 @@ onMounted(() => {
   <div class="settings-dialog" data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="500"
     @swiped-right="swipedRight">
     <DialogHeader title="Configuration" :icon="Settings" :iconSize="32"
-      tooltipText="Current Version: 6.2.5 Fluid Fusion" headerId="settings-header"
+      tooltipText="Current Version: 6.2.6 Cosmic Cloud" headerId="settings-header"
       @close="() => isSidebarOpen = false" />
     <div class="settings-container">
       <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">

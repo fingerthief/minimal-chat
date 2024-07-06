@@ -152,7 +152,16 @@ function deleteConversation(conversationId) {
       conversationElement.classList.add('deleting');
       setTimeout(() => {
         conversations.value.splice(index, 1);
+
+        if (conversations.value.length === 0) {
+          messages.value = [];
+          saveMessagesHandler();
+          showToast('Conversation Deleted');
+          return;
+        }
+
         saveMessagesHandler();
+        loadSelectedConversation(selectedConversation.value);
         showToast('Conversation Deleted');
       }, 200); // Duration of the scaleDown animation
     }

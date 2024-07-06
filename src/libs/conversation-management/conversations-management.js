@@ -51,12 +51,17 @@ export function deleteConversation(conversations, id) {
   return conversations.filter((conversation) => conversation.id !== id);
 }
 
-// conversations-management.js
-
 export async function saveMessages() {
   const updatedConversation = selectedConversation.value;
 
   if (!selectedConversation || selectedConversation.value === null || !conversations.value.length) {
+
+    if (messages.value.length === 0) {
+      localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+      selectedConversation.value = [];
+      return;
+    }
+
     const title = await createNewConversationWithTitle(
       messages.value,
       localStorage.getItem('selectedModel') || 'gpt-4o',
@@ -87,6 +92,8 @@ export async function saveMessages() {
   conversations.value = result;
 
   localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+
+  selectedConversation.value = conversations.value[conversations.value.length - 1];
 }
 
 export function selectConversation(conversations, conversationId, messages, lastLoadedConversationId, showToast) {

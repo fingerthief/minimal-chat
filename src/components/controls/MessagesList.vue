@@ -19,7 +19,6 @@ import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import {
   messages,
-  isSmallScreen,
 } from '@/libs/state-management/state';
 import { swipedLeft, swipedRight } from '@/libs/utils/general-utils';
 import 'swiped-events';
@@ -47,7 +46,9 @@ function getItemType(item) {
 async function scrollToBottom() {
   if (scroller.value && messageList.value) {
     await nextTick();
-    scroller.value.scrollToItem(filteredMessages.value.length - 1);
+    setTimeout(() => {
+      scroller.value.scrollToItem(filteredMessages.value.length - 1);
+    }, 50);
   }
 }
 
