@@ -152,7 +152,6 @@ const uploadFile = async (event) => {
         await processFile(file);
     }
 
-    await handleFetchStoredFiles();
     await updateDatabaseSize();
 };
 
@@ -168,6 +167,10 @@ const processFile = async (file) => {
         } else {
             await storeFileData(file.name, contents, file.size, file.type);
         }
+
+        files.value = await fetchStoredFiles();
+        console.log(files.value);
+
         showToast('File uploaded and stored successfully');
     };
 
