@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, ref, nextTick } from 'vue';
-import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal } from 'lucide-vue-next';
+import { onMounted, ref, nextTick, computed } from 'vue';
+import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal, Github } from 'lucide-vue-next';
 import ToolTip from '../controls/ToolTip.vue';
 import {
   conversations,
@@ -12,6 +12,7 @@ import {
   isSidebarOpen,
   isSmallScreen,
   showStoredFiles,
+  selectedModel,
 } from '@/libs/state-management/state';
 import { deleteCurrentConversation, editConversationTitle, saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
@@ -185,6 +186,18 @@ function toggleContextMenu() {
   }
 }
 
+const modelTypes = [
+  { name: 'claude', display: 'MinimalClaude' },
+  { name: 'gpt', display: 'MinimalGPT' },
+  { name: 'open-ai-format', display: 'MinimalCustom' },
+  { name: 'web-llm', display: 'MinimalLocal' },
+  { name: 'general', display: 'No Model Selected' },
+];
+
+const visibleModelLinks = computed(() => {
+  return modelTypes.filter((modelType) => selectedModel.value.includes(modelType.name));
+});
+
 </script>
 
 <template>
@@ -195,6 +208,14 @@ function toggleContextMenu() {
         <Database @click.stop="showStoredFiles = !showStoredFiles" v-if="!isSmallScreen" :id="'stored-Files'"
           class="database-icon" />
         <ToolTip :targetId="'stored-Files'" v-if="!isSmallScreen">View Stored Files</ToolTip>
+        <a v-for="modelType in visibleModelLinks" :key="modelType.name" id="navLink" v-show="!isSmallScreen"
+          href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
+          {{ modelType.display }}
+          <Github :size="25" class="header-icon" />
+        </a>
+        <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
+
+        </a>
         <MoreHorizontal @blur="showContextMenu = false;" class="context-menu-icon" @click="toggleContextMenu"
           id="contextMenu" :size="25" :stroke-width="1.0" />
         <transition name="fade-slide">
@@ -207,7 +228,7 @@ function toggleContextMenu() {
             <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
           </div>
         </transition>
-        <Settings v-if="!isSmallScreen" @click="toggleSidebar" class="settings-icon" :size="25" :stroke-width="1.0" />
+        <Settings v-if="!isSmallScreen" @click="toggleSidebar" class="settings-icon" :size="25" />
       </h2>
     </div>
     <div class="sidebar-content-container">
@@ -262,6 +283,11 @@ function toggleContextMenu() {
 <style lang="scss" scoped>
 $shadow-color: #252629;
 
+.header-icon {
+  position: absolute;
+  margin-left: 6px;
+}
+
 .new-conversation {
   border-top: 1px solid black;
   text-align: center;
@@ -292,6 +318,17 @@ $shadow-color: #252629;
   padding: 8px;
   text-align: left;
   white-space: nowrap;
+
+  a {
+    left: 20px;
+    top: 22%;
+    position: relative;
+
+    @media (max-width: 600px) {
+      background-color: #0a1e24;
+      position: relative;
+    }
+  }
 
   @media (max-width: 600px) {
     text-align: center;

@@ -3,6 +3,7 @@ import { fetchClaudeVisionResponse } from '../api-access/claude-api-access.js';
 import { fetchOpenAiLikeVisionResponse } from '../api-access/open-ai-api-standard-access.js';
 import { messages, selectedModel } from '../state-management/state.js';
 import { addMessage } from '../conversation-management/message-processing.js';
+import { storeFile } from '../utils/indexed-db-utils.js';
 
 // Encode image as base64
 async function encodeImage(file) {
@@ -63,34 +64,14 @@ async function initIndexedDB() {
 }
 
 export const storeFileData = async (fileName, fileData, fileSize, fileType) => {
-  const request = indexedDB.open('UserFilesDB', 5);
-
-  request.onupgradeneeded = (event) => {
-    const db = event.target.result;
-    if (!db.objectStoreNames.contains('userFiles')) {
-      db.createObjectStore('userFiles', { keyPath: 'id', autoIncrement: true });
-    }
-  };
-
-  request.onsuccess = (event) => {
-    const db = event.target.result;
-    const transaction = db.transaction(['userFiles'], 'readwrite');
-    const store = transaction.objectStore('userFiles');
-
-    const file = {
-      fileName,
-      fileData,
-      fileSize,
-      fileType,
-      uploadDate: new Date().toISOString()
-    };
-
-    store.add(file);
-  };
-
-  request.onerror = (event) => {
-    console.error('Error storing file data:', event.target.error);
-  };
+  try {
+    const fileId = await storeFile(fileName, fileData, fileSize, fileType);
+    console.log(`File stored successfully with ID: ${fileId}`);
+    return fileId;
+  } catch (error) {
+    console.error('Error storing file data:', error);
+    throw error;
+  }
 };
 
 // Analyze image

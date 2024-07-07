@@ -1,11 +1,12 @@
 <!-- eslint-disable no-unused-vars -->
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Menu, Database, Github } from 'lucide-vue-next';
-import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles } from '@/libs/state-management/state';
+import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles, availableModels, localModelName } from '@/libs/state-management/state';
 import ContextWindow from '@/components/controls/ContextWindow.vue';
 import Dropdown from 'primevue/dropdown';
+import { update } from '@/libs/utils/settings-utils';
 
 // Define props
 const props = defineProps({
@@ -16,16 +17,15 @@ const contextWindow = ref(null);
 
 const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation', 'change-model']);
 
-const modelTypes = [
-  { name: 'claude', display: 'MinimalClaude' },
-  { name: 'gpt', display: 'MinimalGPT' },
-  { name: 'open-ai-format', display: 'MinimalCustom' },
-  { name: 'web-llm', display: 'MinimalLocal' },
-  { name: 'general', display: 'No Model Selected' },
-];
+const showCustomModelDropdown = computed(() => selectedModel.value.includes('open-ai-format'));
 
-const visibleModelLinks = computed(() => {
-  return modelTypes.filter((modelType) => selectedModel.value.includes(modelType.name));
+const selectedCustomModel = ref('');
+
+watch(selectedCustomModel, (newValue) => {
+  if (newValue) {
+    // You might want to update the selectedModel or emit an event here
+    console.log('Selected custom model:', newValue);
+  }
 });
 
 function toggleSidebar() {
@@ -54,22 +54,25 @@ const modelOptions = [
   { label: 'Custom API Endpoint', value: 'open-ai-format' },
   { label: 'Local Browser Model (Chrome and Edge Only)', value: 'web-llm' },
 ];
+
+function handleUpdate(field, value) {
+  update(field, value);
+}
 </script>
 
 <template>
   <div class="header box">
-    <a v-for="modelType in visibleModelLinks" :key="modelType.name" id="navLink"
-      href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
-      {{ modelType.display }}
-    </a>
-    <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
-      <Github :size="20" :stroke-width="2.5" class="header-icon" />
-    </a>
     <div class="models-dropdown">
       <div class="control select-dropdown">
         <label for="quick-select-model-selector"></label>
         <Dropdown id="quick-select-model-selector" :options="modelOptions" v-model="selectedModel" optionValue="value"
           optionLabel="label" @change="onModelChange" checkmark />
+      </div>
+      <div v-if="showCustomModelDropdown" class="control select-dropdown custom-model-dropdown">
+        <label for="custom-model-selector"></label>
+        <Dropdown id="custom-model-selector" :options="availableModels" v-model="localModelName"
+          @change="handleUpdate('localModelName', $event.value)" optionValue="id" optionLabel="name" filter
+          placeholder="Select a custom model" />
       </div>
     </div>
     <div class="settings-btn">
@@ -82,7 +85,7 @@ const modelOptions = [
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 /* Add your component-specific styles here */
 $icon-color: rgb(187, 187, 187);
 $shadow-color: #252629;
@@ -101,6 +104,11 @@ $shadow-spread-radius: 0px;
   position: absolute;
 }
 
+
+.p-dropdown-filter-icon {
+  top: 28%;
+}
+
 .p-dropdown {
   background-color: transparent;
   border-bottom: 2px solid #157474;
@@ -113,6 +121,7 @@ $shadow-spread-radius: 0px;
   cursor: pointer;
   font-size: 16px;
   padding: 4px;
+
 
   &:hover {
     background-color: #262627;
@@ -133,10 +142,25 @@ $shadow-spread-radius: 0px;
   cursor: pointer;
   outline: none;
   max-width: fit-content;
+  display: flex;
+  align-items: center;
 
-  transition:
-    background-color 0.15s ease,
-    transform 0.2s ease;
+  .custom-model-dropdown {
+    margin-left: -30px;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .custom-model-dropdown {
+      margin-left: 0;
+      margin-top: 10px;
+    }
+  }
+
+  transition: background-color 0.15s ease,
+  transform 0.2s ease;
 
   .select-dropdown {
     select {

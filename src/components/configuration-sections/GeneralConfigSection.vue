@@ -85,78 +85,24 @@
     </div>
 </template>
 
+
 <script setup>
 import InputField from '@/components/controls/InputField.vue';
 import { ChevronDown, ChevronRight, Trash2 } from 'lucide-vue-next';
 import { avatarShape, userAvatarUrl, isAvatarEnabled, avatarUrl, systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts } from '@/libs/utils/settings-utils';
 import SliderCheckbox from '../controls/SliderCheckbox.vue';
-import { ref, onMounted, onBeforeMount } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
 import { showToast } from '@/libs/utils/general-utils';
+import { fetchStoredImageFiles } from '@/libs/utils/indexed-db-utils';
 
 const storedFiles = ref([]);
 const selectedFile = ref(null);
 const fileInput = ref(null);
 
-const isAvatarSectionOpen = ref(false);
+const isAvatarSectionOpen = ref(true);
 const isSavedPromptsOpen = ref(true);
-
-const fetchStoredFiles = async () => {
-    try {
-        const dbName = 'UserFilesDB';
-        const dbVersion = 5;
-        const storeName = 'userFiles';
-
-        const db = await new Promise((resolve, reject) => {
-            const request = indexedDB.open(dbName, dbVersion);
-
-            request.onerror = (event) => reject(`IndexedDB error: ${event.target.error}`);
-
-            request.onsuccess = (event) => resolve(event.target.result);
-
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                if (!db.objectStoreNames.contains(storeName)) {
-                    db.createObjectStore(storeName, { keyPath: 'fileName' });
-                    console.log(`Created new object store: ${storeName}`);
-                }
-            };
-        });
-
-        const transaction = db.transaction([storeName], 'readonly');
-        const store = transaction.objectStore(storeName);
-        const getAllRequest = store.getAll();
-
-        const result = await new Promise((resolve, reject) => {
-            getAllRequest.onsuccess = () => resolve(getAllRequest.result);
-            getAllRequest.onerror = reject;
-        });
-
-        return result.filter(file => file.fileType && file.fileType.startsWith('image/'));
-    } catch (error) {
-        console.error(`Error Fetching Stored Files: ${error}`);
-        return [];
-    }
-};
-
-const uploadFile = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const contents = e.target.result;
-        await storeFileData(file.name, contents, file.size, file.type);
-        showToast('Image uploaded and stored successfully');
-        storedFiles.value = await fetchStoredFiles();
-    };
-    reader.readAsDataURL(file);
-};
-
-const triggerFileInput = () => {
-    fileInput.value.click();
-};
 
 const avatarType = ref({ name: 'AI', value: 'ai' });
 const avatarOptions = [
@@ -169,37 +115,47 @@ const avatarShapes = [
     { name: 'Square', value: 'square' }
 ];
 
+const handleFetchStoredFiles = async () => {
+    storedFiles.value = await fetchStoredImageFiles();
+};
+
+const uploadFile = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const contents = e.target.result;
+        await storeFileData(file.name, contents, file.size, file.type);
+        showToast('Image uploaded and stored successfully');
+        await handleFetchStoredFiles();
+    };
+    reader.readAsDataURL(file);
+};
+
+const triggerFileInput = () => {
+    fileInput.value.click();
+};
+
 const handleAvatarShapeChange = () => {
     localStorage.setItem("avatarShape", JSON.stringify({ name: avatarShape.value === 'circle' ? 'Circle' : 'Square', value: avatarShape.value }));
 };
 
-
 const handleAvatarTypeChange = () => {
-    // Reset selected file when switching avatar type
     selectedFile.value = null;
 };
 
 const handleAvatarUrlUpdate = (newValue) => {
-    if (avatarType.value.value === 'ai') {
-        handleUpdate('avatarUrl', newValue);
-    } else {
-        handleUpdate('userAvatarUrl', newValue);
-    }
+    handleUpdate(avatarType.value.value === 'ai' ? 'avatarUrl' : 'userAvatarUrl', newValue);
 };
 
 const updateAvatarUrl = () => {
     if (selectedFile.value) {
-        if (avatarType.value.value === 'ai') {
-            handleUpdate('avatarUrl', selectedFile.value.fileData);
-        } else {
-            handleUpdate('userAvatarUrl', selectedFile.value.fileData);
-        }
+        handleUpdate(avatarType.value.value === 'ai' ? 'avatarUrl' : 'userAvatarUrl', selectedFile.value.fileData);
     }
 };
 
-onBeforeMount(async () => {
-    storedFiles.value = await fetchStoredFiles();
-});
+onBeforeMount(handleFetchStoredFiles);
 </script>
 
 <style lang="scss">

@@ -4,28 +4,28 @@
             headerId="stored-files-header" @close="closeStoredFiles" />
         <div class="search-section">
             <span class="p-input-icon-left">
-                <InputText v-model="filters['global'].value" placeholder="Search files..." />
+                <InputText v-model="searchQuery" placeholder="Search files..." @input="onFilter" />
             </span>
             <div class="upload-section">
-                <input multiple type="file" ref="fileInput" @change="uploadFile" />
+                <input multiple type="file" ref="fileInput" @change="uploadFile" class="hidden" />
                 <Button @click="$refs.fileInput.click()">
-                    Upload File &nbsp;<Upload></Upload>
+                    Upload File &nbsp;
+                    <Upload />
                 </Button>
             </div>
         </div>
-        <DataTable ref="dt" :value="files" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]"
+        <DataTable ref="dt" :value="filteredFiles" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]"
             tableStyle="min-width: 25rem"
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} files" :filters="filters"
-            @filter="onFilter">
-            <Column field="id" header="File ID" style="width: 20%"></Column>
-            <Column field="fileName" header="File Name" style="width: 50%"></Column>
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} files">
+            <Column field="fileId" hidden header="File ID" style="width: 20%" />
+            <Column field="fileName" header="File Name" style="width: 50%" />
             <Column field="fileSize" header="Size" style="width: 20%">
-                <template #body="slotProps">
-                    {{ formatFileSize(slotProps.data.fileSize) }}
+                <template #body="{ data }">
+                    {{ formatFileSize(data.fileSize) }}
                 </template>
             </Column>
-            <Column field="fileType" header="Format" style="width: 100%"></Column>
+            <Column field="fileType" header="Format" style="width: 100%" />
             <Column field="id" header="" style="width: 20%">
                 <template #body="{ data }">
                     <Button @click="downloadFile(data)" icon="pi pi-download" class="p-button-rounded p-button-info"
@@ -40,8 +40,8 @@
             </Column>
             <Column field="id" header="" style="width: 20%">
                 <template #body="{ data }">
-                    <Button @click="deleteFile(data.id)" icon="pi pi-trash" class="p-button-rounded p-button-danger"
-                        title="Delete File" />
+                    <Button @click="handleDeleteFile(data.fileId)" icon="pi pi-trash"
+                        class="p-button-rounded p-button-danger" title="Delete File" />
                 </template>
             </Column>
             <template #footer>
@@ -61,15 +61,28 @@ import { showStoredFiles, userText } from '@/libs/state-management/state';
 import { addMessage } from '@/libs/conversation-management/message-processing';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
-import { Upload, X, Database } from 'lucide-vue-next';
+import { Upload, Database } from 'lucide-vue-next';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
 import InputText from 'primevue/inputtext';
+import { fetchStoredFiles, deleteFile, getTotalDatabaseSize } from '@/libs/utils/indexed-db-utils';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
 
 const files = ref([]);
+const searchQuery = ref('');
+const fileInput = ref(null);
+const databaseSize = ref('0.00');
 
-const dt = ref(null);
-const filters = ref({
-    global: { value: null, matchMode: 'contains' }
+const updateDatabaseSize = async () => {
+    databaseSize.value = await getTotalDatabaseSize();
+};
+
+const filteredFiles = computed(() => {
+    if (!searchQuery.value) return files.value;
+    return files.value.filter(file =>
+        file.fileName.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
 });
 
 const formatFileSize = (sizeInBytes) => {
@@ -77,82 +90,24 @@ const formatFileSize = (sizeInBytes) => {
 };
 
 const onFilter = () => {
-    const searchQuery = filters.value.global.value;
-    if (searchQuery) {
-        dt.value.filteredValue = files.value.filter(file =>
-            file.fileName.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    } else {
-        dt.value.filteredValue = files.value;
-    }
+    // The filtering is now handled by the computed property
 };
 
 const closeStoredFiles = () => {
     showStoredFiles.value = false;
 };
 
-const fetchStoredFiles = async () => {
-    try {
-        const dbName = 'UserFilesDB';
-        const dbVersion = 5;
-        const storeName = 'userFiles';
-
-        const db = await new Promise((resolve, reject) => {
-            const request = indexedDB.open(dbName, dbVersion);
-
-            request.onerror = (event) => reject(`IndexedDB error: ${event.target.error}`);
-
-            request.onsuccess = (event) => resolve(event.target.result);
-
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                if (!db.objectStoreNames.contains(storeName)) {
-                    db.createObjectStore(storeName, { keyPath: 'fileName' });
-                    console.log(`Created new object store: ${storeName}`);
-                }
-            };
-        });
-
-        const transaction = db.transaction([storeName], 'readonly');
-        const store = transaction.objectStore(storeName);
-        const getAllRequest = store.getAll();
-
-        const result = await new Promise((resolve, reject) => {
-            getAllRequest.onsuccess = () => resolve(getAllRequest.result);
-            getAllRequest.onerror = reject;
-        });
-
-        return result.filter(file => file.fileType && file.fileType.startsWith('image/'));
-    } catch (error) {
-        console.error(`Error Fetching Stored Files: ${error}`);
-        return [];
-    }
+const handleFetchStoredFiles = async () => {
+    files.value = await fetchStoredFiles();
 };
 
-
-const addStoredFileToContext = (file) => {
-    let messageContent;
-    if (file.fileType.startsWith('image/')) {
-        // If it's an image, create an array with image_url and text objects
-        messageContent = [
-            {
-                type: 'image_url',
-                image_url: { url: file.fileData },
-            },
-            {
-                type: 'text',
-                text: `${userText.value}\n\nImage: ${file.fileName}`
-            }
-        ];
-    } else {
-        // For non-image files, create an array with a single text object
-        messageContent = [
-            {
-                type: 'text',
-                text: `${userText.value} ${file.fileData}`
-            }
-        ];
-    }
+const addStoredFileToContext = async (file) => {
+    const messageContent = file.fileType.startsWith('image/')
+        ? [
+            { type: 'image_url', image_url: { url: file.fileData } },
+            { type: 'text', text: `${userText.value}\n\nImage: ${file.fileName}` }
+        ]
+        : [{ type: 'text', text: `${userText.value} ${file.fileData}` }];
 
     addMessage('user', messageContent);
     addMessage('assistant', `${file.fileName} context added from storage.`);
@@ -162,28 +117,15 @@ const addStoredFileToContext = (file) => {
     showStoredFiles.value = false;
 };
 
-const deleteFile = (fileId) => {
-    const request = indexedDB.open('UserFilesDB', 5);
-
-    request.onsuccess = (event) => {
-        const db = event.target.result;
-        const transaction = db.transaction(['userFiles'], 'readwrite');
-        const store = transaction.objectStore('userFiles');
-        const deleteRequest = store.delete(fileId);
-
-        deleteRequest.onsuccess = () => {
-            files.value = files.value.filter(file => file.id !== fileId);
-            showToast("File Deleted From Storage");
-        };
-
-        deleteRequest.onerror = (event) => {
-            console.error('Failed to delete file:', event.target.error);
-        };
-    };
-
-    request.onerror = (event) => {
-        console.error('Failed to open database:', event.target.error);
-    };
+const handleDeleteFile = async (fileId) => {
+    try {
+        await deleteFile(fileId);
+        files.value = files.value.filter(file => file.fileId !== fileId);
+        await updateDatabaseSize();
+        showToast("File Deleted From Storage");
+    } catch (error) {
+        console.error('Failed to delete file:', error);
+    }
 };
 
 const downloadFile = async (file) => {
@@ -193,9 +135,7 @@ const downloadFile = async (file) => {
         const a = document.createElement('a');
         a.href = url;
         a.download = file.fileName;
-        document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
         URL.revokeObjectURL(url);
         showToast('File downloaded successfully');
     } catch (error) {
@@ -208,71 +148,68 @@ const uploadFile = async (event) => {
     const selectedFiles = event.target.files;
     if (!selectedFiles.length) return;
 
-    const processFile = async (file) => {
-        const reader = new FileReader();
-
-        reader.onload = async (e) => {
-            const contents = e.target.result;
-            if (file.type.startsWith('image/')) {
-                // For image files, store the data URL
-                await storeFileData(file.name, contents, file.size, file.type);
-            }
-            else if (file.type === 'application/pdf') {
-                try {
-                    const loadingTask = pdfjsLib.getDocument({ data: contents });
-                    const pdfDoc = await loadingTask.promise;
-
-                    const numPages = pdfDoc.numPages;
-                    let pdfText = '';
-
-                    for (let i = 1; i <= numPages; i++) {
-                        const page = await pdfDoc.getPage(i);
-                        const textContent = await page.getTextContent();
-                        const pageText = textContent.items.map(item => item.str).join(' ');
-                        pdfText += pageText + '\n';
-                    }
-
-                    await storeFileData(file.name, pdfText, file.size, file.type);
-                    showToast('File uploaded and stored successfully');
-                } catch (error) {
-                    console.error('Error parsing PDF:', error);
-                    showToast('Failed to parse PDF. It might be encrypted or corrupted.');
-                }
-            } else {
-                await storeFileData(file.name, contents, file.size, file.type);
-                showToast('File uploaded and stored successfully');
-            }
-
-            files.value = await fetchStoredFiles();
-        };
-
-        if (file.type.startsWith('image/')) {
-            reader.readAsDataURL(file);
-        } else if (file.type === 'application/pdf') {
-            reader.readAsArrayBuffer(file);
-        } else {
-            reader.readAsText(file);
-        }
-    };
-
     for (const file of selectedFiles) {
         await processFile(file);
     }
+
+    await updateDatabaseSize();
 };
 
-const databaseSize = computed(() => {
-    const totalSize = files.value.reduce((sum, file) => sum + file.fileSize, 0);
-    return (totalSize / (1024 * 1024)).toFixed(2); // Convert to MB
-});
+const processFile = async (file) => {
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        const contents = e.target.result;
+        if (file.type.startsWith('image/')) {
+            await storeFileData(file.name, contents, file.size, file.type);
+        } else if (file.type === 'application/pdf') {
+            await processPDF(contents, file);
+        } else {
+            await storeFileData(file.name, contents, file.size, file.type);
+        }
+
+        files.value = await fetchStoredFiles();
+        console.log(files.value);
+
+        showToast('File uploaded and stored successfully');
+    };
+
+    if (file.type.startsWith('image/')) {
+        reader.readAsDataURL(file);
+    } else if (file.type === 'application/pdf') {
+        reader.readAsArrayBuffer(file);
+    } else {
+        reader.readAsText(file);
+    }
+};
+
+const processPDF = async (contents, file) => {
+    try {
+        const loadingTask = pdfjsLib.getDocument({ data: contents });
+        const pdfDoc = await loadingTask.promise;
+        const numPages = pdfDoc.numPages;
+        let pdfText = '';
+
+        for (let i = 1; i <= numPages; i++) {
+            const page = await pdfDoc.getPage(i);
+            const textContent = await page.getTextContent();
+            pdfText += textContent.items.map(item => item.str).join(' ') + '\n';
+        }
+
+        await storeFileData(file.name, pdfText, file.size, file.type);
+    } catch (error) {
+        console.error('Error parsing PDF:', error);
+        showToast('Failed to parse PDF. It might be encrypted or corrupted.');
+    }
+};
 
 const tooltipText = computed(() => `Total Browser Database Size: ${databaseSize.value}MB`);
 
-
 onMounted(async () => {
     files.value = await fetchStoredFiles();
+    await updateDatabaseSize();
 });
 </script>
-
 <style scoped lang="scss">
 .search-section {
     margin-bottom: 0px
@@ -430,5 +367,9 @@ li:hover {
 
 .delete-icon:hover {
     color: #84433b;
+}
+
+.hidden {
+    display: none;
 }
 </style>
