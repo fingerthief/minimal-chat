@@ -1,183 +1,125 @@
-## [Try MinimalGPT/MinimalPaLM/MinimalClaude/MinimalLocal (Public Site)](https://minimalgpt.app/)
+# [**MinimalChat: A Simple and Customizable LLM Chat Client**](https://minimalchat.app)
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-4.4.2-blue)
+![Version](https://img.shields.io/badge/version-6.2.6-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
+![Repo Size](https://img.shields.io/github/repo-size/fingerthief/minimal-chat)
+![Docker Image Size](https://img.shields.io/docker/image-size/tannermiddleton/minimal-chat)
+![Top Language](https://img.shields.io/github/languages/top/fingerthief/minimal-chat)
+![Stars](https://img.shields.io/github/stars/fingerthief/minimal-chat)
 
-**MinimalChat** is an open-source LLM chat web app designed to be as self-contained as possible. All conversations are stored locally on the client's device, with the only information being sent to the server being API calls to GPT, PaLM or Claude (uses a CORS proxy) chat when the user sends a message and when a user saves a conversation to generate a conversation title.
+## What is MinimalChat?
 
----
+MinimalChat is an open-source, lightweight chat application supporting multiple language models like GPT-4 Omni and various Local/Custom Model Endpoints. It is designed to be simple, fully featured, and highly responsive, with full mobile PWA support.
 
-## Self Host with Docker
+![App Mockup](https://github.com/fingerthief/minimal-chat/assets/2380471/46e9b2bc-abcc-44b5-9ff0-1019d5dc6bdf)
 
-- `docker pull tannermiddleton/minimal-chat:latest`
 
----
 
-> ⚠️ **Note**: You must input your **OpenAI API** Key for GPT3 or GPT4 in order for **GPT** models to function.
+```sh
+docker pull tannermiddleton/minimal-chat:latest
+```
 
-> ⚠️ **Note**: You must input your **Google PaLM API** Key in order for the **PaLM** model to function.
+## Application Demo
 
-> ⚠️ **Note**: You must input your **Anthropic Claude-3 API** Key in order for the **Claude** model to function.
->
->
+[Watch Higher Quality Video](https://www.youtube.com/watch?v=bO78W8MPWgE)
 
-## Obtaining API Keys
+[Demo Video](https://github.com/fingerthief/minimal-chat/assets/2380471/e93141b7-1ee1-4dbf-a106-0d92897d899b)
 
-To use MinimalGPT with the various language models, you'll need to obtain API keys from their respective providers:
+## Experience the Power of Web Local LLM Models
 
-- **OpenAI (GPT-3, GPT-4)**: Sign up for an API key at [OpenAI's website](https://beta.openai.com/signup/).
-- **Google PaLM**: Follow the instructions in the [Google PaLM API documentation](https://developers.generativeai.google/tutorials/setup) to set up your API key.
-- **Anthropic Claude-3**: Request access to the Claude API by filling out the form on [Anthropic's website](https://www.anthropic.com/product).
+Thanks to [Web LLM](https://github.com/mlc-ai/web-llm), you can now download and cache popular LLM models like `llama-3-8b-instruct` directly in your browser.
 
-Once you have your API keys, input them in the app's settings to start using the corresponding language models.
+[More details in the Wiki](https://github.com/fingerthief/minimal-chat/wiki/Host-and-Run-Entire-LLM-Models-Directly-in-the-Browser-Locally)
 
----
+## Getting Started
 
-### Tip for mobile users
+### Installation
 
-On iOS/Android devices in your browser, you can install supported web applications (called PWA or Progressive Web Applications) like native mobile apps to your devices homescreen. This means even though it is a website it is nearly indistinguishable from a normal iOS/Android application.
+1. Install packages: `npm install`
+2. Build the app: `npm run build`
+3. Start local server: `npm run preview`for Production mode or `npm run dev` for development mode.
 
-On iOS press the **Share** button in the browser and find the option that says **Add to Home Screen**. Pressing that will install the web application to your home screen.
+### Configuration
 
-![ios-add-to-home-small](https://user-images.githubusercontent.com/2380471/235267080-d69a2a46-50fa-4acf-b36b-da10b5d439d1.jpg)
-
-On Android the process is basically the same except the name of the option is **Install App**
-
-![android-install-web-app2](https://github.com/fingerthief/minimal-gpt/assets/2380471/cfd51a6a-5a03-4ff0-851a-c20c0565a89d)
-
-## Table of Contents
-
-- [Obtaining API Keys](#obtaining-api-keys)
-- [Features](#features)
-- [FAQ](#faq)
-- [Mobile Swipe Gestures](#mobile-swipe-gestures)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Application Demo (PWA)](#applcation-demo-pwa)
-- [Run Web App Locally](#run-web-app-locally)
-- [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-- [Future](#future-plans)
-- [Credits](#credits)
-- [License](#license)
-
-## FAQ
-
-**Q: Is MinimalGPT free to use?**
-A: Yes, MinimalGPT is open-source and free to use. However, you'll need to provide your own API keys for the language models you want to use.
-
-**Q: Can I use MinimalGPT without an internet connection?**
-A: No, MinimalGPT requires an internet connection to communicate with the language model APIs.
-
-**Q: Are my conversations secure and private?**
-A: Yes, all conversations are stored locally on your device and are not sent to any servers other than the necessary API calls to the language models.
-
-**Q: Can I use MinimalGPT on my mobile device?**
-A: Yes, MinimalGPT is designed be responsive and works well on mobile devices. You can even install it as a PWA for a native app-like experience.
+[Visit the Wiki for detailed configuration options](https://github.com/fingerthief/minimal-chat/wiki/Configuration-Options-Explained)
 
 ## Features
 
 - Minimal layout
-- Models Supported
-  - **GPT 3.5**
-  - **GPT 4**
-  - **GPT-4-Turbo**
-  - **GPT-Vision** activated by having the **GPT-4 or GPT-Turbo** model selected and starting a message with **vision::** and then your prompt
-  - **PaLM 2**
-  - **Claude 3 Opus**
-  - **Claude 3 Sonnet**
-  - **Claude 3 Haiku**
-  - **Claude Vision** activated by having the **Claude** model selected and starting a message with **vision::** and then your prompt
-  - **Local LLM Model (Via [LM Studio](https://lmstudio.ai/))** users configure the current model name and [LM Studio](https://lmstudio.ai/) api endpoint url in the settings panel.
-    - **Local Model Name**: The name of the model you are hosting locally 
-    - **Example**: [This DeepSeek Coder Model](https://huggingface.co/LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF) has a model name of `LoneStriker/deepseek-coder-7b-instruct-v1.5-GGUF`. That is what should be entered into the **Local Model Name** field. This is also displayed directly in **[LM Studio](https://lmstudio.ai/)** for the user.
-  - **Local URL**: The API endpoint URL that **[LM Studio](https://lmstudio.ai/)** is running on
-    - **Note**: The endpoint must end with `v1/chat/completions` to function. e,g `http://192.168.0.82:1234/v1/chat/completions` 
-- Switch models mid conversations and maintain context
-- Swipe Gestures for quick settings and conversations access
-- Markdown Support
-- Code Syntax Highlighting
-- Basic **DALL-E 3** Integration (Prefix GPT model messages with **image::** and then your description to generate images)
-- Conversation message search
-- Conversation Importing/Exporting
-- Customizable settings
-- Responsive layout for mobile use
-- Auto Save New Conversations Option
-- PWA Support
+- Voiced conversational interactions with STT and TTS
+- Supports multiple language models:
+  - GPT Model
+  - Open AI Response Formatted APIs (custom/local)
+  - Load and host full models locally in your own browser with WebLLM
+- Switch models mid-conversation
+- Swipe gestures for quick settings and conversation access
+- Edit, regenerate, or delete past messages
+- Markdown support
+- Code syntax highlighting
+- Basic DALL-E 3 integration
+- Conversation importing/exporting
+- Mobile responsive layout
+- PWA support
 
-### Mobile Swipe Gestures
+## FAQs
 
-- Swipe to the **Left** on the bottom input box and your **Conversations** dialog will appear.
-- Swipe to the **Right** on the bottom input box and your **Settings** dialog will appear.
+### Is MinimalChat free?
 
-### Keyboard Shortcuts
+Yes, MinimalChat is open-source and free. However, API keys are required for some language models.
 
-- `Control + Shift + m` Opens the  conversations dialog
-- `Control + Shift + s` Opens the settings dialog
-- `Control + Shift + i` Starts a new conversation
-- `Control + Shift + f` Activates search within the conversation
+### Can I use MinimalChat offline?
+
+Yes, by using LM Studio to host a local LLM Model or by loading a full model into your browser.
+
+### Are my conversations secure?
+
+Yes, all conversations are stored locally on your device.
+
+### Is MinimalChat mobile-compatible?
+
+Yes, it is fully mobile-compatible and can be installed as a PWA.
+
+## Mobile Swipe Gestures
+
+- Swipe left on the input box to open **Conversations**.
+- Swipe right on the input box to open **Settings**.
+- Double tap the settings page to expand/collapse the side panel.
+
+## Integration with Open AI Response Formatted APIs
+
+Supports any API endpoint returning responses formatted according to OpenAI's specifications.
+
+[More information in the Wiki](https://github.com/fingerthief/minimal-chat/wiki/Open-AI-Formatted-Response-APIs)
 
 ## Contributing
 
-We welcome contributions from the community! If you'd like to contribute to MinimalGPT, please follow these guidelines:
+We welcome contributions! Please:
 
-- Submit bug reports and feature requests using the [issue tracker](https://github.com/fingerthief/minimal-gpt/issues).
-- For code contributions, fork the repository, make your changes, and submit a pull request.
-- Ensure that your code follows the project's coding style and conventions.
-- Provide clear and concise commit messages and pull request descriptions.
+- Submit issues via the [issue tracker](https://github.com/fingerthief/minimal-chat/issues)
+- Fork the repository, make changes, and submit a pull request
+- Follow coding style and conventions
+- Provide clear commit messages and pull request descriptions
 
 ## Troubleshooting
 
-If you encounter any issues while using MinimalGPT, try the following:
+- Ensure a stable internet connection
+- Verify API keys and permissions
+- Clear browser cache as a last resort
 
-- Make sure you have a stable internet connection.
-- Verify that your API keys are correct and have the necessary permissions.
-- Clear your browser cache and reload the app.
-- If the issue persists, please report it using the [issue tracker](https://github.com/fingerthief/minimal-gpt/issues). Future Plans
-
-## Future Plans
-
-We have exciting plans for the future of MinimalGPT! Some of the features and improvements we're working on include:
-
-- Integration with additional language models and APIs.
-- Enhanced customization options for the user interface.
-- Improved mobile experience and PWA functionality.
-- Collaborative features for sharing and working on conversations with others.
-
-Stay tuned for updates and new releases!
-
-## Credits
-
-MinimalGPT is made possible thanks to the following libraries, frameworks, and resources:
-
-- [OpenAI API](https://openai.com/)
-- [Google PaLM API](https://developers.generativeai.google/)
-- [Anthropic Claude API](https://www.anthropic.com/)
+Report issues via the [issue tracker](https://github.com/fingerthief/minimal-chat/issues)
 
 ## License
 
-MinimalGPT is released under the [MIT License](https://opensource.org/licenses/MIT). See the `LICENSE` file for more information.
+Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-## Run Web App Locally
+## Contact
 
-To run the web app locally, you'll need `NodeJS` installed so NPM is available. Then, navigate to the project directory in VSCode and run the following commands:
+For questions, feedback, or suggestions:
 
-1. Install needed packages: `npm install`
-2. Start local server: `npm run start-server` (terminal will output the IP and port the server is running on)
-3. That's it! The app is now running locally.
+- [GitHub Issues](https://github.com/fingerthief/minimal-chat/issues)
+- Discord: `fingerthief#0453`
 
-### Compiling Your SCSS to CSS
+---
 
-- Run the command `npm run scss-build`
-
-### Building/Bundling (WIP)
-
-- Running `npm run build` will perform a dist build gulpfile process that incldues minification and cache busting (sort of) and output to the `public` folder.
-
-## Applcation Demo (PWA)
-
-[![Application Demo installed as a PWA](https://img.youtube.com/vi/dxMAGbOohN0/0.jpg)](https://www.youtube.com/watch?v=dxMAGbOohN0)
-
-### Settings
-
-![Screenshot 2024-03-16 at 13-42-53 MinimalChat](https://github.com/fingerthief/minimal-chat/assets/2380471/e691b134-d1d7-4ead-9bdb-b20879c3d1fd)
+**Thank you for using MinimalChat!**

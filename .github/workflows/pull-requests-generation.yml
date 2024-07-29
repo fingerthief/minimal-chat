@@ -1,0 +1,17 @@
+on: pull_request
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate pull request description
+        uses: octue/generate-pull-request-description@1.0.0.beta-2
+        id: pr-description
+        with:
+          pull_request_url: ${{ github.event.pull_request.url }}
+          api_token: ${{ secrets.TOKEN_TEST }}
+      - name: Update pull request body
+        uses: riskledger/update-pr-description@v2
+        with:
+          body: ${{ steps.pr-description.outputs.pull_request_description }}
+          token: ${{ secrets.TOKEN_TEST }}
