@@ -48,9 +48,6 @@ async function onModelChange(event) {
 }
 
 const modelOptions = [
-  { label: 'GPT-3.5 Turbo', value: 'gpt-3.5-turbo' },
-  { label: 'GPT-4 Turbo', value: 'gpt-4-turbo' },
-  { label: 'GPT-4 Omni', value: 'gpt-4o' },
   { label: 'Custom API Endpoint', value: 'open-ai-format' },
   { label: 'Local Browser Model (Chrome and Edge Only)', value: 'web-llm' },
 ];

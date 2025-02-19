@@ -22,21 +22,30 @@ export async function fetchLocalModelResponseStream(
     content: message.content,
   }));
 
+  const standardBody = JSON.stringify({
+    model: model,
+    stream: true,
+    messages: tempMessages,
+    temperature: parseFloat(attitude),
+    max_tokens: parseInt(localStorage.getItem('maxTokens')),
+    top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+    repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
+  });
+
+  const reasoningBody = JSON.stringify({
+    model: model,
+    stream: true,
+    messages: tempMessages,
+    reasoning_effort: "medium"
+  });
+
   const requestOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${localStorage.getItem('localModelKey') || 'No Key Provided'}`,
     },
-    body: JSON.stringify({
-      model: model,
-      stream: true,
-      messages: tempMessages,
-      temperature: parseFloat(attitude),
-      max_tokens: parseInt(localStorage.getItem('maxTokens')),
-      top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-      repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
-    }),
+    body: model.includes('o1') || model.includes('o3') ? reasoningBody : standardBody,
     signal: abortController.signal,
   };
 
@@ -69,6 +78,12 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
     repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
   };
 
+  const reasoning_payload = {
+    model: model,
+    messages: visionMessages,
+    reasoning_effort: "medium"
+  };
+
   try {
     const response = await fetch(localModelEndpoint + `/v1/chat/completions`, {
       method: 'POST',
@@ -76,7 +91,7 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(payload),
+      body: model.includes('o1') || model.includes('o3') ? JSON.stringify(reasoning_payload) : JSON.stringify(payload),
     });
 
     const data = await response.json();
@@ -149,21 +164,30 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
     let tempMessages = messages.slice(0);
     tempMessages.push({ role: 'user', content: 'Summarize my inital request or greeting in 5 words or less.' });
 
+    const standardBody = JSON.stringify({
+      model: model,
+      stream: true,
+      messages: tempMessages,
+      temperature: 0.25,
+      max_tokens: 18,
+      top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+      repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
+    });
+
+    const reasoningbody = JSON.stringify({
+      model: model,
+      stream: true,
+      messages: tempMessages,
+      reasoning_effort: "medium"
+    })
+
     const requestOptions = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('localModelKey') || 'No Key Provided'}`,
       },
-      body: JSON.stringify({
-        model: model,
-        stream: true,
-        messages: tempMessages,
-        temperature: 0.25,
-        max_tokens: 18,
-        top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-        repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
-      }),
+      body: model.includes('o1') || model.includes('o3') ? reasoningbody : standardBody,
     };
 
     const response = await fetch(localModelEndpoint + `/v1/chat/completions`, requestOptions);
