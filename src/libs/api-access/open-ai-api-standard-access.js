@@ -27,7 +27,7 @@ export async function fetchLocalModelResponseStream(
     stream: true,
     messages: tempMessages,
     temperature: parseFloat(attitude),
-    max_tokens: parseInt(localStorage.getItem('maxTokens')),
+    max_tokens: parseInt(localStorage.getItem('maxTokens') || 4096),
     //top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
     //repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
   });
