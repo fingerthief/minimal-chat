@@ -47,7 +47,7 @@ export const selectedAutoSaveOption = ref(localStorage.getItem('selectedAutoSave
 
 export const browserModelSelection = ref(localStorage.getItem('browserModelSelection') || undefined);
 
-export const maxTokens = ref(parseInt(localStorage.getItem('maxTokens')) || -1);
+export const maxTokens = ref(parseInt(localStorage.getItem('maxTokens')) || 4096);
 export const top_P = ref(parseFloat(localStorage.getItem('top_P')) || 1.0);
 export const repetitionPenalty = ref(parseFloat(localStorage.getItem('repetitionPenalty')) || 1.0);
 
