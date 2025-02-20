@@ -308,7 +308,7 @@ const menuItems = computed(() => {
             <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
 
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
-                {{ item.role === 'user' ? '' : modelDisplayName }}
+                {{ item.role === 'user' ? '' : localModelName }}
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
         </div>

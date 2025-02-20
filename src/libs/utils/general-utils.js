@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles, selectedModel, localModelName } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { fetchTTSResponse } from '../api-access/gpt-api-access';
 export function sleep(ms) {
@@ -147,7 +147,7 @@ export function determineModelDisplayName(newValue) {
 
   // Determine settings based on model type
   if (newValue.includes(MODEL_TYPES.OPEN_AI_FORMAT)) {
-    return 'Custom Model';
+    return localModelName.value.replace(/\b['"]|['"]\b/g, '');
   } else if (newValue.includes(MODEL_TYPES.CLAUDE)) {
     return 'Claude';
   } else if (newValue.includes(MODEL_TYPES.GPT)) {

@@ -200,7 +200,7 @@ onMounted(() => {
                     </li>>
                     <li>
                         <h4 @click="isCustomConfigOpen = !isCustomConfigOpen">
-                            Custom Models
+                            API Connections
                             <span class="indicator"
                                 :class="{ 'pi pi-chevron-down': isCustomConfigOpen, 'pi pi-chevron-right': !isCustomConfigOpen }"></span>
                         </h4>
@@ -230,7 +230,7 @@ onMounted(() => {
                     <li @click="isCustomConfigOpen = !isCustomConfigOpen">
                         <ChevronDown v-if="isCustomConfigOpen || selectedModel === 'open-ai-format'" :size="12" />
                         <ChevronRight v-else :size="12" />
-                        Custom Models
+                        API Connections
                     </li>
                     <transition name="slide-fade">
                         <ul v-show="isCustomConfigOpen || selectedModel === 'open-ai-format'" class="sub-item">

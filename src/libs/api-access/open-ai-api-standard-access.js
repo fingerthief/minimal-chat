@@ -28,8 +28,8 @@ export async function fetchLocalModelResponseStream(
     messages: tempMessages,
     temperature: parseFloat(attitude),
     max_tokens: parseInt(localStorage.getItem('maxTokens')),
-    top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-    repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
+    //top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+    //repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
   });
 
   const reasoningBody = JSON.stringify({
@@ -74,8 +74,8 @@ export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, mode
     model: model,
     messages: visionMessages,
     max_tokens: 4096,
-    top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-    repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
+    //top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+    //repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
   };
 
   const reasoning_payload = {
@@ -170,8 +170,8 @@ export async function getConversationTitleFromLocalModel(messages, model, localM
       messages: tempMessages,
       temperature: 0.25,
       max_tokens: 18,
-      top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-      repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
+      //top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
+      //repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
     });
 
     const reasoningbody = JSON.stringify({

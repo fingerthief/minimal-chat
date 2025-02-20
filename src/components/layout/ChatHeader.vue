@@ -3,10 +3,11 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { Menu, Database, Github } from 'lucide-vue-next';
-import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles, availableModels, localModelName } from '@/libs/state-management/state';
+import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles, availableModels, localModelName, modelDisplayName } from '@/libs/state-management/state';
 import ContextWindow from '@/components/controls/ContextWindow.vue';
 import Dropdown from 'primevue/dropdown';
 import { update } from '@/libs/utils/settings-utils';
+import { determineModelDisplayName } from '@/libs/utils/general-utils';
 
 // Define props
 const props = defineProps({
