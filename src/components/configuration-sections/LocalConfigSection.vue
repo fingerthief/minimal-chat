@@ -23,7 +23,7 @@
                     @update:modelValue="updateTopPSliderValue" />
                 <Slider label="Repetition Penalty" v-model="repetitionPenalty" :min="0" :max="2" :step="0.01"
                     minLabel="Lower" maxLabel="Higher" @update:modelValue="updateRepetitionSliderValue" />
-                <Slider label="Max Tokens" v-model="maxTokens" :min="-1" :max="4096" :step="1" minLabel="Less"
+                <Slider label="Max Tokens" v-model="maxTokens" :min="0" :max="4096" :step="1" minLabel="Less"
                     maxLabel="More" @update:modelValue="updateMaxTokensSliderValue" />
             </div>
         </transition>
