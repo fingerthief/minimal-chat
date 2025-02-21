@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat Client**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.2.6-blue)
+![Version](https://img.shields.io/badge/version-6.2.7-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
 ![Repo Size](https://img.shields.io/github/repo-size/fingerthief/minimal-chat)
@@ -10,7 +10,7 @@
 
 ## What is MinimalChat?
 
-MinimalChat is an open-source, lightweight chat application supporting multiple language models like GPT-4 Omni and various Local/Custom Model Endpoints. It is designed to be simple, fully featured, and highly responsive, with full mobile PWA support.
+MinimalChat is an open-source, lightweight chat application supporting multiple language models like OpenAI o1, DeepSeek R1 and various Local/Custom Model Endpoints. It is designed to be simple, fully featured, and highly responsive, with full mobile PWA support.
 
 ![App Mockup](https://github.com/fingerthief/minimal-chat/assets/2380471/46e9b2bc-abcc-44b5-9ff0-1019d5dc6bdf)
 
@@ -49,8 +49,7 @@ Thanks to [Web LLM](https://github.com/mlc-ai/web-llm), you can now download and
 - Minimal layout
 - Voiced conversational interactions with STT and TTS
 - Supports multiple language models:
-  - GPT Model
-  - Open AI Response Formatted APIs (custom/local)
+  - Any Open AI Response Formatted APIs (custom/local)
   - Load and host full models locally in your own browser with WebLLM
 - Switch models mid-conversation
 - Swipe gestures for quick settings and conversation access
