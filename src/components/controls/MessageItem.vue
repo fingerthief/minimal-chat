@@ -34,6 +34,7 @@ import { updateUIWrapper } from '@/libs/utils/general-utils';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import 'swiped-events';
 import hljs from 'highlight.js/lib/core';
+import { FileCheck2 } from 'lucide-vue-next';
 
 import 'highlight.js/styles/github-dark.css';
 import MarkdownIt from 'markdown-it';
@@ -312,8 +313,14 @@ const menuItems = computed(() => {
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
         </div>
-        <div class="message-contents" :id="'message-' + item.id" v-show="item?.content[0]?.text?.indexOf('#contextAdded:') === -1" :contenteditable="isEditing"
+        <div class="message-contents" :id="'message-' + item.id"
+            v-show="item?.content[0]?.text?.indexOf('#contextAdded:') === -1" :contenteditable="isEditing"
             @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)" v-html="formatMessage(item.content)">
+        </div>
+        <div class="message-contents" :id="'message-' + item.id"
+            v-show="item?.content[0]?.text?.indexOf('#contextAdded:') !== -1" :contenteditable="isEditing"
+            @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
+            <FileCheck2 /> File Added To Conversation
         </div>
     </div>
 </template>

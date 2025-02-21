@@ -58,7 +58,7 @@ export async function uploadFileContentsToConversation(event, userText2, addMess
     } else {
       await storeFileData(file.name, contents, file.size, file.type);
 
-      addMessage('user', userText.value + ' ' + contents);
+      addMessage('user', '#contextAdded: ' + userText.value + ' ' + contents);
       addMessage('assistant', 'Context added');
       saveMessagesHandler();
 
