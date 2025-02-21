@@ -44,12 +44,12 @@ function getItemType(item) {
 }
 
 async function scrollToBottom() {
-  if (scroller.value && messageList.value) {
-    await nextTick();
-    setTimeout(() => {
-      scroller.value.scrollToItem(filteredMessages.value.length - 1);
-    }, 50);
-  }
+  // if (scroller.value && messageList.value) {
+  //   await nextTick();
+  //   setTimeout(() => {
+  //     scroller.value.scrollToItem(filteredMessages.value.length - 1);
+  //   }, 50);
+  // }
 }
 
 watch(

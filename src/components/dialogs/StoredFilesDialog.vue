@@ -109,7 +109,13 @@ const addStoredFileToContext = async (file) => {
         ]
         : [{ type: 'text', text: `${userText.value} ${file.fileData}` }];
 
-    addMessage('user', messageContent);
+    if (file.fileType.startsWith('image/')) {
+        addMessage('user', messageContent);
+    }
+    else {
+        addMessage('user', `#contextAdded: ${file.fileName} | ${messageContent[0].text}`);
+    }
+
     addMessage('assistant', `${file.fileName} context added from storage.`);
 
     showToast("Successfully Added File Context From Storage");

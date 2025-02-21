@@ -26,7 +26,7 @@ export async function uploadFileContentsToConversation(event, userText2, addMess
     const contents = e.target.result;
 
     if (file.type.startsWith('image/')) {
-      showToast('Cannot add images to context currently.');
+      showToast('Use the dedicated image upload button instead!');
     } else if (file.type === 'application/pdf') {
       try {
         console.log('Loading PDF document...');
@@ -46,8 +46,8 @@ export async function uploadFileContentsToConversation(event, userText2, addMess
 
         await storeFileData(file.name, pdfText, file.size, file.type);
 
-        addMessage('user', userText.value + ' ' + pdfText);
-        addMessage('assistant', 'Context added from PDF');
+        addMessage('user', '#contextAdded: ' + userText.value + ' ' + pdfText);
+        addMessage('assistant', 'Context added from PDF: ' + file.name);
         saveMessagesHandler();
 
         showToast('Context Added from PDF');

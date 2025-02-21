@@ -312,7 +312,7 @@ const menuItems = computed(() => {
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
         </div>
-        <div class="message-contents" :id="'message-' + item.id" :contenteditable="isEditing"
+        <div class="message-contents" :id="'message-' + item.id" v-show="item?.content[0]?.text?.indexOf('#contextAdded:') === -1" :contenteditable="isEditing"
             @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)" v-html="formatMessage(item.content)">
         </div>
     </div>
