@@ -16,8 +16,65 @@ import { handleTextStreamEnd } from '@/libs/utils/general-utils';
   catch (e) { }
 })();
 
-export async function uploadFileContentsToConversation(event, userText2, addMessage2) {
+export async function onUploadFileContentsToConversation(event, userText2, addMessage2) {
   const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = async (e) => {
+    const contents = e.target.result;
+
+    if (file.type.startsWith('image/')) {
+      showToast('Use the dedicated image upload button instead!');
+    } else if (file.type === 'application/pdf') {
+      try {
+        console.log('Loading PDF document...');
+
+        const loadingTask = pdfjsLib.getDocument({ data: contents });
+        const pdfDoc = await loadingTask.promise;
+
+        const numPages = pdfDoc.numPages;
+        let pdfText = '';
+
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdfDoc.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          pdfText += pageText + '\n';
+        }
+
+        await storeFileData(file.name, pdfText, file.size, file.type);
+
+        addMessage('user', '#contextAdded: ' + userText.value + ' ' + pdfText);
+        addMessage('assistant', 'Context added from PDF: ' + file.name);
+        saveMessagesHandler();
+
+        showToast('Context Added from PDF');
+      } catch (error) {
+        console.error('Error parsing PDF:', error);
+        showToast('Failed to parse PDF. It might be encrypted or corrupted.');
+      }
+    } else {
+      await storeFileData(file.name, contents, file.size, file.type);
+
+      addMessage('user', '#contextAdded: ' + userText.value + ' ' + contents);
+      addMessage('assistant', 'Context added');
+      saveMessagesHandler();
+
+      showToast('Context Added');
+    }
+  };
+
+  if (file.type === 'application/pdf') {
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.readAsText(file);
+  }
+}
+
+export async function uploadFileContentsToConversation(providedFile, userText2, addMessage2) {
+  const file = providedFile
   if (!file) return;
 
   const reader = new FileReader();

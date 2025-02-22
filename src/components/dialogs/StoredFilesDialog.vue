@@ -161,6 +161,20 @@ const uploadFile = async (event) => {
     await updateDatabaseSize();
 };
 
+const uploadDragDropFiles = async (files) => {
+    if (!files.length) return;
+
+    for (const file of files) {
+        await processFile(file);
+
+        await addStoredFileToContext(file);
+    }
+
+    await updateDatabaseSize();
+
+
+};
+
 const processFile = async (file) => {
     const reader = new FileReader();
 

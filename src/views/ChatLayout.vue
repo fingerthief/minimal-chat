@@ -4,7 +4,7 @@
 import { onMounted, ref } from 'vue';
 import { determineModelDisplayName, handleDoubleClick, removeAPIEndpoints } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
-import { uploadFileContentsToConversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
+import { onUploadFileContentsToConversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
 import messageItem from '@/components/controls/MessagesList.vue';
 import chatInput from '@/components/layout/ChatInput.vue';
 import chatHeader from '@/components/layout/ChatHeader.vue';
@@ -115,7 +115,7 @@ function closeDialogs() {
     <input type="file" id="fileUpload" style="display: none"
       @change="(event) => uploadFile(event, conversations, selectConversationHandler)" />
     <input type="file" id="fileImportUpload" style="display: none"
-      @change="(event) => uploadFileContentsToConversation(event, userText, addMessage)" />
+      @change="(event) => onUploadFileContentsToConversation(event, userText, addMessage)" />
     <div @click="openFileSelector" style="display: none">Upload File</div>
     <div @click="importFileClick" style="display: none">Import File</div>
     <input id="imageInput" ref="imageInput" @change="imageInputChangedHandler" style="display: none" type="file" />
@@ -161,7 +161,7 @@ function closeDialogs() {
 <style lang="scss">
 $icon-color: rgb(187, 187, 187);
 $background-color: #1c1c1e;
-$container-bg-color: #212121;
+$container-bg-color: #1b1b1b;
 $sidebar-bg-color: #0a0a0a;
 $scrollbar-track-color: #665067;
 $scrollbar-thumb-color: #4f3d50;
