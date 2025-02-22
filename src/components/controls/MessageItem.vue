@@ -23,6 +23,7 @@ import {
     avatarUrl,
     userAvatarUrl,
     avatarShape,
+    browserModelSelection,
 } from '@/libs/state-management/state';
 import {
     setSystemPrompt,
@@ -309,7 +310,8 @@ const menuItems = computed(() => {
             <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
 
             <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
-                {{ item.role === 'user' ? '' : localModelName }}
+                {{ item.role === 'user' ? '' : selectedModel === 'web-llm' ? browserModelSelection.replaceAll('"', '') :
+                localModelName }}
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
         </div>
