@@ -6,7 +6,7 @@
         <ToolTip targetId="local-model-endpoint">Updating this value will automatically save a new custom config entry
         </ToolTip>
         <InputField :isSecret="true" labelText="API Key:" :placeholderText="'Enter the API key if applicable'"
-            inputId="local-model-key" :value="localModelKey" @update:value="handleUpdate('localModelKey', $event)" />
+            inputId="local-model-key" :value="localModelKey" @update:value="updateSettingAndFetchModels('localModelKey', $event)" />
     </div>
     <br>
     <div class="config-section" :class="{ show: isParametersOpen }">
@@ -53,12 +53,18 @@ import { ChevronDown, ChevronRight, Trash2 } from 'lucide-vue-next';
 import Listbox from 'primevue/listbox';
 import Slider from '../controls/Slider.vue';
 import { localModelEndpoint, localModelKey, localModelName, maxTokens, localSliderValue, top_P, repetitionPenalty, availableModels, selectedModel } from '@/libs/state-management/state';
-import { handleUpdate, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex, updateMaxTokensSliderValue } from '@/libs/utils/settings-utils';
+import { handleUpdate, updateLocalSliderValue, updateTopPSliderValue, updateRepetitionSliderValue, customConfigs, selectedCustomConfigIndex, updateMaxTokensSliderValue, fetchAvailableModels } from '@/libs/utils/settings-utils';
 import ToolTip from '../controls/ToolTip.vue';
 
 
 const isModelSelectorOpen = ref(false);
 const isParametersOpen = ref(false);
+
+async function updateSettingAndFetchModels(field, value) {
+    handleUpdate(field, value)
+
+    await fetchAvailableModels();
+}
 </script>
 
 <style scoped lang="scss">

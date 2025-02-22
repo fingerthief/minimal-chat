@@ -180,6 +180,17 @@ export function handleExportSettings() {
   exportSettingsToFile(settingsData);
 }
 
+export async function fetchAvailableModels() {
+  try {
+      if (localModelEndpoint.value.trim() !== '') {
+          const models = await getOpenAICompatibleAvailableModels(removeAPIEndpoints(localModelEndpoint.value));
+          availableModels.value = models;
+      }
+  } catch (error) {
+      console.error('Error fetching available models:', error);
+  }
+}
+
 export function exportSettingsToFile(settingsData) {
   const filename = 'minimal-chat-settings.json';
   const text = JSON.stringify(settingsData, null, 2); // Pretty print JSON
