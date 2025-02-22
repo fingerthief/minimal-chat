@@ -40,6 +40,32 @@ Thanks to [Web LLM](https://github.com/mlc-ai/web-llm), you can now download and
 2. Build the app: `npm run build`
 3. Start local server: `npm run preview`for Production mode or `npm run dev` for development mode.
 
+Here's a section you can add to the README to stress the importance of enabling CORS for locally hosted API servers:
+
+---
+
+## **Important: CORS Configuration for Local API Servers**
+
+When hosting API servers locally (such as LM Studio, Ollama, or other custom endpoints), it is crucial to properly configure **CORS (Cross-Origin Resource Sharing)** settings. This ensures that your browser-based application (like MinimalChat) can communicate with your local API server without being blocked by browser security policies.
+
+### How to Enable CORS
+The steps to enable CORS depend on the API server you are using:
+
+#### For LM Studio
+1. When starting your LM Studio server
+   
+<img width="320" alt="Screenshot 2025-02-22 at 7 53 03 AM" src="https://github.com/user-attachments/assets/46b74071-a194-41fe-8fc3-f5bce191eece" />
+
+### Troubleshooting CORS Issues
+- Ensure that your API server is running and accessible.
+- Verify that the CORS settings are correctly configured and applied.
+- Check the browser's developer console for detailed error messages.
+- If using a custom domain or port, make sure it is included in the allowed origins list.
+
+By properly configuring CORS, you can ensure seamless communication between your locally hosted API server and the MinimalChat application.
+
+--- 
+
 ### Configuration
 
 [Visit the Wiki for detailed configuration options](https://github.com/fingerthief/minimal-chat/wiki/Configuration-Options-Explained)
