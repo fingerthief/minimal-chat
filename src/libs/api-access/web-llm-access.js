@@ -40,7 +40,7 @@ export async function sendBrowserLoadedModelMessage(messagesTest, updateUIFunc) 
     updateUI(report.text, messages.value, addMessage, false, false);
   };
 
-  const selectedModel = localStorage.getItem('browserModelSelection');
+  const selectedModel = localStorage.getItem('browserModelSelection').replace(/^"|"$/g, '');
 
   if (engine === undefined) {
     const webllm = await import('@mlc-ai/web-llm');
