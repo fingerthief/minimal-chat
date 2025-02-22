@@ -3,6 +3,9 @@ import { updateUI } from '../utils/general-utils';
 import { messages } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 
+// import * as webllm from "@mlc-ai/web-llm";
+
+
 export let engine = undefined;
 
 export async function loadNewModel(modelName, updateUIFunc) {

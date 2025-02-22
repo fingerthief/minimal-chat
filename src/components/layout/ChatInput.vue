@@ -21,7 +21,7 @@ import {
 } from '@/libs/state-management/state';
 import { sendMessage, visionimageUploadClick, addMessage } from '@/libs/conversation-management/message-processing';
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
-import { engine } from '@/libs/api-access/web-llm-access';
+
 // Define emits
 const emit = defineEmits(['update:userInput', 'abort-stream', 'send-message', 'swipe-left', 'swipe-right', 'vision-prompt', 'upload-context']);
 // Local reactive state
@@ -109,11 +109,11 @@ function importFileUploadClick() {
 }
 
 async function abortStream() {
-  if (engine !== undefined && selectedModel.value.includes('web-llm')) {
-    engine.interruptGenerate();
-    showToast('Aborted response stream');
-    return;
-  }
+  // if (engine !== undefined && selectedModel.value.includes('web-llm')) {
+  //   engine.interruptGenerate();
+  //   showToast('Aborted response stream');
+  //   return;
+  // }
 
   if (abortController.value) {
     abortController.value.abort();

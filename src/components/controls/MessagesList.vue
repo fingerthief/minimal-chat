@@ -18,7 +18,6 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, nextTick, computed, watch, onMounted } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
@@ -33,15 +32,12 @@ import { addMessage, visionimageUploadClick } from '@/libs/conversation-manageme
 import { saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
 
-
 const messageList = ref(null);
 const scroller = ref(null);
-
 
 // Reactive property to track if a file is being dragged over the list,
 // so you can provide visual feedback (optional)
 const isDragging = ref(false);
-
 
 const filteredMessages = computed(() =>
   messages.value
@@ -52,7 +48,6 @@ const filteredMessages = computed(() =>
     }))
 );
 
-
 function getItemType(item) {
   const baseSize = 50;
   const contentLength = item.content.length;
@@ -60,24 +55,20 @@ function getItemType(item) {
   return estimatedSize;
 }
 
-
 // Drag-and-drop event handlers
 function dragenterHandler(e) {
   isDragging.value = true;
 }
-
 
 function dragoverHandler(e) {
   e.preventDefault();
   // You can also update UI feedback here if needed.
 }
 
-
 function dragleaveHandler(e) {
   // Optionally, you could check if the pointer has left the container entirely.
   isDragging.value = false;
 }
-
 
 function dropHandler(e) {
   isDragging.value = false;
@@ -89,25 +80,25 @@ function dropHandler(e) {
   e.dataTransfer.clearData();
 }
 
-async function addStoredFileToContext(file) {
-    const messageContent = file.type.startsWith('image/')
-        ? [
-            { type: 'image_url', image_url: { url: file.data } },
-            { type: 'text', text: `${userText.value}\n\nImage: ${file.name}` }
-        ]
-        : [{ type: 'text', text: `${userText.value} ${file.data}` }];
+async function addStoredFileToContext(file, content) {
+  const messageContent = file.type.startsWith('image/')
+    ? [
+      { type: 'image_url', image_url: { url: content } },
+      { type: 'text', text: `${userText.value}\n\nImage: ${file.name}` }
+    ]
+    : [{ type: 'text', text: `${userText.value} ${content}` }];
 
-    if (file.type.startsWith('image/')) {
-        addMessage('user', messageContent);
-    }
-    else {
-        addMessage('user', `#contextAdded: ${file.name} | ${messageContent[0].text}`);
-    }
+  if (file.type.startsWith('image/')) {
+    addMessage('user', messageContent);
+  }
+  else {
+    addMessage('user', `#contextAdded: ${file.name} | ${messageContent[0].text}`);
+  }
 
-    addMessage('assistant', `${file.name} context added from storage.`);
+  addMessage('assistant', `${file.name} context added from storage.`);
 
-    showToast("Successfully Added File Context From Storage");
-    saveMessagesHandler();
+  showToast("Successfully Added File Context From Storage");
+  saveMessagesHandler();
 };
 
 async function handleFiles(files) {
@@ -116,60 +107,59 @@ async function handleFiles(files) {
   fileArray.forEach(async file => {
     // Check if the file is an image (MIME type starts with "image/")
 
-      const reader = new FileReader();
+    const reader = new FileReader();
 
-      reader.onload = async (e) => {
-        const contents = e.target.result;
-        
-        if (file.type.startsWith('image/')) {
-          //await storeFileData(file.name, contents, file.size, file.type);
-        } else if (file.type === 'application/pdf') {
-          await processPDF(contents, file);
-        } else {
-          await storeFileData(file.name, contents, file.size, file.type);
-        }
+    reader.onloadend = async (e) => {
+      const contents = e.target.result;
 
-        showToast('File uploaded and stored successfully');
-      };
-
-      if (file.type === 'application/pdf') {
-        reader.readAsArrayBuffer(file);
+      if (file.type.startsWith('image/')) {
+        await storeFileData(file.name, contents, file.size, file.type);
+      } else if (file.type === 'application/pdf') {
+        await processPDF(contents, file);
       } else {
-        reader.readAsText(file);
+        await storeFileData(file.name, contents, file.size, file.type);
       }
 
-      if (!file.type.startsWith('image/')) {
-        await addStoredFileToContext(file);
-      }
+      await addStoredFileToContext(file, contents);
+
+      showToast('File uploaded and stored successfully');
+    };
+
+    if (file.type === 'application/pdf') {
+      reader.readAsArrayBuffer(file);
+    }
+    else if (file.type.startsWith('image/')) {
+      reader.readAsDataURL(file);
+    }
+    else {
+      reader.readAsText(file);
+    }
   });
 }
 
-
 async function processPDF(contents, file) {
-    try {
-        const loadingTask = pdfjsLib.getDocument({ data: contents });
-        const pdfDoc = await loadingTask.promise;
-        const numPages = pdfDoc.numPages;
-        let pdfText = '';
+  try {
+    const loadingTask = pdfjsLib.getDocument({ data: contents });
+    const pdfDoc = await loadingTask.promise;
+    const numPages = pdfDoc.numPages;
+    let pdfText = '';
 
-        for (let i = 1; i <= numPages; i++) {
-            const page = await pdfDoc.getPage(i);
-            const textContent = await page.getTextContent();
-            pdfText += textContent.items.map(item => item.str).join(' ') + '\n';
-        }
-
-        await storeFileData(file.name, pdfText, file.size, file.type);
-    } catch (error) {
-        console.error('Error parsing PDF:', error);
-        showToast('Failed to parse PDF. It might be encrypted or corrupted.');
+    for (let i = 1; i <= numPages; i++) {
+      const page = await pdfDoc.getPage(i);
+      const textContent = await page.getTextContent();
+      pdfText += textContent.items.map(item => item.str).join(' ') + '\n';
     }
-};
 
+    await storeFileData(file.name, pdfText, file.size, file.type);
+  } catch (error) {
+    console.error('Error parsing PDF:', error);
+    showToast('Failed to parse PDF. It might be encrypted or corrupted.');
+  }
+};
 
 async function scrollToBottom() {
   // Keep your scroll-to-bottom logic if you need it
 }
-
 
 watch(
   () => filteredMessages.value,
@@ -178,7 +168,6 @@ watch(
   },
   { deep: true }
 );
-
 
 onMounted(() => {
   scrollToBottom();
@@ -193,13 +182,11 @@ onMounted(() => {
   scrollbar-width: none;
 }
 
-
 /* Visual feedback during drag-and-drop */
 .message-list.dragging {
   border: 2px dashed #0077ff;
   background: rgba(0, 123, 255, 0.1);
 }
-
 
 .message-padding {
   position: absolute;
