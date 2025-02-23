@@ -2,118 +2,106 @@ import { ref } from 'vue';
 import { loadConversationTitles, loadStoredConversations } from '@/libs/api-access/gpt-api-access';
 import { showToast } from '@/libs/utils/general-utils';
 import {
-  deleteConversation,
-  saveMessages,
-  selectConversation,
-  editConversationTitle as editConversationTitleInManagement,
+    saveMessages as saveMessagesInManagement,
+    selectConversation as selectConversationInManagement,
+    editConversationTitle as editConversationTitleInManagement,
 } from '@/libs/conversation-management/conversations-management';
 import { messages, showConversationOptions, conversations, selectedConversation, lastLoadedConversationId } from '@/libs/state-management/state';
 
+const DELETE_ANIMATION_DURATION = 250; // ms
+
+/**
+ * Saves the current messages to local storage.
+ */
 export async function saveMessagesHandler() {
-  await saveMessages();
+    await saveMessagesInManagement();
 }
 
+/**
+ * Deletes the currently selected conversation.
+ */
 export function deleteCurrentConversation() {
-  if (!selectedConversation.value) {
-    showToast('No conversation selected');
-    return;
-  }
+    if (!selectedConversation.value) {
+        showToast('No conversation selected');
+        return;
+    }
 
-  const conversationId = selectedConversation.value.id;
-  const conversationIndex = conversations.value.findIndex(convo => convo.id === conversationId);
+    const conversationId = selectedConversation.value.id;
+    const conversationIndex = conversations.value.findIndex(convo => convo.id === conversationId);
 
-  if (conversationIndex !== -1) {
+    if (conversationIndex === -1) {
+        console.warn(`Conversation with ID ${conversationId} not found in the conversations list.`);
+        return;
+    }
+
     const conversationElement = document.getElementById(`conversation-${conversationIndex}`);
 
-    if (conversationElement) {
-      conversationElement.classList.add('deleting');
-      setTimeout(() => {
-        conversations.value = conversations.value.filter(convo => convo.id !== conversationId);
-        selectedConversation.value = null;
-        messages.value = [];
-        lastLoadedConversationId.value = null;
-        localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-        showToast('Conversation Deleted');
-      }, 250); // Match the duration of the scaleDown animation
+    if (!conversationElement) {
+        console.warn(`Conversation element with ID conversation-${conversationIndex} not found in the DOM.`);
+        removeConversationFromState(conversationId); // Still remove from state even if element is missing
+        return;
     }
-  }
+
+    // Animate deletion
+    conversationElement.classList.add('deleting');
+
+    // Remove conversation after animation
+    setTimeout(() => {
+        removeConversationFromState(conversationId);
+    }, DELETE_ANIMATION_DURATION);
 }
 
-export function selectConversationHandler(conversationId) {
-  const result = selectConversation(conversations.value, conversationId, messages.value, lastLoadedConversationId.value, showToast);
-  conversations.value = result.conversations;
-  messages.value = result.messages;
-  selectedConversation.value = result.selectedConversation;
-  lastLoadedConversationId.value = result.lastLoadedConversationId;
-  showConversationOptions.value = result.showConversationOptions;
-}
-
-export async function editConversationTitle(oldConversation, newConversationTitle) {
-  const updatedConversationsList = await editConversationTitleInManagement(conversations.value, oldConversation, newConversationTitle);
-  if (updatedConversationsList) {
-    conversations.value = updatedConversationsList;
-    localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-    showToast('Title Updated');
-  } else {
-    showToast('Failed to update title');
-  }
-}
-
-export function useConversations() {
-  const conversations = ref(loadConversationTitles());
-  const storedConversations = ref(loadStoredConversations());
-  const lastLoadedConversationId = ref(parseInt(localStorage.getItem('lastConversationId')) || 0);
-  const selectedConversation = ref(conversations.value[0]);
-
-  function deleteCurrentConversation() {
-    const updatedConversations = deleteConversation(conversations.value, lastLoadedConversationId.value);
-    conversations.value = updatedConversations;
+/**
+ * Removes a conversation from the state and local storage.
+ * @param {string} conversationId The ID of the conversation to remove.
+ */
+function removeConversationFromState(conversationId) {
+    conversations.value = conversations.value.filter(convo => convo.id !== conversationId);
+    selectedConversation.value = null;
     messages.value = [];
-
-    if (conversations.value.length > 0) {
-      selectConversationHandler(conversations.value[conversations.value.length - 1].id);
-    }
-
+    lastLoadedConversationId.value = null;
     localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-  }
+    showToast('Conversation Deleted');
+}
 
-  async function saveMessagesHandler() {
-    const result = await saveMessages(conversations.value, selectedConversation.value, messages.value, lastLoadedConversationId.value);
-    conversations.value = result.conversations;
-    messages.value = result.messages;
-    selectedConversation.value = result.selectedConversation;
-    lastLoadedConversationId.value = result.lastLoadedConversationId;
-  }
 
-  function selectConversationHandler(conversationId) {
-    const result = selectConversation(conversations.value, conversationId, messages.value, lastLoadedConversationId.value, showToast);
+/**
+ * Selects a conversation and loads its messages.
+ * @param {string} conversationId The ID of the conversation to select.
+ */
+export function selectConversationHandler(conversationId) {
+    const result = selectConversationInManagement(
+        conversations.value,
+        conversationId,
+        messages.value,
+        lastLoadedConversationId.value,
+        showToast
+    );
+
     conversations.value = result.conversations;
     messages.value = result.messages;
     selectedConversation.value = result.selectedConversation;
     lastLoadedConversationId.value = result.lastLoadedConversationId;
     showConversationOptions.value = result.showConversationOptions;
-  }
+}
 
-  async function editConversationTitle(oldConversation, newConversationTitle) {
-    const updatedConversationsList = await editConversationTitleInManagement(conversations.value, oldConversation, newConversationTitle);
+/**
+ * Edits the title of a conversation.
+ * @param {object} oldConversation The old conversation object.
+ * @param {string} newConversationTitle The new title for the conversation.
+ */
+export async function editConversationTitle(oldConversation, newConversationTitle) {
+    const updatedConversationsList = await editConversationTitleInManagement(
+        conversations.value,
+        oldConversation,
+        newConversationTitle
+    );
+
     if (updatedConversationsList) {
-      conversations.value = updatedConversationsList;
-      localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-      showToast('Title Updated');
+        conversations.value = updatedConversationsList;
+        localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
+        showToast('Title Updated');
     } else {
-      showToast('Failed to update title');
+        showToast('Failed to update title');
     }
-  }
-
-  return {
-    conversations,
-    storedConversations,
-    lastLoadedConversationId,
-    selectedConversation,
-    showConversationOptions,
-    deleteCurrentConversation,
-    saveMessagesHandler,
-    selectConversationHandler,
-    editConversationTitle,
-  };
 }

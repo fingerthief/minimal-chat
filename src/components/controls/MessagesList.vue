@@ -111,16 +111,18 @@ async function handleFiles(files) {
 
     reader.onloadend = async (e) => {
       const contents = e.target.result;
+      let pdfText = null;
 
       if (file.type.startsWith('image/')) {
         await storeFileData(file.name, contents, file.size, file.type);
       } else if (file.type === 'application/pdf') {
-        await processPDF(contents, file);
+        pdfText = await processPDF(contents, file); // Get pdfText
       } else {
         await storeFileData(file.name, contents, file.size, file.type);
       }
 
-      await addStoredFileToContext(file, contents);
+      // Use pdfText if it's a PDF, otherwise use contents
+      await addStoredFileToContext(file, pdfText || contents);
 
       showToast('File uploaded and stored successfully');
     };
@@ -151,6 +153,8 @@ async function processPDF(contents, file) {
     }
 
     await storeFileData(file.name, pdfText, file.size, file.type);
+
+    return pdfText;
   } catch (error) {
     console.error('Error parsing PDF:', error);
     showToast('Failed to parse PDF. It might be encrypted or corrupted.');

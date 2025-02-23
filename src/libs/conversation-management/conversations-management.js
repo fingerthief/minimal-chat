@@ -5,29 +5,30 @@ import { sendBrowserLoadedModelMessage, getBrowserLoadedModelConversationTitle }
 import { getConversationTitleFromGPT } from '@/libs/utils/general-utils';
 import { conversations, messages, selectedConversation, lastLoadedConversationId } from '../state-management/state';
 
-export async function createNewConversationWithTitle(messages, selectedModel, localModelName, localModelEndpoint, sliderValue) {
-  if (selectedModel.indexOf('claude') !== -1) {
-    return await fetchClaudeConversationTitle(messages);
+// Helper function to determine the appropriate API call based on the selected model
+const getConversationTitle = async (selectedModel, messages, localModelName, localModelEndpoint, sliderValue) => {
+  if (selectedModel.includes('claude')) {
+    return fetchClaudeConversationTitle(messages);
   }
 
-  if (selectedModel.indexOf('open-ai-format') !== -1) {
-    return await getConversationTitleFromLocalModel(messages, localModelName, localModelEndpoint);
+  if (selectedModel.includes('open-ai-format')) {
+    return getConversationTitleFromLocalModel(messages, localModelName, localModelEndpoint);
   }
 
-  if (selectedModel.indexOf('gpt') !== -1) {
-    return await getConversationTitleFromGPT(messages, selectedModel, sliderValue);
+  if (selectedModel.includes('gpt')) {
+    return getConversationTitleFromGPT(messages, selectedModel, sliderValue);
   }
 
-  if (selectedModel.indexOf('web-llm') !== -1) {
-    return await getBrowserLoadedModelConversationTitle(messages);
+  if (selectedModel.includes('web-llm')) {
+    return getBrowserLoadedModelConversationTitle(messages);
   }
 
   return 'Error Generating Title';
-}
+};
 
-export function createConversation(conversations, title, messages) {
-  const maxId = conversations.length > 0 ? Math.max(...conversations.map((c) => c.id)) : 0;
-  const newId = maxId + 1;
+// Function to create a new conversation
+export const createConversation = (conversations, title, messages) => {
+  const newId = conversations.length > 0 ? Math.max(...conversations.map((c) => c.id)) + 1 : 1;
 
   const newConversation = {
     title: title,
@@ -35,100 +36,149 @@ export function createConversation(conversations, title, messages) {
     messageHistory: messages,
   };
 
-  conversations.push(newConversation);
-  return conversations;
-}
+  return [...conversations, newConversation];
+};
 
-export function updateConversation(conversations, id, updatedConversation) {
-  const index = conversations.findIndex((conversation) => conversation.id === id);
-  if (index !== -1) {
-    conversations[index] = { ...conversations[index], ...updatedConversation };
-  }
-  return conversations;
-}
+// Function to update an existing conversation
+export const updateConversation = (conversations, id, updatedConversation) => {
+  return conversations.map((conversation) =>
+    conversation.id === id ? { ...conversation, ...updatedConversation } : conversation
+  );
+};
 
-export function deleteConversation(conversations, id) {
+// Function to delete a conversation
+export const deleteConversation = (conversations, id) => {
   return conversations.filter((conversation) => conversation.id !== id);
-}
+};
 
-export async function saveMessages() {
+// Function to save messages to local storage and update conversations
+export const saveMessages = async () => {
   const updatedConversation = selectedConversation.value;
 
-  if (!selectedConversation || selectedConversation.value === null || !conversations.value.length) {
-
+  // If there is no selected conversation, create a new one
+  if (!updatedConversation) {
+    // If there are no messages, just save the empty conversations array and return
     if (messages.value.length === 0) {
       localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-      selectedConversation.value = [];
+      selectedConversation.value = null;
       return;
     }
 
-    const title = await createNewConversationWithTitle(
-      messages.value,
+    // Create a title for the new conversation
+    const title = await getConversationTitle(
       localStorage.getItem('selectedModel') || 'gpt-4o',
+      messages.value,
       localStorage.getItem('localModelName') || '',
       localStorage.getItem('localModelEndpoint') || '',
       localStorage.getItem('gpt-attitude') || 50
     );
+
+    // Ensure all messages have unique IDs
     const uniqueMessages = createUniqueMessagesWithIds(messages.value);
 
+    // Create the new conversation
     const updatedConversations = createConversation(conversations.value, title, uniqueMessages);
 
+    // Update the state
     messages.value = uniqueMessages;
-
     conversations.value = updatedConversations;
-
     lastLoadedConversationId.value = updatedConversations[updatedConversations.length - 1].id;
-    localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
 
+    // Save to local storage
+    localStorage.setItem('lastConversationId', lastLoadedConversationId.value);
     localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
     selectedConversation.value = conversations.value[conversations.value.length - 1];
+
     return;
   }
 
+  // Update the message history of the selected conversation
   updatedConversation.messageHistory = messages.value;
 
-  const result = updateConversation(conversations.value, updatedConversation.id, updatedConversation);
+  // Update the conversation in the conversations array
+  const updatedConversations = updateConversation(conversations.value, updatedConversation.id, updatedConversation);
 
-  conversations.value = result;
+  // Update the state
+  conversations.value = updatedConversations;
 
+  // Save to local storage
   localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-
   selectedConversation.value = conversations.value[conversations.value.length - 1];
-}
+};
 
-export function selectConversation(conversations, conversationId, messages, lastLoadedConversationId, showToast) {
+// Function to select a conversation and load its messages
+export const selectConversation = (conversations, conversationId, messages, lastLoadedConversationId, showToast) => {
   if (!conversations.length) {
     return { conversations, messages, selectedConversation: null, lastLoadedConversationId };
   }
 
   const conversation = conversations.find((c) => c.id === conversationId);
 
-  if (conversation) {
-    lastLoadedConversationId = conversationId;
-    localStorage.setItem('lastConversationId', lastLoadedConversationId);
-
-    let maxId = messages.reduce((max, message) => (message.id ? Math.max(max, message.id) : max), 0);
-
-    // Process each message to ensure it has a unique ID
-    const processedMessages = conversation.messageHistory.map((message) => {
-      if (!message.id) {
-        maxId++; // Increment maxId to ensure a unique ID
-        return { ...message, id: maxId }; // Assign the new ID
-      }
-      return message;
-    });
-
-    messages = processedMessages;
-
-    return { conversations, messages, selectedConversation: conversation, lastLoadedConversationId, showConversationOptions: false };
-  } else {
+  if (!conversation) {
     showToast('Conversations ID not found');
     console.error('Conversation with ID ' + conversationId + ' not found.');
     return { conversations, messages, selectedConversation: null, lastLoadedConversationId };
   }
-}
 
-export async function regenerateMessageResponse(
+  lastLoadedConversationId = conversationId;
+  localStorage.setItem('lastConversationId', lastLoadedConversationId);
+
+  // Ensure all messages have unique IDs
+  const processedMessages = createUniqueMessagesWithIds(conversation.messageHistory);
+
+  messages = processedMessages;
+
+  return { conversations, messages, selectedConversation: conversation, lastLoadedConversationId, showConversationOptions: false };
+};
+
+// Helper function to fetch the response stream based on the selected model
+const fetchResponseStream = async (
+  selectedModel,
+  regenMessages,
+  sliderValue,
+  localSliderValue,
+  localModelName,
+  localModelEndpoint,
+  claudeSliderValue,
+  updateUI,
+  abortController,
+  streamedMessageText,
+  autoScrollToBottom
+) => {
+  if (selectedModel.includes('gpt')) {
+    return fetchGPTResponseStream(regenMessages, sliderValue, selectedModel, updateUI, abortController, streamedMessageText, autoScrollToBottom);
+  }
+
+  if (selectedModel.includes('web-llm')) {
+    return sendBrowserLoadedModelMessage(regenMessages, updateUI);
+  }
+
+  if (selectedModel.includes('claude')) {
+    return streamClaudeResponse(
+      regenMessages,
+      selectedModel,
+      claudeSliderValue,
+      updateUI,
+      abortController,
+      streamedMessageText,
+      autoScrollToBottom
+    );
+  }
+
+  return fetchLocalModelResponseStream(
+    regenMessages,
+    localSliderValue,
+    localModelName,
+    localModelEndpoint,
+    updateUI,
+    abortController,
+    streamedMessageText,
+    autoScrollToBottom
+  );
+};
+
+// Function to regenerate a message response
+export const regenerateMessageResponse = async (
   conversations,
   messages,
   content,
@@ -141,55 +191,43 @@ export async function regenerateMessageResponse(
   updateUI,
   abortController,
   streamedMessageText
-) {
-  let baseMessages = messages.value.slice();
+) => {
+  const messageIndex = messages.value.findIndex((message) => message.content === content && message.role === 'user');
 
-  const messageIndex = baseMessages.findIndex((message) => message.content === content && message.role === 'user');
-
-  if (messageIndex !== -1) {
-    const regenMessages = baseMessages.slice(0, messageIndex + 1);
-    const messagesAfter = baseMessages.slice(messageIndex + 2);
-    abortController.value = new AbortController();
-
-    messages.value = regenMessages;
-
-    let response = '';
-
-    if (selectedModel.indexOf('gpt') !== -1) {
-      response = await fetchGPTResponseStream(regenMessages, sliderValue, selectedModel, updateUI, abortController.value, streamedMessageText, false);
-    } else if (selectedModel.indexOf('web-llm') !== -1) {
-      response = await sendBrowserLoadedModelMessage(regenMessages, updateUI);
-    } else if (selectedModel.indexOf('claude') !== -1) {
-      response = await streamClaudeResponse(
-        regenMessages,
-        selectedModel,
-        claudeSliderValue,
-        updateUI,
-        abortController.value,
-        streamedMessageText,
-        false
-      );
-    } else {
-      response = await fetchLocalModelResponseStream(
-        regenMessages,
-        localSliderValue,
-        localModelName,
-        localModelEndpoint,
-        updateUI,
-        abortController.value,
-        streamedMessageText,
-        false
-      );
-    }
-
-    // Append the response and any messages that existed after the messageIndex
-    baseMessages = [...regenMessages, ...messagesAfter];
-    baseMessages = createUniqueMessagesWithIds(baseMessages);
+  if (messageIndex === -1) {
+    return { conversations, baseMessages: messages.value };
   }
-  return { conversations, baseMessages };
-}
 
-export async function editPreviousMessage(
+  const regenMessages = messages.value.slice(0, messageIndex + 1);
+  const messagesAfter = messages.value.slice(messageIndex + 2);
+
+  abortController.value = new AbortController();
+
+  messages.value = regenMessages;
+
+  // Fetch the response stream
+  await fetchResponseStream(
+    selectedModel,
+    regenMessages,
+    sliderValue,
+    localSliderValue,
+    localModelName,
+    localModelEndpoint,
+    claudeSliderValue,
+    updateUI,
+    abortController.value,
+    streamedMessageText,
+    false
+  );
+
+  // Combine the messages and ensure unique IDs
+  const baseMessages = createUniqueMessagesWithIds([...regenMessages, ...messagesAfter]);
+
+  return { conversations, baseMessages };
+};
+
+// Function to edit a previous message
+export const editPreviousMessage = async (
   conversations,
   messages,
   oldContent,
@@ -203,68 +241,60 @@ export async function editPreviousMessage(
   updateUI,
   abortController,
   streamedMessageText
-) {
-  let baseMessages = messages.value.slice();
+) => {
+  const messageIndex = messages.value.findIndex((message) => message.content === oldContent.content && message.role === 'user');
 
-  const messageIndex = baseMessages.findIndex((message) => message.content === oldContent.content && message.role === 'user');
-
-  if (messageIndex !== -1) {
-    const regenMessages = baseMessages.slice(0, messageIndex + 1);
-    const messagesAfter = baseMessages.slice(messageIndex + 2);
-    abortController.value = new AbortController();
-
-    regenMessages[regenMessages.length - 1].content = newContent;
-
-    messages.value = regenMessages;
-
-    let response = '';
-    if (selectedModel.indexOf('gpt') !== -1) {
-      response = await fetchGPTResponseStream(regenMessages, sliderValue, selectedModel, updateUI, abortController.value, streamedMessageText, false);
-    } else if (selectedModel.indexOf('claude') !== -1) {
-      response = await streamClaudeResponse(
-        regenMessages,
-        selectedModel,
-        claudeSliderValue,
-        updateUI,
-        abortController.value,
-        streamedMessageText,
-        false
-      );
-    } else {
-      response = await fetchLocalModelResponseStream(
-        regenMessages,
-        localSliderValue,
-        localModelName,
-        localModelEndpoint,
-        updateUI,
-        abortController.value,
-        streamedMessageText,
-        false
-      );
-    }
-
-    baseMessages = [...regenMessages, ...messagesAfter];
-    baseMessages = createUniqueMessagesWithIds(baseMessages);
+  if (messageIndex === -1) {
+    return { conversations, baseMessages: messages.value };
   }
-  return { conversations, baseMessages };
-}
 
-export async function editConversationTitle(conversations, oldConversation, newConversationTitle) {
+  const regenMessages = messages.value.slice(0, messageIndex + 1);
+  const messagesAfter = messages.value.slice(messageIndex + 2);
+
+  abortController.value = new AbortController();
+
+  regenMessages[regenMessages.length - 1].content = newContent;
+
+  messages.value = regenMessages;
+
+  // Fetch the response stream
+  await fetchResponseStream(
+    selectedModel,
+    regenMessages,
+    sliderValue,
+    localSliderValue,
+    localModelName,
+    localModelEndpoint,
+    claudeSliderValue,
+    updateUI,
+    abortController.value,
+    streamedMessageText,
+    false
+  );
+
+  const baseMessages = createUniqueMessagesWithIds([...regenMessages, ...messagesAfter]);
+
+  return { conversations, baseMessages };
+};
+
+// Function to edit a conversation title
+export const editConversationTitle = async (conversations, oldConversation, newConversationTitle) => {
   const updatedConversation = {
     ...oldConversation,
     title: newConversationTitle,
   };
 
-  const updatedConversationsList = await updateConversation(conversations, oldConversation.id, updatedConversation);
+  const updatedConversationsList = updateConversation(conversations, oldConversation.id, updatedConversation);
 
   return updatedConversationsList;
-}
+};
 
-export function handleExportConversations() {
+// Function to handle exporting conversations
+export const handleExportConversations = () => {
   const filename = 'conversations.json';
   const text = localStorage.getItem('gpt-conversations');
 
-  let element = document.createElement('a');
+  const element = document.createElement('a');
 
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
   element.setAttribute('download', filename);
@@ -274,55 +304,53 @@ export function handleExportConversations() {
   element.click();
 
   document.body.removeChild(element);
-}
+};
 
-export function setSystemPrompt(messages, prompt) {
-  // Find the index of the existing system prompt (if any)
+// Function to set the system prompt
+export const setSystemPrompt = (messages, prompt) => {
   const systemPromptIndex = messages.findIndex((message) => message.role === 'system');
 
   if (systemPromptIndex === 0) {
-    // Trim the prompt and check if it is empty
-    if (prompt.trim() === '') {
-      // Remove the system entry from the messages ref if the prompt is an empty string
+    const trimmedPrompt = prompt.trim();
+    if (trimmedPrompt === '') {
       messages.shift();
-      return;
+    } else {
+      messages[0].content = prompt;
     }
-
-    messages[0].content = prompt;
     return;
   }
 
-  if (prompt.trim() === '') {
-    return; // Do not add an empty system prompt
+  const trimmedPrompt = prompt.trim();
+  if (trimmedPrompt === '') {
+    return;
   }
 
-  // Add a new system prompt at the beginning of the messages
   messages.unshift({
     role: 'system',
     content: prompt,
   });
-}
+};
 
-export function deleteMessageFromHistory(messages, content) {
+// Function to delete a message from history
+export const deleteMessageFromHistory = (messages, content) => {
   const messageIndex = messages.findIndex((message) => message.content === content && message.role === 'user');
 
-  if (messageIndex !== -1) {
-    // Use a single slice operation to create the new messages array
-    return messages.slice(0, messageIndex).concat(messages.slice(messageIndex + 2));
+  if (messageIndex === -1) {
+    return messages;
   }
 
-  return messages;
-}
+  return [...messages.slice(0, messageIndex), ...messages.slice(messageIndex + 2)];
+};
 
-export function createUniqueMessagesWithIds(messages) {
+// Function to create unique message IDs
+export const createUniqueMessagesWithIds = (messages) => {
   let maxId = messages.reduce((max, message) => (message.id ? Math.max(max, message.id) : max), 0);
 
-  // Process each message to ensure it has a unique ID
   return messages.map((message) => {
     if (!message.id) {
-      maxId++; // Increment maxId to ensure a unique ID
-      return { ...message, id: maxId }; // Assign the new ID
+      maxId++;
+      return { ...message, id: maxId };
     }
     return message;
   });
-}
+};
