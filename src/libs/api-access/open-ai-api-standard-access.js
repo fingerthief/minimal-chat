@@ -1,275 +1,240 @@
-/* eslint-disable no-unused-vars */
 import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
 import { messages, localModelKey } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 
-let localStreamRetryCount = 0;
-export async function fetchLocalModelResponseStream(
-  conversation,
-  attitude,
-  model,
-  localModelEndpoint,
-  updateUiFunction,
-  abortController,
-  streamedMessageText,
-  autoScrollToBottom = true
-) {
-  //const gptMessagesOnly = filterLocalMessages(conversation);
+// Constants
+const DEFAULT_MAX_TOKENS = 4096;
+const DEFAULT_TEMPERATURE = 0.25;
+const MAX_RETRY_ATTEMPTS = 3;
+const TITLE_MAX_TOKENS = 18;
+const DEFAULT_IMAGE_COUNT = 2;
+const DEFAULT_IMAGE_SIZE = '256x256';
 
-  let tempMessages = conversation.map((message) => ({
-    role: message.role,
-    content: message.content,
-  }));
+// Retry counters
+const retryCounters = {
+    stream: 0,
+    vision: 0,
+    imageGen: 0,
+    title: 0
+};
 
-  const standardBody = JSON.stringify({
-    model: model,
-    stream: true,
-    messages: tempMessages,
-    temperature: parseFloat(attitude),
-    max_tokens: parseInt(localStorage.getItem('maxTokens') || 4096),
-    //top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-    //repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
-  });
+// Helper Functions
+const createRequestHeaders = (apiKey = localStorage.getItem('localModelKey')) => ({
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${apiKey || 'No Key Provided'}`
+});
 
-  const reasoningBody = JSON.stringify({
-    model: model,
-    stream: true,
-    messages: tempMessages,
-    reasoning_effort: "medium"
-  });
-
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('localModelKey') || 'No Key Provided'}`,
-    },
-    body: model.includes('o1') || model.includes('o3') ? reasoningBody : standardBody,
-    signal: abortController.signal,
-  };
-
-  try {
-    const response = await fetch(localModelEndpoint + `/v1/chat/completions`, requestOptions);
-
-    const result = await readResponseStream(response, updateUiFunction, autoScrollToBottom);
-
-    localStreamRetryCount = 0;
-    return result;
-  } catch (error) {
-    if (error.name === 'AbortError') {
-      showToast(`Stream Request Aborted.`);
-      return;
-    }
-
-    console.error('Error fetching Custom Model response:', error);
-    showToast(`Stream Request Failed.`);
-    return;
-  }
-}
-
-let localVisionRetryCount = 0;
-export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint) {
-  const payload = {
-    model: model,
-    messages: visionMessages,
-    max_tokens: 4096,
-    //top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-    //repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
-  };
-
-  const reasoning_payload = {
-    model: model,
-    messages: visionMessages,
-    reasoning_effort: "medium"
-  };
-
-  try {
-    const response = await fetch(localModelEndpoint + `/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: model.includes('o1') || model.includes('o3') ? JSON.stringify(reasoning_payload) : JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-
-    localVisionRetryCount = 0;
-
-    return data.choices[0].message.content;
-  } catch (error) {
-    if (localVisionRetryCount < 3) {
-      localVisionRetryCount++;
-
-      showToast(`Failed fetchOpenAiLikeVisionResponse Request. Retrying...Attempt #${localVisionRetryCount}`);
-
-      await sleep(1000);
-
-      return fetchOpenAiLikeVisionResponse(visionMessages, apiKey);
-    }
-  }
-}
-
-let imageGenerationRetryCount = 0;
-export async function customModelImageGeneration(conversation, localModelEndpoint, model) {
-  let storedApiKey = localStorage.getItem('localModelKey');
-
-  try {
-    const response = await fetch(`${localModelEndpoint}/v1/images/generations`, {
-      method: 'POST',
-      model: model,
-      quality: 'hd',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${storedApiKey || 'Missing API Key'}`,
-      },
-      body: JSON.stringify({
-        prompt: conversation,
-        n: parseInt(localStorage.getItem('selectedDallEImageCount')) || 2,
-        size: localStorage.getItem('selectedDallEImageResolution') || '256x256',
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.data && result.data.length > 0) {
-      imageGenerationRetryCount = 0;
-      return result;
-    } else {
-      return "I'm sorry, I couldn't generate an image. The prompt may not be allowed by the API.";
-    }
-  } catch (error) {
-    if (imageGenerationRetryCount < 3) {
-      imageGenerationRetryCount++;
-
-      showToast(`Failed customModelImageGeneration Request. Retrying...Attempt #${imageGenerationRetryCount}`);
-
-      await sleep(1000);
-
-      return await customModelImageGeneration(conversation);
-    }
-
-    showToast(`Retry Attempts Failed for customModelImageGeneration Request.`);
-    console.error('Error fetching image generation response:', error);
-    return 'An error generating Custom Model Image.';
-  }
-}
-
-let retryCount = 0;
-export async function getConversationTitleFromLocalModel(messages, model, localModelEndpoint) {
-  try {
-
-    let tempMessages = messages.slice(0);
-    tempMessages.push({ role: 'user', content: 'Summarize my inital request or greeting in 5 words or less.' });
-
-    const standardBody = JSON.stringify({
-      model: model,
-      stream: true,
-      messages: tempMessages,
-      temperature: 0.25,
-      max_tokens: 18,
-      //top_P: parseFloat(localStorage.getItem('top_P') || 1.0),
-      //repetition_penalty: parseFloat(localStorage.getItem('repetitionPenalty') || 1.0),
-    });
-
-    const reasoningbody = JSON.stringify({
-      model: model,
-      stream: true,
-      messages: tempMessages,
-      reasoning_effort: "medium"
-    })
-
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('localModelKey') || 'No Key Provided'}`,
-      },
-      body: model.includes('o1') || model.includes('o3') ? reasoningbody : standardBody,
+const createMessagePayload = (messages, model, options = {}) => {
+    const basePayload = {
+        model,
+        messages,
+        stream: options.stream || false,
     };
 
-    const response = await fetch(localModelEndpoint + `/v1/chat/completions`, requestOptions);
+    const standardPayload = {
+        ...basePayload,
+        temperature: options.temperature || DEFAULT_TEMPERATURE,
+        max_tokens: options.maxTokens || DEFAULT_MAX_TOKENS
+    };
 
-    const result = await readResponseStream(response);
+    const reasoningPayload = {
+        ...basePayload,
+        reasoning_effort: "high"
+    };
 
-    localStreamRetryCount = 0;
-    return result;
-  } catch (error) {
-    if (retryCount < 3) {
-      retryCount++;
-      await getConversationTitleFromLocalModel(messages, model, localModelEndpoint);
+    return model.includes('o1') || model.includes('o3')
+        ? reasoningPayload
+        : standardPayload;
+};
+
+async function handleStreamResponse(response, updateUiFunction, autoScrollToBottom = true) {
+    let decodedResult = '';
+    const reader = await response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) return decodedResult;
+
+        const chunk = decoder.decode(value);
+        const parsedLines = parseStreamResponseChunk(chunk);
+
+        for (const { choices: [{ delta: { content } }] } of parsedLines) {
+            if (content) {
+                decodedResult += content;
+                if (updateUiFunction) {
+                    updateUI(content, messages.value, addMessage, autoScrollToBottom);
+                }
+            }
+        }
     }
+}
 
-    console.error('Error fetching Local Model response:', error);
-    return 'An error occurred while generating conversaton title.';
-  }
+async function handleRetry(operation, retryCounter, errorMessage) {
+    if (retryCounter < MAX_RETRY_ATTEMPTS) {
+        retryCounter++;
+        showToast(`${errorMessage} Retrying...Attempt #${retryCounter}`);
+        await sleep(1000);
+        return true;
+    }
+    return false;
+}
+
+// Main Export Functions
+export async function fetchLocalModelResponseStream(
+    conversation,
+    attitude,
+    model,
+    localModelEndpoint,
+    updateUiFunction,
+    abortController,
+    streamedMessageText,
+    autoScrollToBottom = true
+) {
+    const tempMessages = conversation.map(({ role, content }) => ({ role, content }));
+    const payload = createMessagePayload(tempMessages, model, {
+        stream: true,
+        temperature: parseFloat(attitude),
+        maxTokens: parseInt(localStorage.getItem('maxTokens') || DEFAULT_MAX_TOKENS)
+    });
+
+    try {
+        const response = await fetch(`${localModelEndpoint}/v1/chat/completions`, {
+            method: 'POST',
+            headers: createRequestHeaders(),
+            body: JSON.stringify(payload),
+            signal: abortController.signal
+        });
+
+        const result = await handleStreamResponse(response, updateUiFunction, autoScrollToBottom);
+        retryCounters.stream = 0;
+        return result;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            showToast('Stream Request Aborted.');
+            return;
+        }
+        console.error('Error fetching Custom Model response:', error);
+        showToast('Stream Request Failed.');
+    }
+}
+
+export async function fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint) {
+    const payload = createMessagePayload(visionMessages, model);
+
+    try {
+        const response = await fetch(`${localModelEndpoint}/v1/chat/completions`, {
+            method: 'POST',
+            headers: createRequestHeaders(apiKey),
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        retryCounters.vision = 0;
+        return data.choices[0].message.content;
+    } catch (error) {
+        if (await handleRetry(
+            () => fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint),
+            retryCounters.vision,
+            'Failed fetchOpenAiLikeVisionResponse Request.'
+        )) {
+            return fetchOpenAiLikeVisionResponse(visionMessages, apiKey, model, localModelEndpoint);
+        }
+    }
+}
+
+export async function customModelImageGeneration(conversation, localModelEndpoint, model) {
+    try {
+        const response = await fetch(`${localModelEndpoint}/v1/images/generations`, {
+            method: 'POST',
+            model,
+            quality: 'hd',
+            headers: createRequestHeaders(),
+            body: JSON.stringify({
+                prompt: conversation,
+                n: parseInt(localStorage.getItem('selectedDallEImageCount')) || DEFAULT_IMAGE_COUNT,
+                size: localStorage.getItem('selectedDallEImageResolution') || DEFAULT_IMAGE_SIZE,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (result.data?.length > 0) {
+            retryCounters.imageGen = 0;
+            return result;
+        }
+        return "I'm sorry, I couldn't generate an image. The prompt may not be allowed by the API.";
+    } catch (error) {
+        if (await handleRetry(
+            () => customModelImageGeneration(conversation, localModelEndpoint, model),
+            retryCounters.imageGen,
+            'Failed customModelImageGeneration Request.'
+        )) {
+            return customModelImageGeneration(conversation, localModelEndpoint, model);
+        }
+        showToast('Retry Attempts Failed for customModelImageGeneration Request.');
+        console.error('Error fetching image generation response:', error);
+        return 'An error generating Custom Model Image.';
+    }
+}
+
+export async function getConversationTitleFromLocalModel(messages, model, localModelEndpoint) {
+    try {
+        const tempMessages = [...messages, {
+            role: 'user',
+            content: 'Summarize my inital request or greeting in 5 words or less.'
+        }];
+
+        const payload = createMessagePayload(tempMessages, model, {
+            stream: true,
+            temperature: 0.25,
+            maxTokens: TITLE_MAX_TOKENS
+        });
+
+        const response = await fetch(`${localModelEndpoint}/v1/chat/completions`, {
+            method: 'POST',
+            headers: createRequestHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        const result = await handleStreamResponse(response);
+        retryCounters.title = 0;
+        return result;
+    } catch (error) {
+        if (await handleRetry(
+            () => getConversationTitleFromLocalModel(messages, model, localModelEndpoint),
+            retryCounters.title,
+            'Failed to generate conversation title.'
+        )) {
+            return getConversationTitleFromLocalModel(messages, model, localModelEndpoint);
+        }
+        console.error('Error fetching Local Model response:', error);
+        return 'An error occurred while generating conversation title.';
+    }
 }
 
 export async function getOpenAICompatibleAvailableModels(localModelEndpoint) {
-  try {
+    try {
+        const response = await fetch(`${localModelEndpoint}/v1/models`, {
+            method: 'GET',
+            headers: createRequestHeaders(localModelKey.value)
+        });
 
-    const response = await fetch(`${localModelEndpoint}/v1/models`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localModelKey.value || 'Missing API Key'}`,
-      },
-    });
+        const data = await response.json();
 
-    const data = await response.json();
-
-    if (data?.data) {
-      return data.data.map((model) => ({ name: model.name || model.id, id: model.id }));
-    }
-
-    if (Array.isArray(data)) {
-      return data.map((model) => ({ name: model.name || model.id, id: model.id }));
-    }
-
-    showToast('Error fetching models, double check the API endpoint configured');
-    console.error('Error fetching available models:', data);
-    return [];
-  } catch (error) {
-    showToast('Error fetching models, double check the API endpoint configured');
-    console.error('Error fetching available models:', error);
-    return [];
-  }
-}
-
-async function readResponseStream(response, updateUiFunction, autoScrollToBottom = true) {
-  let decodedResult = '';
-
-  const reader = await response.body.getReader();
-  const decoder = new TextDecoder('utf-8');
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      return decodedResult;
-    }
-    const chunk = decoder.decode(value);
-    const parsedLines = parseStreamResponseChunk(chunk);
-    for (const parsedLine of parsedLines) {
-      const { choices } = parsedLine;
-      const { delta } = choices[0];
-      const { content } = delta;
-      if (content) {
-        decodedResult += content;
-
-        if (updateUiFunction) {
-          updateUI(content, messages.value, addMessage, autoScrollToBottom);
+        if (data?.data || Array.isArray(data)) {
+            const modelList = data.data || data;
+            return modelList.map(model => ({
+                name: model.name || model.id,
+                id: model.id
+            }));
         }
-      }
-    }
-  }
-}
 
-function filterLocalMessages(conversation) {
-  let lastMessageContent = '';
-  return conversation.filter((message) => {
-    const isGPT = !message.content.trim().toLowerCase().startsWith('image::') && !lastMessageContent.startsWith('image::');
-    lastMessageContent = message.content.trim().toLowerCase();
-    return isGPT;
-  });
+        throw new Error('Invalid response format');
+    } catch (error) {
+        showToast('Error fetching models, double check the API endpoint configured');
+        console.error('Error fetching available models:', error);
+        return [];
+    }
 }

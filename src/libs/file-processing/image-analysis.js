@@ -5,157 +5,103 @@ import { messages, selectedModel } from '../state-management/state.js';
 import { addMessage } from '../conversation-management/message-processing.js';
 import { storeFile } from '../utils/indexed-db-utils.js';
 
-// Encode image as base64
-async function encodeImage(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-// Get string after comma
-function getStringAfterComma(str) {
-  const [_, ...rest] = str.split(',');
-  return rest.join(',');
-}
-
-// Get string after comma
-function filterGPTMessages(conversation) {
-  let lastMessageContent = '';
-  return conversation.filter((message) => {
-    const isGPT = !message.content.trim().toLowerCase().startsWith('image::') && !lastMessageContent.startsWith('image::');
-    lastMessageContent = message.content.trim().toLowerCase();
-    return isGPT;
-  });
-}
-
-// Format messages for vision
-function formatMessagesForVision(messages) {
-  return messages.map((message) => ({
-    type: 'text',
-    text: message.content,
-  }));
-}
-
-async function initIndexedDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('UserFilesDB', 5); // Increase the version number
-
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('userFiles')) {
-        const objectStore = db.createObjectStore('userFiles', { keyPath: 'id', autoIncrement: true });
-        objectStore.createIndex('fileName', 'fileName', { unique: false });
-        objectStore.createIndex('fileSize', 'fileSize', { unique: false });
-        objectStore.createIndex('fileType', 'fileType', { unique: false });
-      }
-    };
-
-    request.onsuccess = (event) => {
-      resolve(event.target.result);
-    };
-
-    request.onerror = (event) => {
-      reject(event.target.error);
-    };
-  });
-}
-
-export const storeFileData = async (fileName, fileData, fileSize, fileType) => {
-  try {
-    const fileId = await storeFile(fileName, fileData, fileSize, fileType);
-    console.log(`File stored successfully with ID: ${fileId}`);
-    return fileId;
-  } catch (error) {
-    console.error('Error storing file data:', error);
-    throw error;
-  }
+// Helper functions
+const encodeImageToBase64 = async (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 };
 
-// Analyze image
-export async function analyzeImage(file, fileType, messages2, model, localModelName, localModelEndpoint) {
-  const base64Image = await encodeImage(file);
-  const fileData = base64Image;
-  const fileName = file.name;
-  // Store the image data in IndexedDB
-  await storeFileData(fileName, fileData, file.size, file.type);
+const extractBase64Data = (base64String) => {
+    const [_, ...rest] = base64String.split(',');
+    return rest.join(',');
+};
 
-  const visionFormattedMessages = messages.value.map((message) => ({
-    role: message.role,
-    content: message.content,
-  }));
+const formatMessagesForVisionAPI = (messageHistory, base64Image, lastMessageText) => {
+    const formattedMessages = messageHistory.map(message => ({
+        role: message.role,
+        content: message.content,
+    }));
+    formattedMessages.pop(); // Remove last message as it will be added with image
 
-  const lastMessageText = messages.value[messages.value.length - 1].content[0].text;
-  visionFormattedMessages.pop();
+    return formattedMessages;
+};
 
-  if (model.indexOf('gpt') !== -1 || selectedModel.value.includes('open-ai-format')) {
-    visionFormattedMessages.push({
-      role: 'user',
-      content: [
+const createGPTVisionMessage = (base64Image, lastMessageText) => ({
+    role: 'user',
+    content: [
         {
-          type: 'image_url',
-          image_url: { url: base64Image },
+            type: 'image_url',
+            image_url: { url: base64Image },
         },
         {
-          type: "text",
-          text: lastMessageText
+            type: "text",
+            text: lastMessageText
         }
-      ],
-    });
+    ],
+});
 
-    messages.value.pop();
-    addMessage("user", [
-      {
-        type: 'image_url',
-        image_url: { url: base64Image },
-      },
-      {
-        type: "text",
-        text: lastMessageText
-      }
-    ])
-
-    if (selectedModel.value.includes("gpt")) {
-      return await fetchGPTVisionResponse(visionFormattedMessages, localStorage.getItem('gptKey'));
-    }
-    else {
-      return await fetchOpenAiLikeVisionResponse(visionFormattedMessages, localStorage.getItem('localModelKey'), localModelName, localModelEndpoint)
-    }
-  }
-
-  if (model.indexOf('claude') !== -1) {
-    visionFormattedMessages.push({
-      role: 'user',
-      content: [
+const createClaudeVisionMessage = (base64Image, fileType) => ({
+    role: 'user',
+    content: [
         {
-          type: 'image',
-          source: {
-            type: 'base64',
-            media_type: fileType,
-            data: getStringAfterComma(base64Image),
-          },
+            type: 'image',
+            source: {
+                type: 'base64',
+                media_type: fileType,
+                data: extractBase64Data(base64Image),
+            },
         },
-      ],
-    });
+    ],
+});
 
-    return await fetchClaudeVisionResponse(visionFormattedMessages, localStorage.getItem('claudeKey'), model);
-  }
+// Main functions
+export const storeFileData = async (fileName, fileData, fileSize, fileType) => {
+    try {
+        const fileId = await storeFile(fileName, fileData, fileSize, fileType);
+        console.log(`File stored successfully with ID: ${fileId}`);
+        return fileId;
+    } catch (error) {
+        console.error('Error storing file data:', error);
+        throw error;
+    }
+};
 
-  if (model.indexOf('open-ai-format') !== -1) {
-    visionFormattedMessages.push({
-      role: 'user',
-      content: [
-        {
-          type: 'image_url',
-          image_url: { url: base64Image },
-        },
-      ],
-    });
+export async function analyzeImage(file, fileType, messages2, model, localModelName, localModelEndpoint) {
+    // Encode and store image
+    const base64Image = await encodeImageToBase64(file);
+    await storeFileData(file.name, base64Image, file.size, file.type);
 
-    return await fetchOpenAiLikeVisionResponse(visionFormattedMessages, localStorage.getItem('localModelKey'), localModelName, localModelEndpoint);
-  }
+    const lastMessageText = messages.value[messages.value.length - 1].content[0].text;
+    const formattedMessages = formatMessagesForVisionAPI(messages.value, base64Image, lastMessageText);
 
-  return 'not implemented for selected model';
+    // Handle different model types
+    if (model.includes('gpt') || selectedModel.value.includes('open-ai-format')) {
+        const visionMessage = createGPTVisionMessage(base64Image, lastMessageText);
+        formattedMessages.push(visionMessage);
+
+        // Update message history
+        messages.value.pop();
+        addMessage("user", visionMessage.content);
+
+        if (selectedModel.value.includes("gpt")) {
+            return await fetchGPTVisionResponse(formattedMessages, localStorage.getItem('gptKey'));
+        }
+        return await fetchOpenAiLikeVisionResponse(formattedMessages, localStorage.getItem('localModelKey'), localModelName, localModelEndpoint);
+    }
+
+    if (model.includes('claude')) {
+        formattedMessages.push(createClaudeVisionMessage(base64Image, fileType));
+        return await fetchClaudeVisionResponse(formattedMessages, localStorage.getItem('claudeKey'), model);
+    }
+
+    if (model.includes('open-ai-format')) {
+        formattedMessages.push(createGPTVisionMessage(base64Image, lastMessageText));
+        return await fetchOpenAiLikeVisionResponse(formattedMessages, localStorage.getItem('localModelKey'), localModelName, localModelEndpoint);
+    }
+
+    return 'not implemented for selected model';
 }
