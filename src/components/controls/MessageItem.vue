@@ -1,7 +1,7 @@
 <!-- MessageItem.vue -->
 <script setup>
 import { computed, onMounted, ref, toRef } from 'vue';
-import { RefreshCcw, Trash, Copy, Pencil } from 'lucide-vue-next';
+import { RefreshCcw, Trash, Copy, Pencil, Link } from 'lucide-vue-next';
 import ToolTip from '@/components/controls/ToolTip.vue';
 import { showToast } from '@/libs/utils/general-utils';
 import {
@@ -95,6 +95,36 @@ const props = defineProps({
 
 // Refs
 const loadingIcon = ref(-1);
+const imageTextRef = ref('');
+
+// Computed properties for file detection
+const hasFile = computed(() => {
+    // Only true if it's a non-image file (has #contextAdded and doesn't have image_url)
+    if (!props.item?.content || !Array.isArray(props.item.content)) return false;
+    
+    const isTextFile = props.item.content?.[0]?.text?.indexOf('#contextAdded:') !== -1;
+    const hasImagePart = props.item.content.some(part => part.type === 'image_url' && part.image_url);
+    
+    return isTextFile && !hasImagePart;
+});
+
+const hasImage = computed(() => {
+    if (!props.item || !props.item.content || !Array.isArray(props.item.content)) return false;
+    return props.item.content.some(part => part.type === 'image_url' && part.image_url && part.image_url.url);
+});
+
+const hasImageName = computed(() => {
+    if (!props.item || !props.item.content || !Array.isArray(props.item.content)) return false;
+    const textContent = getTextContent(props.item.content);
+    return textContent && textContent.match(/Image:\s*([^\n]+)/);
+});
+
+// Helper function to get text content from message
+function getTextContent(content) {
+    if (!Array.isArray(content)) return '';
+    const textPart = content.find(part => part.type === 'text' && part.text);
+    return textPart ? textPart.text : '';
+}
 
 // Utility functions
 function messageClass(role) {
@@ -222,18 +252,39 @@ const md = new MarkdownIt({
 });
 
 function formatMessage(content) {
-
     let combinedContent = '';
+    let imageUrl = null;
 
     if (Array.isArray(content)) {
-        combinedContent = content.map(item => {
-            if (item.type === 'text' && item.text) {
-                return item.text;
-            } else if (item.type === 'image_url' && item.image_url && item.image_url.url) {
-                return `![](${item.image_url.url})`;
+        // First extract image URL and name if present
+        for (const item of content) {
+            if (item.type === 'image_url' && item.image_url && item.image_url.url) {
+                imageUrl = item.image_url.url;
+                
+                // Extract image name if present in text part
+                const textItem = content.find(i => i.type === 'text' && i.text);
+                if (textItem && textItem.text) {
+                    const imgMatch = textItem.text.match(/Image:\s*([^\n]+)/);
+                    if (imgMatch && imgMatch[1]) {
+                        // Store image file name for later reference
+                        imageTextRef.value = imgMatch[1].trim();
+                    }
+                }
             }
-            return '';
-        }).join(' ').trim();
+        }
+        
+        // Then process text content, removing image filename references
+        const textParts = content
+            .filter(item => item.type === 'text' && item.text)
+            .map(item => item.text.replace(/\n\nImage:\s*[^\n]+/g, ''))
+            .join(' ').trim();
+            
+        // Then combine text with image markdown
+        if (imageUrl) {
+            combinedContent = textParts + `\n\n![image](${imageUrl})`;
+        } else {
+            combinedContent = textParts;
+        }
     } else {
         combinedContent = content;
     }
@@ -255,6 +306,26 @@ function formatMessage(content) {
 }
 
 const menu = ref(null);
+
+// Extract file name from the message content
+function extractFileName(text) {
+    if (!text || typeof text !== 'string') return 'Unknown File';
+    
+    // Check if the message contains the contextAdded marker (for non-image files)
+    if (text.indexOf('#contextAdded:') !== -1) {
+        // Extract the filename between the marker and the pipe symbol
+        const match = text.match(/#contextAdded:\s*(.*?)\s*\|/);
+        return match && match[1] ? match[1].trim() : 'File';
+    }
+    
+    // For image files, look for the Image: pattern
+    const imgMatch = text.match(/Image:\s*([^\n]+)/);
+    if (imgMatch && imgMatch[1]) {
+        return imgMatch[1].trim();
+    }
+    
+    return 'File';
+}
 
 const menuItems = computed(() => {
     if (!props.item) return [];
@@ -315,15 +386,33 @@ const menuItems = computed(() => {
             </div>
             <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
         </div>
+        
+        <!-- Regular text messages -->
         <div class="message-contents" :id="'message-' + item.id"
-            v-show="item?.content[0]?.image_url !== undefined || item?.content[0]?.text?.indexOf('#contextAdded:') === -1"
+            v-show="!hasFile && !hasImage"
             :contenteditable="isEditing" @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)"
             v-html="formatMessage(item.content)">
         </div>
-        <div class="message-contents" :id="'message-' + item.id"
-            v-show="item?.content[0]?.text?.indexOf('#contextAdded:') !== -1" :contenteditable="isEditing"
+        
+        <!-- Non-image file messages -->
+        <div class="message-contents file-content" :id="'message-' + item.id"
+            v-show="hasFile" :contenteditable="isEditing"
             @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
-            <FileCheck2 /> File Added To Conversation
+            <div class="file-info-display">
+                <Link class="file-icon" size="20" />
+                <span class="file-name">{{ extractFileName(item?.content[0]?.text) }}</span>
+            </div>
+        </div>
+        
+        <!-- Image messages -->
+        <div class="message-contents" :id="'message-' + item.id"
+            v-show="hasImage" :contenteditable="isEditing"
+            @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
+            <div class="file-info-display image-info" v-if="hasImageName">
+                <FileCheck2 class="file-icon" size="20" />
+                <span class="file-name">{{ extractFileName(getTextContent(item?.content)) }}</span>
+            </div>
+            <div class="image-container" v-html="formatMessage(item.content)"></div>
         </div>
     </div>
 </template>
@@ -530,6 +619,63 @@ const menuItems = computed(() => {
 
     100% {
         transform: rotate(360deg);
+    }
+}
+
+.file-content {
+    .file-info-display {
+        display: flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin: 8px 0;
+        
+        .file-icon {
+            color: #4caf50;
+            margin-right: 10px;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            word-break: break-word;
+        }
+    }
+}
+
+.file-info-display {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 8px 0;
+    
+    .file-icon {
+        color: #4caf50;
+        margin-right: 10px;
+    }
+    
+    .file-name {
+        font-weight: 500;
+        word-break: break-word;
+    }
+    
+    &.image-info {
+        margin-bottom: 12px;
+        
+        .file-icon {
+            color: #2196f3;
+        }
+    }
+}
+
+.image-container {
+    img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin: 8px 0;
+        display: block;
     }
 }
 </style>
