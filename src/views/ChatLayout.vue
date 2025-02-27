@@ -237,9 +237,14 @@ a {
 
 .app-body {
   width: 100vw;
-  height: 95vh;
+  height: 100vh;
   position: relative;
-  max-height: 95vh; /* Increased from 90vh to 95vh */
+  max-height: 100vh;
+
+  @media (max-width: 600px) {
+    height: 100vh;
+    overflow: hidden;
+  }
 }
 
 .container {
@@ -251,11 +256,20 @@ a {
 .chat {
   width: 99dvw;
   background-color: $container-bg-color;
-  height: 96dvh; /* Reduced from 98dvh to 96dvh */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-bottom: 10px; /* Added margin at bottom */
+  margin-bottom: 0;
+  position: relative; /* Added to establish positioning context */
+  padding-bottom: env(safe-area-inset-bottom, 0px); /* iOS safe area support */
+
+  @media (max-width: 600px) {
+    width: 100%;
+    height: calc(100dvh - env(safe-area-inset-bottom, 0px));
+    margin: 0;
+    padding-bottom: 80px; /* Ensure space for the input */
+  }
 
   &.header {
     background-color: $border-color;
@@ -272,18 +286,21 @@ a {
 
 .messages {
   overflow-y: auto;
-  min-height: 93vh; /* Increased to use more vertical space */
-  max-height: 93vh; /* Match min-height */
+  flex: 1 1 auto;
+  min-height: 0;
   scrollbar-width: none; // For Firefox
   -ms-overflow-style: none; // For Internet Explorer and Edge
-  padding-bottom: 70px; /* Increased padding to ensure space for the input */
-  position: relative; /* Added for better positioning control */
+  padding-bottom: 100px; /* Increased space for the input */
+  position: relative;
 
   @media (max-width: 600px) {
-    width: 100vw;
-    padding: 8px 8px 70px 8px;
-    min-height: 95vh; /* Further increased for mobile to eliminate gap */
-    max-height: 95vh;
+    width: 100%;
+    padding: 8px 8px 100px 8px;
+    /* Using flex instead of fixed heights for better adaptability */
+    flex: 1; 
+    /* Ensure content is visible on iOS Safari which has bottom bars */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 20px));
+    margin-bottom: 20px; /* Add margin to ensure input is visible */
   }
 
   &::-webkit-scrollbar {
@@ -425,7 +442,7 @@ pre {
   top: 5%;
   padding: 0;
   border-right: 2px solid $border-color;
-  z-index: 1;
+  z-index: 3;
   border-radius: 12px;
   border: 2px solid #083e35d9;
   width: 60vw;
@@ -436,12 +453,21 @@ pre {
     width: 100vw;
     height: 100vh;
     top: 0;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+    border: none;
+    z-index: 3;
   }
 
   &.sidebar-right {
     right: 0;
+    
+    @media (max-width: 600px) {
+      right: 0;
+      left: 0;
+    }
   }
-
 
   &.open {
     opacity: 1;
@@ -453,7 +479,7 @@ pre {
 }
 
 .overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -464,7 +490,9 @@ pre {
   display: block;
 
   @media (max-width: 600px) {
-    display: none;
+    /* Show overlay on mobile for better UI experience */
+    display: block;
+    z-index: 1;
   }
 
   &:not(:empty) {
@@ -488,9 +516,24 @@ pre {
   flex-grow: 1;
   min-height: 500px;
   min-width: 350px;
-  width: 100vw;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 100%;
   background-color: #1d1d1d;
   justify-content: space-between;
+  position: relative;
+  
+  /* Add space for the input */
+  padding-bottom: 80px;
+  
+  @media (max-width: 600px) {
+    min-height: 100%;
+    height: 100vh;
+    width: 100%;
+    min-width: 100%;
+    padding: 0 0 80px 0;
+    /* Ensure it works with iOS safe areas */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0));
+    margin: 0;
+  }
 }
 </style>

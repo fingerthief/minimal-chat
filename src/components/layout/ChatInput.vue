@@ -219,17 +219,27 @@ $border-color: rgba(112, 112, 112, 0.53);
   position: absolute;
   display: flex;
   gap: 10px;
-  width: 54vw;
-  align-self: center;
-  top: 95%; /* Further reduced to position better */
-  max-width: 1200px;
-  z-index: 0;
-
+  width: 80%;
+  max-width: 800px;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 10;
+  
+  /* For desktop screens */
+  @media (min-width: 601px) {
+    width: 70%;
+    max-width: 800px;
+  }
+  
   @media (max-width: 600px) {
-    max-width: 100vw;
-    width: 100%;
-    top: calc(100% - 5px); /* Moved even higher to close the gap */
-    padding: 6px;
+    position: fixed;
+    max-width: calc(100% - 12px);
+    width: calc(100% - 12px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    padding: 0;
     gap: 6px;
   }
 
