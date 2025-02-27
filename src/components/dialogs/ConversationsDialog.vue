@@ -263,14 +263,14 @@ const visibleModelLinks = computed(() => {
         <ul>
           <li v-show="isSmallScreen" class="new-conversation-option--delete" @click="deleteCurrentConversation">
             <span class="delete-icon">
-              <MessageSquareX :stroke-width="1.5" />
+              <MessageSquareX :stroke-width="1.5" :size="18" color="rgba(255, 255, 255, 0.95)" />
               <span class="delete-text">Delete Current Conversation</span>
             </span>
           </li>
           <li v-show="showConversationOptions && isSmallScreen" class="new-conversation-option--settings"
             @click="toggleConversations">
             <span class="settings-icon">
-              <Settings :stroke-width="1.5" />
+              <Settings :stroke-width="1.5" :size="18" color="rgba(255, 255, 255, 0.95)" />
               <span class="settings-text">Close</span>
             </span>
           </li>
@@ -339,6 +339,15 @@ $border-radius: 8px;
     border-top: none;
     border-left: 4px solid transparent;
     background-color: rgba(17, 67, 53, 0.35);
+  }
+  
+  @media (max-width: 600px) {
+    margin: 10px 0 14px 0;
+    border-radius: 8px !important;
+    background-color: rgba($primary-color, 0.2);
+    border: 1px solid rgba($primary-color, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 16px !important;
   }
 
   &:hover {
@@ -411,6 +420,12 @@ $border-radius: 8px;
   @media (max-width: 600px) {
     text-align: center;
     padding: 16px 8px;
+    background-color: rgba($background-dark, 0.9);
+    border-bottom: 1px solid rgba($primary-color, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 5;
   }
 
   .context-menu {
@@ -521,7 +536,9 @@ $border-radius: 8px;
   align-items: flex-end;
   flex-direction: column;
   width: 100%;
-  border-top: 1px solid rgba($border-color, 0.3);
+  border-top: 1px solid rgba($border-color, 0.5);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 5;
 
   // Hide completely on non-mobile screens
   @media (min-width: 601px) {
@@ -536,17 +553,36 @@ $border-radius: 8px;
     max-width: 100%;
     overflow-x: hidden;
     width: 100%;
-    height: 22dvh;
-    max-height: 22dvh;
+    height: 18dvh;
+    max-height: 18dvh;
     overflow: auto;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     font-size: 14px;
     justify-content: flex-end;
+    padding: 6px 8px;
 
     @media (max-width: 600px) {
-      background-color: $background-dark;
+      background-color: rgba($background-dark, 0.97);
+    }
+    
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba($primary-color, 0.3);
+      border-radius: 8px;
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.5);
+      }
     }
 
     .new-conversation-option {
@@ -564,43 +600,68 @@ $border-radius: 8px;
       &:hover {
         background-color: rgba(16, 71, 69, 0.8);
         transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       }
 
       &--delete {
-        border-bottom: 2px solid rgba(113, 63, 63, 0.9);
+        border-radius: 6px;
+        border: 1px solid rgba(181, 83, 83, 0.5);
+        border-left: 3px solid rgba(230, 85, 85, 0.9);
+        background-color: rgba(98, 40, 40, 0.6);
         transition: all $transition-speed ease;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 
         &:hover {
-          background-color: rgba(113, 63, 63, 0.6);
+          background-color: rgba(149, 64, 64, 0.7);
           transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .delete-icon {
           @include flex-center;
-          gap: 10px;
-          margin-top: 5px;
+          gap: 8px;
+          padding: 0;
+          height: 100%;
 
           .delete-text {
-            line-height: 1;
+            line-height: 1.2;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: rgba(255, 255, 255, 0.95);
           }
         }
       }
 
       &--settings {
-        border-bottom: 2px solid rgba(114, 81, 130, 0.7);
+        border-radius: 6px;
+        border: 1px solid rgba(132, 94, 165, 0.5);
+        border-left: 3px solid rgba(150, 107, 197, 0.9);
+        background-color: rgba(61, 45, 80, 0.65);
         transition: all $transition-speed ease;
+        margin-bottom: 8px;
+        margin-top: 2px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 
         &:hover {
-          background-color: rgba(51, 46, 60, 0.9);
+          background-color: rgba(78, 63, 103, 0.8);
           transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .settings-icon {
           @include flex-center;
-          gap: 10px;
+          gap: 8px;
+          padding: 0;
+          height: 100%;
 
           .settings-text {
-            line-height: 1;
+            line-height: 1.2;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: rgba(255, 255, 255, 0.95);
           }
         }
       }
@@ -609,9 +670,12 @@ $border-radius: 8px;
         @include flex-center;
         gap: 10px;
         margin-top: 5px;
+        padding: 10px;
 
         .new-text {
-          line-height: 1;
+          line-height: 1.2;
+          font-weight: 600;
+          letter-spacing: 0.02em;
         }
       }
     }
@@ -620,24 +684,47 @@ $border-radius: 8px;
       list-style-type: none;
       padding: 0;
       margin: 0;
+      width: 100%;
     }
 
     li {
       padding: 12px;
-      border-bottom: 1px solid rgba(16, 13, 13, 0.5);
+      margin-bottom: 6px;
+      border-radius: 8px;
       transition: all $transition-speed ease;
       user-select: none;
       cursor: pointer;
+      position: relative;
+      @include card-shadow;
+
+      &.new-conversation-option--delete {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        width: 90%;
+        margin: 0 auto 6px auto;
+      }
+
+      &.new-conversation-option--settings {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        width: 90%;
+        margin: 0 auto 6px auto;
+      }
 
       &:hover {
         background-color: rgba(17, 67, 53, 0.7);
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
       }
 
       &.selected {
         background-color: rgba($secondary-color, 0.5);
         font-weight: bold;
-        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.2);
         border: 1px solid rgba(81, 63, 119, 0.7);
         animation: pulse 0.15s ease-out forwards;
       }
@@ -672,8 +759,11 @@ $border-radius: 8px;
 // Main scrollable list
 .scrollable-list {
   @media (max-width: 600px) {
-    height: 68vh;
-    background-color: $background-darker;
+    height: 72vh;
+    background-color: rgba($background-darker, 0.95);
+    padding: 4px 6px;
+    border-top: 1px solid rgba($border-color, 0.2);
+    border-bottom: 1px solid rgba($border-color, 0.2);
   }
 
   max-width: 100%;
@@ -692,11 +782,19 @@ $border-radius: 8px;
 
   &::-webkit-scrollbar {
     width: 6px;
+    
+    @media (max-width: 600px) {
+      width: 5px;
+    }
   }
 
   &::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.15);
     border-radius: 10px;
+    
+    @media (max-width: 600px) {
+      background: rgba(0, 0, 0, 0.1);
+    }
   }
 
   &::-webkit-scrollbar-thumb {
@@ -705,6 +803,15 @@ $border-radius: 8px;
     
     &:hover {
       background-color: rgba($primary-color, 0.6);
+    }
+    
+    @media (max-width: 600px) {
+      background-color: rgba($primary-color, 0.3);
+      border-radius: 8px;
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.5);
+      }
     }
   }
 
@@ -764,6 +871,15 @@ $border-radius: 8px;
       margin: 0 8px 6px 0;
       border-radius: 0 8px 8px 0;
     }
+    
+    @media (max-width: 600px) {
+      margin: 0 0 8px 0;
+      padding: 14px;
+      border-radius: 8px;
+      border-left: none;
+      border-bottom: 1px solid rgba($border-color, 0.15);
+      background-color: rgba($background-lighter, 0.3);
+    }
 
     .token-count {
       display: block;
@@ -791,6 +907,12 @@ $border-radius: 8px;
       
       .token-count {
         opacity: 1;
+      }
+      
+      @media (max-width: 600px) {
+        background-color: rgba($background-lighter, 0.5);
+        transform: scale(1.02);
+        border-bottom: 1px solid rgba($primary-color, 0.3);
       }
     }
 
@@ -820,6 +942,24 @@ $border-radius: 8px;
       
       @media (min-width: 601px) {
         background: linear-gradient(90deg, rgba(21, 116, 116, 0.2) 0%, rgba(36, 35, 35, 0.9) 100%);
+      }
+      
+      @media (max-width: 600px) {
+        background-color: rgba($primary-color, 0.2);
+        border: 1px solid rgba($primary-color, 0.4);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        
+        &:before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 4px;
+          height: 100%;
+          background-color: $primary-color;
+          border-radius: 4px 0 0 4px;
+        }
       }
     }
 
