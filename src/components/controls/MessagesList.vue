@@ -181,9 +181,17 @@ onMounted(() => {
 <style lang="scss" scoped>
 .scroller,
 .message-list {
-  height: 87vh;
+  height: 92vh;
   overflow-y: auto;
   scrollbar-width: none;
+  padding-bottom: 60px; /* Add padding to ensure content doesn't get cut off by input */
+  margin-bottom: 1vh; /* Reduced margin to better align with input */
+  
+  @media (max-width: 600px) {
+    height: 95vh;
+    margin-bottom: 0;
+    padding-bottom: 70px;
+  }
 }
 
 /* Visual feedback during drag-and-drop */

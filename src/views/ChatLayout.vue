@@ -237,9 +237,9 @@ a {
 
 .app-body {
   width: 100vw;
-  height: 90vh;
+  height: 95vh;
   position: relative;
-  max-height: 90vh;
+  max-height: 95vh; /* Increased from 90vh to 95vh */
 }
 
 .container {
@@ -251,10 +251,11 @@ a {
 .chat {
   width: 99dvw;
   background-color: $container-bg-color;
-  height: 98dvh;
+  height: 96dvh; /* Reduced from 98dvh to 96dvh */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  margin-bottom: 10px; /* Added margin at bottom */
 
   &.header {
     background-color: $border-color;
@@ -271,13 +272,18 @@ a {
 
 .messages {
   overflow-y: auto;
-  min-height: 92vh;
+  min-height: 93vh; /* Increased to use more vertical space */
+  max-height: 93vh; /* Match min-height */
   scrollbar-width: none; // For Firefox
   -ms-overflow-style: none; // For Internet Explorer and Edge
+  padding-bottom: 70px; /* Increased padding to ensure space for the input */
+  position: relative; /* Added for better positioning control */
 
   @media (max-width: 600px) {
     width: 100vw;
-    padding: 8px;
+    padding: 8px 8px 70px 8px;
+    min-height: 95vh; /* Further increased for mobile to eliminate gap */
+    max-height: 95vh;
   }
 
   &::-webkit-scrollbar {
