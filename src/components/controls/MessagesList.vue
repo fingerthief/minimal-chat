@@ -10,7 +10,9 @@
       :size-dependencies="['content']" type-field="type" ref="scroller" class="scroller">
       <template v-slot="{ item, index, active }">
         <DynamicScrollerItem :item="item" :active="active" :data-index="index" :size-dependencies="['content']">
-          <MessageItem :item="item" :active="active" />
+          <div style="padding-top: 3px; padding-bottom: 3px;">
+            <MessageItem :item="item" :active="active" />
+          </div>
         </DynamicScrollerItem>
       </template>
     </DynamicScroller>
@@ -178,7 +180,7 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .scroller,
 .message-list {
   height: 92vh;
@@ -192,6 +194,11 @@ onMounted(() => {
     margin-bottom: 0;
     padding-bottom: 70px;
   }
+}
+
+.message-item-wrapper {
+  display: block;
+  padding: 0;
 }
 
 /* Visual feedback during drag-and-drop */

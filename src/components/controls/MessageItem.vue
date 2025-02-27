@@ -371,7 +371,7 @@ const menuItems = computed(() => {
         pt: {
             root: { style: 'background: #1574742d;' }
         }
-    }" class="p-ripple box" v-if="active" :class="messageClass(item.role)">
+    }" class="p-ripple box message-container" v-if="active" :class="messageClass(item.role)">
         <div class="message-header">
             <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
             <Avatar v-if="item.role !== 'user' && isAvatarEnabled === true" :image="avatarUrl" :shape="avatarShape"
@@ -418,6 +418,11 @@ const menuItems = computed(() => {
 </template>
 <!-- MessageItem.vue -->
 <style lang="scss">
+.message-container {
+    margin-top: 9px;
+    margin-bottom: 9px;
+}
+
 .scale-enter-from,
 .scale-leave-to {
     transition: all 0.15s ease-out;
