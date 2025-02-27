@@ -329,13 +329,30 @@ $border-radius: 8px;
   border-top: 1px solid rgba(0, 0, 0, 0.3);
   text-align: center;
   position: relative;
-  padding: 12px !important;
+  padding: 14px !important;
   margin-top: 10px;
   transition: all $transition-speed ease;
+  
+  @media (min-width: 601px) {
+    margin: 10px 8px 0 0;
+    border-radius: 0 8px 8px 0 !important;
+    border-top: none;
+    border-left: 4px solid transparent;
+    background-color: rgba(17, 67, 53, 0.35);
+  }
 
   &:hover {
-    background-color: rgba($primary-color, 0.15) !important;
+    background-color: rgba($primary-color, 0.3) !important;
     transform: translateY(-2px);
+    @include card-shadow;
+    
+    @media (min-width: 601px) {
+      border-left: 4px solid rgba($primary-color, 0.5);
+    }
+  }
+  
+  .new-icon {
+    font-weight: 600;
   }
 }
 
@@ -665,18 +682,30 @@ $border-radius: 8px;
   box-sizing: border-box;
   font-size: 14px;
   overflow-y: auto;
+  overflow-x: hidden;
+  
+  @media (min-width: 601px) {
+    padding: 6px 4px 0 0;
+    background-color: rgba($background-darker, 0.5);
+    border-radius: 0 0 8px 0;
+  }
 
   &::-webkit-scrollbar {
     width: 6px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: rgba($primary-color, 0.3);
+    background-color: rgba($primary-color, 0.4);
     border-radius: 10px;
+    
+    &:hover {
+      background-color: rgba($primary-color, 0.6);
+    }
   }
 
   .new-conversation-option {
@@ -714,25 +743,36 @@ $border-radius: 8px;
   }
 
   li {
-    padding: 14px 16px;
+    padding: 16px 18px;
     border-left: 4px solid transparent;
     color: $text-color;
     text-overflow: ellipsis;
     text-wrap: nowrap;
+    overflow: hidden;
     user-select: none;
-    font-size: 0.875rem;
+    font-size: 0.925rem;
     animation: slideIn $transition-speed ease forwards;
     transition: all $transition-speed ease;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
     cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    
+    @media (min-width: 601px) {
+      margin: 0 8px 6px 0;
+      border-radius: 0 8px 8px 0;
+    }
 
     .token-count {
       display: block;
-      margin-top: 5px;
-      left: 24px;
+      margin-top: 6px;
       font-size: 0.65rem;
       color: $text-muted;
       position: relative;
+      opacity: 0.8;
+      transition: opacity $transition-speed ease;
     }
 
     &[contenteditable='true'] {
@@ -748,6 +788,10 @@ $border-radius: 8px;
       @include card-shadow;
       background-color: rgba(37, 37, 37, 0.8);
       transform: translateY(-2px);
+      
+      .token-count {
+        opacity: 1;
+      }
     }
 
     &:hover .trash-icon {
@@ -759,10 +803,11 @@ $border-radius: 8px;
       display: none;
       cursor: pointer;
       margin-left: 6px;
-      transition: color $transition-speed ease;
+      transition: all $transition-speed ease;
 
       &:hover {
         color: #ff6b6b;
+        transform: scale(1.2);
       }
     }
 
@@ -772,6 +817,10 @@ $border-radius: 8px;
       box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
       border-left: 4px solid $primary-color;
       color: $text-color;
+      
+      @media (min-width: 601px) {
+        background: linear-gradient(90deg, rgba(21, 116, 116, 0.2) 0%, rgba(36, 35, 35, 0.9) 100%);
+      }
     }
 
     &.deleting {
