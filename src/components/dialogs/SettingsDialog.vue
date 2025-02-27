@@ -101,7 +101,7 @@ function handleTouchStart(event) {
     lastTap.value = currentTime;
 }
 
-const showingGeneralConfig = ref(false);
+const showingGeneralConfig = ref(true);
 function showGeneralConfigSection() {
     showingGeneralConfig.value = true;
     isSidebarVisible.value = false;
@@ -143,6 +143,9 @@ onMounted(() => {
     if (selectedModel.value === 'open-ai-format') {
         fetchAvailableModels();
     }
+    
+    // Ensure GeneralConfigSection is always shown first when opening
+    showingGeneralConfig.value = true;
 
     console.log("Mounted");
     console.log("Models:", models); // Debug: Inspect the models array
@@ -197,7 +200,7 @@ onMounted(() => {
                 <ul>
                     <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
                         General Config
-                    </li>>
+                    </li>
                     <li>
                         <h4 @click="isCustomConfigOpen = !isCustomConfigOpen">
                             API Connections

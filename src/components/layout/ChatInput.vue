@@ -59,13 +59,19 @@ function updateUIWrapper(content, autoScrollBottom = true, appendTextValue = tru
 
 // Methods for UI interactions
 function autoResize() {
+  if (!userInputRef.value) return;
+  
   if (!userText.value || userText.value.trim() === '') {
-    userInputRef.value.style.height = '30px';
+    userInputRef.value.style.height = '56px'; // Match the min-height defined in CSS
     return;
   }
 
+  // Temporarily shrink the textarea to get an accurate scrollHeight measurement
   userInputRef.value.style.height = 'auto';
-  userInputRef.value.style.height = `${userInputRef.value.scrollHeight - 15}px`;
+  
+  // Set the height based on content with a small padding
+  const newHeight = Math.min(userInputRef.value.scrollHeight, 300); // Limit max height to 300px
+  userInputRef.value.style.height = `${newHeight}px`;
 }
 
 function handleKeyDown(event) {
@@ -154,36 +160,49 @@ const handleCloseInteractMode = () => {
   <form @submit.prevent="sendNewMessage" id="chat-form" @swiped-left="swipedLeft" @swiped-right="swipedRight"
     data-swipe-threshold="15" data-swipe-unit="vw" data-swipe-timeout="250">
     <div class="input-container">
-      <textarea class="user-input-text" id="user-input" rows="1" v-model="userText" ref="userInputRef"
-        :class="{ 'loading-border': isLoading }" @input="autoResize" @focus="autoResize" @blur="autoResize"
-        @keydown="handleKeyDown" placeholder="Enter a prompt"></textarea>
+      <textarea 
+        class="user-input-text" 
+        id="user-input" 
+        rows="1" 
+        v-model="userText" 
+        ref="userInputRef"
+        :class="{ 'loading-border': isLoading }" 
+        @input="autoResize" 
+        @focus="autoResize" 
+        @blur="autoResize"
+        @keydown="handleKeyDown" 
+        placeholder="Enter a message..."
+      ></textarea>
       <div class="icons">
-        <ToolTip :targetId="'imageButton'"> Upload image for vision processing </ToolTip>
+        <ToolTip :targetId="'imageButton'">Upload image for vision processing</ToolTip>
         <div class="image-button" id="imageButton" @click="visionImageUploadClickHandler">
-          <ImageUp />
+          <ImageUp size="18" />
         </div>
-        <ToolTip :targetId="'uploadButton'"> Upload file to add contents to current conversation </ToolTip>
+        <ToolTip :targetId="'uploadButton'">Upload file to add contents to conversation</ToolTip>
         <div class="upload-button" id="uploadButton" @click="importFileUploadClick">
-          <Upload />
+          <Upload size="18" />
         </div>
         <div class="send-button" @click="isLoading ? abortStream() : sendNewMessage()">
-          <CircleStop class="stop-button" v-if="isLoading" />
-          <SquareArrowUp v-if="!isLoading" />
+          <CircleStop class="stop-button" size="18" v-if="isLoading" />
+          <SquareArrowUp size="18" v-if="!isLoading" />
         </div>
       </div>
-
     </div>
+    
     <div v-if="selectedModel.includes('gpt')" class="interact-mode-container">
       <div v-if="!isInteractModeOpen">
-        <ToolTip :targetId="'interactButton'"> Interact mode (Experimental) <br><br> Hands free conversational speech
-          with the model
+        <ToolTip :targetId="'interactButton'">
+          Interact mode (Experimental)<br><br>Hands free conversational speech with the model
         </ToolTip>
         <div class="interact-button" id="interactButton" @click="isInteractModeOpen = !isInteractModeOpen">
-          <Mic />
+          <Mic size="20" />
         </div>
       </div>
-      <InteractMode v-if="isInteractModeOpen" @recognized-sentence="handleRecognizedSentence"
-        @close-interact-mode="handleCloseInteractMode" />
+      <InteractMode 
+        v-if="isInteractModeOpen" 
+        @recognized-sentence="handleRecognizedSentence"
+        @close-interact-mode="handleCloseInteractMode" 
+      />
     </div>
   </form>
 
@@ -191,20 +210,27 @@ const handleCloseInteractMode = () => {
 
 <style lang="scss" scoped>
 $icon-color: rgb(187, 187, 187);
+$primary-color: #0b8181;
+$primary-hover: #0c9090;
+$background-color: #212121;
+$border-color: rgba(112, 112, 112, 0.53);
 
 #chat-form {
   position: absolute;
   display: flex;
-  gap: 6px;
-  width: 50vw;
+  gap: 10px;
+  width: 54vw;
   align-self: center;
-  top: 104%;
+  top: 95%; /* Further reduced to position better */
+  max-width: 1200px;
+  z-index: 0;
 
   @media (max-width: 600px) {
     max-width: 100vw;
     width: 100%;
-    top: calc(100% + 28px - 6px);
+    top: calc(100% - 5px); /* Moved even higher to close the gap */
     padding: 6px;
+    gap: 6px;
   }
 
   .input-container {
@@ -213,19 +239,24 @@ $icon-color: rgb(187, 187, 187);
     flex-shrink: 2;
     align-items: center;
     position: relative;
+    width: 100%;
+    border-radius: 14px;
+    transition: all 0.2s ease;
 
     @media (max-width: 600px) {
       width: calc(100% - 50px - 0.5rem);
     }
-
   }
 
   .icons {
     display: flex;
-    gap: 6px;
+    gap: 10px;
     align-items: center;
     position: absolute;
-    right: 20px;
+    right: 16px;
+    height: 100%;
+    padding-right: 4px;
+    z-index: 2;
   }
 
   .image-button,
@@ -237,16 +268,35 @@ $icon-color: rgb(187, 187, 187);
     cursor: pointer;
     outline: none;
     color: $icon-color;
-    display: grid;
-    align-content: center;
-    border-radius: 30px;
-    justify-content: space-around;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
     transition:
       background-color 0.15s ease,
-      transform 0.2s ease;
+      transform 0.2s ease,
+      color 0.2s ease;
 
     &:hover {
-      transform: scale(1.3);
+      transform: scale(1.1);
+      color: white;
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  .send-button {
+    background-color: $primary-color;
+    color: white;
+
+    &:hover {
+      background-color: $primary-hover;
+      color: white;
     }
   }
 
@@ -256,19 +306,30 @@ $icon-color: rgb(187, 187, 187);
 
   #user-input {
     flex-grow: 1;
-    border: 1px solid #70707087;
+    border: 1px solid $border-color;
     outline: none;
-    background-color: #212121;
-    border-radius: 10px;
+    background-color: $background-color;
+    border-radius: 14px;
     font-size: 18px;
     color: #f0f0f0;
-    resize: vertical;
+    resize: none;
     overflow: hidden;
     white-space: pre-wrap;
-    min-height: 50px;
-    transition: 0.2s height ease-in-out;
-    padding-right: 120px; // Adjust padding to make space for icons
-    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+    min-height: 56px;
+    transition: all 0.25s ease-in-out;
+    padding-right: 120px;
+    padding-top: 16px;
+    padding-left: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    
+    &:focus {
+      border-color: rgba($primary-color, 0.6);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba($primary-color, 0.2);
+    }
+
+    &::placeholder {
+      color: rgba(240, 240, 240, 0.5);
+    }
   }
 
   @font-face {
@@ -279,10 +340,9 @@ $icon-color: rgb(187, 187, 187);
   }
 
   textarea {
-    padding-top: 14px;
-    padding-left: 20px;
     transition: 0.2s height ease-in-out;
     font-family: Roboto-Regular, sans-serif;
+    line-height: 1.4;
   }
 
   .loading-border {
@@ -328,12 +388,18 @@ $icon-color: rgb(187, 187, 187);
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  height: 50px;
-  width: 50px;
-  border: 1px solid rgba(112, 112, 112, 0.5294117647);
-  background: #212121;
-  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  height: 56px;
+  width: 56px;
+  border: 1px solid $border-color;
+  background: $background-color;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: rgba($primary-color, 0.6);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .interact-toggle-button {
@@ -342,10 +408,22 @@ $icon-color: rgb(187, 187, 187);
   right: 10px;
   z-index: 1000;
   padding: 10px 20px;
-  background-color: #4caf50;
+  background-color: $primary-color;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: $primary-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
 }
 </style>

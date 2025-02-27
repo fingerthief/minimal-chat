@@ -281,22 +281,68 @@ const visibleModelLinks = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+// Variables for consistent theming
+$primary-color: #157474;
+$secondary-color: #413558;
+$background-dark: #1d1e1e;
+$background-darker: #1f1f1f;
+$background-lighter: #2b2b2b;
+$text-color: #ffffff;
+$text-muted: #b0b0b0;
+$border-color: #424045;
 $shadow-color: #252629;
+$transition-speed: 0.2s;
+$border-radius: 8px;
+
+// Reusable mixins
+@mixin card-shadow {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+@mixin hover-shadow {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
+// Core styles
+.resize-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
 .header-icon {
   position: absolute;
   margin-left: 6px;
+  transition: transform $transition-speed ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 
 .new-conversation {
-  border-top: 1px solid black;
+  border-top: 1px solid rgba(0, 0, 0, 0.3);
   text-align: center;
   position: relative;
-  right: 4%;
+  padding: 12px !important;
+  margin-top: 10px;
+  transition: all $transition-speed ease;
+  
+  &:hover {
+    background-color: rgba($primary-color, 0.15) !important;
+    transform: translateY(-2px);
+  }
 }
 
 .token-count {
-  font-size: 10px;
+  font-size: 0.7rem;
+  color: $text-muted;
+  opacity: 0.8;
 }
 
 .resize-handle {
@@ -306,52 +352,85 @@ $shadow-color: #252629;
   width: 3px;
   height: 100%;
   cursor: col-resize;
-  background-color: #212121;
+  background-color: rgba($primary-color, 0.3);
   z-index: 1000;
+  
+  &:hover {
+    background-color: $primary-color;
+  }
 }
 
-
 .settings-header {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
   position: relative;
-  padding: 8px;
+  padding: 12px 16px;
   text-align: left;
   white-space: nowrap;
+  border-bottom: 1px solid rgba($border-color, 0.4);
+  backdrop-filter: blur(10px);
+  
+  h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
 
   a {
-    left: 20px;
-    top: 22%;
     position: relative;
+    margin-left: 20px;
+    transition: opacity $transition-speed ease;
+    
+    &:hover {
+      opacity: 0.8;
+    }
 
     @media (max-width: 600px) {
-      background-color: #0a1e24;
+      background-color: rgba(10, 30, 36, 0.8);
       position: relative;
     }
   }
 
   @media (max-width: 600px) {
     text-align: center;
-    top: 16px;
+    padding: 16px 8px;
   }
 
   .context-menu {
     position: absolute;
     top: 40px;
     right: 10px;
-    background-color: #1d1e1e;
-    border: 1px solid #424045b5;
-    border-radius: 5px;
-    padding: 10px;
+    background-color: $background-dark;
+    border: 1px solid rgba($border-color, 0.7);
+    border-radius: $border-radius;
+    padding: 12px;
     display: flex;
-    z-index: 1;
+    z-index: 10;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
+    @include card-shadow;
+    
+    svg {
+      transition: transform $transition-speed ease;
+      cursor: pointer;
+      
+      &:hover {
+        transform: scale(1.1);
+        color: $primary-color;
+      }
+    }
   }
 
   .context-menu-icon {
     display: block;
     float: right;
+    cursor: pointer;
+    transition: transform $transition-speed ease;
+    
+    &:hover {
+      transform: scale(1.1);
+      color: $primary-color;
+    }
 
     @media (max-width: 600px) {
       margin-right: 8px;
@@ -362,7 +441,13 @@ $shadow-color: #252629;
     display: block;
     position: relative;
     float: left;
-    right: 0px;
+    cursor: pointer;
+    transition: transform $transition-speed ease;
+    
+    &:hover {
+      transform: scale(1.1);
+      color: $primary-color;
+    }
   }
 
   .settings-icon {
@@ -370,13 +455,20 @@ $shadow-color: #252629;
     position: relative;
     float: left;
     right: -12px;
+    cursor: pointer;
+    transition: transform $transition-speed ease;
+    
+    &:hover {
+      transform: scale(1.1);
+      color: $primary-color;
+    }
   }
 }
 
-
+// Transitions
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity $transition-speed ease, transform $transition-speed ease;
 }
 
 .fade-slide-enter-from,
@@ -385,6 +477,24 @@ $shadow-color: #252629;
   transform: translateY(-10px);
 }
 
+.scale-down-enter-active,
+.scale-down-leave-active {
+  transition: transform $transition-speed ease, opacity $transition-speed ease;
+}
+
+.scale-down-enter-from,
+.scale-down-leave-to {
+  transform: scale(0);
+  opacity: 0;
+}
+
+.scale-down-enter-to,
+.scale-down-leave-from {
+  transform: scale(1);
+  opacity: 1;
+}
+
+// Bottom panel
 .bottom-panel {
   position: sticky;
   bottom: 0;
@@ -394,6 +504,12 @@ $shadow-color: #252629;
   align-items: flex-end;
   flex-direction: column;
   width: 100%;
+  border-top: 1px solid rgba($border-color, 0.3);
+  
+  // Hide completely on non-mobile screens
+  @media (min-width: 601px) {
+    display: none;
+  }
 
   @media (max-width: 600px) {
     width: 100%;
@@ -413,34 +529,37 @@ $shadow-color: #252629;
     justify-content: flex-end;
 
     @media (max-width: 600px) {
-      background-color: #1d1e1e;
+      background-color: $background-dark;
     }
 
     .new-conversation-option {
       text-align: left;
-      color: #ffffff;
+      color: $text-color;
       font-weight: bold;
-      border-radius: 5px;
+      border-radius: $border-radius;
       display: flex;
       cursor: pointer;
       position: relative;
-      background-color: #0d1f25a1;
-      border-bottom: 2px solid #26622ab5;
+      background-color: rgba(13, 31, 37, 0.6);
+      border-bottom: 2px solid rgba(38, 98, 42, 0.7);
+      transition: all $transition-speed ease;
 
       &:hover {
-        background-color: #104745;
+        background-color: rgba(16, 71, 69, 0.8);
+        transform: translateY(-2px);
       }
 
       &--delete {
-        border-bottom: 2px solid #713f3fe8;
+        border-bottom: 2px solid rgba(113, 63, 63, 0.9);
+        transition: all $transition-speed ease;
 
         &:hover {
-          background-color: #713f3f9d;
+          background-color: rgba(113, 63, 63, 0.6);
+          transform: translateY(-2px);
         }
 
         .delete-icon {
-          display: flex;
-          align-items: center;
+          @include flex-center;
           gap: 10px;
           margin-top: 5px;
 
@@ -451,15 +570,16 @@ $shadow-color: #252629;
       }
 
       &--settings {
-        border-bottom: 2px solid #725182b5;
+        border-bottom: 2px solid rgba(114, 81, 130, 0.7);
+        transition: all $transition-speed ease;
 
         &:hover {
-          background-color: #332e3c;
+          background-color: rgba(51, 46, 60, 0.9);
+          transform: translateY(-2px);
         }
 
         .settings-icon {
-          display: flex;
-          align-items: center;
+          @include flex-center;
           gap: 10px;
 
           .settings-text {
@@ -469,8 +589,7 @@ $shadow-color: #252629;
       }
 
       .new-icon {
-        display: flex;
-        align-items: center;
+        @include flex-center;
         gap: 10px;
         margin-top: 5px;
 
@@ -487,20 +606,22 @@ $shadow-color: #252629;
     }
 
     li {
-      padding: 10px;
-      border-bottom: 1px solid #100d0d;
-      transition: background-color 0.2s ease;
+      padding: 12px;
+      border-bottom: 1px solid rgba(16, 13, 13, 0.5);
+      transition: all $transition-speed ease;
       user-select: none;
+      cursor: pointer;
 
       &:hover {
-        background-color: #114335;
+        background-color: rgba(17, 67, 53, 0.7);
+        transform: translateY(-2px);
       }
 
       &.selected {
-        background-color: #3e3347;
+        background-color: rgba($secondary-color, 0.5);
         font-weight: bold;
         box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
-        border: 1px solid #513f77;
+        border: 1px solid rgba(81, 63, 119, 0.7);
         animation: pulse 0.15s ease-out forwards;
       }
 
@@ -513,17 +634,17 @@ $shadow-color: #252629;
 
       @keyframes pulse {
         0% {
-          background-color: #352d458c;
+          background-color: rgba(53, 45, 69, 0.55);
           transform: scale(1);
         }
 
         50% {
-          background-color: #413558;
+          background-color: rgba($secondary-color, 0.6);
           transform: scale(1.02);
         }
 
         100% {
-          background-color: #352d458c;
+          background-color: rgba(53, 45, 69, 0.55);
           transform: scale(1);
         }
       }
@@ -531,56 +652,54 @@ $shadow-color: #252629;
   }
 }
 
-.scale-down-enter-active,
-.scale-down-leave-active {
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.scale-down-enter-from,
-.scale-down-leave-to {
-  transform: scale(0);
-  opacity: 0;
-}
-
-.scale-down-enter-to,
-.scale-down-leave-from {
-  transform: scale(1);
-  opacity: 1;
-}
-
-
+// Main scrollable list
 .scrollable-list {
   @media (max-width: 600px) {
     height: 68vh;
-    background-color: #1f1f1f;
+    background-color: $background-darker;
   }
 
   max-width: 100%;
-  overflow-x: none;
   width: 100%;
-  margin-top: 25px;
+  margin-top: 10px;
   height: 77dvh;
   box-sizing: border-box;
   font-size: 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba($primary-color, 0.3);
+    border-radius: 10px;
+  }
 
   .new-conversation-option {
     text-align: left;
-    background-color: #2b2b2b;
-    color: #ffffff;
+    background-color: $background-lighter;
+    color: $text-color;
     font-weight: 600;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: $border-radius;
+    padding: 16px;
     display: flex;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    @include card-shadow;
+    transition: all $transition-speed ease;
 
     &:hover {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      @include hover-shadow;
+      transform: translateY(-2px);
     }
 
     .new-icon {
-      display: flex;
-      align-items: center;
+      @include flex-center;
       gap: 15px;
       margin-top: 5px;
 
@@ -597,55 +716,64 @@ $shadow-color: #252629;
   }
 
   li {
-    padding: 14px;
+    padding: 14px 16px;
     border-left: 4px solid transparent;
-    color: #eaeaea;
+    color: $text-color;
     text-overflow: ellipsis;
     text-wrap: nowrap;
     user-select: none;
-    font-size: .875rem;
-    animation: slideIn 0.2s linear forwards;
+    font-size: 0.875rem;
+    animation: slideIn $transition-speed ease forwards;
+    transition: all $transition-speed ease;
+    margin-bottom: 2px;
+    cursor: pointer;
 
     .token-count {
       display: block;
-      margin-top: 3px;
+      margin-top: 5px;
       left: 24px;
       font-size: 0.65rem;
-      color: #b0b0b0;
+      color: $text-muted;
       position: relative;
     }
 
     &[contenteditable='true'] {
       outline: none;
-      border: 2px solid #444444;
-      padding: 20px;
-      border-radius: 8px;
+      border: 2px solid rgba(68, 68, 68, 0.7);
+      padding: 16px;
+      border-radius: $border-radius;
       text-align: center;
-      background-color: #2b2b2b;
+      background-color: $background-lighter;
     }
 
     &:hover {
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      background-color: #252525;
+      @include card-shadow;
+      background-color: rgba(37, 37, 37, 0.8);
+      transform: translateY(-2px);
     }
 
     &:hover .trash-icon {
       display: inline-block;
-
+      animation: fadeIn $transition-speed ease;
     }
 
     .trash-icon {
       display: none;
       cursor: pointer;
       margin-left: 6px;
+      transition: color $transition-speed ease;
+      
+      &:hover {
+        color: #ff6b6b;
+      }
     }
 
     &.selected {
-      background-color: #242323;
+      background-color: rgba(36, 35, 35, 0.9);
       font-weight: 600;
       box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
-      border-left: 4px solid #157474;
-      color: #ffffff;
+      border-left: 4px solid $primary-color;
+      color: $text-color;
     }
 
     &.deleting {
@@ -654,6 +782,7 @@ $shadow-color: #252629;
   }
 }
 
+// Animations
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -680,7 +809,7 @@ $shadow-color: #252629;
 
 @keyframes slideIn {
   0% {
-    transform: translateX(-100%);
+    transform: translateX(-20px);
     opacity: 0;
   }
 
@@ -703,6 +832,6 @@ $shadow-color: #252629;
 }
 
 li.deleting {
-  animation: scaleDown 0.2s linear forwards;
+  animation: scaleDown $transition-speed linear forwards;
 }
 </style>

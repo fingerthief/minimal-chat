@@ -450,7 +450,8 @@ const menuItems = computed(() => {
     font-size: 1em;
     line-height: 1.5;
     max-width: 75vw;
-    margin-top: 20px;
+    margin-top: 24px;
+    margin-bottom: 24px;
     margin-left: 19%;
     margin-right: 19%;
 
@@ -458,6 +459,8 @@ const menuItems = computed(() => {
         max-width: 85vw;
         margin-left: 0;
         margin-right: 0;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
 
     &.user {
@@ -469,9 +472,11 @@ const menuItems = computed(() => {
         padding-bottom: 4px;
         padding-top: 8px;
         padding-right: 4px;
+        margin-top: 32px;
 
         @media (max-width: 600px) {
             max-width: 90%;
+            margin-top: 28px;
         }
 
         &.high-constrast-mode {
@@ -512,9 +517,13 @@ const menuItems = computed(() => {
         margin-right: auto;
         transition: background-color 0.15s ease;
         max-width: 60%;
+        margin-top: 32px;
+        padding: 0 4px 8px 4px; /* Added padding for desktop AI messages */
 
         @media (max-width: 600px) {
             max-width: 88%;
+            margin-top: 28px;
+            padding: 0 2px 10px 2px; /* Add padding for mobile */
         }
 
         &.high-constrast-mode {
@@ -573,10 +582,29 @@ const menuItems = computed(() => {
     }
 
     .message-contents {
-        padding: 8px;
+        padding: 10px;
         margin: 8px;
         display: block;
         overflow-wrap: break-word;
+        
+        @media (max-width: 600px) {
+            padding: 10px 10px 12px 10px; /* Extra bottom padding on mobile */
+        }
+
+        pre {
+            margin: 10px 0;
+            border-radius: 6px;
+            background-color: #252525;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        code:not(pre code) {
+            background-color: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            padding: 2px 4px;
+            font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
 
         &[contenteditable='true'] {
             outline: none;
