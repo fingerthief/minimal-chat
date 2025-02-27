@@ -352,11 +352,22 @@ $border-radius: 8px;
 
   &:hover {
     background-color: rgba($primary-color, 0.3) !important;
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.02);
     @include card-shadow;
+    box-shadow: 0 4px 12px rgba(21, 116, 116, 0.2);
+    animation: gentle-pulse 1.5s infinite alternate;
     
     @media (min-width: 601px) {
       border-left: 4px solid rgba($primary-color, 0.5);
+    }
+  }
+  
+  @keyframes gentle-pulse {
+    0% {
+      box-shadow: 0 4px 12px rgba(21, 116, 116, 0.2);
+    }
+    100% {
+      box-shadow: 0 4px 15px rgba(21, 116, 116, 0.4);
     }
   }
   
@@ -740,16 +751,19 @@ $border-radius: 8px;
         0% {
           background-color: rgba(53, 45, 69, 0.55);
           transform: scale(1);
+          box-shadow: 0 0 0 rgba(66, 53, 88, 0);
         }
 
         50% {
           background-color: rgba($secondary-color, 0.6);
-          transform: scale(1.02);
+          transform: scale(1.03);
+          box-shadow: 0 0 10px rgba(66, 53, 88, 0.5);
         }
 
         100% {
           background-color: rgba(53, 45, 69, 0.55);
           transform: scale(1);
+          box-shadow: 0 0 0 rgba(66, 53, 88, 0);
         }
       }
     }
@@ -999,7 +1013,10 @@ $border-radius: 8px;
     transform: translateX(-20px);
     opacity: 0;
   }
-
+  50% {
+    transform: translateX(5px);
+    opacity: 0.8;
+  }
   100% {
     transform: translateX(0);
     opacity: 1;

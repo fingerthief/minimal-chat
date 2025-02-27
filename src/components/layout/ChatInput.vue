@@ -226,7 +226,8 @@ $border-color: rgba(112, 112, 112, 0.53);
   right: 0;
   margin-left: auto;
   margin-right: auto;
-  z-index: 10;
+  /* Positioned between message list but below overlay/dialogs */
+  z-index: 0.9;
   
   /* For desktop screens */
   @media (min-width: 601px) {
@@ -326,7 +327,8 @@ $border-color: rgba(112, 112, 112, 0.53);
     overflow: hidden;
     white-space: pre-wrap;
     min-height: 56px;
-    transition: all 0.25s ease-in-out;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    transform: translateY(0);
     padding-right: 120px;
     padding-top: 16px;
     padding-left: 20px;
@@ -335,6 +337,8 @@ $border-color: rgba(112, 112, 112, 0.53);
     &:focus {
       border-color: rgba($primary-color, 0.6);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba($primary-color, 0.2);
+      transform: translateY(-2px);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     &::placeholder {

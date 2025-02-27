@@ -367,60 +367,113 @@ const menuItems = computed(() => {
 </script>
 
 <template>
-    <div v-ripple="{
-        pt: {
-            root: { style: 'background: #1574742d;' }
-        }
-    }" class="p-ripple box message-container" v-if="active" :class="messageClass(item.role)">
-        <div class="message-header">
-            <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
-            <Avatar v-if="item.role !== 'user' && isAvatarEnabled === true" :image="avatarUrl" :shape="avatarShape"
-                size="large" />
-            <Avatar v-if="item.role === 'user' && isAvatarEnabled === true" :image="userAvatarUrl" :shape="avatarShape"
-                size="large" />
-            <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
+    <transition 
+        name="message-fade"
+        appear
+        v-bind="item.role === 'user' ? { 'enter-from-class': 'message-slide-right' } : { 'enter-from-class': 'message-slide-left' }"
+    >
+        <div v-ripple="{
+            pt: {
+                root: { style: 'background: #1574742d;' }
+            }
+        }" class="p-ripple box message-container" v-if="active" :class="messageClass(item.role)">
+            <div class="message-header">
+                <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
+                <Avatar v-if="item.role !== 'user' && isAvatarEnabled === true" :image="avatarUrl" :shape="avatarShape"
+                    size="large" class="avatar-animate" />
+                <Avatar v-if="item.role === 'user' && isAvatarEnabled === true" :image="userAvatarUrl" :shape="avatarShape"
+                    size="large" class="avatar-animate" />
+                <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
 
-            <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
-                {{ item.role === 'user' ? '' : selectedModel === 'web-llm' ? browserModelSelection.replaceAll('"', '') :
-                localModelName }}
+                <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
+                    {{ item.role === 'user' ? '' : selectedModel === 'web-llm' ? browserModelSelection.replaceAll('"', '') :
+                    localModelName }}
+                </div>
+                <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
             </div>
-            <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
-        </div>
-        
-        <!-- Regular text messages -->
-        <div class="message-contents" :id="'message-' + item.id"
-            v-show="!hasFile && !hasImage"
-            :contenteditable="isEditing" @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)"
-            v-html="formatMessage(item.content)">
-        </div>
-        
-        <!-- Non-image file messages -->
-        <div class="message-contents file-content" :id="'message-' + item.id"
-            v-show="hasFile" :contenteditable="isEditing"
-            @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
-            <div class="file-info-display">
-                <Link class="file-icon" size="20" />
-                <span class="file-name">{{ extractFileName(item?.content[0]?.text) }}</span>
+            
+            <!-- Regular text messages -->
+            <div class="message-contents" :id="'message-' + item.id"
+                v-show="!hasFile && !hasImage"
+                :contenteditable="isEditing" @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)"
+                v-html="formatMessage(item.content)">
+            </div>
+            
+            <!-- Non-image file messages -->
+            <div class="message-contents file-content" :id="'message-' + item.id"
+                v-show="hasFile" :contenteditable="isEditing"
+                @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
+                <div class="file-info-display">
+                    <Link class="file-icon" size="20" />
+                    <span class="file-name">{{ extractFileName(item?.content[0]?.text) }}</span>
+                </div>
+            </div>
+            
+            <!-- Image messages -->
+            <div class="message-contents" :id="'message-' + item.id"
+                v-show="hasImage" :contenteditable="isEditing"
+                @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
+                <div class="file-info-display image-info" v-if="hasImageName">
+                    <FileCheck2 class="file-icon" size="20" />
+                    <span class="file-name">{{ extractFileName(getTextContent(item?.content)) }}</span>
+                </div>
+                <div class="image-container" v-html="formatMessage(item.content)"></div>
             </div>
         </div>
-        
-        <!-- Image messages -->
-        <div class="message-contents" :id="'message-' + item.id"
-            v-show="hasImage" :contenteditable="isEditing"
-            @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
-            <div class="file-info-display image-info" v-if="hasImageName">
-                <FileCheck2 class="file-icon" size="20" />
-                <span class="file-name">{{ extractFileName(getTextContent(item?.content)) }}</span>
-            </div>
-            <div class="image-container" v-html="formatMessage(item.content)"></div>
-        </div>
-    </div>
+    </transition>
 </template>
 <!-- MessageItem.vue -->
 <style lang="scss">
 .message-container {
     margin-top: 9px;
     margin-bottom: 9px;
+}
+
+/* Message entrance animations */
+.message-fade-enter-active {
+    transition: all 0.3s ease-out;
+}
+
+.message-fade-leave-active {
+    transition: all 0.2s ease-in;
+}
+
+.message-fade-enter-from {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.message-slide-right {
+    opacity: 0;
+    transform: translateX(40px);
+}
+
+.message-slide-left {
+    opacity: 0;
+    transform: translateX(-40px);
+}
+
+.message-fade-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.avatar-animate {
+    animation: avatarAppear 0.4s ease-out forwards;
+}
+
+@keyframes avatarAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .scale-enter-from,

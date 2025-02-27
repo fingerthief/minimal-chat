@@ -122,8 +122,10 @@ function closeDialogs() {
   </div>
   <div class="app-body">
     <div class="app-container" id="app-container">
-      <div @click="closeDialogs" class="overlay" v-show="isSidebarOpen || showConversationOptions || showStoredFiles">
-      </div>
+      <transition name="fade">
+        <div @click="closeDialogs" class="overlay" v-show="isSidebarOpen || showConversationOptions || showStoredFiles">
+        </div>
+      </transition>
 
       <Transition name="dialog-slide">
         <div class="sidebar-common" id="settings-dialog" v-if="isSidebarOpen">
@@ -173,39 +175,61 @@ $button-hover-bg-color: #4a4a4c;
 $font-color: #f0f0f0;
 $overlay-bg-color: rgba(15, 15, 15, 0.709);
 
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 .dialog-slide-enter-active {
-  transition: all 0.15s cubic-bezier(0.25, 1.25, 0.5, 1);
+  transition: all 0.35s cubic-bezier(0.25, 1.25, 0.5, 1);
   transform: translateY(0);
+  opacity: 1;
 
   @media (max-width: 600px) {
-    transition: all 0.15s linear;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     transform: scale(1);
+    opacity: 1;
   }
 }
 
 .dialog-slide-leave-active {
-  transition: all 0.15s linear;
+  transition: all 0.25s cubic-bezier(0.55, 0.085, 0.68, 0.53);
   transform: translateY(-100%);
+  opacity: 0;
 
   @media (max-width: 600px) {
-    transition: all 0.15s linear;
+    transition: all 0.25s cubic-bezier(0.55, 0.085, 0.68, 0.53);
     transform: scale(0.2);
+    opacity: 0;
   }
 }
 
 .dialog-slide-enter-from {
   transform: translateY(-100%);
+  opacity: 0;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 
   @media (max-width: 600px) {
     transform: scale(0.2);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
 .dialog-slide-leave-to {
   transform: translateY(-100%);
+  opacity: 0;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 
   @media (max-width: 600px) {
     transform: scale(0.2);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
