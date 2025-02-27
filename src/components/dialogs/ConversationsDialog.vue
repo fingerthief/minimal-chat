@@ -319,7 +319,7 @@ $border-radius: 8px;
   position: absolute;
   margin-left: 6px;
   transition: transform $transition-speed ease;
-  
+
   &:hover {
     transform: scale(1.1);
   }
@@ -332,7 +332,7 @@ $border-radius: 8px;
   padding: 12px !important;
   margin-top: 10px;
   transition: all $transition-speed ease;
-  
+
   &:hover {
     background-color: rgba($primary-color, 0.15) !important;
     transform: translateY(-2px);
@@ -354,7 +354,7 @@ $border-radius: 8px;
   cursor: col-resize;
   background-color: rgba($primary-color, 0.3);
   z-index: 1000;
-  
+
   &:hover {
     background-color: $primary-color;
   }
@@ -369,7 +369,7 @@ $border-radius: 8px;
   white-space: nowrap;
   border-bottom: 1px solid rgba($border-color, 0.4);
   backdrop-filter: blur(10px);
-  
+
   h2 {
     margin: 0;
     display: flex;
@@ -380,7 +380,7 @@ $border-radius: 8px;
     position: relative;
     margin-left: 20px;
     transition: opacity $transition-speed ease;
-    
+
     &:hover {
       opacity: 0.8;
     }
@@ -409,11 +409,11 @@ $border-radius: 8px;
     flex-direction: column;
     gap: 14px;
     @include card-shadow;
-    
+
     svg {
       transition: transform $transition-speed ease;
       cursor: pointer;
-      
+
       &:hover {
         transform: scale(1.1);
         color: $primary-color;
@@ -426,7 +426,7 @@ $border-radius: 8px;
     float: right;
     cursor: pointer;
     transition: transform $transition-speed ease;
-    
+
     &:hover {
       transform: scale(1.1);
       color: $primary-color;
@@ -443,7 +443,7 @@ $border-radius: 8px;
     float: left;
     cursor: pointer;
     transition: transform $transition-speed ease;
-    
+
     &:hover {
       transform: scale(1.1);
       color: $primary-color;
@@ -457,7 +457,7 @@ $border-radius: 8px;
     right: -12px;
     cursor: pointer;
     transition: transform $transition-speed ease;
-    
+
     &:hover {
       transform: scale(1.1);
       color: $primary-color;
@@ -505,7 +505,7 @@ $border-radius: 8px;
   flex-direction: column;
   width: 100%;
   border-top: 1px solid rgba($border-color, 0.3);
-  
+
   // Hide completely on non-mobile screens
   @media (min-width: 601px) {
     display: none;
@@ -662,20 +662,18 @@ $border-radius: 8px;
   max-width: 100%;
   width: 100%;
   margin-top: 10px;
-  height: 77dvh;
   box-sizing: border-box;
   font-size: 14px;
   overflow-y: auto;
-  scrollbar-width: thin;
-  
+
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.1);
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background-color: rgba($primary-color, 0.3);
     border-radius: 10px;
@@ -762,7 +760,7 @@ $border-radius: 8px;
       cursor: pointer;
       margin-left: 6px;
       transition: color $transition-speed ease;
-      
+
       &:hover {
         color: #ff6b6b;
       }
