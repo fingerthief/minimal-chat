@@ -133,7 +133,7 @@ function closeDialogs() {
         </div>
       </Transition>
       <Transition name="dialog-slide">
-        <div class="sidebar-conversations sidebar-right" id="conversations-dialog"
+        <div class="sidebar-conversations" id="conversations-dialog"
           v-if="showConversationOptions || !isSmallScreen">
           <conversationsDialog @import-conversations="handleImportConversations"
             @export-conversations="handleExportConversations" />
@@ -437,11 +437,15 @@ pre {
 }
 
 .sidebar-conversations {
-  position: inherit;
-  height: 99vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
   max-width: 325px;
   min-width: 325px;
   width: 325px;
+  z-index: 10;
+  border-right: 1px solid $border-color;
 
   @media (max-width: 600px) {
     position: fixed;
@@ -451,6 +455,8 @@ pre {
     max-width: 100vw;
     min-width: 100vw;
     height: 101vh;
+    left: 0;
+    top: 0;
 
     &.open {
       width: 100vw;
@@ -549,6 +555,11 @@ pre {
   
   /* Add space for the input */
   padding-bottom: 80px;
+  
+  @media (min-width: 601px) {
+    margin-left: 325px; /* Same as the width of sidebar-conversations */
+    width: calc(100% - 325px);
+  }
   
   @media (max-width: 600px) {
     min-height: 100%;
