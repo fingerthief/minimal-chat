@@ -12,19 +12,14 @@
 
 MinimalChat is an open-source, lightweight chat application supporting multiple language models like OpenAI o1, DeepSeek R1 and various Local/Custom Model Endpoints. It is designed to be simple, fully featured, and highly responsive, with full mobile PWA support.
 
-![App Mockup](https://github.com/fingerthief/minimal-chat/assets/2380471/46e9b2bc-abcc-44b5-9ff0-1019d5dc6bdf)
+![mockup](https://github.com/user-attachments/assets/5e2ebfb7-f525-43a0-bb8a-1ead054458f9)
+
 
 ## Self-Hosting with Docker
 
 ```sh
 docker pull tannermiddleton/minimal-chat:latest
 ```
-
-## Application Demo
-
-[Watch Higher Quality Video](https://www.youtube.com/watch?v=bO78W8MPWgE)
-
-[Demo Video](https://github.com/fingerthief/minimal-chat/assets/2380471/e93141b7-1ee1-4dbf-a106-0d92897d899b)
 
 ## Experience the Power of Web Local LLM Models
 
