@@ -1,6 +1,6 @@
 import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
-import { messages } from '../state-management/state';
+import { messages, streamedMessageText } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { claudeSliderValue } from '../state-management/state';
 
@@ -122,10 +122,13 @@ export async function streamClaudeResponse(
   attitude,
   updateUIFunction,
   abortController,
-  streamedMessageText,
+  streamedMessageTextParam,
   autoScrollToBottom = true
 ) {
   try {
+    // Reset the streamedMessageText at the start of streaming
+    streamedMessageText.value = '';
+    
     let tempMessages = messages.map((message) => ({
       role: message.role,
       content: message.content,

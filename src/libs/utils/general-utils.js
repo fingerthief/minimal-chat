@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles, selectedModel, localModelName } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles, selectedModel, localModelName, streamedMessageText } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { fetchTTSResponse } from '../api-access/gpt-api-access';
 export function sleep(ms) {
@@ -170,6 +170,9 @@ export function updateUIWrapper(content, autoScrollBottom = true, appendTextValu
 
 export function updateUI(content, messages, addMessage, autoScrollBottom = true, appendTextValue = true) {
   const lastMessage = messages[messages.length - 1];
+  
+  // Update streamedMessageText to trigger watchers in components
+  streamedMessageText.value += content;
 
   if (lastMessage && lastMessage.role === 'assistant') {
     if (!appendTextValue) {
@@ -178,6 +181,22 @@ export function updateUI(content, messages, addMessage, autoScrollBottom = true,
     }
 
     lastMessage.content[0].text += content;
+    
+    // Attempt direct scrolling on update
+    setTimeout(() => {
+      try {
+        // Find main scrollable container
+        const messageList = document.querySelector('.message-list');
+        if (messageList) {
+          const scroller = messageList.querySelector('.scroller');
+          if (scroller) {
+            scroller.scrollTop = scroller.scrollHeight;
+          }
+        }
+      } catch (error) {
+        // Silent fail - no need to log these errors
+      }
+    }, 10);
   } else {
     addMessage('assistant', content);
   }

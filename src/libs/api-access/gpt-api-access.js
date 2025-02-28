@@ -2,7 +2,7 @@ import { showToast, sleep, parseStreamResponseChunk, handleTextStreamEnd } from 
 import { updateUI } from '../utils/general-utils';
 import { playAudio } from '../utils/audio-utils';
 import { getCompleteSentences } from '../utils/sentence-utils';
-import { whisperTemperature, audioSpeed, ttsModel, ttsVoice, messages, isInteractModeOpen, localModelKey } from '../state-management/state';
+import { whisperTemperature, audioSpeed, ttsModel, ttsVoice, messages, isInteractModeOpen, localModelKey, streamedMessageText } from '../state-management/state';
 
 import { addMessage } from '../conversation-management/message-processing';
 const MAX_RETRY_ATTEMPTS = 5;
@@ -84,9 +84,12 @@ export async function fetchGPTResponseStream(
   model,
   updateUiFunction,
   abortController,
-  streamedMessageText,
+  streamedMessageTextParam,
   autoScrollToBottom = true
 ) {
+  // Reset streamedMessageText to an empty string at the start of streaming
+  streamedMessageText.value = '';
+  
   let tempMessages = conversation.map((message) => ({
     role: message.role,
     content: message.content,

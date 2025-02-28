@@ -5,9 +5,10 @@
     data-swipe-timeout="500">
 
 
-    <!-- Virtual scroller remains the same -->
+    <!-- Virtual scroller with automatic scrolling on update -->
     <DynamicScroller :items="filteredMessages" :min-item-size="50" :buffer="100" key-field="id" :emitUpdates="true"
-      :size-dependencies="['content']" type-field="type" ref="scroller" class="scroller" style="overflow-y: auto;">
+      :size-dependencies="['content']" type-field="type" ref="scroller" class="scroller" 
+      style="overflow-y: auto;" :watchData="true">
       <template v-slot="{ item, index, active }">
         <DynamicScrollerItem :item="item" :active="active" :data-index="index" :size-dependencies="['content']">
           <div style="padding-top: 3px; padding-bottom: 3px;">
@@ -31,7 +32,7 @@
 import { ref, nextTick, computed, watch, onMounted } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
-import { claudeSliderValue, imageInput, localModelEndpoint, localModelKey, localSliderValue, messages, selectedModel, sliderValue, userText } from '@/libs/state-management/state';
+import { claudeSliderValue, imageInput, localModelEndpoint, localModelKey, localSliderValue, messages, selectedModel, sliderValue, userText, streamedMessageText, isLoading } from '@/libs/state-management/state';
 import { showToast, swipedLeft, swipedRight, updateUIWrapper } from '@/libs/utils/general-utils';
 import 'swiped-events';
 import MessageItem from '@/components/controls/MessageItem.vue';
@@ -194,35 +195,35 @@ async function processPDF(contents, file) {
   }
 };
 
-async function scrollToBottom() {
+// Simple function to scroll to the bottom
+function scrollToBottom() {
   if (!scroller.value) return;
   
   try {
-    // Try using the scroller's scrollToItem method first (preferred for virtual scrollers)
+    // Try to use virtual scroller's built-in method first
     if (typeof scroller.value.scrollToItem === 'function' && filteredMessages.value.length > 0) {
-      // Scroll to the last message
       const lastItemIndex = filteredMessages.value.length - 1;
       scroller.value.scrollToItem(lastItemIndex);
       return;
     }
     
-    // Fallback: Get the scroller element and try direct scrolling
-    const scrollerElement = scroller.value.$el;
-    const scrollContainer = scrollerElement.querySelector('.vue-recycle-scroller__item-wrapper') || scrollerElement;
-    
-    if (scrollContainer) {
-      // Use smooth scrolling for better user experience
-      scrollContainer.scrollTo({
-        top: scrollContainer.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
+    // Fallback to direct DOM scrolling
+    nextTick(() => {
+      const scrollerElement = scroller.value.$el;
+      const scrollContainer = scrollerElement.querySelector('.vue-recycle-scroller__item-wrapper') || scrollerElement;
+      
+      if (scrollContainer) {
+        // Use smooth scrolling for button clicks
+        scrollContainer.scrollTo({
+          top: scrollContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    });
   } catch (error) {
     console.error("Error scrolling to bottom:", error);
   }
 }
-
-// Removed handleScroll function since we're using an always-visible button
 
 // Optimize the watcher to avoid deep watching the entire messages array
 watch(
@@ -236,7 +237,20 @@ watch(
   }
 );
 
+// This functionality has been temporarily disabled to avoid conflicts
+/*
+watch(
+  () => streamedMessageText.value,
+  () => {
+    if (isLoading.value) {
+      // This was causing conflicts
+    }
+  }
+);
+*/
+
 onMounted(() => {
+  // Simply scroll to bottom when component mounts
   scrollToBottom();
 });
 </script>

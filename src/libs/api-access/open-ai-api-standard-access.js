@@ -1,6 +1,6 @@
 import { showToast, sleep, parseStreamResponseChunk } from '../utils/general-utils';
 import { updateUI } from '../utils/general-utils';
-import { messages, localModelKey } from '../state-management/state';
+import { messages, localModelKey, streamedMessageText } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 
 // Constants
@@ -89,9 +89,12 @@ export async function fetchLocalModelResponseStream(
     localModelEndpoint,
     updateUiFunction,
     abortController,
-    streamedMessageText,
+    streamedMessageTextParam,
     autoScrollToBottom = true
 ) {
+    // Reset streamedMessageText at the start of streaming
+    streamedMessageText.value = '';
+    
     const tempMessages = conversation.map(({ role, content }) => ({ role, content }));
     const payload = createMessagePayload(tempMessages, model, {
         stream: true,
