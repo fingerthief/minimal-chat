@@ -289,12 +289,16 @@ onMounted(() => {
   overflow-y: hidden;
   scrollbar-width: none;
   padding-bottom: 10px; /* Reduced padding to bring messages closer to input */
+  padding-left: 16px; /* Added left padding */
+  padding-right: 16px; /* Added right padding */
   margin-bottom: 0; /* Removed margin to maximize space */
   
   @media (max-width: 600px) {
     height: calc(100vh - 140px); /* Increased height for mobile */
     margin-bottom: 0;
     padding-bottom: 5px;
+    padding-left: 4px; /* Minimized padding on mobile */
+    padding-right: 4px; /* Minimized padding on mobile */
   }
 }
 
@@ -353,7 +357,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 9999;
+  z-index: 1;
   transition: all 0.2s ease;
   opacity: 0.8; /* Slightly transparent */
   

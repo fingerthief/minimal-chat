@@ -102,8 +102,11 @@ function resetSidebarForMobile() {
 function resetSidebarForDesktop() {
   if (!sidebarContentContainer.value) return;
   
-  // Reset to 325px for desktop
-  const defaultWidth = '325px';
+  // Check if sidebar is collapsed
+  const isCollapsed = localStorage.getItem('conversationsDialogCollapsed') === 'true';
+  
+  // Set width based on collapsed state
+  const defaultWidth = isCollapsed ? '60px' : '325px';
   sidebarContentContainer.value.style.width = defaultWidth;
   
   // Reset the sidebar conversations element too
@@ -119,6 +122,8 @@ function resetSidebarForDesktop() {
   if (chatContainer) {
     chatContainer.style.marginLeft = defaultWidth;
     chatContainer.style.width = `calc(100% - ${defaultWidth})`;
+    // Add transition for smoother resize effect
+    chatContainer.style.transition = 'margin-left 0.3s ease, width 0.3s ease';
   }
 }
 
@@ -157,9 +162,42 @@ onMounted(async () => {
   sidebarContentContainer.value = document.querySelector('#conversations-dialog');
   
   if (sidebarContentContainer.value) {
-    // Initialize with fixed width
-    sidebarContentContainer.value.style.width = '325px';
+    // Initialize with width based on collapsed state
+    const isCollapsed = localStorage.getItem('conversationsDialogCollapsed') === 'true';
+    const initialWidth = isCollapsed ? '60px' : '325px';
+    
+    // Apply width to sidebar
+    sidebarContentContainer.value.style.width = initialWidth;
+    sidebarContentContainer.value.style.minWidth = initialWidth;
+    sidebarContentContainer.value.style.maxWidth = initialWidth;
+    
+    // Also update chat container width to match sidebar state
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) {
+      chatContainer.style.marginLeft = initialWidth;
+      chatContainer.style.width = `calc(100% - ${initialWidth})`;
+    }
   }
+  
+  // Listen for collapse/expand events from ConversationsDialog
+  document.addEventListener('conversations-collapse-toggle', (event) => {
+    if (!sidebarContentContainer.value) return;
+    
+    const width = event.detail.collapsed ? '60px' : '325px';
+    
+    // Update sidebar width
+    sidebarContentContainer.value.style.width = width;
+    sidebarContentContainer.value.style.minWidth = width;
+    sidebarContentContainer.value.style.maxWidth = width;
+    
+    // Update chat container margin
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) {
+      chatContainer.style.marginLeft = width;
+      chatContainer.style.width = `calc(100% - ${width})`;
+      chatContainer.style.transition = 'margin-left 0.3s ease, width 0.3s ease';
+    }
+  });
   
   // Watch for screen size changes to reset sidebar width on mobile
   watch(isSmallScreen, (newIsSmallScreen) => {
@@ -517,7 +555,7 @@ pre {
   position: absolute;
   top: 0;
   right: 0px;
-  width: 6px;
+  width: 8px;
   height: 100%;
   cursor: col-resize;
   background-color: #212121;
@@ -526,6 +564,11 @@ pre {
   
   &:hover {
     background-color: #157474;
+  }
+  
+  &:active {
+    background-color: #0c9898;
+    width: 10px;
   }
 }
 
@@ -660,6 +703,7 @@ pre {
   background-color: #1d1d1d;
   justify-content: space-between;
   position: relative;
+  transition: margin-left 0.3s ease, width 0.3s ease;
   
   /* Add space for the input */
   padding-bottom: 80px;

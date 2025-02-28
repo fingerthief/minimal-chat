@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, nextTick, computed } from 'vue';
-import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal, Github, MessageSquare, X } from 'lucide-vue-next';
+import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal, Github, MessageSquare, X, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ToolTip from '../controls/ToolTip.vue';
 import {
   conversations,
@@ -23,6 +23,7 @@ import { selectConversation } from '@/libs/conversation-management/conversations
 const loadedConversation = ref({});
 let initialConversation = '';
 const showContextMenu = ref(false);
+const isCollapsed = ref(false);
 
 // Emits
 const emit = defineEmits(['import-conversations', 'export-conversations']);
@@ -74,6 +75,12 @@ function conversationCharacterCount(conversation) {
 
 // Lifecycle Hooks
 onMounted(function () {
+  // Restore collapsed state from localStorage
+  const savedCollapsedState = localStorage.getItem('conversationsDialogCollapsed');
+  if (savedCollapsedState !== null) {
+    isCollapsed.value = savedCollapsedState === 'true';
+  }
+  
   const lastConversationId = parseInt(localStorage.getItem('lastConversationId')) || 0;
   const lastConversation = conversations.value.find(function (conversation) {
     return conversation.id === lastConversationId;
@@ -93,6 +100,21 @@ onMounted(function () {
 });
 
 // Event Handlers
+function toggleCollapse() {
+  isCollapsed.value = !isCollapsed.value;
+  
+  // Store preference in localStorage
+  localStorage.setItem('conversationsDialogCollapsed', isCollapsed.value);
+  
+  // Notify parent (ChatLayout) about the change
+  nextTick(() => {
+    const event = new CustomEvent('conversations-collapse-toggle', { 
+      detail: { collapsed: isCollapsed.value } 
+    });
+    document.dispatchEvent(event);
+  });
+}
+
 function onEditConversationTitle(conversation) {
   if (conversation.isEditing) {
     return;
@@ -241,21 +263,30 @@ function toggleConversations() {
   showConversationOptions.value = !showConversationOptions.value;
 }
 
+// No longer needed, using native tooltips
+
 </script>
 
 <template>
-  <div class="conversations-dialog">
+  <div class="conversations-dialog" :class="{ 'collapsed': isCollapsed && !isSmallScreen }">
     <!-- Header Bar -->
     <div class="dialog-header">
       <div class="header-left">
         <h2>
-          <span>Conversations</span>
+          <span v-if="!isCollapsed || isSmallScreen">Conversations</span>
+          <span v-else class="icon-only" title="Conversations"><MessageSquare :size="20" /></span>
         </h2>
       </div>
       
       <div class="header-actions">
         <!-- Desktop actions -->
         <div v-if="!isSmallScreen" class="desktop-actions">
+          <button class="action-btn" @click="toggleCollapse" id="toggle-collapse" :title="isCollapsed ? 'Expand' : 'Collapse'">
+            <ChevronLeft v-if="!isCollapsed" :size="20" />
+            <ChevronRight v-else :size="20" />
+          </button>
+          <ToolTip :targetId="'toggle-collapse'">{{ isCollapsed ? 'Expand' : 'Collapse' }}</ToolTip>
+          
           <button class="action-btn" @click.stop="showStoredFiles = !showStoredFiles" id="stored-Files" title="Stored Files">
             <Database :size="20" />
           </button>
@@ -314,13 +345,13 @@ function toggleConversations() {
               }">
             
             <!-- Conversation Content -->
-            <div class="conversation-content">
+            <div class="conversation-content" :title="isCollapsed && !isSmallScreen ? conversation.title : ''">
               <div class="conversation-title">
                 <MessageSquare :size="16" class="conversation-icon" />
-                {{ conversation.title }}
+                <span v-if="!isCollapsed || isSmallScreen">{{ conversation.title }}</span>
               </div>
               
-              <div class="conversation-actions">
+              <div class="conversation-actions" v-if="!isCollapsed || isSmallScreen">
                 <span class="token-count">
                   {{ conversationCharacterCount(conversation) }} Tokens
                 </span>
@@ -340,9 +371,9 @@ function toggleConversations() {
           </li>
           
           <!-- New Conversation Button -->
-          <li class="new-conversation-btn" @click="startNewConversation">
+          <li class="new-conversation-btn" @click="startNewConversation" title="New Conversation">
             <Plus :size="16" class="plus-icon" />
-            <span>New Conversation</span>
+            <span v-if="!isCollapsed || isSmallScreen">New Conversation</span>
           </li>
         </ul>
       </div>
@@ -408,10 +439,133 @@ $transition-speed: 0.2s;
   position: relative;
   margin: 0;
   padding: 0; 
+  transition: width 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
   
   @media (max-width: 600px) {
     height: 100vh;
     max-height: 100vh;
+  }
+  
+  &.collapsed {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    
+    // In collapsed mode, we'll use a vertical layout with just icons
+    display: flex;
+    flex-direction: column;
+    
+    .dialog-header {
+      padding: 14px 5px;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      height: auto;
+      
+      .header-left {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 15px;
+        
+        h2 {
+          justify-content: center;
+          margin: 0 auto;
+        }
+      }
+      
+      .header-actions {
+        position: static; // Not absolute anymore
+        flex-direction: column;
+        align-items: center;
+        background-color: transparent;
+        border-bottom: none;
+        margin-top: 0;
+        width: 100%;
+        
+        .desktop-actions {
+          flex-direction: column;
+          gap: 15px;
+          width: 100%;
+          padding: 5px 0;
+          
+          .action-btn, .github-link {
+            margin: 5px auto;
+            padding: 6px;
+            background-color: rgba(33, 33, 33, 0.6);
+            border-radius: 8px;
+            
+            &:hover {
+              background-color: rgba(21, 116, 116, 0.3);
+            }
+          }
+        }
+        
+        .menu-btn, .context-menu-dropdown {
+          display: none;
+        }
+      }
+    }
+    
+    .conversations-container {
+      margin-top: 10px;
+      padding-top: 0;
+    }
+    
+    .conversations-list {
+      ul {
+        padding-top: 5px;
+      }
+      
+      li {
+        position: relative;
+        
+        &:hover {
+          z-index: 25; /* Ensure hovering items stay above others */
+        }
+        
+        .conversation-content {
+          padding: 10px 5px;
+          justify-content: center;
+          text-align: center;
+          
+          .conversation-title {
+            justify-content: center;
+            position: relative;
+            
+            .title-preview {
+              position: fixed;
+              left: 70px; /* 10px margin from the collapsed sidebar */
+              transform: translateY(-50%);
+              background-color: rgba(21, 116, 116, 0.95);
+              color: #fff;
+              padding: 8px 12px;
+              border-radius: 4px;
+              white-space: nowrap;
+              max-width: 300px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+              opacity: 0;
+              visibility: hidden;
+              transition: opacity 0.2s ease, visibility 0.2s ease;
+              z-index: 9999;
+              pointer-events: none;
+              font-size: 14px;
+              text-align: left;
+              font-weight: 500;
+            }
+          }
+          
+          // No longer needed with browser tooltips
+        }
+        
+        &.new-conversation-btn {
+          padding: 10px 5px;
+          justify-content: center;
+        }
+      }
+    }
   }
 }
 
@@ -427,6 +581,7 @@ $transition-speed: 0.2s;
   top: 0;
   z-index: 10;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  transition: padding 0.3s ease, height 0.3s ease;
   
   .header-left {
     h2 {
@@ -436,6 +591,13 @@ $transition-speed: 0.2s;
       color: $text-color;
       display: flex;
       align-items: center;
+      
+      .icon-only {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        color: $primary-color;
+      }
       
       @media (max-width: 600px) {
         font-size: 17px;
@@ -453,6 +615,7 @@ $transition-speed: 0.2s;
       display: flex;
       align-items: center;
       gap: 10px;
+      transition: flex-direction 0.3s ease, gap 0.3s ease;
     }
     
     .github-link {
@@ -536,12 +699,15 @@ $transition-speed: 0.2s;
   }
 }
 
+// Removed custom tooltip
+
 // Conversations list container
 .conversations-container {
   flex: 1;
   overflow-y: auto;
   padding: 12px;
   scrollbar-width: thin;
+  transition: padding-top 0.3s ease;
   
   &::-webkit-scrollbar {
     width: 6px;
