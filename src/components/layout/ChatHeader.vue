@@ -46,6 +46,12 @@ function onShowConversationsClick() {
 
 async function onModelChange(event) {
   selectedModel.value = event.value;
+  
+  if (event.value.includes('open-ai-format')) {
+    // Trigger fetching available models when switching to custom model
+    const { fetchAvailableModels } = await import('@/libs/utils/settings-utils');
+    fetchAvailableModels();
+  }
 }
 
 const modelOptions = [
