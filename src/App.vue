@@ -9,18 +9,48 @@ import ChatLayout from './views/ChatLayout.vue';
 </template>
 
 <style lang="scss">
+/* Base font definitions */
 @font-face {
-  font-family: Roboto-Regular;
-  src: url('/webfonts/Roboto-Regular.ttf');
-  font-weight: 400;
+  font-family: 'Roboto';
+  src: url('/webfonts/Roboto-Light.ttf') format('truetype');
+  font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
+@font-face {
+  font-family: 'Roboto';
+  src: url('/webfonts/Roboto-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('/webfonts/Roboto-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('/webfonts/Roboto-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Apply font family to the body */
 body {
   display: flex;
-  font-family: Roboto-Regular, sans-serif;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  font-weight: 400;
   background-color: #212121;
-
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
   @media (max-width: 600px) {
     font-size: 14px;
   }
