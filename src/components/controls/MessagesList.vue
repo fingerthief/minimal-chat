@@ -29,10 +29,10 @@
 </template>
 
 <script setup>
-import { ref, nextTick, computed, watch, onMounted } from 'vue';
+import { ref, nextTick, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
-import { claudeSliderValue, imageInput, localModelEndpoint, localModelKey, localSliderValue, messages, selectedModel, sliderValue, userText, streamedMessageText, isLoading } from '@/libs/state-management/state';
+import { claudeSliderValue, imageInput, localModelEndpoint, localModelKey, localSliderValue, messages, selectedModel, sliderValue, userText, streamedMessageText, isLoading, conversationLoadTimestamp } from '@/libs/state-management/state';
 import { showToast, swipedLeft, swipedRight, updateUIWrapper } from '@/libs/utils/general-utils';
 import 'swiped-events';
 import MessageItem from '@/components/controls/MessageItem.vue';
@@ -195,8 +195,8 @@ async function processPDF(contents, file) {
   }
 };
 
-// Simple function to scroll to the bottom
-function scrollToBottom() {
+// Scroll to the bottom of the message list
+function scrollToBottom(forceScroll = false) {
   if (!scroller.value) return;
   
   try {
@@ -204,19 +204,31 @@ function scrollToBottom() {
     if (typeof scroller.value.scrollToItem === 'function' && filteredMessages.value.length > 0) {
       const lastItemIndex = filteredMessages.value.length - 1;
       scroller.value.scrollToItem(lastItemIndex);
+      
+      // For conversation loads, use additional direct DOM scroll as backup
+      if (forceScroll && scroller.value.$el) {
+        const container = scroller.value.$el.querySelector('.vue-recycle-scroller');
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      }
+      
       return;
     }
     
     // Fallback to direct DOM scrolling
     nextTick(() => {
+      if (!scroller.value || !scroller.value.$el) return;
+      
       const scrollerElement = scroller.value.$el;
-      const scrollContainer = scrollerElement.querySelector('.vue-recycle-scroller__item-wrapper') || scrollerElement;
+      const scrollContainer = scrollerElement.querySelector('.vue-recycle-scroller') || 
+                              scrollerElement.querySelector('.vue-recycle-scroller__item-wrapper') ||
+                              scrollerElement;
       
       if (scrollContainer) {
-        // Use smooth scrolling for button clicks
         scrollContainer.scrollTo({
           top: scrollContainer.scrollHeight,
-          behavior: 'smooth'
+          behavior: forceScroll ? 'auto' : 'smooth'
         });
       }
     });
@@ -248,6 +260,21 @@ watch(
   }
 );
 */
+
+// Watch for conversation load events using the timestamp
+watch(conversationLoadTimestamp, () => {
+  if (conversationLoadTimestamp.value > 0) {
+    // Give DOM time to update with the new messages, then scroll
+    nextTick(() => {
+      scrollToBottom(true);
+    });
+    
+    // Backup attempt after a short delay to ensure virtual scroller has updated
+    setTimeout(() => {
+      scrollToBottom(true);
+    }, 100);
+  }
+});
 
 onMounted(() => {
   // Simply scroll to bottom when component mounts

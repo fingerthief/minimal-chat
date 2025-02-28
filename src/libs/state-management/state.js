@@ -13,6 +13,7 @@ export const audioQueue = ref([]);
 export const audioIsPlaying = ref(false);
 export const availableModels = ref([]);
 export const showStoredFiles = ref(false);
+export const conversationLoadTimestamp = ref(0);
 
 export const isAvatarEnabled = ref((JSON.parse(localStorage.getItem("isAvatarEnabled")) || false));
 export const avatarShape = ref(localStorage.getItem("avatarShape") || 'circle');

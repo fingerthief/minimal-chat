@@ -13,6 +13,7 @@ import {
   isSmallScreen,
   showStoredFiles,
   selectedModel,
+  conversationLoadTimestamp,
 } from '@/libs/state-management/state';
 import { deleteCurrentConversation, editConversationTitle, saveMessagesHandler } from '@/libs/conversation-management/useConversations';
 import { showToast } from '@/libs/utils/general-utils';
@@ -127,6 +128,9 @@ async function loadSelectedConversation(conversation) {
   messages.value = conversation.messageHistory;
 
   showConversationOptions.value = false;
+  
+  // Update the timestamp to trigger scrolling to bottom in MessagesList
+  conversationLoadTimestamp.value = Date.now();
 }
 
 async function startNewConversation() {
@@ -134,6 +138,9 @@ async function startNewConversation() {
   messages.value = [];
 
   showConversationOptions.value = false;
+  
+  // Also trigger scrolling when starting a new conversation
+  conversationLoadTimestamp.value = Date.now();
 
   showToast('Conversation Saved');
 }
