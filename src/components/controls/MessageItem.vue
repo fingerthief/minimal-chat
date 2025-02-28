@@ -568,9 +568,9 @@ const menuItems = computed(() => {
         margin-right: 32px;
         background-color: #2a2a2a;
         background-image: linear-gradient(to bottom right, #2d2d35, #2a2a2a);
-        border-radius: 18px 18px 4px 18px;
+        border-radius: 16px 16px 4px 16px;
         max-width: 50%;
-        padding: 6px 8px;
+        padding: 6px;
         margin-top: 24px;
         border: 1px solid rgba(255, 255, 255, 0.03);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -632,9 +632,11 @@ const menuItems = computed(() => {
         margin-left: 32px;
         background-color: #1f1f1f;
         border-radius: 16px 16px 16px 4px;
-        max-width: 55%;
+        max-width: 50%;
         margin-top: 24px;
-        padding: 4px;
+        padding: 6px;
+        border: 1px solid rgba(11, 99, 99, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
         @media (max-width: 600px) {
             max-width: 75%;
@@ -645,15 +647,16 @@ const menuItems = computed(() => {
         &.high-constrast-mode {
             background-color: rgba(18, 54, 56, 0.9);
             border-radius: 12px;
-            max-width: 55%;
+            max-width: 50%;
         }
 
         .message-header {
-            padding: 6px 8px 2px;
+            padding: 6px 8px 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(11, 99, 99, 0.3);
+            margin-bottom: 2px;
 
             .message-header-content {
                 display: flex;
@@ -661,6 +664,7 @@ const menuItems = computed(() => {
                 
                 .p-avatar {
                     margin-right: 8px;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
                 }
             }
         }
