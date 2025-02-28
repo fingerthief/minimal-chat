@@ -1,7 +1,7 @@
 // ChatLayout.vue
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { determineModelDisplayName, handleDoubleClick, removeAPIEndpoints, startResize, resize, stopResize } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
 import { onUploadFileContentsToConversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
@@ -40,6 +40,12 @@ import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-ap
 const sidebarContentContainer = ref(null);
 const initialWidth = ref(325);
 const initialMouseX = ref(0);
+const isCollapsed = ref(false);
+
+// Watch localStorage for conversationsDialogCollapsed changes
+watch(() => localStorage.getItem('conversationsDialogCollapsed'), (newValue) => {
+  isCollapsed.value = newValue === 'true';
+});
 
 function startResizeHandler(event) {
   initialWidth.value = sidebarContentContainer.value.offsetWidth;
@@ -102,11 +108,8 @@ function resetSidebarForMobile() {
 function resetSidebarForDesktop() {
   if (!sidebarContentContainer.value) return;
   
-  // Check if sidebar is collapsed
-  const isCollapsed = localStorage.getItem('conversationsDialogCollapsed') === 'true';
-  
   // Set width based on collapsed state
-  const defaultWidth = isCollapsed ? '60px' : '325px';
+  const defaultWidth = isCollapsed.value ? '60px' : '325px';
   sidebarContentContainer.value.style.width = defaultWidth;
   
   // Reset the sidebar conversations element too
@@ -161,10 +164,12 @@ onMounted(async () => {
   setupWatchers();
   sidebarContentContainer.value = document.querySelector('#conversations-dialog');
   
+  // Set initial collapsed state from localStorage
+  isCollapsed.value = localStorage.getItem('conversationsDialogCollapsed') === 'true';
+  
   if (sidebarContentContainer.value) {
     // Initialize with width based on collapsed state
-    const isCollapsed = localStorage.getItem('conversationsDialogCollapsed') === 'true';
-    const initialWidth = isCollapsed ? '60px' : '325px';
+    const initialWidth = isCollapsed.value ? '60px' : '325px';
     
     // Apply width to sidebar
     sidebarContentContainer.value.style.width = initialWidth;
@@ -183,7 +188,8 @@ onMounted(async () => {
   document.addEventListener('conversations-collapse-toggle', (event) => {
     if (!sidebarContentContainer.value) return;
     
-    const width = event.detail.collapsed ? '60px' : '325px';
+    isCollapsed.value = event.detail.collapsed;
+    const width = isCollapsed.value ? '60px' : '325px';
     
     // Update sidebar width
     sidebarContentContainer.value.style.width = width;
@@ -275,6 +281,7 @@ function closeDialogs() {
           <conversationsDialog @import-conversations="handleImportConversations"
             @export-conversations="handleExportConversations" />
           <div id="resize-handle" class="resize-handle" 
+               v-show="!isCollapsed"
                @mousedown="startResizeHandler" 
                @dblclick="() => handleDoubleClick(sidebarContentContainer)">
           </div>

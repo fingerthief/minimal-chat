@@ -450,6 +450,7 @@ $transition-speed: 0.2s;
     width: 60px !important;
     min-width: 60px !important;
     max-width: 60px !important;
+    resize: none !important;
     
     // In collapsed mode, we'll use a vertical layout with just icons
     display: flex;

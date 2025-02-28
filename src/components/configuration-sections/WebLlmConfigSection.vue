@@ -1,13 +1,49 @@
 <template>
-    <div class="control select-listbox">
-        <label for="localModelsSelection">Select a Model To Load In Browser:</label>
-        <Listbox filter id="localModelsSelection" :options="modelOptions" optionLabel="label" optionValue="value"
-            v-model="browserModelSelection" @change="handleUpdate('browserModelSelection', browserModelSelection)" />
+    <div class="webllm-config-card">
+        <div class="card-header">
+            <Globe size="18" class="header-icon" />
+            <h3>Browser ML Models</h3>
+        </div>
+        <div class="card-content">
+            <div class="info-section">
+                <p class="description">
+                    These models run entirely in your browser using WebGPU. No data is sent to any server, 
+                    providing complete privacy. Model size is indicated by VRAM requirements.
+                </p>
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <Cpu size="16" />
+                        <div class="stat-content">
+                            <span class="stat-label">Selected Model</span>
+                            <span class="stat-value">{{ getSelectedModelName() }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <HardDrive size="16" />
+                        <div class="stat-content">
+                            <span class="stat-label">VRAM Required</span>
+                            <span class="stat-value">{{ getSelectedModelVRAM() }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="model-selection">
+                <label for="localModelsSelection">Choose a model to load:</label>
+                <div class="filter-info">
+                    <Search size="14" />
+                    <span>Filter by name, size, or model family</span>
+                </div>
+                <Listbox filter id="localModelsSelection" :options="modelOptions" optionLabel="label" optionValue="value"
+                    v-model="browserModelSelection" @change="handleUpdate('browserModelSelection', browserModelSelection)" />
+            </div>
+        </div>
     </div>
 </template>
 <script setup>
 import { browserModelSelection } from '@/libs/state-management/state';
 import { handleUpdate } from '@/libs/utils/settings-utils';
+import { Globe, Cpu, HardDrive, Search } from 'lucide-vue-next';
 
 const model_list = [
     // Llama-3.2
@@ -1720,89 +1756,215 @@ const modelOptions = model_list.map(({ model_id, vram_required_MB }) => {
     return { label: `${model_id} (${gb}GB VRAM)`, value: model_id };
 });
 
+function getSelectedModelName() {
+    const selectedId = browserModelSelection.value;
+    if (!selectedId) return "None selected";
+    
+    // Clean up the model name for display
+    const cleanName = selectedId
+        .replace(/-MLC.*$/, '')  // Remove MLC suffix and anything after
+        .replace(/-q[0-9]f[0-9]+_[0-9]+$/, ''); // Remove quantization details
+        
+    return cleanName;
+}
+
+function getSelectedModelVRAM() {
+    const selectedId = browserModelSelection.value;
+    if (!selectedId) return "N/A";
+    
+    const model = model_list.find(m => m.model_id === selectedId);
+    if (!model || !model.vram_required_MB) return "Unknown";
+    
+    const gb = (model.vram_required_MB / 1024).toFixed(2);
+    return `${gb} GB`;
+}
+
 </script>
 
 <style scoped lang="scss">
-.select-listbox {
-    label {
-        font-size: 18px;
-        margin-bottom: 10px;
-        display: block;
-        color: #e0e0e0;
+$primary-color: #157474;
+$primary-light: #1a8f8f;
+$primary-dark: #0f5454;
+$bg-dark: #1d1e1e;
+$bg-card: #252629;
+
+.webllm-config-card {
+    background-color: rgba(16, 56, 51, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-
-    :deep(.p-listbox) {
-        background-color: #1e1e1e;
-        border: 2px solid #157474;
-        border-radius: 8px;
-        width: 99%;
-        max-width: 99%;
-        padding: 8px;
-        font-size: 16px;
-        height: 50vh;
-        max-height: 50vh;
-        overflow: auto;
-        transition: all 0.15s ease;
-
-        @media (max-width: 600px) {
-            height: 78vh;
-            max-height: 78vh;
+    
+    .card-header {
+        background-color: rgba(21, 116, 116, 0.15);
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        
+        h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 600;
+            margin-left: 8px;
         }
-
-        &:hover {
-            border-color: #1a8f8f;
-            box-shadow: 0 0 10px rgba(21, 116, 116, 0.2);
+        
+        .header-icon {
+            color: $primary-color;
         }
-
-        .p-listbox-list {
-            padding: 0;
-        }
-
-        .p-listbox-item {
-            padding: 12px 16px;
-            color: #e0e0e0;
-            transition: background-color 0.2s ease;
-            border-radius: 4px;
-            margin-bottom: 4px;
-
-            &:hover {
-                background-color: #2a2a2b;
+    }
+    
+    .card-content {
+        padding: 16px;
+        
+        .info-section {
+            margin-bottom: 20px;
+            
+            .description {
+                margin: 0 0 16px 0;
+                font-size: 14px;
+                line-height: 1.5;
+                color: #9fa6ac;
             }
-
-            &.p-highlight {
-                background-color: #157474;
-                color: #ffffff;
-            }
-        }
-
-        .p-listbox-filter-container {
-            padding: 8px;
-            margin-bottom: 8px;
-
-            .p-inputtext {
-                background-color: #2a2a2b;
-                border: 1px solid #3a3a3b;
-                color: #e0e0e0;
-                border-radius: 4px;
-                padding: 8px 12px;
-                width: 100%;
-
-                &:focus {
-                    border-color: #157474;
-                    box-shadow: 0 0 0 2px rgba(21, 116, 116, 0.2);
+            
+            .stats-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                background-color: rgba(16, 56, 51, 0.15);
+                padding: 14px;
+                border-radius: 6px;
+                
+                .stat-item {
+                    display: flex;
+                    align-items: center;
+                    flex: 1;
+                    min-width: 200px;
+                    
+                    svg {
+                        color: $primary-color;
+                        margin-right: 10px;
+                    }
+                    
+                    .stat-content {
+                        display: flex;
+                        flex-direction: column;
+                        
+                        .stat-label {
+                            font-size: 12px;
+                            color: #9fa6ac;
+                        }
+                        
+                        .stat-value {
+                            font-size: 15px;
+                            font-weight: 500;
+                            color: #e0e0e0;
+                        }
+                    }
                 }
             }
-
-            .p-listbox-filter-icon {
-                color: #157474;
-                right: 20px;
-                top: 18px;
+        }
+        
+        .model-selection {
+            label {
+                font-size: 16px;
+                margin-bottom: 10px;
+                display: block;
+                color: #e0e0e0;
+                font-weight: 500;
+            }
+            
+            .filter-info {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+                color: #9fa6ac;
+                font-size: 13px;
+                
+                svg {
+                    margin-right: 5px;
+                    color: $primary-color;
+                }
+            }
+            
+            :deep(.p-listbox) {
+                background-color: rgba(30, 30, 30, 0.6);
+                border: 1px solid rgba(21, 116, 116, 0.3);
+                border-radius: 8px;
+                width: 100%;
+                padding: 10px;
+                font-size: 15px;
+                height: 40vh;
+                max-height: 40vh;
+                overflow: auto;
+                transition: all 0.2s ease;
+                
+                @media (max-width: 600px) {
+                    height: 50vh;
+                    max-height: 50vh;
+                }
+                
+                &:hover {
+                    border-color: rgba(21, 116, 116, 0.5);
+                    box-shadow: 0 0 10px rgba(21, 116, 116, 0.1);
+                }
+                
+                .p-listbox-list {
+                    padding: 0;
+                }
+                
+                .p-listbox-item {
+                    padding: 12px 14px;
+                    color: #e0e0e0;
+                    transition: background-color 0.2s ease;
+                    border-radius: 4px;
+                    margin-bottom: 4px;
+                    
+                    &:hover {
+                        background-color: rgba(42, 42, 43, 0.7);
+                    }
+                    
+                    &.p-highlight {
+                        background-color: rgba(21, 116, 116, 0.3);
+                        border-left: 3px solid $primary-color;
+                        color: #ffffff;
+                    }
+                }
+                
+                .p-listbox-filter-container {
+                    padding: 0 0 10px 0;
+                    
+                    .p-inputtext {
+                        background-color: rgba(42, 42, 43, 0.5);
+                        border: 1px solid rgba(58, 58, 59, 0.5);
+                        color: #e0e0e0;
+                        border-radius: 6px;
+                        padding: 10px 12px;
+                        width: 100%;
+                        transition: all 0.2s ease;
+                        
+                        &:focus {
+                            border-color: $primary-color;
+                            background-color: rgba(42, 42, 43, 0.8);
+                            box-shadow: 0 0 0 2px rgba(21, 116, 116, 0.2);
+                        }
+                    }
+                    
+                    .p-listbox-filter-icon {
+                        color: $primary-color;
+                        right: 20px;
+                        top: 10px;
+                    }
+                }
+            }
+            
+            :deep(.p-component) {
+                font-family: inherit;
             }
         }
-    }
-
-    :deep(.p-component) {
-        font-family: 'Arial', sans-serif;
     }
 }
 </style>

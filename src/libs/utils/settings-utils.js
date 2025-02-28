@@ -83,6 +83,10 @@ export function saveSystemPrompt(prompt) {
   }
 }
 
+export function handleSaveSystemPrompt(prompt) {
+  saveSystemPrompt(prompt);
+}
+
 export function deleteSystemPrompt(index) {
   systemPrompts.value.splice(index, 1);
   localStorage.setItem('system-prompts', JSON.stringify(systemPrompts.value));

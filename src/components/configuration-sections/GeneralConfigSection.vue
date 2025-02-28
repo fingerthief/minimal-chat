@@ -1,9 +1,36 @@
 <template>
     <div>
-        <div class="system-prompt-container">
-            <InputField labelText="System Prompt:" inputId="system-prompt" :value="systemPrompt"
-                @update:value="handleUpdate('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
-                :placeholderText="'Enter the system prompt if applicable.'" />
+        <div class="system-prompt-card">
+            <div class="prompt-header">
+                <MessageSquare size="18" class="section-icon" />
+                <h3>System Prompt</h3>
+            </div>
+            <div class="prompt-content">
+                <p class="prompt-description">
+                    Guide the AI's behavior and knowledge with a system prompt. This acts as context or instructions for the AI to follow during the conversation.
+                </p>
+                <InputField labelText="" inputId="system-prompt" :value="systemPrompt"
+                    @update:value="handleUpdate('systemPrompt', $event)" :isSecret="false" :isMultiline="true"
+                    :placeholderText="'You are a helpful AI assistant. You are friendly, kind, and accurate. You provide concise answers unless asked for more detail.'" />
+                <div class="prompt-actions">
+                    <button 
+                        v-if="systemPrompt && systemPrompt.trim().length > 0" 
+                        class="save-prompt-button" 
+                        @click="handleSaveSystemPrompt(systemPrompt)"
+                        title="Save current prompt to your collection">
+                        <Save size="16" />
+                        <span>Save Prompt</span>
+                    </button>
+                    <button 
+                        v-if="systemPrompt && systemPrompt.trim().length > 0" 
+                        class="clear-prompt-button" 
+                        @click="handleUpdate('systemPrompt', '')"
+                        title="Clear the current prompt">
+                        <X size="16" />
+                        <span>Clear</span>
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="saved-system-prompts-section">
             <div class="section-header" @click="isSavedPromptsOpen = !isSavedPromptsOpen">
@@ -127,9 +154,9 @@
 
 <script setup>
 import InputField from '@/components/controls/InputField.vue';
-import { ChevronDown, ChevronRight, Trash2, Save, User, MessageSquare, Image, Eye } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Trash2, Save, User, MessageSquare, Image, Eye, X } from 'lucide-vue-next';
 import { avatarShape, userAvatarUrl, isAvatarEnabled, avatarUrl, systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
-import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts } from '@/libs/utils/settings-utils';
+import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts, handleSaveSystemPrompt } from '@/libs/utils/settings-utils';
 import SliderCheckbox from '../controls/SliderCheckbox.vue';
 import { ref, onBeforeMount } from 'vue';
 import { storeFileData } from '@/libs/file-processing/image-analysis';
@@ -140,9 +167,9 @@ const storedFiles = ref([]);
 const selectedFile = ref(null);
 const fileInput = ref(null);
 
-const isAvatarSectionOpen = ref(true);
-const isSavedPromptsOpen = ref(true);
-const isAccessibilityOpen = ref(true);
+const isAvatarSectionOpen = ref(false);
+const isSavedPromptsOpen = ref(false);
+const isAccessibilityOpen = ref(false);
 
 const avatarType = ref({ name: 'AI', value: 'ai' });
 const avatarOptions = [
@@ -522,11 +549,106 @@ onBeforeMount(handleFetchStoredFiles);
     }
 }
 
-.system-prompt-container {
+.system-prompt-card {
     margin-bottom: 20px;
+    background-color: rgba(16, 56, 51, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     
     @media (max-width: 600px) {
         margin-bottom: 15px;
+    }
+    
+    .prompt-header {
+        display: flex;
+        align-items: center;
+        padding: 14px 16px;
+        background-color: rgba(21, 116, 116, 0.15);
+        
+        h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .section-icon {
+            color: #157474;
+        }
+    }
+    
+    .prompt-content {
+        padding: 16px;
+        
+        .prompt-description {
+            margin: 0 0 16px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #9fa6ac;
+        }
+        
+        .prompt-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            
+            button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                border: 1px solid transparent;
+                transition: all 0.2s ease;
+                
+                svg {
+                    transition: transform 0.2s ease;
+                }
+                
+                &:hover svg {
+                    transform: translateY(-1px);
+                }
+                
+                &:active {
+                    transform: translateY(1px);
+                }
+            }
+            
+            .save-prompt-button {
+                background-color: rgba(21, 116, 116, 0.2);
+                border-color: rgba(21, 116, 116, 0.4);
+                color: #e0e0e0;
+                
+                svg {
+                    color: #157474;
+                }
+                
+                &:hover {
+                    background-color: rgba(21, 116, 116, 0.3);
+                    border-color: #157474;
+                }
+            }
+            
+            .clear-prompt-button {
+                background-color: rgba(255, 70, 70, 0.1);
+                border-color: rgba(255, 70, 70, 0.3);
+                color: #e0e0e0;
+                
+                svg {
+                    color: #ff7070;
+                }
+                
+                &:hover {
+                    background-color: rgba(255, 70, 70, 0.2);
+                    border-color: rgba(255, 70, 70, 0.5);
+                }
+            }
+        }
     }
 }
 
