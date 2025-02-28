@@ -97,24 +97,58 @@ const props = defineProps({
 const loadingIcon = ref(-1);
 const imageTextRef = ref('');
 
-// Computed properties for file detection
+// Memoization function to avoid redundant calculations
+const memoize = (fn) => {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) return cache.get(key);
+        const result = fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+// Optimized content checking functions
+const checkForTextFile = memoize((content) => {
+    if (!content || !Array.isArray(content)) return false;
+    return content[0]?.text?.indexOf('#contextAdded:') !== -1;
+});
+
+const checkForImagePart = memoize((content) => {
+    if (!content || !Array.isArray(content)) return false;
+    for (let i = 0; i < content.length; i++) {
+        if (content[i].type === 'image_url' && content[i].image_url) {
+            return true;
+        }
+    }
+    return false;
+});
+
+const checkForImageUrl = memoize((content) => {
+    if (!content || !Array.isArray(content)) return false;
+    for (let i = 0; i < content.length; i++) {
+        if (content[i].type === 'image_url' && content[i].image_url && content[i].image_url.url) {
+            return true;
+        }
+    }
+    return false;
+});
+
+// Computed properties for file detection - now using memoized helper functions
 const hasFile = computed(() => {
     // Only true if it's a non-image file (has #contextAdded and doesn't have image_url)
-    if (!props.item?.content || !Array.isArray(props.item.content)) return false;
-    
-    const isTextFile = props.item.content?.[0]?.text?.indexOf('#contextAdded:') !== -1;
-    const hasImagePart = props.item.content.some(part => part.type === 'image_url' && part.image_url);
-    
-    return isTextFile && !hasImagePart;
+    if (!props.item?.content) return false;
+    return checkForTextFile(props.item.content) && !checkForImagePart(props.item.content);
 });
 
 const hasImage = computed(() => {
-    if (!props.item || !props.item.content || !Array.isArray(props.item.content)) return false;
-    return props.item.content.some(part => part.type === 'image_url' && part.image_url && part.image_url.url);
+    if (!props.item?.content) return false;
+    return checkForImageUrl(props.item.content);
 });
 
 const hasImageName = computed(() => {
-    if (!props.item || !props.item.content || !Array.isArray(props.item.content)) return false;
+    if (!props.item?.content || !Array.isArray(props.item.content)) return false;
     const textContent = getTextContent(props.item.content);
     return textContent && textContent.match(/Image:\s*([^\n]+)/);
 });

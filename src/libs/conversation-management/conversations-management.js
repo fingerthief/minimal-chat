@@ -103,7 +103,9 @@ export const saveMessages = async () => {
 
   // Save to local storage
   localStorage.setItem('gpt-conversations', JSON.stringify(conversations.value));
-  selectedConversation.value = conversations.value[conversations.value.length - 1];
+  // Keep the current selected conversation instead of always selecting the last one
+  const currentConversation = conversations.value.find(c => c.id === updatedConversation.id);
+  selectedConversation.value = currentConversation || null;
 };
 
 // Function to select a conversation and load its messages

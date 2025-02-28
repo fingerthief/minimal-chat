@@ -239,7 +239,7 @@ $border-color: rgba(112, 112, 112, 0.53);
     position: fixed;
     max-width: calc(100% - 12px);
     width: calc(100% - 12px);
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 5px);
     padding: 0;
     gap: 6px;
   }

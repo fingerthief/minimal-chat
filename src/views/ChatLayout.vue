@@ -264,6 +264,7 @@ a {
   height: 100vh;
   position: relative;
   max-height: 100vh;
+  overflow: hidden;
 
   @media (max-width: 600px) {
     height: 100vh;
@@ -309,22 +310,22 @@ a {
 }
 
 .messages {
-  overflow-y: auto;
+  overflow-y: hidden;
   flex: 1 1 auto;
   min-height: 0;
   scrollbar-width: none; // For Firefox
   -ms-overflow-style: none; // For Internet Explorer and Edge
-  padding-bottom: 100px; /* Increased space for the input */
+  padding-bottom: 80px; /* Reduced space for the input to allow messages to extend lower */
   position: relative;
 
   @media (max-width: 600px) {
     width: 100%;
-    padding: 8px 8px 100px 8px;
+    padding: 8px 8px 75px 8px;
     /* Using flex instead of fixed heights for better adaptability */
     flex: 1; 
     /* Ensure content is visible on iOS Safari which has bottom bars */
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 20px));
-    margin-bottom: 20px; /* Add margin to ensure input is visible */
+    padding-bottom: calc(55px + env(safe-area-inset-bottom, 5px));
+    margin-bottom: 0; /* Removed margin to maximize message space */
   }
 
   &::-webkit-scrollbar {

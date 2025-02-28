@@ -7,7 +7,7 @@
 
     <!-- Virtual scroller remains the same -->
     <DynamicScroller :items="filteredMessages" :min-item-size="50" :buffer="100" key-field="id" :emitUpdates="true"
-      :size-dependencies="['content']" type-field="type" ref="scroller" class="scroller">
+      :size-dependencies="['content']" type-field="type" ref="scroller" class="scroller" style="overflow-y: auto;">
       <template v-slot="{ item, index, active }">
         <DynamicScrollerItem :item="item" :active="active" :data-index="index" :size-dependencies="['content']">
           <div style="padding-top: 3px; padding-bottom: 3px;">
@@ -41,18 +41,40 @@ const scroller = ref(null);
 // so you can provide visual feedback (optional)
 const isDragging = ref(false);
 
-const filteredMessages = computed(() =>
-  messages.value
+// Memoize filtered messages to avoid expensive recalculations
+const filteredMessages = computed(() => {
+  // Skip processing if messages is empty
+  if (!messages.value || messages.value.length === 0) return [];
+  
+  return messages.value
     .filter((message) => message.role !== 'system')
     .map(message => ({
       ...message,
       type: getItemType(message)
-    }))
-);
+    }));
+});
 
 function getItemType(item) {
   const baseSize = 50;
-  const contentLength = item.content.length;
+  
+  // Handle both array-based and string-based content
+  let contentLength = 0;
+  if (Array.isArray(item.content)) {
+    contentLength = item.content.reduce((total, part) => {
+      // For text parts, count their length
+      if (part.type === 'text' && part.text) {
+        return total + part.text.length;
+      }
+      // For image parts, add a fixed size estimate
+      else if (part.type === 'image_url') {
+        return total + 250; // Approximate size for image container
+      }
+      return total;
+    }, 0);
+  } else {
+    contentLength = String(item.content).length;
+  }
+  
   const estimatedSize = baseSize + Math.ceil(contentLength / 100) * 20; // Add 20px per 100 characters
   return estimatedSize;
 }
@@ -167,12 +189,16 @@ async function scrollToBottom() {
   // Keep your scroll-to-bottom logic if you need it
 }
 
+// Optimize the watcher to avoid deep watching the entire messages array
 watch(
-  () => filteredMessages.value,
-  async () => {
-    await scrollToBottom();
-  },
-  { deep: true }
+  // Only watch the length of the messages array for scrolling
+  () => filteredMessages.value.length,
+  async (newLength, oldLength) => {
+    // Only scroll when new messages are added
+    if (newLength > oldLength) {
+      await scrollToBottom();
+    }
+  }
 );
 
 onMounted(() => {
@@ -183,16 +209,16 @@ onMounted(() => {
 <style lang="scss">
 .scroller,
 .message-list {
-  height: 92vh;
-  overflow-y: auto;
+  height: 100%;
+  overflow-y: hidden;
   scrollbar-width: none;
-  padding-bottom: 60px; /* Add padding to ensure content doesn't get cut off by input */
-  margin-bottom: 1vh; /* Reduced margin to better align with input */
+  padding-bottom: 10px; /* Reduced padding to bring messages closer to input */
+  margin-bottom: 0; /* Removed margin to maximize space */
   
   @media (max-width: 600px) {
-    height: 95vh;
+    height: calc(100vh - 140px); /* Increased height for mobile */
     margin-bottom: 0;
-    padding-bottom: 70px;
+    padding-bottom: 5px;
   }
 }
 

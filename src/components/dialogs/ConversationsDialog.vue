@@ -27,22 +27,46 @@ const showContextMenu = ref(false);
 const emit = defineEmits(['import-conversations', 'export-conversations']);
 
 // Helper Functions
+// Cache for conversation character counts to avoid recalculating
+const conversationTokenCache = new Map();
+
 function conversationCharacterCount(conversation) {
+  // Return cached result if available and conversation hasn't changed
+  const cacheKey = `${conversation.id}-${conversation.messageHistory.length}`;
+  if (conversationTokenCache.has(cacheKey)) {
+    return conversationTokenCache.get(cacheKey);
+  }
+  
   let totalTextLength = 0;
 
-  for (const message of conversation.messageHistory) {
+  // Optimize the loop by using a direct for loop instead of for...of
+  const history = conversation.messageHistory;
+  for (let i = 0; i < history.length; i++) {
+    const message = history[i];
     if (Array.isArray(message.content)) {
-      for (const contentItem of message.content) {
-        if (contentItem.type === 'text') {
+      const content = message.content;
+      for (let j = 0; j < content.length; j++) {
+        const contentItem = content[j];
+        if (contentItem.type === 'text' && contentItem.text) {
           totalTextLength += contentItem.text.length;
         }
       }
-    } else {
-      totalTextLength += message.content.length;
+    } else if (message.content) {
+      totalTextLength += String(message.content).length;
     }
   }
 
   const tokenCount = Math.ceil(totalTextLength / 4);
+  
+  // Cache the result
+  conversationTokenCache.set(cacheKey, tokenCount);
+  
+  // Prevent unlimited cache growth by cleaning old entries when cache gets too large
+  if (conversationTokenCache.size > 100) {
+    const oldestKey = conversationTokenCache.keys().next().value;
+    conversationTokenCache.delete(oldestKey);
+  }
+  
   return tokenCount;
 }
 
