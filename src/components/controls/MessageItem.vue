@@ -412,17 +412,34 @@ const menuItems = computed(() => {
             }
         }" class="p-ripple box message-container" v-if="active" :class="messageClass(item.role)">
             <div class="message-header">
-                <i v-if="item.role === 'user'" class="pi pi-ellipsis-h delete-icon" @click="menu.toggle($event)"></i>
-                <Avatar v-if="item.role !== 'user' && isAvatarEnabled === true" :image="avatarUrl" :shape="avatarShape"
-                    size="large" class="avatar-animate" />
-                <Avatar v-if="item.role === 'user' && isAvatarEnabled === true" :image="userAvatarUrl" :shape="avatarShape"
-                    size="large" class="avatar-animate" />
-                <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
-
-                <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
-                    {{ item.role === 'user' ? '' : selectedModel === 'web-llm' ? browserModelSelection.replaceAll('"', '') :
-                    localModelName }}
+                <div class="message-header-content">
+                    <Avatar v-if="isAvatarEnabled === true" 
+                        :image="item.role === 'user' ? userAvatarUrl : avatarUrl" 
+                        :shape="avatarShape"
+                        size="large" 
+                        class="avatar-animate" />
+                    
+                    <div class="label" @click="copyText(item.content)" :id="'message-label-' + item.id">
+                        {{ item.role === 'user' ? '' : selectedModel === 'web-llm' ? browserModelSelection.replaceAll('"', '') :
+                        localModelName }}
+                    </div>
                 </div>
+                
+                <div class="message-actions" v-if="item.role === 'user'">
+                    <button class="action-button" @click="editMessage(item)" title="Edit">
+                        <Pencil size="16" />
+                    </button>
+                    <button class="action-button" @click="copyText(item.content)" title="Copy">
+                        <Copy size="16" />
+                    </button>
+                    <button class="action-button" @click="regenerateMessage(item.content)" title="Regenerate">
+                        <RefreshCcw size="16" />
+                    </button>
+                    <button class="action-button" @click="deleteMessage(item.content)" title="Delete">
+                        <Trash size="16" />
+                    </button>
+                </div>
+                <ContextMenu v-if="item" ref="menu" :model="menuItems" :id="'message-menu-' + item.id" />
                 <ToolTip :targetId="'message-label-' + item.id">Copy message</ToolTip>
             </div>
             
@@ -438,7 +455,7 @@ const menuItems = computed(() => {
                 v-show="hasFile" :contenteditable="isEditing"
                 @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
                 <div class="file-info-display">
-                    <Link class="file-icon" size="20" />
+                    <Link class="file-icon" size="18" />
                     <span class="file-name">{{ extractFileName(item?.content[0]?.text) }}</span>
                 </div>
             </div>
@@ -448,7 +465,7 @@ const menuItems = computed(() => {
                 v-show="hasImage" :contenteditable="isEditing"
                 @dblclick="editMessage(item)" @blur="saveEditedMessage(item, $event)">
                 <div class="file-info-display image-info" v-if="hasImageName">
-                    <FileCheck2 class="file-icon" size="20" />
+                    <FileCheck2 class="file-icon" size="18" />
                     <span class="file-name">{{ extractFileName(getTextContent(item?.content)) }}</span>
                 </div>
                 <div class="image-container" v-html="formatMessage(item.content)"></div>
@@ -459,13 +476,13 @@ const menuItems = computed(() => {
 <!-- MessageItem.vue -->
 <style lang="scss">
 .message-container {
-    margin-top: 9px;
-    margin-bottom: 9px;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
 /* Message entrance animations */
 .message-fade-enter-active {
-    transition: all 0.3s ease-out;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .message-fade-leave-active {
@@ -474,38 +491,35 @@ const menuItems = computed(() => {
 
 .message-fade-enter-from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
 }
 
 .message-slide-right {
     opacity: 0;
-    transform: translateX(40px);
+    transform: translateX(32px);
 }
 
 .message-slide-left {
     opacity: 0;
-    transform: translateX(-40px);
+    transform: translateX(-32px);
 }
 
 .message-fade-leave-to {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
 }
 
 .avatar-animate {
-    animation: avatarAppear 0.4s ease-out forwards;
+    animation: avatarAppear 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes avatarAppear {
     0% {
         opacity: 0;
-        transform: scale(0.6);
-    }
-    70% {
-        opacity: 1;
-        transform: scale(1.1);
+        transform: scale(0.7);
     }
     100% {
+        opacity: 1;
         transform: scale(1);
     }
 }
@@ -537,165 +551,161 @@ const menuItems = computed(() => {
     position: relative;
     min-width: 10%;
     width: fit-content;
-    padding: 8px 0;
     clear: both;
     font-size: 1em;
     line-height: 1.5;
     max-width: 75vw;
-    margin-top: 24px;
-    margin-bottom: 24px;
-    margin-left: 19%;
-    margin-right: 19%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
 
     @media (max-width: 600px) {
         max-width: 85vw;
-        margin-left: 0;
-        margin-right: 0;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        margin: 16px 0;
     }
 
     &.user {
         margin-left: auto;
-        background-color: #2d2d2d;
-        border-radius: 16px;
+        margin-right: 32px;
+        background-color: #2a2a2a;
+        border-radius: 16px 16px 4px 16px;
         max-width: 50%;
-        padding-left: 12px;
-        padding-bottom: 4px;
-        padding-top: 8px;
-        padding-right: 4px;
-        margin-top: 32px;
+        padding: 4px;
+        margin-top: 24px;
 
         @media (max-width: 600px) {
-            max-width: 90%;
-            margin-top: 28px;
+            max-width: 75%;
+            margin-right: 16px;
+            margin-top: 20px;
         }
 
         &.high-constrast-mode {
-            background-color: #2f2d44d9;
+            background-color: rgba(47, 45, 68, 0.85);
             border-radius: 12px;
-            transition: background-color 0.15s ease;
-            margin-bottom: 20px;
-            margin-top: 20px;
-            max-width: 90vw;
-            top: -20px;
-            padding: 0px;
-
-            .message-header {
-                justify-content: end;
-            }
+            max-width: 50%;
         }
 
         .message-header {
-            justify-content: end;
-            right: 1%;
-            position: relative;
-
+            padding: 6px 8px 2px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
 
-            .p-avatar {
-                position: relative;
-                left: 15px;
+            .message-header-content {
+                display: flex;
+                align-items: center;
+                
+                .p-avatar {
+                    margin-right: 8px;
+                }
+            }
+
+            .message-actions {
+                display: flex;
+                gap: 4px;
+                opacity: 0;
+                transition: opacity 0.2s ease;
             }
         }
 
+        &:hover .message-actions {
+            opacity: 1;
+        }
+
         .label:hover {
-            background-color: #583e72d9;
+            background-color: rgba(88, 62, 114, 0.5);
         }
     }
 
     &.gpt {
         margin-right: auto;
-        transition: background-color 0.15s ease;
-        max-width: 60%;
-        margin-top: 32px;
-        padding: 0 4px 8px 4px; /* Added padding for desktop AI messages */
+        margin-left: 32px;
+        background-color: #1f1f1f;
+        border-radius: 16px 16px 16px 4px;
+        max-width: 55%;
+        margin-top: 24px;
+        padding: 4px;
 
         @media (max-width: 600px) {
-            max-width: 88%;
-            margin-top: 28px;
-            padding: 0 2px 10px 2px; /* Add padding for mobile */
+            max-width: 75%;
+            margin-left: 16px;
+            margin-top: 20px;
         }
 
         &.high-constrast-mode {
-            background-color: #123638e3;
+            background-color: rgba(18, 54, 56, 0.9);
             border-radius: 12px;
-            transition: background-color 0.15s ease;
-            margin-bottom: 20px;
-            margin-top: 20px;
-            max-width: 90vw;
-            display: inline-block;
-            padding: 0px;
-
-            .message-header {
-                justify-content: start;
-                border-bottom: 2px solid #0b6363e5;
-            }
+            max-width: 55%;
         }
 
         .message-header {
-            justify-content: start;
-            border-bottom: 2px solid #0b6363e5;
+            padding: 6px 8px 2px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(11, 99, 99, 0.3);
 
-            .p-avatar {
-                margin-right: 10px;
+            .message-header-content {
+                display: flex;
+                align-items: center;
+                
+                .p-avatar {
+                    margin-right: 8px;
+                }
             }
         }
 
         .label:hover {
-            background-color: #0b6363e5;
+            background-color: rgba(11, 99, 99, 0.3);
         }
     }
 
     .message-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
         color: #dadbde;
-        padding: 3px 6px;
-
 
         .label {
             color: #dadbde;
             font-weight: 500;
-            font-size: 18px;
+            font-size: 0.9rem;
             line-height: 1;
+            opacity: 0.8;
             cursor: pointer;
+            border-radius: 4px;
+            padding: 4px 8px;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
 
             &:hover {
-                border-radius: 3px;
-                padding: 6px;
-                margin: -6px;
+                opacity: 1;
             }
         }
     }
 
     .message-contents {
-        padding: 10px;
-        margin: 8px;
+        padding: 12px 16px;
         display: block;
         overflow-wrap: break-word;
+        font-size: 0.95rem;
+        line-height: 1.5;
         
         @media (max-width: 600px) {
-            padding: 10px 10px 12px 10px; /* Extra bottom padding on mobile */
+            padding: 10px 12px;
         }
 
         pre {
-            margin: 10px 0;
-            border-radius: 6px;
+            margin: 12px 0;
+            border-radius: 8px;
             background-color: #252525;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            font-size: 0.9rem;
+            overflow-x: auto;
         }
 
         code:not(pre code) {
             background-color: rgba(255, 255, 255, 0.06);
-            border-radius: 3px;
+            border-radius: 4px;
             padding: 2px 4px;
             font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
-            font-size: 0.9em;
+            font-size: 0.85rem;
         }
 
         &[contenteditable='true'] {
@@ -707,24 +717,28 @@ const menuItems = computed(() => {
     }
 }
 
-.icon {
-    color: #b8b6b67d;
-    transition: background-color 0.75s ease, transform 0.75s ease;
+.action-button {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
 
     &:hover {
-        animation: spin 0.5s linear;
-        transform: scale(1.2);
-        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-1px);
     }
-}
-
-.delete-icon {
-    color: #b8b6b67d;
-    transition: background-color 0.15s ease, transform 0.2s ease;
-
-    &:hover {
-        transform: scale(1.2);
-        cursor: pointer;
+    
+    &:active {
+        transform: translateY(0);
     }
 }
 
@@ -736,7 +750,6 @@ const menuItems = computed(() => {
     0% {
         transform: rotate(0deg);
     }
-
     100% {
         transform: rotate(360deg);
     }
@@ -766,10 +779,15 @@ const menuItems = computed(() => {
 .file-info-display {
     display: flex;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     padding: 10px 15px;
     margin: 8px 0;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
     
     .file-icon {
         color: #4caf50;
@@ -779,6 +797,7 @@ const menuItems = computed(() => {
     .file-name {
         font-weight: 500;
         word-break: break-word;
+        font-size: 0.9rem;
     }
     
     &.image-info {
@@ -796,6 +815,11 @@ const menuItems = computed(() => {
         border-radius: 8px;
         margin: 8px 0;
         display: block;
+        transition: transform 0.2s ease;
+        
+        &:hover {
+            transform: scale(1.01);
+        }
     }
 }
 </style>
