@@ -1,6 +1,6 @@
 # [**MinimalChat: A Simple and Customizable LLM Chat Client**](https://minimalchat.app)
 
-![Version](https://img.shields.io/badge/version-6.2.6-blue)
+![Version](https://img.shields.io/badge/version-6.3.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fminimalchat.app)
 ![Repo Size](https://img.shields.io/github/repo-size/fingerthief/minimal-chat)
