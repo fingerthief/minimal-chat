@@ -129,6 +129,12 @@ function selectModel(model) {
     isCustomConfigOpen.value = false;
 
     if (model === 'open-ai-format') {
+        // Reset fields when adding a new connection
+        localModelEndpoint.value = '';
+        localModelKey.value = '';
+        localModelName.value = '';
+        availableModels.value = [];
+        selectedCustomConfigIndex.value = null;
         fetchAvailableModels();
     }
 
