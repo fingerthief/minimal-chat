@@ -242,33 +242,62 @@ onMounted(() => {
 
             <div v-show="!isSmallScreen" class="left-panel">
                 <h3>Models</h3>
-                <ul>
+                <ul class="model-menu">
                     <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
-                        General Config
+                        <Settings size="18" class="menu-icon" />
+                        <span>General Config</span>
                     </li>
-                    <li @click="isCustomConfigOpen = !isCustomConfigOpen">
-                        <ChevronDown v-if="isCustomConfigOpen || selectedModel === 'open-ai-format'" :size="12" />
-                        <ChevronRight v-else :size="12" />
-                        API Connections
-                    </li>
-                    <transition name="slide-fade">
-                        <ul v-show="isCustomConfigOpen || selectedModel === 'open-ai-format'" class="sub-item">
-                            <li v-for="(config, index) in customConfigs" :key="config.endpoint"
-                                :class="{ selected: selectedModel === 'open-ai-format' && selectedCustomConfigIndex === index }"
-                                @click="selectCustomModel(index)">
-                                <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />
-                                &nbsp;&nbsp;
-                                {{ config.endpoint }}
-                            </li>
-                            <li v-if="!customConfigs.length" :class="{ selected: selectedModel === 'open-ai-format' }"
-                                @click="selectModel('open-ai-format')">
-                                Add New Custom API
-                            </li>
-                        </ul>
-                    </transition>
+                    
+                    <!-- API Connections Section -->
+                    <div class="connections-section">
+                        <div class="section-header" @click="isCustomConfigOpen = !isCustomConfigOpen">
+                            <Database size="18" class="menu-icon" />
+                            <span>API Connections</span>
+                            <div class="header-icon">
+                                <ChevronDown v-if="isCustomConfigOpen || selectedModel === 'open-ai-format'" :size="16" />
+                                <ChevronRight v-else :size="16" />
+                            </div>
+                        </div>
+                        
+                        <transition name="slide-fade">
+                            <div v-show="isCustomConfigOpen || selectedModel === 'open-ai-format'" class="connections-container">
+                                <!-- Empty state when no connections -->
+                                <div v-if="!customConfigs.length" 
+                                     class="empty-connections"
+                                     @click="selectModel('open-ai-format')">
+                                    <PlusCircle size="24" class="add-icon" />
+                                    <p>Add your first API connection</p>
+                                </div>
+                                
+                                <!-- Connection cards list -->
+                                <div v-else class="connection-cards">
+                                    <div v-for="(config, index) in customConfigs" 
+                                         :key="config.endpoint"
+                                         :class="['connection-card', { 'selected': selectedModel === 'open-ai-format' && selectedCustomConfigIndex === index }]"
+                                         @click="selectCustomModel(index)">
+                                        <div class="connection-content">
+                                            <div class="connection-url">{{ config.endpoint }}</div>
+                                            <div class="connection-model">{{ config.modelName || 'No model selected' }}</div>
+                                        </div>
+                                        <button class="delete-btn" @click.stop="handleDeleteCustomConfig(index)">
+                                            <Trash2 :size="16" :stroke-width="1.5" />
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Add new connection button -->
+                                    <div class="add-connection" @click="selectModel('open-ai-format')">
+                                        <PlusCircle size="16" class="add-icon" />
+                                        <span>Add New Connection</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+                    </div>
+                    
                     <li :class="{ selected: selectedModel === 'web-llm' && !selectedCustomConfig }"
                         @click="selectModel('web-llm')">
-                        Browser Model
+                        <Cpu size="18" class="menu-icon" />
+                        <span>Browser Model</span>
                     </li>
                 </ul>
                 <div class="close-btn-wrapper">
@@ -320,15 +349,16 @@ $bottom-panel-border-color: #5f4575cf;
 
 .slide-fade-enter-active,
 .slide-fade-leave-active {
-    transition: all 0.15s ease-out;
-    max-height: 30vh;
+    transition: all 0.2s ease-out;
+    max-height: 500px;
+    overflow: hidden;
 }
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
     max-height: 0;
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-10px);
 }
 
 .scale-enter-active,
@@ -802,6 +832,255 @@ $bottom-panel-border-color: #5f4575cf;
     min-height: 98vh;
     max-width: 99vw;
     background-color: #1d1e1e;
+    
+/* Model menu */
+.model-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    
+    li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        border: none;
+        margin-bottom: 0;
+        
+        .menu-icon {
+            color: #157474;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+        }
+        
+        &:hover {
+            background-color: rgba(21, 116, 116, 0.1);
+            
+            .menu-icon {
+                opacity: 1;
+            }
+        }
+        
+        &.selected {
+            background-color: rgba(21, 116, 116, 0.15);
+            border-left: 3px solid #157474;
+            
+            .menu-icon {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+/* API Connections section */
+.connections-section {
+    margin: 5px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+        
+        .menu-icon {
+            color: #157474;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+        }
+        
+        span {
+            flex-grow: 1;
+        }
+        
+        .header-icon {
+            color: #9fa6ac;
+            transition: all 0.2s ease;
+        }
+        
+        &:hover {
+            background-color: rgba(21, 116, 116, 0.1);
+            
+            .menu-icon {
+                opacity: 1;
+            }
+        }
+    }
+    
+    .connections-container {
+        padding: 5px 10px 10px 10px;
+    }
+    
+    .empty-connections {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 20px;
+        text-align: center;
+        background-color: rgba(21, 116, 116, 0.05);
+        border: 1px dashed rgba(21, 116, 116, 0.3);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        .add-icon {
+            color: #157474;
+            opacity: 0.8;
+        }
+        
+        p {
+            margin: 0;
+            color: #9fa6ac;
+            font-size: 14px;
+        }
+        
+        &:hover {
+            background-color: rgba(21, 116, 116, 0.1);
+            border-color: rgba(21, 116, 116, 0.5);
+            
+            .add-icon {
+                opacity: 1;
+            }
+        }
+    }
+    
+    .connection-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        
+        .connection-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: rgba(21, 116, 116, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            
+            &::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 0;
+                background-color: #157474;
+                transition: width 0.2s ease;
+            }
+            
+            .connection-content {
+                flex-grow: 1;
+                z-index: 1;
+                
+                .connection-url {
+                    font-weight: 500;
+                    font-size: 14px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 180px;
+                }
+                
+                .connection-model {
+                    font-size: 12px;
+                    color: #9fa6ac;
+                    margin-top: 4px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 180px;
+                }
+            }
+            
+            .delete-btn {
+                background: transparent;
+                border: none;
+                color: #9fa6ac;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 4px;
+                z-index: 1;
+                opacity: 0.7;
+                transition: all 0.2s ease;
+                
+                &:hover {
+                    color: #ff5555;
+                    background-color: rgba(255, 85, 85, 0.1);
+                    opacity: 1;
+                }
+            }
+            
+            &:hover {
+                background-color: rgba(21, 116, 116, 0.1);
+                
+                &::before {
+                    width: 3px;
+                }
+            }
+            
+            &.selected {
+                background-color: rgba(21, 116, 116, 0.15);
+                
+                &::before {
+                    width: 3px;
+                }
+                
+                .connection-url {
+                    color: white;
+                }
+            }
+        }
+        
+        .add-connection {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background-color: rgba(21, 116, 116, 0.02);
+            border: 1px dashed rgba(21, 116, 116, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 4px;
+            
+            .add-icon {
+                color: #157474;
+                opacity: 0.8;
+                transition: all 0.2s ease;
+            }
+            
+            span {
+                font-size: 14px;
+                color: #9fa6ac;
+            }
+            
+            &:hover {
+                background-color: rgba(21, 116, 116, 0.08);
+                border-color: rgba(21, 116, 116, 0.5);
+                
+                .add-icon {
+                    opacity: 1;
+                }
+                
+                span {
+                    color: #e0e0e0;
+                }
+            }
+        }
+    }
+}
 
     .close-btn {
         align-self: flex-end;
