@@ -2,62 +2,89 @@
     <div v-if="showStoredFiles" class="stored-files-container">
         <DialogHeader :icon="Database" :iconSize="32" :tooltipText="tooltipText" title="Stored Files"
             headerId="stored-files-header" @close="closeStoredFiles" />
-        <div class="search-section">
-            <span class="p-input-icon-left">
-                <i class="pi pi-search" />
-                <InputText v-model="searchQuery" placeholder="Search files..." @input="onFilter" />
-            </span>
-            <input multiple type="file" ref="fileInput" @change="uploadFile" class="hidden" />
+        
+        <div class="dialog-content">
+            <div class="search-and-actions">
+                <div class="search-wrapper">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search" />
+                        <InputText v-model="searchQuery" placeholder="Search files..." @input="onFilter" />
+                    </span>
+                </div>
+                <div class="upload-btn-wrapper">
+                    <Button @click="$refs.fileInput.click()" icon="pi pi-upload" class="p-button-primary upload-btn" label="Upload Files" />
+                    <input multiple type="file" ref="fileInput" @change="uploadFile" class="hidden" />
+                </div>
+            </div>
+            
+            <DataTable ref="dt" :value="filteredFiles" 
+                :rowHover="true"
+                stripedRows 
+                paginator 
+                :rows="5" 
+                :rowsPerPageOptions="[5, 10, 15]"
+                tableStyle="min-width: 25rem" 
+                class="files-table" 
+                scrollable 
+                scrollHeight="400px"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} files">
+                
+                <Column field="fileId" hidden header="File ID" />
+                
+                <Column field="fileName" header="File" style="width: 50%">
+                    <template #body="{ data }">
+                        <div class="file-name-cell">
+                            <div class="file-icon-wrapper">
+                                <i :class="getFileIcon(data.fileType)" />
+                            </div>
+                            <div class="file-details">
+                                <span class="file-name">{{ data.fileName }}</span>
+                                <span class="file-size">{{ formatFileSize(data.fileSize) }}</span>
+                            </div>
+                        </div>
+                    </template>
+                </Column>
+                
+                <Column field="fileType" header="Format" style="width: 20%">
+                    <template #body="{ data }">
+                        <span class="file-format-badge">{{ getFileFormat(data.fileType) }}</span>
+                    </template>
+                </Column>
+                
+                <Column header="Actions" style="width: 30%">
+                    <template #body="{ data }">
+                        <div class="action-buttons">
+                            <Button @click="downloadFile(data)" 
+                                icon="pi pi-download" 
+                                class="p-button-text p-button-rounded action-btn"
+                                v-tooltip.top="'Download File'" />
+                                
+                            <Button @click.stop="addStoredFileToContext(data)" 
+                                icon="pi pi-plus" 
+                                class="p-button-text p-button-rounded action-btn action-btn-add"
+                                v-tooltip.top="'Add to Context'" />
+                                
+                            <Button @click="handleDeleteFile(data.fileId)" 
+                                icon="pi pi-trash" 
+                                class="p-button-text p-button-rounded action-btn action-btn-delete"
+                                v-tooltip.top="'Delete File'" />
+                        </div>
+                    </template>
+                </Column>
+                
+                <template #empty>
+                    <div class="empty-state">
+                        <div class="empty-icon-wrapper">
+                            <i class="pi pi-cloud-upload"></i>
+                        </div>
+                        <h3>No files found</h3>
+                        <p>Upload files to see them here</p>
+                        <Button @click="$refs.fileInput.click()" label="Upload Files" icon="pi pi-upload" class="p-button-outlined" />
+                    </div>
+                </template>
+            </DataTable>
         </div>
-        <DataTable ref="dt" :value="filteredFiles" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 15]"
-            tableStyle="min-width: 25rem" class="files-table" scrollable scrollHeight="400px"
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} files">
-            <Column field="fileId" hidden header="File ID" style="width: 20%" />
-            <Column field="fileName" header="File Name" style="width: 50%">
-                <template #body="{ data }">
-                    <div class="file-name-cell">
-                        <i :class="getFileIcon(data.fileType)" />
-                        <span>{{ data.fileName }}</span>
-                    </div>
-                </template>
-            </Column>
-            <Column field="fileSize" header="Size" style="width: 20%">
-                <template #body="{ data }">
-                    {{ formatFileSize(data.fileSize) }}
-                </template>
-            </Column>
-            <Column field="fileType" header="Format" style="width: 100%">
-                <template #body="{ data }">
-                    <span class="file-format-badge">{{ getFileFormat(data.fileType) }}</span>
-                </template>
-            </Column>
-            <Column header="Actions" style="width: 25%">
-                <template #body="{ data }">
-                    <div class="action-buttons">
-                        <Button @click="downloadFile(data)" icon="pi pi-download" class="p-button-rounded p-button-info p-button-sm"
-                            title="Download File" />
-                        <Button @click.stop="addStoredFileToContext(data)" icon="pi pi-plus"
-                            class="p-button-rounded p-button-success p-button-sm" title="Add to Context" />
-                        <Button @click="handleDeleteFile(data.fileId)" icon="pi pi-trash"
-                            class="p-button-rounded p-button-danger p-button-sm" title="Delete File" />
-                    </div>
-                </template>
-            </Column>
-            <template #footer>
-                <div class="add-new-file-row" @click="$refs.fileInput.click()">
-                    <i class="pi pi-plus"></i>
-                    <span>Upload New Files</span>
-                </div>
-            </template>
-            <template #empty>
-                <div class="empty-message">
-                    <i class="pi pi-inbox empty-icon"></i>
-                    <p>No files found</p>
-                    <Button @click="$refs.fileInput.click()" class="p-button-outlined">Upload Files</Button>
-                </div>
-            </template>
-        </DataTable>
     </div>
 </template>
 
@@ -272,8 +299,57 @@ onMounted(async () => {
 });
 </script>
 <style scoped lang="scss">
-.search-section {
-    margin-bottom: 1rem;
+.stored-files-container {
+    position: fixed;
+    z-index: 2000;
+    padding: 0;
+    background-color: #1a1e21;
+    color: #fff;
+    border-radius: 16px;
+    max-width: 800px;
+    width: 80vw;
+    max-height: 85vh;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3), 0 8px 10px rgba(0, 0, 0, 0.22);
+    font-family: 'Roboto', sans-serif;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    @media (max-width: 768px) {
+        width: 95vw;
+        max-height: 90vh;
+    }
+}
+
+.dialog-content {
+    padding: 0 1.5rem 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.search-and-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+
+    @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.search-wrapper {
+    flex: 1;
     
     .p-input-icon-left {
         width: 100%;
@@ -281,7 +357,7 @@ onMounted(async () => {
         display: inline-flex;
         
         i {
-            color: #157474;
+            color: rgba(255, 255, 255, 0.6);
             position: absolute;
             left: 0.75rem;
             top: 50%;
@@ -291,27 +367,56 @@ onMounted(async () => {
         
         input {
             width: 100%;
-            background-color: rgba(255, 255, 255, 0.08);
-            border-color: transparent;
-            border-bottom: 2px solid #157474;
-            border-radius: 4px;
-            padding-left: 2.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.7rem 1rem 0.7rem 2.5rem;
+            transition: all 0.2s ease;
+            color: #ffffff;
             
             &:focus {
-                box-shadow: 0 0 0 2px rgba(21, 116, 116, 0.2);
+                box-shadow: 0 0 0 3px rgba(21, 116, 116, 0.25);
+                background-color: rgba(255, 255, 255, 0.08);
+                border-color: rgba(21, 116, 116, 0.5);
+            }
+            
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.4);
             }
         }
     }
 }
 
+.upload-btn-wrapper {
+    .upload-btn {
+        background: linear-gradient(45deg, #157474, #1b8f8f);
+        border: none;
+        border-radius: 8px;
+        padding: 0.7rem 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        
+        &:hover {
+            background: linear-gradient(45deg, #1b8f8f, #21aaaa);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
 .files-table {
-    margin-top: 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     flex: 1;
     display: flex;
     flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     
     :deep(.p-datatable) {
         display: flex;
@@ -325,26 +430,41 @@ onMounted(async () => {
         overflow: hidden;
     }
     
-    :deep(.p-datatable-header),
-    :deep(.p-datatable-footer) {
-        background-color: #212121;
+    :deep(.p-datatable-header) {
+        background-color: rgba(30, 30, 30, 0.5);
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
     
     :deep(.p-datatable-thead) th {
-        background-color: #272727;
-        color: #fff;
-        font-weight: 600;
-        border-color: #333;
+        background-color: rgba(30, 30, 30, 0.7);
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        border-color: rgba(255, 255, 255, 0.06);
+        padding: 1rem;
         position: sticky;
         top: 0;
         z-index: 1;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    
+    :deep(.p-datatable-tbody) td {
+        padding: 0.8rem 1rem;
+        border-color: rgba(255, 255, 255, 0.04);
     }
     
     :deep(.p-datatable-tbody) tr {
-        transition: background-color 0.2s;
+        transition: background-color 0.2s ease;
+        backdrop-filter: blur(5px);
+        
+        &:nth-child(odd) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
         
         &:hover {
-            background-color: rgba(21, 116, 116, 0.1) !important;
+            background-color: rgba(21, 116, 116, 0.08) !important;
         }
         
         &.p-highlight {
@@ -353,125 +473,151 @@ onMounted(async () => {
     }
     
     :deep(.p-paginator) {
-        background-color: #272727;
-        border-top: 1px solid #333;
-    }
-    
-    :deep(.p-dropdown-panel) {
-        max-height: 200px;
-    }
-    
-    :deep(.p-dropdown-items-wrapper) {
-        max-height: 150px !important;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.75rem;
+        
+        button {
+            color: rgba(255, 255, 255, 0.7);
+            
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            &.p-highlight {
+                background-color: #157474;
+            }
+        }
     }
 }
 
 .file-name-cell {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     
-    i {
-        font-size: 1.25rem;
-        color: #157474;
+    .file-icon-wrapper {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(21, 116, 116, 0.15);
+        border-radius: 8px;
+        
+        i {
+            font-size: 1.3rem;
+            color: #20abab;
+        }
     }
     
-    span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .file-details {
+        display: flex;
+        flex-direction: column;
+        
+        .file-name {
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.95);
+        }
+        
+        .file-size {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.25rem;
+        }
     }
 }
 
 .file-format-badge {
     display: inline-block;
-    padding: 0.25rem 0.5rem;
-    background-color: rgba(21, 116, 116, 0.2);
-    color: #f0f0f0;
-    border-radius: 4px;
-    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
+    background-color: rgba(21, 116, 116, 0.15);
+    color: #20abab;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
 }
 
 .action-buttons {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.25rem;
     justify-content: flex-end;
     
-    button {
-        width: 2rem;
-        height: 2rem;
-        transition: transform 0.2s;
+    .action-btn {
+        width: 2.2rem;
+        height: 2.2rem;
+        transition: all 0.2s ease;
+        color: rgba(255, 255, 255, 0.7);
+        background-color: transparent;
+        border: none;
         
         &:hover {
-            transform: scale(1.15);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+        }
+        
+        &.action-btn-add:hover {
+            color: #4caf50;
+        }
+        
+        &.action-btn-delete:hover {
+            color: #f44336;
         }
     }
 }
 
-.add-new-file-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background-color: rgba(21, 116, 116, 0.15);
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: 0 0 8px 8px;
-
-    &:hover {
-        background-color: rgba(21, 116, 116, 0.3);
-    }
-
-    i {
-        margin-right: 0.5rem;
-        color: #157474;
-    }
-}
-
-.empty-message {
+.empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 3rem 1rem;
-    color: #aaa;
+    padding: 4rem 1rem;
+    text-align: center;
     
-    .empty-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: #555;
+    .empty-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: rgba(21, 116, 116, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        
+        i {
+            font-size: 2.5rem;
+            color: #20abab;
+        }
+    }
+    
+    h3 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
     }
     
     p {
-        margin-bottom: 1.5rem;
+        margin: 0 0 2rem 0;
+        color: rgba(255, 255, 255, 0.6);
     }
-}
-
-.stored-files-container {
-    position: fixed;
-    z-index: 2000;
-    padding: 1.5rem;
-    background-color: #1d1e1e;
-    color: #fff;
-    border-radius: 10px;
-    max-width: 700px;
-    width: 80vw;
-    max-height: 85vh;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    font-family: 'Roboto', sans-serif;
-    border: 2px solid rgba(21, 116, 116, 0.7);
-    backdrop-filter: blur(10px);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-
-    @media (max-width: 768px) {
-        width: 95vw;
-        max-height: 90vh;
+    
+    button {
+        background-color: transparent;
+        border: 2px solid #157474;
+        color: #20abab;
+        border-radius: 8px;
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s ease;
+        
+        &:hover {
+            background-color: #157474;
+            color: #ffffff;
+        }
     }
 }
 
