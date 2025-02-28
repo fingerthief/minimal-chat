@@ -45,8 +45,10 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.6",
     "auto-changelog": "^2.4.0",
     "eslint": "^8.57.0",
+    "happy-dom": "^17.1.8",
     "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
     "sass": "^1.75.0",
@@ -54,7 +56,8 @@
     "vite": "^5.2.8",
     "vite-plugin-imagemin": "^0.6.1",
     "vite-plugin-pwa": "^0.20.0",
-    "vite-plugin-vue-devtools": "^7.0.25"
+    "vite-plugin-vue-devtools": "^7.0.25",
+    "vitest": "^3.0.7"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5"
