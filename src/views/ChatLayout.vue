@@ -532,7 +532,7 @@ pre {
 .sidebar-conversations,
 .sidebar-common {
   background-color: $sidebar-bg-color;
-  padding: 6px;
+  padding: 0;
   overflow: hidden;
   z-index: 0;
 
@@ -551,6 +551,8 @@ pre {
   min-width: 325px;
   width: 325px;
   z-index: 2;
+  margin: 0;
+  padding-top: 0;
   border-right: 1px solid $border-color;
 
   @media (max-width: 600px) {

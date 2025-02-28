@@ -87,19 +87,11 @@ function handleUpdate(field, value) {
       </div>
       
       <div class="app-title">
-        <h1>Minimal Chat</h1>
+        <h1>MinimalChat</h1>
       </div>
       
       <div class="header-actions">
-        <button class="action-btn" @click="() => showStoredFiles = true" title="Stored Files">
-          <Database size="20" />
-        </button>
-        <button class="action-btn" @click="toggleSidebar" title="Settings">
-          <Settings size="20" />
-        </button>
-        <div class="context-action">
-          <ContextWindow ref="contextWindow" />
-        </div>
+        <!-- Icons removed from desktop view -->
       </div>
     </div>
     
@@ -112,7 +104,7 @@ function handleUpdate(field, value) {
       </div>
       
       <div class="header-center">
-        <h1 class="app-title-mobile">Minimal Chat</h1>
+        <h1 class="app-title-mobile">MinimalChat</h1>
       </div>
       
       <div class="header-right">
@@ -160,7 +152,7 @@ $border-radius: 8px;
   background-color: $background-header;
   width: 100%;
   position: relative;
-  z-index: 10;
+  z-index: 2;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   border-bottom: 1px solid rgba($primary-color, 0.5);
 }

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, nextTick, computed } from 'vue';
-import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal, Github } from 'lucide-vue-next';
+import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal, Github, MessageSquare, X } from 'lucide-vue-next';
 import ToolTip from '../controls/ToolTip.vue';
 import {
   conversations,
@@ -147,36 +147,44 @@ function exportConversations() {
 }
 
 function purgeConversations() {
-  if (!confirm('Delete All Conversations?')) {
-    return;
+  if (confirm("Are you sure you want to delete all conversations?")) {
+    localStorage.removeItem('conversations');
+    storedConversations.value = [];
+    conversations.value = [];
+    messages.value = [];
+    selectedConversation.value = null;
+    lastLoadedConversationId.value = 0;
+    // Set a reasonable delay to allow the animation to complete
+    setTimeout(() => {
+      saveMessagesHandler();
+    }, 300);
+
+    showToast('All Conversations Purged');
   }
-
-  localStorage.setItem('gpt-conversations', '');
-  messages.value = [];
-  conversations.value = [];
-  storedConversations.value = [];
-
-  showToast('All Conversations Deleted.');
-}
-
-function toggleSidebar() {
-  event.stopPropagation();
-  isSidebarOpen.value = !isSidebarOpen.value;
-}
-
-function toggleConversations() {
-  event.stopPropagation();
-  showConversationOptions.value = !showConversationOptions.value;
 }
 
 function deleteConversation(conversationId) {
-  const index = conversations.value.findIndex(convo => convo.id === conversationId);
-  if (index !== -1) {
-    const conversationElement = document.getElementById(`conversation-${index}`);
-    if (conversationElement) {
-      conversationElement.classList.add('deleting');
-      setTimeout(() => {
-        conversations.value.splice(index, 1);
+  const conversationIndex = conversations.value.findIndex(
+    (conversation) => conversation.id === conversationId
+  );
+
+  if (conversationIndex !== -1) {
+    const conversation = conversations.value[conversationIndex];
+    conversation.deleting = true;
+
+    // Delay actual deletion to allow for animation
+    setTimeout(() => {
+      conversations.value.splice(conversationIndex, 1);
+      if (selectedConversation.value && selectedConversation.value.id === conversationId) {
+        // Set selected conversation to the next one if available
+        if (conversations.value.length > 0) {
+          const nextIndex = Math.min(conversationIndex, conversations.value.length - 1);
+          selectedConversation.value = conversations.value[nextIndex];
+          messages.value = selectedConversation.value.messageHistory;
+        } else {
+          selectedConversation.value = null;
+          messages.value = [];
+        }
 
         if (conversations.value.length === 0) {
           messages.value = [];
@@ -188,8 +196,8 @@ function deleteConversation(conversationId) {
         saveMessagesHandler();
         loadSelectedConversation(selectedConversation.value);
         showToast('Conversation Deleted');
-      }, 200); // Duration of the scaleDown animation
-    }
+      }
+    }, 200); // Duration of the scaleDown animation
   }
 }
 
@@ -222,312 +230,545 @@ const visibleModelLinks = computed(() => {
   return modelTypes.filter((modelType) => selectedModel.value.includes(modelType.name));
 });
 
+function toggleConversations() {
+  showConversationOptions.value = !showConversationOptions.value;
+}
+
 </script>
 
 <template>
-  <div class="resize-container">
-    <div class="settings-header">
-      <h2>
-        <span v-if="isSmallScreen">Conversations &nbsp;</span>
-        <Database @click.stop="showStoredFiles = !showStoredFiles" v-if="!isSmallScreen" :id="'stored-Files'"
-          class="database-icon" />
-        <ToolTip :targetId="'stored-Files'" v-if="!isSmallScreen">View Stored Files</ToolTip>
-        <a v-for="modelType in visibleModelLinks" :key="modelType.name" id="navLink" v-show="!isSmallScreen"
-          href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
-          {{ modelType.display }}
-          <Github :size="25" class="header-icon" />
-        </a>
-        <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="no-style-link">
-
-        </a>
-        <MoreHorizontal @blur="showContextMenu = false;" class="context-menu-icon" @click="toggleContextMenu"
-          id="contextMenu" :size="25" :stroke-width="1.0" />
+  <div class="conversations-dialog">
+    <!-- Header Bar -->
+    <div class="dialog-header">
+      <div class="header-left">
+        <h2>
+          <span>Conversations</span>
+        </h2>
+      </div>
+      
+      <div class="header-actions">
+        <!-- Desktop actions -->
+        <div v-if="!isSmallScreen" class="desktop-actions">
+          <button class="action-btn" @click.stop="showStoredFiles = !showStoredFiles" id="stored-Files" title="Stored Files">
+            <Database :size="20" />
+          </button>
+          <ToolTip :targetId="'stored-Files'">View Stored Files</ToolTip>
+          
+          <a class="github-link" href="https://github.com/fingerthief/minimal-chat" target="_blank" title="GitHub">
+            <Github :size="20" />
+          </a>
+          
+          <button class="action-btn" @click="() => isSidebarOpen = true" title="Settings">
+            <Settings :size="20" />
+          </button>
+        </div>
+        
+        <!-- Menu button -->
+        <button class="action-btn menu-btn" @click="toggleContextMenu" id="contextMenu">
+          <MoreHorizontal :size="20" />
+        </button>
+        
+        <!-- Dropdown menu -->
         <transition name="fade-slide">
-          <div v-show="showContextMenu" class="context-menu">
-            <ToolTip :targetId="'purgeConversations'">Purge all conversations</ToolTip>
-            <Eraser @click="purgeConversations" id="purgeConversations" :size="25" :stroke-width="1.0" />&nbsp;
-            <ToolTip :targetId="'exportConversations'">Export conversations</ToolTip>
-            <Download @click="exportConversations" id="exportConversations" :size="25" :stroke-width="1.0" />&nbsp;
-            <ToolTip :targetId="'importConversations'">Import conversations</ToolTip>
-            <Upload @click="importConversations" id="importConversations" :size="25" :stroke-width="1.0" />
+          <div v-show="showContextMenu" class="context-menu-dropdown">
+            <div class="menu-item" @click="purgeConversations" id="purgeConversations">
+              <Eraser :size="18" />
+              <span>Purge Conversations</span>
+            </div>
+            <div class="menu-item" @click="exportConversations" id="exportConversations">
+              <Download :size="18" />
+              <span>Export Conversations</span>
+            </div>
+            <div class="menu-item" @click="importConversations" id="importConversations">
+              <Upload :size="18" />
+              <span>Import Conversations</span>
+            </div>
           </div>
         </transition>
-        <Settings v-if="!isSmallScreen" @click="toggleSidebar" class="settings-icon" :size="25" />
-      </h2>
+      </div>
     </div>
-    <div class="sidebar-content-container">
-      <div class="scrollable-list">
+    
+    <!-- Conversations List -->
+    <div class="conversations-container">
+      <div class="conversations-list">
         <ul>
-          <li v-for="(conversation, index) in conversations" :key="index" :id="'conversation-' + index"
-            :contenteditable="conversation.isEditing" @click="loadSelectedConversation(conversation)"
-            @dblclick="onEditConversationTitle(conversation)" @blur="saveEditedConversationTitle(conversation, $event)"
-            :class="{ selected: selectedConversation && selectedConversation.id === conversation.id, deleting: conversation.deleting }">
-            <Pencil v-if="isSmallScreen" :id="'pencil-' + index" :size="13"
-              @click.stop="onEditConversationTitle(conversation)" />
-            <ToolTip :targetId="'conversation-' + index">Double Click to Edit Title</ToolTip>
-            <span>&nbsp;
-              <Trash :id="'trash-' + index" :size="13" class="trash-icon"
-                @click.stop="deleteConversation(conversation.id)" /> &nbsp;{{ conversation.title }}
-            </span>
-            <span v-if="!conversation.isEditing" class="token-count">
-              {{ conversationCharacterCount(conversation) }} Tokens
-            </span>
+          <!-- Conversation Items -->
+          <li v-for="(conversation, index) in conversations" 
+              :key="index" 
+              :id="'conversation-' + index"
+              :contenteditable="conversation.isEditing" 
+              @click="loadSelectedConversation(conversation)"
+              @dblclick="onEditConversationTitle(conversation)" 
+              @blur="saveEditedConversationTitle(conversation, $event)"
+              :class="{ 
+                selected: selectedConversation && selectedConversation.id === conversation.id, 
+                deleting: conversation.deleting,
+                editing: conversation.isEditing
+              }">
+            
+            <!-- Conversation Content -->
+            <div class="conversation-content">
+              <div class="conversation-title">
+                <MessageSquare :size="16" class="conversation-icon" />
+                {{ conversation.title }}
+              </div>
+              
+              <div class="conversation-actions">
+                <span class="token-count">
+                  {{ conversationCharacterCount(conversation) }} Tokens
+                </span>
+                
+                <div class="action-icons">
+                  <button class="icon-btn edit-btn" @click.stop="onEditConversationTitle(conversation)" 
+                     title="Edit Title">
+                    <Pencil :size="14" />
+                  </button>
+                  <button class="icon-btn delete-btn" @click.stop="deleteConversation(conversation.id)"
+                    title="Delete Conversation">
+                    <Trash :size="14" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </li>
-          <li @click="startNewConversation" class="new-conversation">
-            <span class="new-icon">
-              <plus :size="13" />
-              &nbsp;<span class="new-text">New Conversation</span>
-            </span>
+          
+          <!-- New Conversation Button -->
+          <li class="new-conversation-btn" @click="startNewConversation">
+            <Plus :size="16" class="plus-icon" />
+            <span>New Conversation</span>
           </li>
         </ul>
       </div>
     </div>
-    <div class="bottom-panel">
-      <div class="scrollable-list--bottom">
-        <ul>
-          <li v-show="isSmallScreen" class="new-conversation-option--delete" @click="deleteCurrentConversation">
-            <span class="delete-icon">
-              <MessageSquareX :stroke-width="1.5" :size="18" color="rgba(255, 255, 255, 0.95)" />
-              <span class="delete-text">Delete Current Conversation</span>
-            </span>
-          </li>
-          <li v-show="showConversationOptions && isSmallScreen" class="new-conversation-option--settings"
-            @click="toggleConversations">
-            <span class="settings-icon">
-              <Settings :stroke-width="1.5" :size="18" color="rgba(255, 255, 255, 0.95)" />
-              <span class="settings-text">Close</span>
-            </span>
-          </li>
-        </ul>
-      </div>
+    
+    <!-- Mobile Bottom Panel -->
+    <div v-if="isSmallScreen" class="mobile-bottom-panel">
+      <button v-show="isSmallScreen" class="bottom-action-btn delete-conversation-btn" 
+        @click="deleteCurrentConversation">
+        <MessageSquareX :size="18" />
+        <span>Delete Current</span>
+      </button>
+      
+      <button v-show="showConversationOptions && isSmallScreen" 
+        class="bottom-action-btn close-btn" @click="toggleConversations">
+        <X :size="18" />
+        <span>Close</span>
+      </button>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-// Variables for consistent theming
+// Variables
 $primary-color: #157474;
-$secondary-color: #413558;
-$background-dark: #1d1e1e;
-$background-darker: #1f1f1f;
-$background-lighter: #2b2b2b;
+$primary-light: #1a8f8f;
+$primary-dark: #0f5454;
+$bg-dark: #1d1e1e;
+$bg-darker: #1b1b1b;
+$bg-lighter: #2b2b2b;
 $text-color: #ffffff;
 $text-muted: #b0b0b0;
-$border-color: #424045;
-$shadow-color: #252629;
-$transition-speed: 0.2s;
+$header-bg: #212121;
+$border-color: rgba(21, 116, 116, 0.5);
+$danger-color: #e74c3c;
+$warning-color: #f39c12;
+$success-color: #27ae60;
 $border-radius: 8px;
+$transition-speed: 0.2s;
 
-// Reusable mixins
-@mixin card-shadow {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+// Animations
+@keyframes pulse {
+  0% { box-shadow: 0 2px 8px rgba(21, 116, 116, 0.2); }
+  100% { box-shadow: 0 2px 16px rgba(21, 116, 116, 0.4); }
 }
 
-@mixin hover-shadow {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+@keyframes scaleDown {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
 }
 
-@mixin flex-center {
-  display: flex;
-  align-items: center;
+@keyframes gentle-pulse {
+  0% { box-shadow: 0 4px 12px rgba(21, 116, 116, 0.2); }
+  100% { box-shadow: 0 4px 15px rgba(21, 116, 116, 0.4); }
 }
 
-// Core styles
-.resize-container {
+// Main container
+.conversations-dialog {
   display: flex;
   flex-direction: column;
-  height: 100%;
-}
-
-.header-icon {
-  position: absolute;
-  margin-left: 6px;
-  transition: transform $transition-speed ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-}
-
-.new-conversation {
-  border-top: 1px solid rgba(0, 0, 0, 0.3);
-  text-align: center;
+  height: 100vh;
+  background-color: $bg-dark;
   position: relative;
-  padding: 14px !important;
-  margin-top: 10px;
-  transition: all $transition-speed ease;
-  
-  @media (min-width: 601px) {
-    margin: 10px 8px 0 0;
-    border-radius: 0 8px 8px 0 !important;
-    border-top: none;
-    border-left: 4px solid transparent;
-    background-color: rgba(17, 67, 53, 0.35);
-  }
+  margin: 0;
+  padding: 0; 
   
   @media (max-width: 600px) {
-    margin: 10px 0 14px 0;
-    border-radius: 8px !important;
-    background-color: rgba($primary-color, 0.2);
-    border: 1px solid rgba($primary-color, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    padding: 16px !important;
-  }
-
-  &:hover {
-    background-color: rgba($primary-color, 0.3) !important;
-    transform: translateY(-3px) scale(1.02);
-    @include card-shadow;
-    box-shadow: 0 4px 12px rgba(21, 116, 116, 0.2);
-    animation: gentle-pulse 1.5s infinite alternate;
-    
-    @media (min-width: 601px) {
-      border-left: 4px solid rgba($primary-color, 0.5);
-    }
-  }
-  
-  @keyframes gentle-pulse {
-    0% {
-      box-shadow: 0 4px 12px rgba(21, 116, 116, 0.2);
-    }
-    100% {
-      box-shadow: 0 4px 15px rgba(21, 116, 116, 0.4);
-    }
-  }
-  
-  .new-icon {
-    font-weight: 600;
+    height: 100vh;
+    max-height: 100vh;
   }
 }
 
-.token-count {
-  font-size: 0.7rem;
-  color: $text-muted;
-  opacity: 0.8;
-}
-
-.resize-handle {
-  position: absolute;
+// Header section
+.dialog-header {
+  background-color: $header-bg;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid $border-color;
+  position: sticky;
   top: 0;
-  right: 0;
-  width: 3px;
-  height: 100%;
-  cursor: col-resize;
-  background-color: rgba($primary-color, 0.3);
-  z-index: 1000;
-
-  &:hover {
-    background-color: $primary-color;
-  }
-}
-
-.settings-header {
-  font-size: 16px;
-  font-weight: bold;
-  position: relative;
-  padding: 12px 16px;
-  text-align: left;
-  white-space: nowrap;
-  border-bottom: 1px solid rgba($border-color, 0.4);
-  backdrop-filter: blur(10px);
-
-  h2 {
-    margin: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  a {
-    position: relative;
-    margin-left: 20px;
-    transition: opacity $transition-speed ease;
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    @media (max-width: 600px) {
-      background-color: rgba(10, 30, 36, 0.8);
-      position: relative;
-    }
-  }
-
-  @media (max-width: 600px) {
-    text-align: center;
-    padding: 16px 8px;
-    background-color: rgba($background-dark, 0.9);
-    border-bottom: 1px solid rgba($primary-color, 0.2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    position: sticky;
-    top: 0;
-    z-index: 5;
-  }
-
-  .context-menu {
-    position: absolute;
-    top: 40px;
-    right: 10px;
-    background-color: $background-dark;
-    border: 1px solid rgba($border-color, 0.7);
-    border-radius: $border-radius;
-    padding: 12px;
-    display: flex;
-    z-index: 10;
-    flex-direction: column;
-    gap: 14px;
-    @include card-shadow;
-
-    svg {
-      transition: transform $transition-speed ease;
-      cursor: pointer;
-
-      &:hover {
-        transform: scale(1.1);
-        color: $primary-color;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  
+  .header-left {
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-color;
+      display: flex;
+      align-items: center;
+      
+      @media (max-width: 600px) {
+        font-size: 17px;
       }
     }
   }
-
-  .context-menu-icon {
-    display: block;
-    float: right;
-    cursor: pointer;
-    transition: transform $transition-speed ease;
-
-    &:hover {
-      transform: scale(1.1);
-      color: $primary-color;
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    
+    .desktop-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+    
+    .github-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-muted;
+      text-decoration: none;
+      padding: 6px;
+      border-radius: 6px;
+      transition: all $transition-speed ease;
+      
+      &:hover {
+        color: $text-color;
+        background-color: rgba($primary-color, 0.15);
+      }
+    }
+    
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: $text-muted;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all $transition-speed ease;
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.15);
+        color: $text-color;
+      }
+      
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+    
+    .menu-btn {
+      position: relative;
+      z-index: 11;
+    }
+    
+    // Dropdown menu
+    .context-menu-dropdown {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background-color: $bg-darker;
+      border: 1px solid rgba($primary-color, 0.3);
+      border-radius: $border-radius;
+      width: 200px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+      overflow: hidden;
+      
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        transition: background-color $transition-speed ease;
+        cursor: pointer;
+        
+        &:hover {
+          background-color: rgba($primary-color, 0.15);
+        }
+        
+        svg {
+          color: $primary-color;
+          opacity: 0.9;
+        }
+        
+        span {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
 
+// Conversations list container
+.conversations-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  scrollbar-width: thin;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+    
     @media (max-width: 600px) {
-      margin-right: 8px;
+      width: 5px;
     }
   }
-
-  .database-icon {
-    display: block;
-    position: relative;
-    float: left;
-    cursor: pointer;
-    transition: transform $transition-speed ease;
-
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba($primary-color, 0.4);
+    border-radius: 10px;
+    
     &:hover {
-      transform: scale(1.1);
-      color: $primary-color;
+      background-color: rgba($primary-color, 0.6);
     }
   }
+  
+  // Conversations list
+  .conversations-list {
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      
+      // Conversation item
+      li {
+        border-radius: $border-radius;
+        cursor: pointer;
+        margin-bottom: 8px;
+        transition: all $transition-speed ease;
+        overflow: hidden;
+        
+        &.editing {
+          outline: none;
+          border: 2px solid rgba($primary-color, 0.6);
+          padding: 16px;
+          border-radius: $border-radius;
+          text-align: center;
+          background-color: rgba($bg-lighter, 0.5);
+        }
+        
+        &:not(.new-conversation-btn) {
+          background-color: rgba($bg-lighter, 0.3);
+          border-left: 3px solid transparent;
+          
+          &:hover {
+            background-color: rgba($bg-lighter, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+          }
+          
+          &.selected {
+            background-color: rgba($primary-color, 0.15);
+            border-left: 3px solid $primary-color;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+            
+            &:hover {
+              background-color: rgba($primary-color, 0.2);
+            }
+          }
+          
+          &.deleting {
+            animation: scaleDown $transition-speed linear forwards;
+          }
+        }
+        
+        // Conversation content
+        .conversation-content {
+          padding: 14px;
+          
+          .conversation-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            word-break: break-word;
+            
+            .conversation-icon {
+              color: $primary-color;
+              opacity: 0.8;
+              flex-shrink: 0;
+            }
+          }
+          
+          .conversation-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            
+            .token-count {
+              font-size: 12px;
+              color: $text-muted;
+              background-color: rgba($bg-darker, 0.5);
+              padding: 2px 8px;
+              border-radius: 4px;
+            }
+            
+            .action-icons {
+              display: flex;
+              gap: 8px;
+              
+              .icon-btn {
+                background: transparent;
+                border: none;
+                color: $text-muted;
+                padding: 5px;
+                border-radius: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all $transition-speed ease;
+                
+                &:hover {
+                  background-color: rgba($bg-darker, 0.6);
+                  
+                  &.edit-btn {
+                    color: $warning-color;
+                  }
+                  
+                  &.delete-btn {
+                    color: $danger-color;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // New conversation button
+        &.new-conversation-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          background-color: rgba($primary-color, 0.1);
+          padding: 14px;
+          border: 1px dashed rgba($primary-color, 0.3);
+          margin-top: 12px;
+          margin-bottom: 24px;
+          
+          .plus-icon {
+            color: $primary-color;
+          }
+          
+          span {
+            font-weight: 500;
+          }
+          
+          &:hover {
+            background-color: rgba($primary-color, 0.2);
+            border-color: rgba($primary-color, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba($primary-color, 0.2);
+          }
+          
+          &:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba($primary-color, 0.15);
+          }
+        }
+      }
+    }
+  }
+}
 
-  .settings-icon {
-    display: block;
-    position: relative;
-    float: left;
-    right: -12px;
+// Mobile bottom panel
+.mobile-bottom-panel {
+  display: flex;
+  padding: 10px;
+  background-color: $bg-darker;
+  border-top: 1px solid rgba($primary-color, 0.2);
+  gap: 10px;
+  
+  .bottom-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: $bg-lighter;
+    border: none;
+    color: $text-color;
+    padding: 12px;
+    border-radius: $border-radius;
     cursor: pointer;
-    transition: transform $transition-speed ease;
-
+    font-size: 14px;
+    transition: all $transition-speed ease;
+    
+    svg {
+      color: $text-muted;
+    }
+    
+    &.delete-conversation-btn {
+      background-color: rgba($danger-color, 0.1);
+      border: 1px solid rgba($danger-color, 0.2);
+      
+      &:hover {
+        background-color: rgba($danger-color, 0.2);
+        border-color: rgba($danger-color, 0.3);
+      }
+      
+      svg {
+        color: rgba($danger-color, 0.8);
+      }
+    }
+    
+    &.close-btn {
+      background-color: rgba($primary-color, 0.1);
+      border: 1px solid rgba($primary-color, 0.2);
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.2);
+        border-color: rgba($primary-color, 0.3);
+      }
+      
+      svg {
+        color: rgba($primary-color, 0.8);
+      }
+    }
+    
     &:hover {
-      transform: scale(1.1);
-      color: $primary-color;
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
     }
   }
 }
@@ -542,524 +783,5 @@ $border-radius: 8px;
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-10px);
-}
-
-.scale-down-enter-active,
-.scale-down-leave-active {
-  transition: transform $transition-speed ease, opacity $transition-speed ease;
-}
-
-.scale-down-enter-from,
-.scale-down-leave-to {
-  transform: scale(0);
-  opacity: 0;
-}
-
-.scale-down-enter-to,
-.scale-down-leave-from {
-  transform: scale(1);
-  opacity: 1;
-}
-
-// Bottom panel
-.bottom-panel {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-  width: 100%;
-  border-top: 1px solid rgba($border-color, 0.5);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 5;
-
-  // Hide completely on non-mobile screens
-  @media (min-width: 601px) {
-    display: none;
-  }
-
-  @media (max-width: 600px) {
-    width: 100%;
-  }
-
-  .scrollable-list--bottom {
-    max-width: 100%;
-    overflow-x: hidden;
-    width: 100%;
-    height: 18dvh;
-    max-height: 18dvh;
-    overflow: auto;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    font-size: 14px;
-    justify-content: flex-end;
-    padding: 6px 8px;
-
-    @media (max-width: 600px) {
-      background-color: rgba($background-dark, 0.97);
-    }
-    
-    &::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: rgba($primary-color, 0.3);
-      border-radius: 8px;
-      
-      &:hover {
-        background-color: rgba($primary-color, 0.5);
-      }
-    }
-
-    .new-conversation-option {
-      text-align: left;
-      color: $text-color;
-      font-weight: bold;
-      border-radius: $border-radius;
-      display: flex;
-      cursor: pointer;
-      position: relative;
-      background-color: rgba(13, 31, 37, 0.6);
-      border-bottom: 2px solid rgba(38, 98, 42, 0.7);
-      transition: all $transition-speed ease;
-
-      &:hover {
-        background-color: rgba(16, 71, 69, 0.8);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      }
-
-      &--delete {
-        border-radius: 6px;
-        border: 1px solid rgba(181, 83, 83, 0.5);
-        border-left: 3px solid rgba(230, 85, 85, 0.9);
-        background-color: rgba(98, 40, 40, 0.6);
-        transition: all $transition-speed ease;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-
-        &:hover {
-          background-color: rgba(149, 64, 64, 0.7);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .delete-icon {
-          @include flex-center;
-          gap: 8px;
-          padding: 0;
-          height: 100%;
-
-          .delete-text {
-            line-height: 1.2;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 0.01em;
-            color: rgba(255, 255, 255, 0.95);
-          }
-        }
-      }
-
-      &--settings {
-        border-radius: 6px;
-        border: 1px solid rgba(132, 94, 165, 0.5);
-        border-left: 3px solid rgba(150, 107, 197, 0.9);
-        background-color: rgba(61, 45, 80, 0.65);
-        transition: all $transition-speed ease;
-        margin-bottom: 8px;
-        margin-top: 2px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-
-        &:hover {
-          background-color: rgba(78, 63, 103, 0.8);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .settings-icon {
-          @include flex-center;
-          gap: 8px;
-          padding: 0;
-          height: 100%;
-
-          .settings-text {
-            line-height: 1.2;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 0.01em;
-            color: rgba(255, 255, 255, 0.95);
-          }
-        }
-      }
-
-      .new-icon {
-        @include flex-center;
-        gap: 10px;
-        margin-top: 5px;
-        padding: 10px;
-
-        .new-text {
-          line-height: 1.2;
-          font-weight: 600;
-          letter-spacing: 0.02em;
-        }
-      }
-    }
-
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      width: 100%;
-    }
-
-    li {
-      padding: 12px;
-      margin-bottom: 6px;
-      border-radius: 8px;
-      transition: all $transition-speed ease;
-      user-select: none;
-      cursor: pointer;
-      position: relative;
-      @include card-shadow;
-
-      &.new-conversation-option--delete {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 40px;
-        width: 90%;
-        margin: 0 auto 6px auto;
-      }
-
-      &.new-conversation-option--settings {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 40px;
-        width: 90%;
-        margin: 0 auto 6px auto;
-      }
-
-      &:hover {
-        background-color: rgba(17, 67, 53, 0.7);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-      }
-
-      &.selected {
-        background-color: rgba($secondary-color, 0.5);
-        font-weight: bold;
-        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(81, 63, 119, 0.7);
-        animation: pulse 0.15s ease-out forwards;
-      }
-
-      &.selected:before {
-        content: '\2713';
-        display: inline-block;
-        margin-right: 10px;
-        color: #4cae4c;
-      }
-
-      @keyframes pulse {
-        0% {
-          background-color: rgba(53, 45, 69, 0.55);
-          transform: scale(1);
-          box-shadow: 0 0 0 rgba(66, 53, 88, 0);
-        }
-
-        50% {
-          background-color: rgba($secondary-color, 0.6);
-          transform: scale(1.03);
-          box-shadow: 0 0 10px rgba(66, 53, 88, 0.5);
-        }
-
-        100% {
-          background-color: rgba(53, 45, 69, 0.55);
-          transform: scale(1);
-          box-shadow: 0 0 0 rgba(66, 53, 88, 0);
-        }
-      }
-    }
-  }
-}
-
-// Main scrollable list
-.scrollable-list {
-  @media (max-width: 600px) {
-    height: 72vh;
-    background-color: rgba($background-darker, 0.95);
-    padding: 4px 6px;
-    border-top: 1px solid rgba($border-color, 0.2);
-    border-bottom: 1px solid rgba($border-color, 0.2);
-  }
-
-  max-width: 100%;
-  width: 100%;
-  margin-top: 10px;
-  box-sizing: border-box;
-  font-size: 14px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  
-  @media (min-width: 601px) {
-    padding: 6px 4px 0 0;
-    background-color: rgba($background-darker, 0.5);
-    border-radius: 0 0 8px 0;
-  }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-    
-    @media (max-width: 600px) {
-      width: 5px;
-    }
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
-    
-    @media (max-width: 600px) {
-      background: rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba($primary-color, 0.4);
-    border-radius: 10px;
-    
-    &:hover {
-      background-color: rgba($primary-color, 0.6);
-    }
-    
-    @media (max-width: 600px) {
-      background-color: rgba($primary-color, 0.3);
-      border-radius: 8px;
-      
-      &:hover {
-        background-color: rgba($primary-color, 0.5);
-      }
-    }
-  }
-
-  .new-conversation-option {
-    text-align: left;
-    background-color: $background-lighter;
-    color: $text-color;
-    font-weight: 600;
-    border-radius: $border-radius;
-    padding: 16px;
-    display: flex;
-    cursor: pointer;
-    @include card-shadow;
-    transition: all $transition-speed ease;
-
-    &:hover {
-      @include hover-shadow;
-      transform: translateY(-2px);
-    }
-
-    .new-icon {
-      @include flex-center;
-      gap: 15px;
-      margin-top: 5px;
-
-      .new-text {
-        line-height: 1;
-      }
-    }
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  li {
-    padding: 16px 18px;
-    border-left: 4px solid transparent;
-    color: $text-color;
-    text-overflow: ellipsis;
-    text-wrap: nowrap;
-    overflow: hidden;
-    user-select: none;
-    font-size: 0.925rem;
-    animation: slideIn $transition-speed ease forwards;
-    transition: all $transition-speed ease;
-    margin-bottom: 4px;
-    cursor: pointer;
-    border-radius: 0 4px 4px 0;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    
-    @media (min-width: 601px) {
-      margin: 0 8px 6px 0;
-      border-radius: 0 8px 8px 0;
-    }
-    
-    @media (max-width: 600px) {
-      margin: 0 0 8px 0;
-      padding: 14px;
-      border-radius: 8px;
-      border-left: none;
-      border-bottom: 1px solid rgba($border-color, 0.15);
-      background-color: rgba($background-lighter, 0.3);
-    }
-
-    .token-count {
-      display: block;
-      margin-top: 6px;
-      font-size: 0.65rem;
-      color: $text-muted;
-      position: relative;
-      opacity: 0.8;
-      transition: opacity $transition-speed ease;
-    }
-
-    &[contenteditable='true'] {
-      outline: none;
-      border: 2px solid rgba(68, 68, 68, 0.7);
-      padding: 16px;
-      border-radius: $border-radius;
-      text-align: center;
-      background-color: $background-lighter;
-    }
-
-    &:hover {
-      @include card-shadow;
-      background-color: rgba(37, 37, 37, 0.8);
-      transform: translateY(-2px);
-      
-      .token-count {
-        opacity: 1;
-      }
-      
-      @media (max-width: 600px) {
-        background-color: rgba($background-lighter, 0.5);
-        transform: scale(1.02);
-        border-bottom: 1px solid rgba($primary-color, 0.3);
-      }
-    }
-
-    &:hover .trash-icon {
-      display: inline-block;
-      animation: fadeIn $transition-speed ease;
-    }
-
-    .trash-icon {
-      display: none;
-      cursor: pointer;
-      margin-left: 6px;
-      transition: all $transition-speed ease;
-
-      &:hover {
-        color: #ff6b6b;
-        transform: scale(1.2);
-      }
-    }
-
-    &.selected {
-      background-color: rgba(36, 35, 35, 0.9);
-      font-weight: 600;
-      box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
-      border-left: 4px solid $primary-color;
-      color: $text-color;
-      
-      @media (min-width: 601px) {
-        background: linear-gradient(90deg, rgba(21, 116, 116, 0.2) 0%, rgba(36, 35, 35, 0.9) 100%);
-      }
-      
-      @media (max-width: 600px) {
-        background-color: rgba($primary-color, 0.2);
-        border: 1px solid rgba($primary-color, 0.4);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        position: relative;
-        
-        &:before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 4px;
-          height: 100%;
-          background-color: $primary-color;
-          border-radius: 4px 0 0 4px;
-        }
-      }
-    }
-
-    &.deleting {
-      animation: scaleDown 0.5s linear forwards;
-    }
-  }
-}
-
-// Animations
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-}
-
-@keyframes slideIn {
-  0% {
-    transform: translateX(-20px);
-    opacity: 0;
-  }
-  50% {
-    transform: translateX(5px);
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes scaleDown {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(0);
-    opacity: 0;
-  }
-}
-
-li.deleting {
-  animation: scaleDown $transition-speed linear forwards;
 }
 </style>
