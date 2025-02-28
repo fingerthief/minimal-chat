@@ -1,8 +1,8 @@
 // ChatLayout.vue
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { determineModelDisplayName, handleDoubleClick, removeAPIEndpoints } from '@/libs/utils/general-utils';
+import { onMounted, ref, watch } from 'vue';
+import { determineModelDisplayName, handleDoubleClick, removeAPIEndpoints, startResize, resize, stopResize } from '@/libs/utils/general-utils';
 import { handleExportConversations } from '@/libs/conversation-management/conversations-management';
 import { onUploadFileContentsToConversation, uploadFile, imageInputChanged } from '@/libs/file-processing/file-processing';
 import messageItem from '@/components/controls/MessagesList.vue';
@@ -38,6 +38,89 @@ import "../assets/tutorial.css";
 import { getOpenAICompatibleAvailableModels } from '@/libs/api-access/open-ai-api-standard-access';
 
 const sidebarContentContainer = ref(null);
+const initialWidth = ref(325);
+const initialMouseX = ref(0);
+
+function startResizeHandler(event) {
+  initialWidth.value = sidebarContentContainer.value.offsetWidth;
+  initialMouseX.value = event.clientX;
+  document.addEventListener('mousemove', resizeHandler);
+  document.addEventListener('mouseup', stopResizeHandler);
+}
+
+function resizeHandler(event) {
+  if (!sidebarContentContainer.value) return;
+  const deltaX = event.clientX - initialMouseX.value;
+  const newWidth = Math.max(250, Math.min(600, initialWidth.value + deltaX));
+  sidebarContentContainer.value.style.width = `${newWidth}px`;
+  
+  // Update the chat container margin to match
+  const chatContainer = document.querySelector('.chat-container');
+  if (chatContainer) {
+    chatContainer.style.marginLeft = `${newWidth}px`;
+    chatContainer.style.width = `calc(100% - ${newWidth}px)`;
+  }
+  
+  // Also set the same width for the inner elements 
+  const sidebarConversations = document.querySelector('.sidebar-conversations');
+  if (sidebarConversations) {
+    sidebarConversations.style.width = `${newWidth}px`;
+    sidebarConversations.style.minWidth = `${newWidth}px`;
+    sidebarConversations.style.maxWidth = `${newWidth}px`;
+  }
+}
+
+function stopResizeHandler() {
+  document.removeEventListener('mousemove', resizeHandler);
+  document.removeEventListener('mouseup', stopResizeHandler);
+}
+
+function resetSidebarForMobile() {
+  if (!sidebarContentContainer.value) return;
+  
+  // Reset to 100vw for mobile
+  sidebarContentContainer.value.style.width = '100vw';
+  sidebarContentContainer.value.style.minWidth = '100vw';
+  sidebarContentContainer.value.style.maxWidth = '100vw';
+  
+  // Reset the sidebar conversations element too
+  const sidebarConversations = document.querySelector('.sidebar-conversations');
+  if (sidebarConversations) {
+    sidebarConversations.style.width = '100vw';
+    sidebarConversations.style.minWidth = '100vw';
+    sidebarConversations.style.maxWidth = '100vw';
+  }
+  
+  // Reset chat container
+  const chatContainer = document.querySelector('.chat-container');
+  if (chatContainer) {
+    chatContainer.style.marginLeft = '0';
+    chatContainer.style.width = '100%';
+  }
+}
+
+function resetSidebarForDesktop() {
+  if (!sidebarContentContainer.value) return;
+  
+  // Reset to 325px for desktop
+  const defaultWidth = '325px';
+  sidebarContentContainer.value.style.width = defaultWidth;
+  
+  // Reset the sidebar conversations element too
+  const sidebarConversations = document.querySelector('.sidebar-conversations');
+  if (sidebarConversations) {
+    sidebarConversations.style.width = defaultWidth;
+    sidebarConversations.style.minWidth = defaultWidth;
+    sidebarConversations.style.maxWidth = defaultWidth;
+  }
+  
+  // Reset chat container
+  const chatContainer = document.querySelector('.chat-container');
+  if (chatContainer) {
+    chatContainer.style.marginLeft = defaultWidth;
+    chatContainer.style.width = `calc(100% - ${defaultWidth})`;
+  }
+}
 
 //#region File/Upload Handling
 function handleImportConversations() {
@@ -71,7 +154,23 @@ async function fetchAvailableModels() {
 //#region Lifecycle Hooks
 onMounted(async () => {
   setupWatchers();
-  sidebarContentContainer.value = document.querySelector('.sidebar-conversations');
+  sidebarContentContainer.value = document.querySelector('#conversations-dialog');
+  
+  if (sidebarContentContainer.value) {
+    // Initialize with fixed width
+    sidebarContentContainer.value.style.width = '325px';
+  }
+  
+  // Watch for screen size changes to reset sidebar width on mobile
+  watch(isSmallScreen, (newIsSmallScreen) => {
+    if (newIsSmallScreen) {
+      // Reset to mobile view (full width)
+      resetSidebarForMobile();
+    } else {
+      // Reset to desktop default
+      resetSidebarForDesktop();
+    }
+  });
 
   selectedModel.value = localStorage.getItem('selectedModel') || 'gpt-4o';
 
@@ -137,7 +236,9 @@ function closeDialogs() {
           v-if="showConversationOptions || !isSmallScreen">
           <conversationsDialog @import-conversations="handleImportConversations"
             @export-conversations="handleExportConversations" />
-          <div id="resize-handle" class="resize-handle" @dblclick="() => handleDoubleClick(sidebarContentContainer)">
+          <div id="resize-handle" class="resize-handle" 
+               @mousedown="startResizeHandler" 
+               @dblclick="() => handleDoubleClick(sidebarContentContainer)">
           </div>
         </div>
       </Transition>
@@ -416,11 +517,16 @@ pre {
   position: absolute;
   top: 0;
   right: 0px;
-  width: 3px;
+  width: 6px;
   height: 100%;
   cursor: col-resize;
   background-color: #212121;
   z-index: 1000;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #157474;
+  }
 }
 
 .sidebar-conversations,
