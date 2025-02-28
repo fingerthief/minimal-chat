@@ -342,7 +342,7 @@ onMounted(() => {
   position: fixed;
   bottom: 80px; /* Position above input area */
   right: 16px;
-  width: 36px; /* Smaller size to be less obtrusive */
+  width: 36px; /* Base size */
   height: 36px;
   border-radius: 50%;
   background-color: var(--surface-card, #ffffff); /* Match app theme */
@@ -367,6 +367,16 @@ onMounted(() => {
   /* PrimeIcons sizing */
   i {
     font-size: 1rem;
+  }
+  
+  /* Desktop size - make button larger */
+  @media (min-width: 1024px) {
+    width: 44px;
+    height: 44px;
+    
+    i {
+      font-size: 1.2rem;
+    }
   }
   
   /* Adjust for mobile */

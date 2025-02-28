@@ -2,8 +2,6 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import DialogHeader from '@/components/controls/DialogHeader.vue';
 import GeneralConfigSection from '@/components/configuration-sections/GeneralConfigSection.vue';
-import GptConfigSection from '@/components/configuration-sections/GptConfigSection.vue';
-import ClaudeConfigSection from '@/components/configuration-sections/ClaudeConfigSection.vue';
 import LocalConfigSection from '@/components/configuration-sections/LocalConfigSection.vue';
 import WebLlmConfigSection from '@/components/configuration-sections/WebLlmConfigSection.vue';
 import ImportExportConfigSection from '@/components/configuration-sections/ImportExportConfigSection.vue';
@@ -281,9 +279,6 @@ onMounted(() => {
                     <div v-if="showingGeneralConfig">
                         <GeneralConfigSection />
                         <ImportExportConfigSection />
-                    </div>
-                    <div v-if="selectedModel.includes('gpt') || selectedModel === 'o1' && !showingGeneralConfig">
-                        <GptConfigSection />
                     </div>
                     <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
                         <LocalConfigSection />

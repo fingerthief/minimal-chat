@@ -3,16 +3,16 @@ import { isAvatarEnabled, avatarUrl, selectedModel, ttsVoice, whisperTemperature
 import { removeAPIEndpoints, showToast } from "./general-utils";
 import { getOpenAICompatibleAvailableModels } from '../api-access/open-ai-api-standard-access';
 
-export const showGPTConfig = ref(selectedModel.value.indexOf('gpt') !== -1 || selectedModel.value === 'o1');
+export const showGPTConfig = ref(false);
 export const showLocalConfig = ref(selectedModel.value.indexOf('open-ai-format') !== -1);
-export const showClaudeConfig = ref(selectedModel.value.indexOf('claude') !== -1);
+export const showClaudeConfig = ref(false);
 export const showBrowserModelConfig = ref(selectedModel.value.indexOf('web-llm') !== -1);
 
 export function update(field, value) {
   if (field === 'model') {
-    showGPTConfig.value = value.indexOf('gpt') !== -1 || value === 'o1';
+    showGPTConfig.value = false;
     showLocalConfig.value = value.indexOf('open-ai-format') !== -1;
-    showClaudeConfig.value = value.indexOf('claude') !== -1;
+    showClaudeConfig.value = false;
     showBrowserModelConfig.value = value.indexOf('web-llm') !== -1;
     selectedModel.value = value;
 

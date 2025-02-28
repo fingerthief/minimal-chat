@@ -37,14 +37,24 @@
                 </div>
             </transition>
         </div>
-        <br>
-        <br>
-        <div class="control-checkbox">
-            <SliderCheckbox inputId="higher-contrast-messages" labelText="Higher Contrast Messages"
-                v-model="higherContrastMessages" @update:modelValue="handleUpdate('higherContrastMessages', $event)" />
+        <div class="config-section" :class="{ show: isAccessibilityOpen }">
+            <div class="section-header" @click="isAccessibilityOpen = !isAccessibilityOpen">
+                <h3>
+                    <Eye size="20" class="section-icon" />
+                    Accessibility
+                </h3>
+                <ChevronDown v-if="isAccessibilityOpen" class="indicator" size="20" />
+                <ChevronRight v-else class="indicator" size="20" />
+            </div>
+            <transition name="slide-fade">
+                <div v-show="isAccessibilityOpen" class="accessibility-content">
+                    <div class="control-checkbox">
+                        <SliderCheckbox inputId="higher-contrast-messages" labelText="Higher Contrast Messages"
+                            v-model="higherContrastMessages" @update:modelValue="handleUpdate('higherContrastMessages', $event)" />
+                    </div>
+                </div>
+            </transition>
         </div>
-        <br>
-        <br>
         <div class="config-section" :class="{ show: isAvatarSectionOpen }">
             <div class="section-header" @click="isAvatarSectionOpen = !isAvatarSectionOpen">
                 <h3>
@@ -111,14 +121,13 @@
                 </div>
             </transition>
         </div>
-        <br>
     </div>
 </template>
 
 
 <script setup>
 import InputField from '@/components/controls/InputField.vue';
-import { ChevronDown, ChevronRight, Trash2, Save, User, MessageSquare, Image } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Trash2, Save, User, MessageSquare, Image, Eye } from 'lucide-vue-next';
 import { avatarShape, userAvatarUrl, isAvatarEnabled, avatarUrl, systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts } from '@/libs/utils/settings-utils';
 import SliderCheckbox from '../controls/SliderCheckbox.vue';
@@ -133,6 +142,7 @@ const fileInput = ref(null);
 
 const isAvatarSectionOpen = ref(true);
 const isSavedPromptsOpen = ref(true);
+const isAccessibilityOpen = ref(true);
 
 const avatarType = ref({ name: 'AI', value: 'ai' });
 const avatarOptions = [
@@ -213,7 +223,7 @@ onBeforeMount(handleFetchStoredFiles);
     background-color: rgba(16, 56, 51, 0.1);
     
     @media (max-width: 600px) {
-        margin-bottom: 24px;
+        margin-bottom: 15px;
     }
     
     .section-header {
@@ -224,6 +234,10 @@ onBeforeMount(handleFetchStoredFiles);
         cursor: pointer;
         background-color: rgba(21, 116, 116, 0.15);
         transition: background-color 0.2s ease;
+        
+        @media (max-width: 600px) {
+            padding: 10px 12px;
+        }
         
         &:hover {
             background-color: rgba(21, 116, 116, 0.25);
@@ -251,7 +265,8 @@ onBeforeMount(handleFetchStoredFiles);
         }
     }
     
-    .avatar-content {
+    .avatar-content,
+    .accessibility-content {
         padding: 16px;
         
         .enable-avatars {
@@ -511,7 +526,7 @@ onBeforeMount(handleFetchStoredFiles);
     margin-bottom: 20px;
     
     @media (max-width: 600px) {
-        margin-bottom: 24px;
+        margin-bottom: 15px;
     }
 }
 
@@ -522,7 +537,7 @@ onBeforeMount(handleFetchStoredFiles);
     background-color: rgba(16, 56, 51, 0.1);
     
     @media (max-width: 600px) {
-        margin-bottom: 24px;
+        margin-bottom: 15px;
     }
     
     .section-header {
@@ -533,6 +548,10 @@ onBeforeMount(handleFetchStoredFiles);
         cursor: pointer;
         background-color: rgba(21, 116, 116, 0.15);
         transition: background-color 0.2s ease;
+        
+        @media (max-width: 600px) {
+            padding: 10px 12px;
+        }
         
         &:hover {
             background-color: rgba(21, 116, 116, 0.25);
@@ -564,6 +583,10 @@ onBeforeMount(handleFetchStoredFiles);
 .saved-system-prompts {
     padding: 12px 16px;
     
+    @media (max-width: 600px) {
+        padding: 8px 12px;
+    }
+    
     .no-prompts {
         display: flex;
         flex-direction: column;
@@ -574,6 +597,10 @@ onBeforeMount(handleFetchStoredFiles);
         border-radius: 6px;
         text-align: center;
         color: #9fa6ac;
+        
+        @media (max-width: 600px) {
+            padding: 12px;
+        }
         
         p {
             margin-top: 12px;
@@ -619,6 +646,10 @@ onBeforeMount(handleFetchStoredFiles);
                     justify-content: space-between;
                     padding: 12px;
                     
+                    @media (max-width: 600px) {
+                        padding: 8px 10px;
+                    }
+                    
                     .prompt-text {
                         flex: 1;
                         overflow: hidden;
@@ -657,11 +688,11 @@ onBeforeMount(handleFetchStoredFiles);
     padding: 12px 15px;
     background-color: rgba(16, 56, 51, 0.1);
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     
     @media (max-width: 600px) {
-        padding: 15px;
-        margin-bottom: 24px;
+        padding: 10px 12px;
+        margin-bottom: 0;
     }
 
     label {
