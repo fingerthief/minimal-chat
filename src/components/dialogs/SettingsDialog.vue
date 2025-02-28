@@ -36,7 +36,7 @@ import {
 
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
-import { ChevronDown, ChevronRight, Settings, Trash2 } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Settings, Trash2, Menu, X, Database, Cpu, PlusCircle } from 'lucide-vue-next';
 
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
@@ -195,31 +195,49 @@ onMounted(() => {
             tooltipText="Current Version: 6.2.6 Cosmic Cloud" headerId="settings-header"
             @close="() => isSidebarOpen = false" />
         <div class="settings-container">
-            <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="3" @hide="isSidebarVisible = false">
-                <h3>Select Model</h3>
-                <ul>
+            <Sidebar v-model:visible="isSidebarVisible" :baseZIndex="1000" :modal="true" @hide="isSidebarVisible = false" class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <h3>Select Model</h3>
+                </div>
+                <div class="sidebar-divider"></div>
+                <ul class="sidebar-menu">
                     <li :class="{ selected: showingGeneralConfig }" @click="showGeneralConfigSection">
-                        General Config
+                        <Settings size="18" class="menu-icon" />
+                        <span>General Config</span>
                     </li>
-                    <li>
-                        <h4 @click="isCustomConfigOpen = !isCustomConfigOpen">
-                            API Connections
-                            <span class="indicator"
-                                :class="{ 'pi pi-chevron-down': isCustomConfigOpen, 'pi pi-chevron-right': !isCustomConfigOpen }"></span>
-                        </h4>
-                        <ul v-show="isCustomConfigOpen">
-                            <li v-for="(config, index) in customConfigs" :key="config.endpoint"
-                                :class="{ selected: selectedModel === 'open-ai-format' && localModelEndpoint === config.endpoint }"
-                                @click="selectCustomModel(index)">
-                                <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" />
-                                &nbsp;&nbsp;
-                                {{ config.endpoint }}
-                            </li>
-                        </ul>
+                    <li class="parent-item">
+                        <div class="list-header" @click="isCustomConfigOpen = !isCustomConfigOpen">
+                            <div class="header-left">
+                                <Database size="18" class="menu-icon" />
+                                <span>API Connections</span>
+                            </div>
+                            <ChevronDown v-if="isCustomConfigOpen" class="indicator" size="20" />
+                            <ChevronRight v-else class="indicator" size="20" />
+                        </div>
+                        <transition name="slide-fade">
+                            <ul v-show="isCustomConfigOpen" class="nested-list">
+                                <li v-for="(config, index) in customConfigs" :key="config.endpoint"
+                                    :class="{ selected: selectedModel === 'open-ai-format' && localModelEndpoint === config.endpoint }"
+                                    @click="selectCustomModel(index)">
+                                    <div class="item-content">
+                                        <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteCustomConfig(index)" 
+                                          class="delete-icon" />
+                                        <span class="endpoint-text">{{ config.endpoint }}</span>
+                                    </div>
+                                </li>
+                                <li v-if="!customConfigs.length" @click="selectModel('open-ai-format')" class="add-api-item">
+                                    <div class="item-content">
+                                        <PlusCircle size="18" class="add-icon" />
+                                        <span>Add New Custom API</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </transition>
                     </li>
                     <li :class="{ selected: selectedModel === 'web-llm' && !selectedCustomConfig }"
                         @click="selectModel('web-llm')">
-                        Browser Model
+                        <Cpu size="18" class="menu-icon" />
+                        <span>Browser Model</span>
                     </li>
                 </ul>
             </Sidebar>
@@ -276,7 +294,9 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <button v-if="isSmallScreen" class="floating-button" @click="toggleSidebar">☰</button>
+        <button v-if="isSmallScreen" class="floating-button" @click="toggleSidebar">
+    <Menu size="24" />
+</button>
     </div>
 </template>
 
@@ -322,41 +342,220 @@ $bottom-panel-border-color: #5f4575cf;
 }
 
 .p-sidebar {
-    background-color: #292929;
+    background-color: #1f1f1f;
     width: 250px;
-    padding: 20px;
+    padding: 0;
     animation: slideIn 0.15s ease;
     transition: all 0.15s;
-
-    h3 {
-        margin-top: 0;
-        font-size: 1.5em;
-    }
-
-    ul {
-        list-style-type: none;
+    z-index: 1000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    
+    @media (max-width: 600px) {
+        width: 85vw;
         padding: 0;
-        margin: 0;
     }
-
-    li {
-        padding: 10px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.15s ease;
-    }
-
-    li:hover {
-        background-color: #07563d;
-    }
-
-    li.selected {
-        background-color: rgba(16, 56, 51, 0.91);
-        color: white;
-    }
-
-    li.selected:hover {
-        background-color: #074d36;
+    
+    &.mobile-sidebar {
+        .p-sidebar-content {
+            padding: 0 !important;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background-color: #157474;
+            
+            h3 {
+                margin: 0;
+                font-size: 1.3em;
+                color: white;
+            }
+            
+            .close-sidebar-btn {
+                background: transparent;
+                border: none;
+                color: white;
+                cursor: pointer;
+                padding: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: background-color 0.2s;
+                
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
+            }
+        }
+        
+        .sidebar-divider {
+            height: 1px;
+            background: linear-gradient(to right, rgba(21, 116, 116, 0.2), rgba(21, 116, 116, 0.8), rgba(21, 116, 116, 0.2));
+            margin: 0;
+        }
+        
+        .sidebar-menu {
+            list-style-type: none;
+            padding: 16px;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+            
+            > li {
+                padding: 14px 12px;
+                cursor: pointer;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                font-size: 16px;
+                
+                .menu-icon {
+                    margin-right: 12px;
+                    opacity: 0.7;
+                    color: #9fa6ac;
+                    transition: all 0.2s ease;
+                }
+                
+                &:hover {
+                    background-color: rgba(21, 116, 116, 0.15);
+                    
+                    .menu-icon {
+                        opacity: 1;
+                        color: #157474;
+                    }
+                }
+                
+                &.selected {
+                    background-color: rgba(21, 116, 116, 0.25);
+                    color: white;
+                    
+                    .menu-icon {
+                        opacity: 1;
+                        color: #157474;
+                    }
+                }
+            }
+            
+            .parent-item {
+                padding: 0;
+                margin-bottom: 12px;
+                border-radius: 8px;
+                overflow: visible;
+                background-color: transparent;
+                display: block;
+                
+                .list-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 14px 12px;
+                    cursor: pointer;
+                    border-radius: 8px;
+                    transition: all 0.2s ease;
+                    
+                    .header-left {
+                        display: flex;
+                        align-items: center;
+                        
+                        .menu-icon {
+                            margin-right: 12px;
+                            opacity: 0.7;
+                            color: #9fa6ac;
+                            transition: all 0.2s ease;
+                        }
+                    }
+                    
+                    &:hover {
+                        background-color: rgba(21, 116, 116, 0.15);
+                        
+                        .menu-icon {
+                            opacity: 1;
+                            color: #157474;
+                        }
+                    }
+                    
+                    .indicator {
+                        color: #9fa6ac;
+                        transition: all 0.2s ease;
+                    }
+                }
+            }
+            
+            .nested-list {
+                padding: 8px 0 0 0;
+                margin-top: 4px;
+                list-style: none;
+                
+                li {
+                    margin-top: 4px;
+                    margin-bottom: 4px;
+                    background-color: rgba(16, 56, 51, 0.1);
+                    padding: 12px;
+                    border-radius: 6px;
+                    font-size: 15px;
+                    display: flex;
+                    align-items: center;
+                    
+                    .item-content {
+                        display: flex;
+                        align-items: center;
+                        width: 100%;
+                        overflow: hidden;
+                    }
+                    
+                    .delete-icon {
+                        margin-right: 10px;
+                        min-width: 18px;
+                        color: #9fa6ac;
+                        transition: color 0.2s ease;
+                        
+                        &:hover {
+                            color: #ff5555;
+                        }
+                    }
+                    
+                    .endpoint-text {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        max-width: calc(100% - 30px);
+                    }
+                    
+                    &:hover {
+                        background-color: rgba(21, 116, 116, 0.15);
+                    }
+                    
+                    &.selected {
+                        background-color: rgba(21, 116, 116, 0.25);
+                    }
+                    
+                    &.add-api-item {
+                        background-color: rgba(21, 116, 116, 0.05);
+                        border: 1px dashed rgba(21, 116, 116, 0.3);
+                        
+                        .add-icon {
+                            color: #157474;
+                            margin-right: 10px;
+                        }
+                        
+                        &:hover {
+                            background-color: rgba(21, 116, 116, 0.1);
+                            border-color: rgba(21, 116, 116, 0.5);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -713,6 +912,12 @@ $bottom-panel-border-color: #5f4575cf;
 .settings-container {
     display: flex;
     height: 98vh;
+    
+    @media (max-width: 600px) {
+        height: 100vh;
+        flex-direction: column;
+        overflow-x: hidden;
+    }
 }
 
 .left-panel {
@@ -838,26 +1043,35 @@ $bottom-panel-border-color: #5f4575cf;
 
     @media (max-width: 600px) {
         flex-grow: 1;
-        padding: 20px;
+        padding: 15px;
         scrollbar-width: none;
         overflow-x: hidden;
         background-color: #1d1e1e;
         font-size: 14px;
-        padding-left: 12px;
-        padding-right: 12px;
-        width: 90vw;
-        min-height: 89vh;
+        width: 100%;
+        height: auto;
+        min-height: calc(100vh - 60px); /* Account for header */
+        padding-bottom: 100px; /* Add padding at bottom to prevent content being hidden behind floating button */
     }
 
     h3 {
         margin-bottom: 15px;
         color: #fff;
+        
+        @media (max-width: 600px) {
+            font-size: 1.3em;
+        }
     }
 
     .control-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
+        
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
     }
 
     .slider-container {
@@ -865,6 +1079,10 @@ $bottom-panel-border-color: #5f4575cf;
         justify-content: space-between;
         align-items: center;
         width: 100%;
+        
+        @media (max-width: 600px) {
+            margin-bottom: 10px;
+        }
 
         input[type='range'] {
             -webkit-appearance: none;
@@ -882,10 +1100,19 @@ $bottom-panel-border-color: #5f4575cf;
                 border-radius: 50%;
                 background: #1a5951;
                 cursor: pointer;
+                
+                @media (max-width: 600px) {
+                    width: 30px;
+                    height: 30px;
+                }
             }
 
             background: #1a5951;
             cursor: pointer;
+            
+            @media (max-width: 600px) {
+                height: 18px;
+            }
         }
     }
 }
@@ -898,27 +1125,70 @@ $bottom-panel-border-color: #5f4575cf;
     position: fixed;
     bottom: 20px;
     left: 20px;
-    background-color: #1a5950b5;
+    background-color: #1a5950;
     color: white;
     border: none;
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.15s, transform 0.15s;
+    transition: all 0.2s ease;
+    z-index: 5;
+
+    @media (max-width: 600px) {
+        bottom: 30px;
+        left: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: #157474;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
 
     &:hover {
-        background-color: $button-hover-bg-color;
-        transform: scale(1.1);
+        background-color: #1a8f8f;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        
+        &::before {
+            opacity: 1;
+        }
     }
 
     &:active {
-        transform: scale(0.95);
+        transform: translateY(0) scale(0.95);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    svg {
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        transition: transform 0.2s ease;
+        
+        @media (max-width: 600px) {
+            width: 28px;
+            height: 28px;
+        }
+    }
+    
+    &:hover svg {
+        transform: scale(1.1);
     }
 }
 </style>

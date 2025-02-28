@@ -450,7 +450,7 @@ onMounted(async () => {
 
 .stored-files-container {
     position: fixed;
-    z-index: 3;
+    z-index: 2000;
     padding: 1.5rem;
     background-color: #1d1e1e;
     color: #fff;

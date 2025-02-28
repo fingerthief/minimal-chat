@@ -6,21 +6,34 @@
                 :placeholderText="'Enter the system prompt if applicable.'" />
         </div>
         <div class="saved-system-prompts-section">
-            <h4 @click="isSavedPromptsOpen = !isSavedPromptsOpen">
-                Saved System Prompts
+            <div class="section-header" @click="isSavedPromptsOpen = !isSavedPromptsOpen">
+                <h4>
+                    <Save size="16" class="section-icon" />
+                    Saved System Prompts
+                </h4>
                 <ChevronDown v-if="isSavedPromptsOpen" class="indicator" size="20" />
                 <ChevronRight v-else class="indicator" size="20" />
-            </h4>
+            </div>
             <transition name="slide-fade">
-                <div v-show="isSavedPromptsOpen && systemPrompts.length" class="saved-system-prompts">
-                    <ul>
-                        <li v-for="(prompt, index) in systemPrompts" :key="index"
-                            :class="{ selected: index === selectedSystemPromptIndex }"
-                            @click="handleSelectSystemPrompt(index)">
-                            <Trash2 :size="18" :stroke-width="1.5" @click.stop="handleDeleteSystemPrompt(index)" />
-                            &nbsp;&nbsp;{{ prompt }}
-                        </li>
-                    </ul>
+                <div v-show="isSavedPromptsOpen" class="saved-system-prompts">
+                    <div v-if="systemPrompts.length" class="prompts-container">
+                        <ul>
+                            <li v-for="(prompt, index) in systemPrompts" :key="index"
+                                :class="{ selected: index === selectedSystemPromptIndex }"
+                                @click="handleSelectSystemPrompt(index)">
+                                <div class="prompt-item-content">
+                                    <div class="prompt-text">{{ prompt }}</div>
+                                    <button class="delete-prompt-btn" @click.stop="handleDeleteSystemPrompt(index)">
+                                        <Trash2 size="18" />
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div v-else class="no-prompts">
+                        <MessageSquare size="24" />
+                        <p>No saved prompts yet. Enter a system prompt and it will appear here.</p>
+                    </div>
                 </div>
             </transition>
         </div>
@@ -33,47 +46,64 @@
         <br>
         <br>
         <div class="config-section" :class="{ show: isAvatarSectionOpen }">
-            <h3 @click="isAvatarSectionOpen = !isAvatarSectionOpen">
-                Avatar Configuration
+            <div class="section-header" @click="isAvatarSectionOpen = !isAvatarSectionOpen">
+                <h3>
+                    <User size="20" class="section-icon" />
+                    Avatar Configuration
+                </h3>
                 <ChevronDown v-if="isAvatarSectionOpen" class="indicator" size="20" />
                 <ChevronRight v-else class="indicator" size="20" />
-            </h3>
+            </div>
             <transition name="slide-fade">
-                <div v-show="isAvatarSectionOpen" class="control-grid">
-                    <div class="control-checkbox">
+                <div v-show="isAvatarSectionOpen" class="avatar-content">
+                    <div class="enable-avatars">
                         <SliderCheckbox inputId="enable-ai-avatar" labelText="Enable Message Avatars"
                             v-model="isAvatarEnabled" />
                     </div>
-                    <div class="avatar-url-container">
-                        <div class="avatar-settings">
-                            <h4>Avatar Settings:</h4>
+                    
+                    <div class="avatar-settings">
+                        <div class="settings-selector">
+                            <h4>Avatar Type</h4>
                             <SelectButton v-model="avatarType" :options="avatarOptions" optionLabel="name"
-                                @change="handleAvatarTypeChange" />
-                            <br>
+                                @change="handleAvatarTypeChange" class="avatar-selector" />
+                        </div>
+                        
+                        <div class="settings-selector">
+                            <h4>Avatar Shape</h4>
                             <SelectButton v-model="avatarShape" :options="avatarShapes" optionLabel="name"
-                                optionValue="value" @change="handleAvatarShapeChange" />
+                                optionValue="value" @change="handleAvatarShapeChange" class="avatar-selector" />
+                        </div>
 
-                            <br>
+                        <div class="avatar-url-field">
                             <InputField :labelText="`${avatarType.name} Image URL:`" inputId="avatar-url"
                                 :value="avatarType.value === 'ai' ? avatarUrl : userAvatarUrl"
                                 @update:value="handleAvatarUrlUpdate" :isSecret="false" :isMultiline="false"
                                 :placeholderText="`Enter the URL for the ${avatarType.name} avatar image`" />
-                            <br>
-                            <h4>Select an image from stored files or upload a new one:</h4>
-                            <Listbox v-model="selectedFile" :options="storedFiles" optionLabel="fileName"
-                                @change="updateAvatarUrl" class="w-full md:w-14rem select-listbox" :filter="true">
-                                <template #header>
-                                    <Button :label="`Upload ${avatarType.name} Avatar`" icon="pi pi-upload"
-                                        class="custom-upload-button" @click="triggerFileInput" />
-                                </template>
-                                <template #option="slotProps">
-                                    <div class="flex align-items-center">
-                                        <Avatar :image="slotProps.option.fileData" :alt="slotProps.option.fileName"
-                                            shape="circle" size="large" />
-                                        <div class="ml-2">{{ slotProps.option.fileName }}</div>
-                                    </div>
-                                </template>
-                            </Listbox>
+                        </div>
+                        
+                        <div class="avatar-upload-section">
+                            <h4>Select an image or upload a new one</h4>
+                            <Button :label="`Upload ${avatarType.name} Avatar`" icon="pi pi-upload"
+                                class="custom-upload-button" @click="triggerFileInput" />
+                                
+                            <div class="avatar-list-container">
+                                <Listbox v-model="selectedFile" :options="storedFiles" optionLabel="fileName"
+                                    @change="updateAvatarUrl" class="avatar-listbox" :filter="true">
+                                    <template #option="slotProps">
+                                        <div class="avatar-option">
+                                            <Avatar :image="slotProps.option.fileData" :alt="slotProps.option.fileName"
+                                                shape="circle" size="large" />
+                                            <span class="avatar-filename">{{ slotProps.option.fileName }}</span>
+                                        </div>
+                                    </template>
+                                    <template #empty>
+                                        <div class="empty-list">
+                                            <Image size="24" />
+                                            <p>No images uploaded yet</p>
+                                        </div>
+                                    </template>
+                                </Listbox>
+                            </div>
                             <input type="file" ref="fileInput" style="display: none" @change="uploadFile"
                                 accept="image/*" />
                         </div>
@@ -88,7 +118,7 @@
 
 <script setup>
 import InputField from '@/components/controls/InputField.vue';
-import { ChevronDown, ChevronRight, Trash2 } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Trash2, Save, User, MessageSquare, Image } from 'lucide-vue-next';
 import { avatarShape, userAvatarUrl, isAvatarEnabled, avatarUrl, systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts } from '@/libs/utils/settings-utils';
 import SliderCheckbox from '../controls/SliderCheckbox.vue';
@@ -176,40 +206,160 @@ onBeforeMount(handleFetchStoredFiles);
     padding: 6px;
 }
 
-.avatar-settings {
-    margin-bottom: 1rem;
-
-    h4 {
-        margin-bottom: 0.5rem;
+.config-section {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: rgba(16, 56, 51, 0.1);
+    
+    @media (max-width: 600px) {
+        margin-bottom: 24px;
     }
-
-    .p-selectbutton {
-        margin-bottom: 0.5rem;
-
-        .p-button {
-            background-color: #333;
-            border: 1px solid #157474;
-            color: #fff;
-
-            &.p-highlight {
-                background-color: #157474;
-                border-color: #157474;
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        cursor: pointer;
+        background-color: rgba(21, 116, 116, 0.15);
+        transition: background-color 0.2s ease;
+        
+        &:hover {
+            background-color: rgba(21, 116, 116, 0.25);
+        }
+        
+        h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            font-size: 17px;
+            font-weight: 600;
+            
+            .section-icon {
+                margin-right: 8px;
+                color: #157474;
             }
-
-            &:not(.p-highlight):hover {
-                background-color: #444;
+            
+            @media (max-width: 600px) {
+                font-size: 18px;
+            }
+        }
+        
+        .indicator {
+            color: #157474;
+        }
+    }
+    
+    .avatar-content {
+        padding: 16px;
+        
+        .enable-avatars {
+            margin-bottom: 20px;
+            
+            @media (max-width: 600px) {
+                margin-bottom: 24px;
             }
         }
     }
 }
 
-.p-selectbutton {
-    margin-bottom: 1rem;
+.avatar-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    
+    @media (max-width: 600px) {
+        gap: 24px;
+    }
+    
+    .settings-selector {
+        h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #e0e0e0;
+            
+            @media (max-width: 600px) {
+                margin-bottom: 12px;
+            }
+        }
+    }
+    
+    .avatar-selector {
+        width: 100%;
+        
+        @media (max-width: 600px) {
+            display: flex;
+            
+            .p-button {
+                flex: 1;
+            }
+        }
+    }
+    
+    .avatar-url-field {
+        margin-bottom: 10px;
+    }
+    
+    .avatar-upload-section {
+        background-color: rgba(16, 56, 51, 0.15);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 10px;
+        
+        h4 {
+            margin: 0 0 14px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+        
+        .avatar-list-container {
+            margin-top: 14px;
+            max-height: 300px;
+            
+            @media (max-width: 600px) {
+                max-height: 200px;
+            }
+        }
+    }
+}
 
+.avatar-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    
+    .avatar-filename {
+        margin-left: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.empty-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    color: #9fa6ac;
+    
+    p {
+        margin-top: 12px;
+        font-size: 14px;
+    }
+}
+
+.p-selectbutton {
     .p-button {
         background-color: #333;
         border: 1px solid #157474;
         color: #fff;
+        transition: all 0.2s ease;
 
         &.p-highlight {
             background-color: #157474;
@@ -219,6 +369,10 @@ onBeforeMount(handleFetchStoredFiles);
         &:not(.p-highlight):hover {
             background-color: #444;
         }
+        
+        @media (max-width: 600px) {
+            padding: 12px;
+        }
     }
 }
 
@@ -226,41 +380,71 @@ onBeforeMount(handleFetchStoredFiles);
     border: 1px solid #157474;
     color: #157474;
     background-color: transparent;
-    transition: all 0.15s ease;
-    min-width: 100%;
+    transition: all 0.2s ease;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    @media (max-width: 600px) {
+        padding: 12px;
+    }
 
     &:hover {
         background-color: rgba(21, 116, 116, 0.1);
         border-color: #1a8f8f;
     }
-
-    .p-button {
-        display: flex;
-        color: #157474;
-        min-width: 99vw;
+    
+    &:active {
+        transform: translateY(1px);
     }
 }
 
-.config-section {
-    margin-bottom: 15px;
-
-    h3 {
-        margin-bottom: 15px;
-        background-color: transparent;
-        border-bottom: 4px solid #1a4c47e6;
-        text-align: left;
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
+.avatar-listbox {
+    border: 1px solid rgba(21, 116, 116, 0.3);
+    border-radius: 6px;
+    
+    &:deep(.p-listbox-header) {
+        background-color: rgba(21, 116, 116, 0.1);
+        border-bottom: 1px solid rgba(21, 116, 116, 0.3);
+    }
+    
+    &:deep(.p-listbox-filter-container) {
+        padding: 12px;
+        
+        .p-inputtext {
+            background-color: #1d1e1e;
+            border: 1px solid rgba(21, 116, 116, 0.3);
+            color: #e0e0e0;
+            border-radius: 4px;
+            padding: 8px 12px;
+            width: 100%;
+            
+            &:focus {
+                border-color: #157474;
+                box-shadow: 0 0 0 2px rgba(21, 116, 116, 0.2);
+            }
+        }
+    }
+    
+    &:deep(.p-listbox-list) {
         padding: 8px;
     }
-
-    .control-grid {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 20px;
+    
+    &:deep(.p-listbox-item) {
+        border-radius: 4px;
+        margin-bottom: 4px;
+        transition: background-color 0.2s ease;
+        
+        &:hover {
+            background-color: rgba(21, 116, 116, 0.15);
+        }
+        
+        &.p-highlight {
+            background-color: rgba(21, 116, 116, 0.25);
+        }
     }
 }
 
@@ -323,48 +507,143 @@ onBeforeMount(handleFetchStoredFiles);
     }
 }
 
-.system-prompt-container,
-.saved-system-prompts {
-    h4 {
-        margin-bottom: 10px;
+.system-prompt-container {
+    margin-bottom: 20px;
+    
+    @media (max-width: 600px) {
+        margin-bottom: 24px;
     }
+}
 
-    ul {
-        list-style-type: none;
-        padding: 0;
-        max-height: 15vh;
-        overflow-y: auto;
-        text-overflow: ellipsis;
-        scrollbar-width: none;
-        text-wrap: nowrap;
-
-        li {
+.saved-system-prompts-section {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: rgba(16, 56, 51, 0.1);
+    
+    @media (max-width: 600px) {
+        margin-bottom: 24px;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        cursor: pointer;
+        background-color: rgba(21, 116, 116, 0.15);
+        transition: background-color 0.2s ease;
+        
+        &:hover {
+            background-color: rgba(21, 116, 116, 0.25);
+        }
+        
+        h4 {
+            margin: 0;
             display: flex;
             align-items: center;
-            padding: 8px;
-            background-color: darken(#165951, 8%);
-            border-radius: 4px;
-            margin-bottom: 8px;
-            max-height: 6vh;
-            overflow: hidden;
-            text-align: left;
-            cursor: pointer;
-
-            &.selected {
-                background-color: #1a5951;
+            font-size: 16px;
+            font-weight: 600;
+            
+            .section-icon {
+                margin-right: 8px;
+                color: #157474;
             }
+            
+            @media (max-width: 600px) {
+                font-size: 17px;
+            }
+        }
+        
+        .indicator {
+            color: #157474;
+        }
+    }
+}
 
-            .delete-system-prompt-btn {
-                background-color: transparent;
-                border: none;
-                color: #ff5555;
+.saved-system-prompts {
+    padding: 12px 16px;
+    
+    .no-prompts {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background-color: rgba(16, 56, 51, 0.05);
+        border-radius: 6px;
+        text-align: center;
+        color: #9fa6ac;
+        
+        p {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+    }
+    
+    .prompts-container {
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            max-height: 20vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            
+            @media (max-width: 600px) {
+                max-height: 25vh;
+            }
+            
+            li {
+                padding: 0;
+                background-color: rgba(16, 56, 51, 0.3);
+                border-radius: 6px;
+                margin-bottom: 8px;
+                overflow: hidden;
+                text-align: left;
                 cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-
+                transition: background-color 0.2s ease;
+                
                 &:hover {
-                    color: #ff3333;
+                    background-color: rgba(16, 56, 51, 0.4);
+                }
+                
+                &.selected {
+                    background-color: rgba(21, 116, 116, 0.4);
+                    border-left: 3px solid #157474;
+                }
+                
+                .prompt-item-content {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 12px;
+                    
+                    .prompt-text {
+                        flex: 1;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        padding-right: 8px;
+                    }
+                    
+                    .delete-prompt-btn {
+                        background-color: transparent;
+                        border: none;
+                        color: #9fa6ac;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 6px;
+                        border-radius: 4px;
+                        transition: all 0.2s ease;
+                        
+                        &:hover {
+                            background-color: rgba(255, 85, 85, 0.1);
+                            color: #ff5555;
+                        }
+                    }
                 }
             }
         }
@@ -375,16 +654,30 @@ onBeforeMount(handleFetchStoredFiles);
     display: flex;
     align-items: center;
     width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(16, 56, 51, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    
+    @media (max-width: 600px) {
+        padding: 15px;
+        margin-bottom: 24px;
+    }
 
     label {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         cursor: pointer;
         font-size: 16px;
         color: #fff;
         position: relative;
         width: 100%;
         user-select: none;
+        
+        @media (max-width: 600px) {
+            font-size: 17px;
+        }
 
         input[type="checkbox"] {
             opacity: 0;
@@ -396,29 +689,41 @@ onBeforeMount(handleFetchStoredFiles);
             }
 
             &:checked+.slider {
-                background-color: #1a5951;
+                background-color: #157474;
             }
         }
 
         .slider {
-            width: 40px;
-            height: 20px;
+            width: 46px;
+            height: 24px;
             background-color: #494747;
             border-radius: 34px;
-            transition: background-color 0.15s;
+            transition: all 0.2s ease;
             position: relative;
             margin-left: 10px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            
+            @media (max-width: 600px) {
+                width: 52px;
+                height: 28px;
+            }
 
             &:before {
                 position: absolute;
                 content: "";
-                height: 12px;
-                width: 12px;
+                height: 16px;
+                width: 16px;
                 left: 4px;
                 bottom: 4px;
                 background-color: white;
                 border-radius: 50%;
-                transition: transform 0.15s;
+                transition: all 0.2s ease;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+                
+                @media (max-width: 600px) {
+                    height: 20px;
+                    width: 20px;
+                }
             }
         }
     }

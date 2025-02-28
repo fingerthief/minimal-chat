@@ -550,13 +550,13 @@ pre {
   max-width: 325px;
   min-width: 325px;
   width: 325px;
-  z-index: 10;
+  z-index: 2;
   border-right: 1px solid $border-color;
 
   @media (max-width: 600px) {
     position: fixed;
     border-right: 2px solid $border-color;
-    z-index: 1;
+    z-index: 2;
     width: 100vw;
     max-width: 100vw;
     min-width: 100vw;

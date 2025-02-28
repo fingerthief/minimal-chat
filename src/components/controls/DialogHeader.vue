@@ -61,6 +61,16 @@ defineEmits(['close']);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     border-bottom: 5px solid #04676cb5;
     margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+
+    @media (max-width: 600px) {
+        padding: 10px;
+        font-size: 20px;
+        border-bottom: 4px solid #04676cb5;
+        margin-bottom: 15px;
+    }
 
     .header-content {
         display: flex;
@@ -72,6 +82,10 @@ defineEmits(['close']);
 
         h2 {
             margin: 0;
+            
+            @media (max-width: 600px) {
+                font-size: 1.3rem;
+            }
         }
     }
 
@@ -82,6 +96,11 @@ defineEmits(['close']);
         font-size: 24px;
         cursor: pointer;
         transition: color 0.15s ease;
+        padding: 8px;
+        
+        @media (max-width: 600px) {
+            padding: 10px;
+        }
 
         &:hover {
             color: #ff6b6b;

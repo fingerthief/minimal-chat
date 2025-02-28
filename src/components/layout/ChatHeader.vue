@@ -2,7 +2,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { Menu, Database, Github } from 'lucide-vue-next';
+import { Menu, Database, Github, Settings } from 'lucide-vue-next';
 import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles, availableModels, localModelName, modelDisplayName } from '@/libs/state-management/state';
 import ContextWindow from '@/components/controls/ContextWindow.vue';
 import Dropdown from 'primevue/dropdown';
@@ -59,351 +59,262 @@ function handleUpdate(field, value) {
 </script>
 
 <template>
-  <div class="header box">
-    <div class="models-dropdown">
-      <div class="control select-dropdown">
-        <label for="quick-select-model-selector"></label>
-        <Dropdown id="quick-select-model-selector" :options="modelOptions" v-model="selectedModel" optionValue="value"
-          optionLabel="label" @change="onModelChange" checkmark />
+  <div class="header">
+    <!-- Desktop View -->
+    <div class="header-content desktop-only">
+      <div class="model-selectors">
+        <div class="model-dropdown">
+          <Dropdown id="quick-select-model-selector" 
+                    :options="modelOptions" 
+                    v-model="selectedModel" 
+                    optionValue="value"
+                    optionLabel="label" 
+                    @change="onModelChange" 
+                    class="primary-dropdown" />
+        </div>
+        
+        <div v-if="showCustomModelDropdown" class="model-dropdown custom-model-dropdown">
+          <Dropdown id="custom-model-selector" 
+                    :options="availableModels" 
+                    v-model="localModelName"
+                    @change="handleUpdate('localModelName', $event.value)" 
+                    optionValue="id" 
+                    optionLabel="name" 
+                    filter
+                    placeholder="Select a custom model"
+                    class="secondary-dropdown" />
+        </div>
       </div>
-      <div v-if="showCustomModelDropdown" class="control select-dropdown custom-model-dropdown">
-        <label for="custom-model-selector"></label>
-        <Dropdown id="custom-model-selector" :options="availableModels" v-model="localModelName"
-          @change="handleUpdate('localModelName', $event.value)" optionValue="id" optionLabel="name" filter
-          placeholder="Select a custom model" />
+      
+      <div class="app-title">
+        <h1>Minimal Chat</h1>
+      </div>
+      
+      <div class="header-actions">
+        <button class="action-btn" @click="() => showStoredFiles = true" title="Stored Files">
+          <Database size="20" />
+        </button>
+        <button class="action-btn" @click="toggleSidebar" title="Settings">
+          <Settings size="20" />
+        </button>
+        <div class="context-action">
+          <ContextWindow ref="contextWindow" />
+        </div>
       </div>
     </div>
-    <div class="settings-btn">
-      <Menu @click="toggleSidebar" :stroke-width="1" :size="30" />&nbsp;&nbsp;
-      <Database @click="() => showStoredFiles = true" :stroke-width="1" :size="30" />
-    </div>
-    <div class="context-menu-icon">
-      <ContextWindow ref="contextWindow" />
+    
+    <!-- Mobile View -->
+    <div class="header-content mobile-only">
+      <div class="header-left">
+        <button class="action-btn" @click="toggleSidebar">
+          <Menu size="24" />
+        </button>
+      </div>
+      
+      <div class="header-center">
+        <h1 class="app-title-mobile">Minimal Chat</h1>
+      </div>
+      
+      <div class="header-right">
+        <button class="action-btn" @click="() => showStoredFiles = true">
+          <Database size="22" />
+        </button>
+        <div class="context-action">
+          <ContextWindow ref="contextWindow" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<style lang="scss">
-/* Add your component-specific styles here */
-$icon-color: rgb(187, 187, 187);
-$shadow-color: #252629;
-$shadow-offset-x: 0px;
-$shadow-offset-y: 1px;
-$shadow-blur-radius: 2px;
-$shadow-spread-radius: 0px;
+<style lang="scss" scoped>
+// Variables
+$primary-color: #157474;
+$primary-dark: #0f5454;
+$primary-light: #1a8f8f;
+$background-dark: #1d1e1e;
+$background-header: #212121;
+$header-border: #157474;
+$icon-color: #d8d8d8;
+$text-color: #ffffff;
+$transition-speed: 0.2s;
+$border-radius: 8px;
 
-.control {
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-}
-
-.chevron {
-  top: 10px;
-  position: absolute;
-}
-
-
-.p-dropdown-filter-icon {
-  top: 28%;
-}
-
-.p-dropdown {
-  background-color: transparent;
-  border-bottom: 2px solid #157474;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  margin-left: 20px;
-  width: 15vw;
-  max-width: 15vw;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 4px;
-
-
-  &:hover {
-    background-color: #262627;
-  }
-
-  &:focus {
-    outline: none;
+// Desktop/Mobile display helpers
+.desktop-only {
+  @media (max-width: 600px) {
+    display: none !important;
   }
 }
 
-.models-dropdown {
-  position: absolute;
-  left: -1%;
-  top: -2%;
-  background-color: transparent;
-  border: none;
-  color: $icon-color;
-  cursor: pointer;
-  outline: none;
-  max-width: fit-content;
+.mobile-only {
+  display: none !important;
+  
+  @media (max-width: 600px) {
+    display: flex !important;
+  }
+}
+
+// Header styling
+.header {
+  background-color: $background-header;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba($primary-color, 0.5);
+}
+
+// Desktop header
+.header-content {
   display: flex;
   align-items: center;
-
-  .custom-model-dropdown {
-    margin-left: -30px;
-  }
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-    align-items: flex-start;
-
-    .custom-model-dropdown {
-      margin-left: 0;
-      margin-top: 10px;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 20px;
+  
+  &.desktop-only {
+    .model-selectors {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 40%;
     }
-  }
-
-  transition: background-color 0.15s ease,
-  transform 0.2s ease;
-
-  .select-dropdown {
-    select {
-      appearance: none;
-      color: whitesmoke;
-      background-color: transparent;
-      margin-top: 6px;
-      padding: 6px;
-      border-bottom: 2px solid rgba(83, 56, 101, 0.7882352941);
-      border-top: none;
-      border-left: none;
-      border-right: none;
-      max-width: 80%;
-      cursor: pointer;
-      font-size: 16px;
-      transition:
-        background-color 0.15s ease,
-        transform 0.2s ease;
-
-      &:hover {
-        background-color: #262627;
-      }
-
-      &:focus {
-        outline: none;
+    
+    .app-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      
+      h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: $text-color;
+        letter-spacing: 0.5px;
       }
     }
-
-    option {
-      background-color: #222;
-      outline: none;
-      border: 0px;
-      color: #fff;
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-  }
-
-  @media (max-width: 600px) {
-    display: none;
   }
 }
 
-.saved-conversations {
-  display: none;
+// Mobile header
+.header-content.mobile-only {
+  height: 56px;
+  padding: 0 16px;
+  
+  .header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .header-center {
+    .app-title-mobile {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-color;
+    }
+  }
 }
 
-.saved-conversations--visible {
+// Action buttons
+.action-btn {
+  background: transparent;
+  border: none;
+  color: $icon-color;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-speed ease;
+  
+  &:hover {
+    background-color: rgba($primary-color, 0.15);
+    color: lighten($icon-color, 10%);
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0) scale(0.95);
+  }
 }
 
-.box {
-  box-shadow: $shadow-offset-x $shadow-offset-y $shadow-blur-radius $shadow-spread-radius $shadow-color;
-}
-
-.header {
-  background-color: #212121;
-  min-height: 50px;
-  font-size: 20px;
-  font-weight: bold;
-  border-bottom: 1px solid #4e386587;
-  text-align: center;
-  position: relative; // Add this line
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  a {
-    top: 22%;
-    position: relative;
-
-    @media (max-width: 600px) {
-      background-color: #0a1e24;
-      position: relative;
+// Dropdown styling
+.model-dropdown {
+  min-width: 180px;
+  position: relative;
+  
+  :deep(.p-dropdown) {
+    background-color: rgba($background-dark, 0.3);
+    border: 1px solid rgba($primary-color, 0.3);
+    border-radius: $border-radius;
+    width: 100%;
+    font-size: 14px;
+    height: 36px;
+    transition: all $transition-speed ease;
+    
+    &:hover {
+      border-color: rgba($primary-color, 0.7);
+      background-color: rgba($background-dark, 0.5);
+    }
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+    }
+    
+    .p-dropdown-label {
+      padding: 8px 12px;
+      color: $text-color;
+    }
+    
+    .p-dropdown-trigger {
+      width: 36px;
+      color: $primary-color;
+    }
+    
+    .p-dropdown-panel {
+      background-color: $background-dark;
+      border: 1px solid rgba($primary-color, 0.5);
+      border-radius: $border-radius;
+      
+      .p-dropdown-items-wrapper {
+        .p-dropdown-item {
+          padding: 10px 12px;
+          color: $text-color;
+          transition: background-color $transition-speed ease;
+          
+          &:hover {
+            background-color: rgba($primary-color, 0.15);
+          }
+          
+          &.p-highlight {
+            background-color: rgba($primary-color, 0.25);
+            color: $text-color;
+          }
+        }
+      }
     }
   }
-}
-
-.header-icon {
-  top: 6%;
-  position: relative;
-}
-
-.conversations-count {
-  display: contents;
-  position: relative;
-  left: 0px;
-
-  .count-icon {
-    padding: 2px;
-    top: 18%;
-    right: 11px;
-    color: $icon-color;
-    float: right;
-    position: relative;
+  
+  &.custom-model-dropdown {
+    :deep(.p-dropdown) {
+      font-size: 13px;
+      padding-right: 8px;
+      
+      .p-dropdown-label {
+        padding: 8px 10px;
+      }
+    }
   }
-}
-
-.save-icon {
-  display: none;
-  padding: 2px;
-  top: 10%;
-  right: 10px;
-  color: $icon-color;
-  float: right;
-  position: relative;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.15);
-  }
-
-  @media (max-width: 600px) {
-    display: inline;
-  }
-}
-
-.settings-btn {
-  position: absolute;
-  left: 10px;
-  top: 18%;
-  background-color: transparent;
-  border: none;
-  color: $icon-color;
-  cursor: pointer;
-  outline: none;
-  display: none;
-
-  transition:
-    background-color 0.15s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.15);
-  }
-
-  @media (max-width: 600px) {
-    display: inline;
-  }
-}
-
-.context-menu-icon {
-  position: absolute;
-  right: 10px;
-  top: 28%;
-  background-color: transparent;
-  border: none;
-  color: $icon-color;
-  cursor: pointer;
-  outline: none;
-  display: none;
-
-  transition:
-    background-color 0.15s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.15);
-  }
-
-  @media (max-width: 600px) {
-    display: inline;
-  }
-}
-
-.saved-conversations-dropdown {
-  position: absolute;
-  top: 17%;
-  right: 55px;
-  cursor: pointer;
-  color: $icon-color;
-  transition:
-    background-color 0.15s ease,
-    transform 0.2s ease;
-  display: none;
-
-  &:hover {
-    transform: scale(1.15);
-  }
-
-  @media (max-width: 600px) {
-    display: inline;
-  }
-}
-
-.saved-conversations-dropdown select {
-  padding: 6px 12px;
-  font-size: 14px;
-  border: 1px solid #5a5a5a;
-  border-radius: 4px;
-  background-color: #3a3a3a;
-  color: #f1f1f1;
-  /* Change the text color to a lighter shade */
-  cursor: pointer;
-}
-
-.saved-conversations-dropdown select:focus {
-  outline: none;
-  /* Remove the default focus outline */
-  box-shadow: 0 0 0 1px #5a5a5a;
-}
-
-.trash-btn {
-  position: absolute;
-  left: 50px;
-  top: 18%;
-  color: $icon-color;
-  display: none;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.15);
-  }
-
-  @media (max-width: 600px) {
-    display: inline;
-  }
-}
-
-.clearfix::after {
-  content: '';
-  clear: both;
-  display: table;
-}
-
-.clear-button {
-  width: 72%;
-  margin-bottom: 10px;
-  padding: 5px 10px;
-}
-
-.no-style-link {
-  text-decoration: none;
-  color: inherit;
-}
-
-.hover-increase-size {
-  cursor: pointer;
-  transition: transform 0.15s;
-}
-
-.hover-increase-size:hover {
-  transform: scale(1.1);
 }
 </style>

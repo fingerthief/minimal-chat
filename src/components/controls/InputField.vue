@@ -45,6 +45,11 @@ function emitUpdate(event) {
     font-weight: bold;
     margin-bottom: 5px;
     display: block;
+    
+    @media (max-width: 600px) {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
   }
 
   input,
@@ -57,16 +62,29 @@ function emitUpdate(event) {
     background-color: #263039;
     font-size: 16px;
     font-family: Roboto-Regular, sans-serif;
+    
+    @media (max-width: 600px) {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
 
     &:focus {
       outline: none;
-      border-color: rgb(70, 68, 68);
+      border-color: #157474;
+      box-shadow: 0 0 6px rgba(21, 116, 116, 0.4);
     }
   }
 
   // Additional styles for textarea
   textarea {
     resize: vertical; // Allow vertical resizing
+    min-height: 80px;
+    
+    @media (max-width: 600px) {
+      min-height: 100px;
+    }
   }
 }
 </style>
