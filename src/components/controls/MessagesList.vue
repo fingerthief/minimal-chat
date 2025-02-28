@@ -17,6 +17,13 @@
       </template>
     </DynamicScroller>
 
+    <!-- Always-visible scroll to bottom button -->
+    <button 
+      class="scroll-to-bottom-btn"
+      @click="scrollToBottom" 
+      aria-label="Scroll to bottom">
+      <i class="pi pi-arrow-down"></i>
+    </button>
   </div>
 </template>
 
@@ -40,6 +47,8 @@ const scroller = ref(null);
 // Reactive property to track if a file is being dragged over the list,
 // so you can provide visual feedback (optional)
 const isDragging = ref(false);
+
+// No longer need showScrollButton as the button is always visible
 
 // Memoize filtered messages to avoid expensive recalculations
 const filteredMessages = computed(() => {
@@ -186,8 +195,34 @@ async function processPDF(contents, file) {
 };
 
 async function scrollToBottom() {
-  // Keep your scroll-to-bottom logic if you need it
+  if (!scroller.value) return;
+  
+  try {
+    // Try using the scroller's scrollToItem method first (preferred for virtual scrollers)
+    if (typeof scroller.value.scrollToItem === 'function' && filteredMessages.value.length > 0) {
+      // Scroll to the last message
+      const lastItemIndex = filteredMessages.value.length - 1;
+      scroller.value.scrollToItem(lastItemIndex);
+      return;
+    }
+    
+    // Fallback: Get the scroller element and try direct scrolling
+    const scrollerElement = scroller.value.$el;
+    const scrollContainer = scrollerElement.querySelector('.vue-recycle-scroller__item-wrapper') || scrollerElement;
+    
+    if (scrollContainer) {
+      // Use smooth scrolling for better user experience
+      scrollContainer.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  } catch (error) {
+    console.error("Error scrolling to bottom:", error);
+  }
 }
+
+// Removed handleScroll function since we're using an always-visible button
 
 // Optimize the watcher to avoid deep watching the entire messages array
 watch(
@@ -260,5 +295,46 @@ onMounted(() => {
   width: 10px;
   height: 10px;
   animation: spin 1s infinite linear;
+}
+
+.scroll-to-bottom-btn {
+  position: fixed;
+  bottom: 80px; /* Position above input area */
+  right: 16px;
+  width: 36px; /* Smaller size to be less obtrusive */
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--surface-card, #ffffff); /* Match app theme */
+  color: var(--text-color-secondary, #64748b); /* Subtle color */
+  border: 1px solid var(--surface-border, #dee2e6);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  transition: all 0.2s ease;
+  opacity: 0.8; /* Slightly transparent */
+  
+  &:hover {
+    opacity: 1;
+    background-color: var(--surface-hover, #f8f9fa);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* PrimeIcons sizing */
+  i {
+    font-size: 1rem;
+  }
+  
+  /* Adjust for mobile */
+  @media (max-width: 600px) {
+    bottom: 90px; /* Move higher up to avoid the input area on mobile */
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    opacity: 0.7; /* Slightly more transparent on mobile */
+  }
 }
 </style>
