@@ -425,7 +425,7 @@ const menuItems = computed(() => {
                     </div>
                 </div>
                 
-                <div class="message-actions" v-if="item.role === 'user'">
+                <div class="action-buttons-row" v-if="item.role === 'user'">
                     <button class="action-button" @click="editMessage(item)" title="Edit">
                         <Pencil size="16" />
                     </button>
@@ -567,28 +567,42 @@ const menuItems = computed(() => {
         margin-left: auto;
         margin-right: 32px;
         background-color: #2a2a2a;
-        border-radius: 16px 16px 4px 16px;
+        background-image: linear-gradient(to bottom right, #2d2d35, #2a2a2a);
+        border-radius: 18px 18px 4px 18px;
         max-width: 50%;
-        padding: 4px;
+        padding: 6px 8px;
         margin-top: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.2s ease;
 
         @media (max-width: 600px) {
             max-width: 75%;
             margin-right: 16px;
             margin-top: 20px;
+            padding: 4px 6px;
+        }
+
+        &:hover {
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
         }
 
         &.high-constrast-mode {
-            background-color: rgba(47, 45, 68, 0.85);
-            border-radius: 12px;
+            background-color: rgba(47, 45, 68, 0.95);
+            background-image: linear-gradient(to bottom right, rgba(57, 53, 82, 0.95), rgba(47, 45, 68, 0.95));
+            border-radius: 14px;
             max-width: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .message-header {
-            padding: 6px 8px 2px;
+            padding: 6px 8px 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            margin-bottom: 2px;
 
             .message-header-content {
                 display: flex;
@@ -596,19 +610,16 @@ const menuItems = computed(() => {
                 
                 .p-avatar {
                     margin-right: 8px;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
                 }
             }
 
-            .message-actions {
+            .action-buttons-row {
                 display: flex;
                 gap: 4px;
-                opacity: 0;
-                transition: opacity 0.2s ease;
+                align-items: center;
+                margin-left: 12px;
             }
-        }
-
-        &:hover .message-actions {
-            opacity: 1;
         }
 
         .label:hover {
@@ -684,7 +695,8 @@ const menuItems = computed(() => {
         display: block;
         overflow-wrap: break-word;
         font-size: 0.95rem;
-        line-height: 1.5;
+        line-height: 1.6;
+        letter-spacing: 0.01em;
         
         @media (max-width: 600px) {
             padding: 10px 12px;
@@ -698,6 +710,7 @@ const menuItems = computed(() => {
             padding: 12px;
             font-size: 0.9rem;
             overflow-x: auto;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         code:not(pre code) {
@@ -708,37 +721,48 @@ const menuItems = computed(() => {
             font-size: 0.85rem;
         }
 
+        p {
+            margin: 0.5em 0;
+        }
+
         &[contenteditable='true'] {
             outline: none;
             outline: 2px solid #157474;
-            border-radius: 5px;
+            border-radius: 6px;
             text-align: left;
+            box-shadow: 0 0 0 1px rgba(21, 116, 116, 0.2), 
+                        0 0 8px rgba(21, 116, 116, 0.1);
+            padding: 14px 18px;
         }
     }
 }
 
 .action-button {
-    background: transparent;
+    background-color: rgba(255, 255, 255, 0.04);
     border: none;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     border-radius: 4px;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     padding: 0;
-
+    position: relative;
+    flex-shrink: 0;
+    
     &:hover {
         background-color: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.95);
         transform: translateY(-1px);
     }
     
     &:active {
         transform: translateY(0);
+        color: #157474;
+        background-color: rgba(21, 116, 116, 0.15);
     }
 }
 
