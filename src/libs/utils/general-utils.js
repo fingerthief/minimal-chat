@@ -1,6 +1,6 @@
 import Toastify from 'toastify-js';
 import 'toastify-js/src/toastify.css';
-import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles, selectedModel, localModelName, streamedMessageText } from '../state-management/state';
+import { isSidebarOpen, showConversationOptions, messages, sliderValue, isInteractModeOpen, pushToTalkMode, maxTokens, showStoredFiles, selectedModel, localModelName, streamedMessageText, isLoading } from '../state-management/state';
 import { addMessage } from '../conversation-management/message-processing';
 import { fetchTTSResponse } from '../api-access/gpt-api-access';
 export function sleep(ms) {
@@ -168,6 +168,56 @@ export function updateUIWrapper(content, autoScrollBottom = true, appendTextValu
   updateUI(content, messages.value, addMessage, autoScrollBottom, appendTextValue);
 }
 
+// Variable to track if user has manually scrolled
+let userHasManuallyScrolled = false;
+let lastScrollPosition = 0;
+let isAutoScrolling = false;
+
+// Function to detect if user has manually scrolled
+function setupScrollDetection() {
+  const messageList = document.querySelector('.message-list');
+  if (messageList) {
+    const scroller = messageList.querySelector('.scroller');
+    if (scroller) {
+      // Track scroll position changes
+      scroller.addEventListener('scroll', () => {
+        // Only count as manual scroll if we're not auto-scrolling and
+        // user has scrolled up more than 100px from bottom
+        if (!isAutoScrolling) {
+          const bottomPosition = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
+          if (bottomPosition > 100) {
+            userHasManuallyScrolled = true;
+          } else {
+            // If they scroll back to bottom, resume auto-scrolling
+            userHasManuallyScrolled = false;
+          }
+        }
+        lastScrollPosition = scroller.scrollTop;
+      }, { passive: true });
+      
+      // User initiated scrolling with wheel
+      scroller.addEventListener('wheel', () => {
+        if (isLoading.value) {
+          userHasManuallyScrolled = true;
+        }
+      }, { passive: true });
+      
+      // Touch devices
+      scroller.addEventListener('touchmove', () => {
+        if (isLoading.value) {
+          userHasManuallyScrolled = true;
+        }
+      }, { passive: true });
+    }
+  }
+}
+
+// Attempt to set up event listeners when the DOM is ready
+setTimeout(setupScrollDetection, 1000);
+
+// Try again shortly after in case the component wasn't rendered yet
+setTimeout(setupScrollDetection, 3000);
+
 export function updateUI(content, messages, addMessage, autoScrollBottom = true, appendTextValue = true) {
   const lastMessage = messages[messages.length - 1];
   
@@ -182,22 +232,36 @@ export function updateUI(content, messages, addMessage, autoScrollBottom = true,
 
     lastMessage.content[0].text += content;
     
-    // Attempt direct scrolling on update
-    setTimeout(() => {
-      try {
-        // Find main scrollable container
-        const messageList = document.querySelector('.message-list');
-        if (messageList) {
-          const scroller = messageList.querySelector('.scroller');
-          if (scroller) {
-            scroller.scrollTop = scroller.scrollHeight;
+    // Only auto-scroll if user hasn't manually scrolled
+    if (!userHasManuallyScrolled) {
+      setTimeout(() => {
+        try {
+          // Set flag to indicate we're auto-scrolling programmatically
+          isAutoScrolling = true;
+          
+          // Find main scrollable container
+          const messageList = document.querySelector('.message-list');
+          if (messageList) {
+            const scroller = messageList.querySelector('.scroller');
+            if (scroller) {
+              // Auto-scroll to bottom
+              scroller.scrollTop = scroller.scrollHeight;
+            }
           }
+          
+          // Reset auto-scrolling flag after a short delay
+          setTimeout(() => {
+            isAutoScrolling = false;
+          }, 50);
+        } catch (error) {
+          isAutoScrolling = false;
+          // Silent fail - no need to log these errors
         }
-      } catch (error) {
-        // Silent fail - no need to log these errors
-      }
-    }, 10);
+      }, 10);
+    }
   } else {
+    // Reset the scroll detection when a new message is added
+    userHasManuallyScrolled = false;
     addMessage('assistant', content);
   }
 }
