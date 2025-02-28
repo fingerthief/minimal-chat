@@ -293,7 +293,9 @@ function closeDialogs() {
       <div class="chat-container">
         <div class="container">
           <div class="chat">
-            <chatHeader :storedConversations="storedConversations" />
+            <chatHeader :storedConversations="storedConversations"
+                      @import-conversations="handleImportConversations"
+                      @export-conversations="handleExportConversations" />
             <div class="messages">
               <messageItem />
             </div>

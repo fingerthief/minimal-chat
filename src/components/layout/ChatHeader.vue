@@ -2,7 +2,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { Menu, Database, Github, Settings } from 'lucide-vue-next';
+import { Menu, Database, Github, Settings, Download, Upload } from 'lucide-vue-next';
 import { isSidebarOpen, showConversationOptions, selectedModel, showStoredFiles, availableModels, localModelName, modelDisplayName } from '@/libs/state-management/state';
 import ContextWindow from '@/components/controls/ContextWindow.vue';
 import Dropdown from 'primevue/dropdown';
@@ -16,7 +16,7 @@ const props = defineProps({
 
 const contextWindow = ref(null);
 
-const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation', 'change-model']);
+const emit = defineEmits(['toggle-sidebar', 'toggle-conversations', 'delete-conversation', 'new-conversation', 'change-model', 'import-conversations', 'export-conversations']);
 
 const showCustomModelDropdown = computed(() => selectedModel.value.includes('open-ai-format'));
 
@@ -62,6 +62,14 @@ const modelOptions = [
 function handleUpdate(field, value) {
   update(field, value);
 }
+
+function importConversations() {
+  emit('import-conversations');
+}
+
+function exportConversations() {
+  emit('export-conversations');
+}
 </script>
 
 <template>
@@ -97,7 +105,12 @@ function handleUpdate(field, value) {
       </div>
       
       <div class="header-actions">
-        <!-- Icons removed from desktop view -->
+        <button class="action-btn" @click="exportConversations" title="Export Conversations">
+          <Download size="20" />
+        </button>
+        <button class="action-btn" @click="importConversations" title="Import Conversations">
+          <Upload size="20" />
+        </button>
       </div>
     </div>
     
@@ -114,8 +127,11 @@ function handleUpdate(field, value) {
       </div>
       
       <div class="header-right">
-        <button class="action-btn" @click="() => showStoredFiles = true">
-          <Database size="22" />
+        <button class="action-btn" @click="exportConversations" title="Export Conversations">
+          <Download size="20" />
+        </button>
+        <button class="action-btn" @click="importConversations" title="Import Conversations">
+          <Upload size="20" />
         </button>
         <div class="context-action">
           <ContextWindow ref="contextWindow" />
@@ -158,7 +174,7 @@ $border-radius: 8px;
   background-color: $background-header;
   width: 100%;
   position: relative;
-  z-index: 2;
+  z-index: 1;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   border-bottom: 1px solid rgba($primary-color, 0.5);
 }

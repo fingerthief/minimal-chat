@@ -154,7 +154,7 @@
 
 <script setup>
 import InputField from '@/components/controls/InputField.vue';
-import { ChevronDown, ChevronRight, Trash2, Save, User, MessageSquare, Image, Eye, X } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Trash2, Save, User, MessageSquare, Image, Eye, X, Github } from 'lucide-vue-next';
 import { avatarShape, userAvatarUrl, isAvatarEnabled, avatarUrl, systemPrompt, selectedAutoSaveOption, higherContrastMessages } from '@/libs/state-management/state';
 import { handleUpdate, handleDeleteSystemPrompt, handleSelectSystemPrompt, selectedSystemPromptIndex, systemPrompts, handleSaveSystemPrompt } from '@/libs/utils/settings-utils';
 import SliderCheckbox from '../controls/SliderCheckbox.vue';
@@ -908,4 +908,5 @@ onBeforeMount(handleFetchStoredFiles);
     background-color: #222;
     color: #fff;
 }
+
 </style>

@@ -34,7 +34,7 @@ import {
 
 } from '@/libs/utils/settings-utils';
 import "swiped-events";
-import { ChevronDown, ChevronRight, Settings, Trash2, Menu, X, Database, Cpu, PlusCircle } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight, Settings, Trash2, Menu, X, Database, Cpu, PlusCircle, Github } from 'lucide-vue-next';
 
 // Visibility states for collapsible config sections
 const isClaudeConfigOpen = ref(false);
@@ -314,6 +314,21 @@ onMounted(() => {
                     <div v-if="showingGeneralConfig">
                         <GeneralConfigSection />
                         <ImportExportConfigSection />
+                        
+                        <!-- GitHub repository section -->
+                        <div class="github-section">
+                            <a href="https://github.com/fingerthief/minimal-chat" target="_blank" class="github-link">
+                                <div class="github-content">
+                                    <div class="github-icon">
+                                        <Github size="22" />
+                                    </div>
+                                    <div class="github-info">
+                                        <h4>Minimal Chat</h4>
+                                        <p>View source code on GitHub</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                     <div v-if="selectedModel === 'open-ai-format' && !showingGeneralConfig">
                         <LocalConfigSection />
@@ -1469,6 +1484,58 @@ $bottom-panel-border-color: #5f4575cf;
     
     &:hover svg {
         transform: scale(1.1);
+    }
+}
+
+/* GitHub section styles */
+.github-section {
+    margin: 20px 0;
+    
+    .github-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .github-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background-color: rgba(16, 56, 51, 0.1);
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        
+        &:hover {
+            background-color: rgba(21, 116, 116, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .github-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #157474;
+            background-color: rgba(21, 116, 116, 0.1);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+        }
+        
+        .github-info {
+            h4 {
+                margin: 0 0 5px 0;
+                font-size: 16px;
+                font-weight: 600;
+            }
+            
+            p {
+                margin: 0;
+                font-size: 14px;
+                color: #9fa6ac;
+            }
+        }
     }
 }
 </style>

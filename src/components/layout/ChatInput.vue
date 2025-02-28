@@ -227,7 +227,7 @@ $border-color: rgba(112, 112, 112, 0.53);
   margin-left: auto;
   margin-right: auto;
   /* Positioned between message list but below overlay/dialogs */
-  z-index: 0.9;
+  z-index: 0.5;
   
   /* For desktop screens */
   @media (min-width: 601px) {
@@ -267,7 +267,7 @@ $border-color: rgba(112, 112, 112, 0.53);
     right: 16px;
     height: 100%;
     padding-right: 4px;
-    z-index: 2;
+    z-index: 1;
   }
 
   .image-button,
@@ -420,7 +420,7 @@ $border-color: rgba(112, 112, 112, 0.53);
   position: fixed;
   bottom: 10px;
   right: 10px;
-  z-index: 1000;
+  z-index: 1;
   padding: 10px 20px;
   background-color: $primary-color;
   color: white;

@@ -2,6 +2,7 @@
 import { onMounted, ref, nextTick, computed } from 'vue';
 import { Plus, Eraser, Download, Upload, MessageSquareX, Settings, Pencil, Database, Trash, MoreHorizontal, Github, MessageSquare, X, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ToolTip from '../controls/ToolTip.vue';
+import ConfirmationDialog from '../controls/ConfirmationDialog.vue';
 import {
   conversations,
   selectedConversation,
@@ -22,8 +23,8 @@ import { selectConversation } from '@/libs/conversation-management/conversations
 // State
 const loadedConversation = ref({});
 let initialConversation = '';
-const showContextMenu = ref(false);
 const isCollapsed = ref(false);
+const showPurgeConfirmation = ref(false);
 
 // Emits
 const emit = defineEmits(['import-conversations', 'export-conversations']);
@@ -176,20 +177,22 @@ function exportConversations() {
 }
 
 function purgeConversations() {
-  if (confirm("Are you sure you want to delete all conversations?")) {
-    localStorage.removeItem('conversations');
-    storedConversations.value = [];
-    conversations.value = [];
-    messages.value = [];
-    selectedConversation.value = null;
-    lastLoadedConversationId.value = 0;
-    // Set a reasonable delay to allow the animation to complete
-    setTimeout(() => {
-      saveMessagesHandler();
-    }, 300);
+  showPurgeConfirmation.value = true;
+}
 
-    showToast('All Conversations Purged');
-  }
+function confirmPurge() {
+  localStorage.removeItem('conversations');
+  storedConversations.value = [];
+  conversations.value = [];
+  messages.value = [];
+  selectedConversation.value = null;
+  lastLoadedConversationId.value = 0;
+  // Set a reasonable delay to allow the animation to complete
+  setTimeout(() => {
+    saveMessagesHandler();
+  }, 300);
+
+  showToast('All Conversations Purged');
 }
 
 function deleteConversation(conversationId) {
@@ -231,21 +234,21 @@ function deleteConversation(conversationId) {
 }
 
 
-const contextMenuVisible = ref(false);
-
-function toggleContextMenu() {
-  if (contextMenuVisible.value) {
-    contextMenuVisible.value = false;
-    setTimeout(() => {
-      showContextMenu.value = false;
-    }, 200); // Duration of the closing animation
-  } else {
-    showContextMenu.value = true;
-    nextTick(() => {
-      contextMenuVisible.value = true;
-    });
-  }
-}
+// No longer needed as we've moved the menu options to direct buttons
+// const contextMenuVisible = ref(false);
+// function toggleContextMenu() {
+//   if (contextMenuVisible.value) {
+//     contextMenuVisible.value = false;
+//     setTimeout(() => {
+//       showContextMenu.value = false;
+//     }, 200); // Duration of the closing animation
+//   } else {
+//     showContextMenu.value = true;
+//     nextTick(() => {
+//       contextMenuVisible.value = true;
+//     });
+//   }
+// }
 
 const modelTypes = [
   { name: 'claude', display: 'MinimalClaude' },
@@ -269,6 +272,16 @@ function toggleConversations() {
 
 <template>
   <div class="conversations-dialog" :class="{ 'collapsed': isCollapsed && !isSmallScreen }">
+    <!-- Purge Confirmation Dialog -->
+    <ConfirmationDialog
+      v-model:visible="showPurgeConfirmation"
+      title="Purge Conversations"
+      message="Are you sure you want to delete all conversations? This action cannot be undone."
+      confirmLabel="Delete All"
+      cancelLabel="Cancel"
+      :isWarning="true"
+      @confirm="confirmPurge"
+    />
     <!-- Header Bar -->
     <div class="dialog-header">
       <div class="header-left">
@@ -292,37 +305,26 @@ function toggleConversations() {
           </button>
           <ToolTip :targetId="'stored-Files'">View Stored Files</ToolTip>
           
-          <a class="github-link" href="https://github.com/fingerthief/minimal-chat" target="_blank" title="GitHub">
-            <Github :size="20" />
-          </a>
+          <button class="action-btn" @click="purgeConversations" id="purge-conversations" title="Purge Conversations">
+            <Eraser :size="20" />
+          </button>
+          <ToolTip :targetId="'purge-conversations'">Purge Conversations</ToolTip>
           
           <button class="action-btn" @click="() => isSidebarOpen = true" title="Settings">
             <Settings :size="20" />
           </button>
         </div>
         
-        <!-- Menu button -->
-        <button class="action-btn menu-btn" @click="toggleContextMenu" id="contextMenu">
-          <MoreHorizontal :size="20" />
-        </button>
-        
-        <!-- Dropdown menu -->
-        <transition name="fade-slide">
-          <div v-show="showContextMenu" class="context-menu-dropdown">
-            <div class="menu-item" @click="purgeConversations" id="purgeConversations">
-              <Eraser :size="18" />
-              <span>Purge Conversations</span>
-            </div>
-            <div class="menu-item" @click="exportConversations" id="exportConversations">
-              <Download :size="18" />
-              <span>Export Conversations</span>
-            </div>
-            <div class="menu-item" @click="importConversations" id="importConversations">
-              <Upload :size="18" />
-              <span>Import Conversations</span>
-            </div>
-          </div>
-        </transition>
+        <!-- Mobile actions - simplified with direct buttons -->
+        <div v-if="isSmallScreen" class="mobile-quick-actions">
+          <button class="action-btn" @click="purgeConversations" title="Purge Conversations">
+            <Eraser :size="20" />
+          </button>
+          
+          <button class="action-btn" @click="() => isSidebarOpen = true" title="Settings">
+            <Settings :size="20" />
+          </button>
+        </div>
       </div>
     </div>
     
@@ -502,7 +504,7 @@ $transition-speed: 0.2s;
           }
         }
         
-        .menu-btn, .context-menu-dropdown {
+        .mobile-quick-actions {
           display: none;
         }
       }
@@ -657,43 +659,17 @@ $transition-speed: 0.2s;
       }
     }
     
-    .menu-btn {
-      position: relative;
-      z-index: 11;
-    }
-    
-    // Dropdown menu
-    .context-menu-dropdown {
-      position: absolute;
-      top: 40px;
-      right: 0;
-      background-color: $bg-darker;
-      border: 1px solid rgba($primary-color, 0.3);
-      border-radius: $border-radius;
-      width: 200px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      z-index: 10;
-      overflow: hidden;
+    // Mobile quick actions
+    .mobile-quick-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       
-      .menu-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 16px;
-        transition: background-color $transition-speed ease;
-        cursor: pointer;
+      .action-btn {
+        padding: 5px;
         
         &:hover {
           background-color: rgba($primary-color, 0.15);
-        }
-        
-        svg {
-          color: $primary-color;
-          opacity: 0.9;
-        }
-        
-        span {
-          font-size: 14px;
         }
       }
     }
